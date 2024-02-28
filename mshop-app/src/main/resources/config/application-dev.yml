@@ -1,0 +1,205 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    druid:
+      # todo 主库数据源
+      master:
+        url: jdbc:mysql://xx.xx.32.56:3306/mshop?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
+        username: mshop
+        password: xxxx
+      # 从库数据源
+      slave:
+        # 从数据源开关/默认关闭
+        enabled: false
+        url:
+        username:
+        password:
+      # 初始连接数
+      initialSize: 5
+      # 最小连接池数量
+      minIdle: 10
+      # 最大连接池数量
+      maxActive: 20
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      # 配置一个连接在池中最大生存的时间，单位是毫秒
+      maxEvictableIdleTimeMillis: 900000
+      # 配置检测连接是否有效
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      statViewServlet:
+        enabled: true
+        url-pattern: /monitor/druid/*
+      filter:
+        stat:
+          # 慢SQL记录
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: true
+        wall:
+          config:
+            multi-statement-allow: true
+  redis:
+    host: xx.xxx.114.157 # todo Redis服务器地址
+    database: 2 # Redis数据库索引（默认为0）
+    port: 6379 # Redis服务器连接端口
+    password: xxxx # todo Redis服务器连接密码（默认为空）
+    jedis:
+      pool:
+        max-active: 8 # 连接池最大连接数（使用负值表示没有限制）
+        max-wait: -1ms # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-idle: 8 # 连接池中的最大空闲连接
+        min-idle: 0 # 连接池中的最小空闲连接
+    timeout: 3000ms # 连接超时时间（毫秒）
+  cache:
+    # spring cache 缓存类型为redis  也可以是其他的实现
+    type: redis
+
+mshop:
+  version: 3.3
+  security:
+    jwt-key: mshopmini
+    #在线30天
+    token-expired-in: 2592000
+
+# 是否限制单用户登录
+single:
+  login: true
+
+#是否开启 swagger-ui
+swagger:
+  enabled: true
+  title: mshop商城移动端API
+  serverUrl: http://localhost:8009
+  version: 3.3
+
+# 文件存储路径
+file:
+  path: /home/mshop/file/
+  avatar: /home/mshop/avatar/
+  # 文件大小 /M
+  maxSize: 100
+  avatarMaxSize: 5
+
+# todo 大淘客key
+dataoke:
+  key: xxxxxxeb094a5
+  secret: xxxxxxcee4a4b9579561ec0722cbd734
+# todo 好单库key
+haodanku:
+  key: xxxxxxE08805
+  waimaiKey: xxxxxxE08805
+  # todo 好单库付费key
+  vip:
+    appId: xxxxxx66
+    appSecret: xxxxxxa8531d98c0041cb41435866da7
+
+#阿里云 OSS，用于存放头像图片等
+aliyun:
+  ocr:
+    # 支付宝人脸文件保存路径
+    path: /usr/ocr/
+    # todo 阿里开放平台 AES加密密钥
+    encryptKey: xxxxxxj4JO8lTQKc3eiQlA==
+  oss:
+    file:
+      #todo 阿里oss
+      endpoint: oss-cn-shanghai.aliyuncs.com
+      keyid: xxxxxxGXis7oxxxxxxr2D9uF
+      keysecret: xxxxxxfDuuuxxxxxxzA4D1rGywARr8
+      bucketname: xxxxxx
+      domain: "https://oss.xxx.cn/"
+      avatar: "sfb/avatar/"
+      card: "sfb/card/"
+  # todo 阿里云短信
+  sms:
+    accessKey: "xxxxxxZHJxxxxxxc"
+    accessSecret: "xxxxxxtQfBh7HtrF5KxxxxxxM0BjSp"
+    sign: "苏分宝"
+    templateId: "SMS_167xxxxxx"
+# todo 拼多多开放平台key
+pdd:
+  clientId: xxxxxxe0e3b94b52bad28xxxxxxe9c0f
+  clientSecret: xxxxxxa8e131687f1aac5af282xxxxxx99c92639
+  pid: "1784892_252288888"
+# todo 淘宝联盟key
+tb:
+  appKey: xxxx3230
+  appSecret: xxxxxxe76575eddfeebxxxxxx8f0f2d2
+  url: https://eco.taobao.com/router/rest
+  # todo 淘宝渠道邀请码
+  inviterCode: XSJL93
+  pid:
+    # 排除的pid，排除后订单不会保存到数据库
+    excludes: 110957850490,147894334
+    # todo 渠道pid
+    channelPid: mm_52650383_39582271_114587650437
+# todo 极光推送
+jpush:
+  key: xxxxxxdeec4ebxxxxxx31551
+  secret: xxxxxxdd29fa3xxxxxx922f8
+# todo 京东联盟key
+jd:
+  appKey: xxxxxx4a54919f7e5axxxxxx8436301
+  appSecret: xxxxxxc5a8bc432682xxxxxxe638cb06
+  server: https://api.jd.com/routerjson
+  siteId: 41xxxxxx62
+  unionId: 10xxxxxx54
+  #每年替换一次
+  key: e420xxxxxxb9f8e29ebdee4bfd747b073171892939124xxxxxx252917d117dcc8d858692b111d138
+# todo 闪验一键登录 注册地址https://www.chuanglan.com/control/login
+shanyan:
+  android:
+    appId: xxxxSRFn
+    appKey: xxxx5Dq2
+  ios:
+    appId: xxxxIUqo
+    appKey: xxxxyZGG
+  url:
+    login: "https://api.253.com/open/flashsdk/mobile-query"
+# todo 合同签署流程，不需要可以不配置
+shop:
+  #合同地址
+  contractUrl: "https://xxx.oss-cn-shanghai.aliyuncs.com/sfb/contract/contract.docx"
+  #公章地址
+  sealUrl: "https://xxx.oss-cn-shanghai.aliyuncs.com/sfb/contract/seal.png"
+  licenseUrl: "https://xxx.oss-cn-shanghai.aliyuncs.com/sfb/contract/license.xml"
+  #合同本地存放路径
+  localPath: "E:/contract/"
+  convertContract: false
+
+#app多平台支持 一般不用设置
+pay:
+  adapay:
+    payMode: "delay"
+  goods:
+    title: "SufenbaoService"
+    desc: "SufenbaoService"
+  name: "sfb"
+# todo 微信开放平台key
+wx:
+  app:
+    appId: "wx13xxxxxxbbxxxxxx0"
+    secret: "0xxxxxx8b50623cxxxxxx1f3f737af48"
+  #todo 微信支付
+  pay:
+    mchId: "14xxxxxx72"
+    mchKey: "VIgxxxxxxJZbnW7b0EYnEQMcp9vJStjR"
+    mchCertPath: "/www/wwwroot/mshop/apiclient_cert.p12"
+# todo 饿了么key
+ele:
+  api: https://eco.taobao.com/router/rest
+  appKey: 34xxxx21
+  appSecret: 122exxxxxx3d4cbd741xxxxxxab0fc72
+# 美团外卖联盟key
+meituan:
+  appKey: VZdxxxxxxn1wxMXn
+  utmSource: 12xx66
+  promotionId: 26xx24

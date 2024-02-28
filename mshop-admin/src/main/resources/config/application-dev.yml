@@ -1,0 +1,227 @@
+#配置数据源
+spring:
+  application:
+    name: mshop-system
+  datasource:
+    druid:
+      type: com.alibaba.druid.pool.DruidDataSource
+      driverClassName: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://xx.xx.32.56:3306/mshop?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&zeroDateTimeBehavior=convertToNull&rewriteBatchedStatements=true
+      username: mshop
+      password: xxxx
+
+      # 初始连接数
+      initialSize: 5
+      # 最小连接池数量
+      minIdle: 10
+      # 最大连接池数量
+      maxActive: 20
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      # 配置一个连接在池中最大生存的时间，单位是毫秒
+      maxEvictableIdleTimeMillis: 900000
+      # 配置检测连接是否有效
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      webStatFilter:
+        enabled: true
+      statViewServlet:
+        enabled: true
+        # 设置白名单，不填则允许所有访问
+        allow:
+        url-pattern: /druid/*
+        # 控制台管理用户名和密码
+        login-username: admin
+        login-password: 123456
+      filter:
+        stat:
+          enabled: true
+          # 慢SQL记录
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: true
+        wall:
+          config:
+            multi-statement-allow: true
+  redis:
+    #数据库索引
+    database: 2
+    host: xx.xxx.114.157 # todo Redis服务器地址
+    port: 6379 # Redis服务器连接端口
+    password: xxxx # todo Redis服务器连接密码（默认为空）
+    #连接超时时间
+    timeout: 5000
+
+# 是否限制单用户登录
+single:
+  login: false
+
+#jwt
+jwt:
+  header: Authorization
+  # 令牌前缀
+  token-start-with: Bearer
+  secret: k09BQnaF
+  # todo 必须使用最少88位的Base64对该令牌进行编码
+  base64-secret: ZmQ0ZGI5NjQ0MDQwY2I4MjMxY2Y3ZmI3MjdhN2ZmMjNhODViOTg1ZGE0NTBjMGM4NDA5NzYxMjdjOWMwYWRmZTBlZjlhNGY3ZTg4Y2U3YTE1ODVkZDU5Y2Y3OGYwZWE1NzUzNWQ2YjFjZDc0NGMxZWU2MmQ3MjY1NzJmNTE0MzI=
+  # 令牌过期时间 此处单位/毫秒 ，默认4小时，可在此网站生成 https://www.convertworld.com/zh-hans/time/milliseconds.html
+  token-validity-in-seconds: 57600000
+  # 在线用户key
+  online-key: online-token
+  # 验证码
+  code-key: code-key
+
+#是否允许生成代码，生产环境设置为false
+generator:
+  enabled: true
+
+#是否开启 swagger-ui
+swagger:
+  enabled: true
+  title: mshop商城管理后台API
+  serverUrl:
+  version: 3.3
+
+# 文件存储路径
+file:
+  path: D:\mshop\file\
+  avatar: D:\mshop\avatar\
+  # 文件大小 /M
+  maxSize: 100
+  avatarMaxSize: 5
+
+# todo 大淘客开放平台key和密钥，最好和mshop-app中的不一致，防止订单采集耗空调用量
+dataoke:
+  key: xxxxxxeb094a5
+  secret: xxxxxxcee4a4b9579561ec0722cbd734
+  cmsUrl: https://cmscg.dataoke.com/cms-v2
+  apiUrl: https://openapi.dataoke.com/api
+# todo 好单库开放平台key
+haodanku:
+  key: xxxxxxE08805
+  waimaiKey: xxxxxxE08805
+  # todo 好单库付费key
+  vip:
+    appId: xxxxxx66
+    appSecret: xxxxxxa8531d98c0041cb41435866da7
+#阿里云 OSS，用于存放头像图片等
+aliyun:
+  ocr:
+    # 支付宝人脸文件保存路径
+    path: /usr/ocr/
+    # todo 阿里开放平台 AES加密密钥
+    encryptKey: xxxxxxj4JO8lTQKc3eiQlA==
+  oss:
+    file:
+      #todo 阿里oss
+      endpoint: oss-cn-shanghai.aliyuncs.com
+      keyid: xxxxxxGXis7oxxxxxxr2D9uF
+      keysecret: xxxxxxfDuuuxxxxxxzA4D1rGywARr8
+      bucketname: xxxxxx
+      domain: "https://oss.xxx.cn/"
+      avatar: "sfb/avatar/"
+      card: "sfb/card/"
+  # todo 阿里云短信
+  sms:
+    accessKey: "xxxxxxZHJxxxxxxc"
+    accessSecret: "xxxxxxtQfBh7HtrF5KxxxxxxM0BjSp"
+    sign: "苏分宝"
+    templateId: "SMS_167961837"
+# todo 拼多多开放平台key
+pdd:
+  clientId: xxxxxxe0e3b94b52bad28xxxxxxe9c0f
+  clientSecret: xxxxxxa8e131687f1aac5af282xxxxxx99c92639
+  pid: 1784892_252288888
+# todo 淘宝联盟key
+tb:
+  appKey: xxxx3230
+  appSecret: xxxxxxe76575eddfeebxxxxxx8f0f2d2
+  url: https://eco.taobao.com/router/rest
+  # todo 淘宝渠道邀请码
+  inviterCode: XSJL93
+  pid:
+    # todo 渠道pid
+    channelPid: mm_52650383_39582271_114587650437
+    # 排除的pid，排除后订单不会保存到数据库
+    excludes: 110957850490,147894334
+    #todo 动态pid配置，用户未授权渠道时，用这些pid追单
+    pool:
+      - mm_52650383_39582271_114498650344
+      - mm_52650383_39582271_114502950010
+      - mm_52650383_39582271_114501100159
+      - mm_52650383_39582271_114498800333
+      - mm_52650383_39582271_114499000336
+# todo 极光推送
+jpush:
+  key: xxxxxxdeec4ebxxxxxx31551
+  secret: xxxxxxdd29fa3xxxxxx922f8
+# todo 京东联盟key
+jd:
+  appKey: xxxxxx4a54919f7e5axxxxxx8436301
+  appSecret: xxxxxxc5a8bc432682xxxxxxe638cb06
+  server: https://api.jd.com/routerjson
+  siteId: 41xxxxxx62
+  unionId: 10xxxxxx54
+  #每年替换一次
+  key: e420xxxxxxb9f8e29ebdee4bfd747b073171892939124xxxxxx252917d117dcc8d858692b111d138
+# todo 合同签署流程，不需要可以不配置
+shop:
+  #合同地址
+  contractUrl: "https://xxx.oss-cn-shanghai.aliyuncs.com/sfb/contract/contract.docx"
+  #公章地址
+  sealUrl: "https://xxx.oss-cn-shanghai.aliyuncs.com/sfb/contract/seal.png"
+  licenseUrl: "https://xxx.oss-cn-shanghai.aliyuncs.com/sfb/contract/license.xml"
+  #合同本地存放路径
+  localPath: "E:/contract/"
+  convertContract: false
+
+#app多平台支持 一般不用设置
+pay:
+  adapay:
+    payMode: "delay"
+  goods:
+    title: "SufenbaoService"
+    desc: "SufenbaoService"
+  name: "sfb"
+# todo 微信开放平台key
+wx:
+  app:
+    appId: "wx13xxxxxxbbxxxxxx0"
+    secret: "0xxxxxx8b50623cxxxxxx1f3f737af48"
+  #todo 微信支付
+  pay:
+    mchId: "14xxxxxx72"
+    mchKey: "VIgxxxxxxJZbnW7b0EYnEQMcp9vJStjR"
+    mchCertPath: "/www/wwwroot/mshop/apiclient_cert.p12"
+quartz:
+  #todo 当部署多个管理端时，只有一个设置为true
+  main: true
+  #表明这些task只在一台管理端执行
+  full:
+    - tbOrderCollectionTask
+    - tbOrderHistoryCollectionTask
+    - jdOrderCollectionTask
+    - jdOrderHistoryCollectionTask
+    - pddOrderCollectionTask
+    - pddOrderHistoryCollectionTask
+    - dyOrderCollectionTask
+    - dyOrderHistoryCollectionTask
+    - vipOrderCollectionTask
+    - vipOrderHistoryCollectionTask
+    - tbOrderBindTask
+    - pidPoolTask
+ele:
+  api: https://eco.taobao.com/router/rest
+  appKey: 34xxxx21
+  appSecret: 122exxxxxx3d4cbd741xxxxxxab0fc72
+# 美团外卖联盟key
+meituan:
+  appKey: VZdxxxxxxn1wxMXn
+  utmSource: 12xx66
+  promotionId: 26xx24

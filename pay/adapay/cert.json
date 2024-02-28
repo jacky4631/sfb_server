@@ -1,0 +1,14 @@
+
+证书信息
+{
+  "merchantKey": "",//自定义名称 建议adapay-alipay-1
+  "appId": "",
+  "payChannel": "alipay",
+  "apiKey": "",
+  "mockApiKey": "",
+  "rsaPrivateKey":"",
+  "debug": true,
+  "prodMode": true
+}
+回调地址
+https://app.xxx.com/api/pay/notify/ada

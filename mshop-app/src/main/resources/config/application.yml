@@ -1,0 +1,108 @@
+server:
+  port: 8008
+  servlet:
+    context-path: /api
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  tomcat:
+    uri-encoding: UTF-8
+
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  main:
+    allow-circular-references: true
+  freemarker:
+    check-template-location: false
+  profiles:
+    active: dev
+  jackson:
+    time-zone: GMT+8
+  data:
+    redis:
+      repositories:
+        enabled: false
+  #配置 Jpa
+#  jpa:
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+#    open-in-view: true
+
+#密码加密传输，前端公钥加密，后端私钥解密
+rsa:
+  private_key: MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBANiJ80YuMP/sgu6MI95MCHRqdXN7/ZC/rkz1GlxTq5jqQnrsYMR1NnB5kiH4TecAVlD14sX7fk2eH1bZ0Q59sl/3j2wrp5Wg7wT5QvVMwHdCkyzquaDousMIM0E7sJ23TmaWf6UCAsVsOk57eHvonG+3MLNP8jkRSQ2QdAFAJxk3AgMBAAECgYAFnD1jWhsG5nfV+meLgOjPK1rzrQi60VyQveD692gAxEEIsksni+nnLB8vJiHOlGGoI1bGzmdNV4V0WJxkBbmzWpoUN/JaoAXdzBAzNeHdgMiTxg6TtqdY8pyOmJVlDX17/ts4PbrWmhFWWzOYPhusQs9cE5BJsLalg5Kv/FNbgQJBAPwSCyCAm372nY7a7ncVu0xUO4FK6/ISsOGQVADz22P5Ezry8WjRtbfmbmkJlf5KLbIfdJJpHb4xGrwWZ1gprNcCQQDb6huwAOXfjzJbVIlinxEyij3nuJ3ckJyPV6nQ5roM/t0bI+eewgxAP06nGHFEfeydGKZT8dm9yOnAIfbtNwqhAkActVFfGkabZyr6oiSWm3sBbnZ4ezf0EfzjM7TdhuhtsmhmRlUIQxoXH79jZxwWIgyiRMLaCe7BQoZw9Xw/pj9xAkBJXO0FpxcIoHW1IBuA6f3LtXB3aBBJr3h7HUyKYx44DaHnVvAC90ss97GebroCllukAMAkCu+Pr4HDVdFRS2ZhAkEA0TBO0SWtabiiHoAHrADX3qbMosq3lOEPTRHBNk+/P+E/tGE+FD13Hj9XplNGjTDfv43zZ4h3s6cV1n2QtBsy5g==
+#  public_key: MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDYifNGLjD/7ILujCPeTAh0anVze/2Qv65M9RpcU6uY6kJ67GDEdTZweZIh+E3nAFZQ9eLF+35Nnh9W2dEOfbJf949sK6eVoO8E+UL1TMB3QpMs6rmg6LrDCDNBO7Cdt05mln+lAgLFbDpOe3h76JxvtzCzT/I5EUkNkHQBQCcZNwIDAQAB
+aes:
+  #AES加密密钥
+  encryptKey: LwGop09aXXXXXXZNzaihBY==
+
+
+
+
+#七牛云
+qiniu:
+  # 文件大小 /M
+  max-size: 15
+
+#邮箱验证码有效时间/分钟
+code:
+  expiration: 5
+
+#登录图形验证码有效时间/分钟
+loginCode:
+  expiration: 2
+
+mybatis-plus:
+  check-config-location: true
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+#  mapper-locations: classpath*:mapper/**/*Mapper.xml
+
+logging:
+  level:
+    com.mailvor: DEBUG
+    org.springframework.web: DEBUG
+    com.github.binarywang.demo.wx.mp: DEBUG
+    me.chanjar.weixin: DEBUG
+
+
+
+
+
+mshop:
+  #相关配置
+  version: 3.3
+
+# 防止XSS攻击
+xss:
+  # 过滤开关
+  enabled: true
+  # 排除链接（多个用逗号分隔）
+  excludes:
+  # 匹配链接
+  urlPatterns:
+
+jwt:
+  header: Authorization
+  # 令牌前缀
+  token-start-with: Bearer
+  online-key: mshopapp
+
+
+# sm.ms 图床的 token
+smms:
+  token: 1oOP3ykFDI0K6ifmtvU7c8Y1eTWZSlyl
+
+pay:
+  adapay:
+    payMode: "delay"
+

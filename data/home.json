@@ -1,0 +1,26 @@
+app分享 首页红包弹窗等
+redis key:  url:home
+
+"skipCode":"1" 注册跳过邀请码
+
+{
+  "@type": "com.alibaba.fastjson.JSONObject",
+  "kuCid": "FazG6352",
+  "share": "https://dianlb903.kuaizhan.com/3083083322",
+  "shareGoods": "https://dianlb903.kuaizhan.com/1386038537",
+  "alired": "763052262",
+  "huodong": {
+    "@type": "com.alibaba.fastjson.JSONObject",
+    "img": "https://img.alicdn.com/imgextra/i4/2053469401/O1CN01UByNgM2JJiCdivYu8_!!2053469401.png",
+    "color": "9A34FF",
+    "webUrl": "https://jkj.xxx.com/?cid=SqmG97V#/propaganda?id=813",
+    "title": "双11红包",
+    "url": "https://s.click.taobao.com/kXEoMSu"
+  },
+  "contract_preview_url":"https://xxx.oss-cn-shanghai.aliyuncs.com/dlb/contract/contractblank.pdf",
+  "shareContent": "推荐这个APP给你，这款连衣裙，我拿了18件，全卖了，无货源开店，日更4000+商品！\n━┉┉┉┉∞┉┉┉┉━\n下载地址：#url#\n━┉┉┉┉∞┉┉┉┉━\n#code#或应用市场搜索【#APPNAME#】下载注册",
+  "yeePaySuccUrl": "https://cash.yeepay.com/newwap/pages/mobile/success",
+  "yeePayFailUrl": "https://cash.yeepay.com/newwap/pages/mobile/fail",
+  "skipCode":"1"
+}
+

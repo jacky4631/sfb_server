@@ -1,0 +1,19 @@
+app提现页面配置
+redis key:  extract_config
+        weixin:1代表显示微信提现 0不显示
+        提现最低金额设置使用：user_extract_min_price
+        提现最高金额还需要设置：user_extract_max_price
+        charge 提现手续费
+{
+"@type": "com.alibaba.fastjson.JSONObject",
+"extractIntervalDesc": "每天可提现一次",
+"extractMinDesc": "满1元可提现",
+"extractFeeDesc": "T+1天到账(5%手续费，T为工作日)",
+"extractMax": "2000",
+"extractMin": "1",
+"weixin": "0",
+"alipay": "1",
+"bank": "1",
+"charge":"5"
+}
+

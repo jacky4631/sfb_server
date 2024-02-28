@@ -1,0 +1,12 @@
+在redis中新增key
+
+redis key: auth:code:ope111
+
+设置密码的MD5
+xxx555555
+value "上面密码的md5值"
+
+修改用户信息用到的密码
+redis key:  auth:code:ope222
+xxx159753
+"BEB59A8AF10D319C2D69AA00D9A92FAC"

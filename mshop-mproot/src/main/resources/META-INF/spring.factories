@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.mailvor.config.MetaHandler,\
+    com.mailvor.config.MybatisConfig

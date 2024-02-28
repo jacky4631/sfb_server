@@ -1,0 +1,15 @@
+app支付的同时直接分账配置
+redis key:  pay_extract_config
+
+
+        enabled 1=开启 0=关闭
+scale 用于用户分账的比例，其他分账到账号0 目前只能有20%可用于分账，其他分到余额
+        payMode delay延时 不能存在div_members 需要在支付回调成功时创建支付确认对象，存入div_members
+                为空是实时分账，需要div_members
+{
+"@type": "com.alibaba.fastjson.JSONObject",
+"enabled": "1",
+"scale": "20",
+"payMode": "delay"
+}
+

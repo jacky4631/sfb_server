@@ -1,0 +1,84 @@
+server:
+  port: 8001
+
+spring:
+  main:
+    allow-circular-references: true
+  freemarker:
+    check-template-location: false
+  profiles:
+    active: dev
+  jackson:
+    time-zone: GMT+8
+  data:
+    redis:
+      repositories:
+        enabled: false
+
+task:
+  pool:
+    # 核心线程池大小
+    core-pool-size: 10
+    # 最大线程数
+    max-pool-size: 30
+    # 活跃时间
+    keep-alive-seconds: 60
+    # 队列容量
+    queue-capacity: 50
+
+#七牛云
+qiniu:
+  # 文件大小 /M
+  max-size: 15
+
+#邮箱验证码有效时间/分钟
+code:
+  expiration: 5
+
+#登录图形验证码有效时间/分钟
+loginCode:
+  expiration: 2
+
+#密码加密传输，前端公钥加密，后端私钥解密
+rsa:
+  private_key: MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBANiJ80YuMP/sgu6MI95MCHRqdXN7/ZC/rkz1GlxTq5jqQnrsYMR1NnB5kiH4TecAVlD14sX7fk2eH1bZ0Q59sl/3j2wrp5Wg7wT5QvVMwHdCkyzquaDousMIM0E7sJ23TmaWf6UCAsVsOk57eHvonG+3MLNP8jkRSQ2QdAFAJxk3AgMBAAECgYAFnD1jWhsG5nfV+meLgOjPK1rzrQi60VyQveD692gAxEEIsksni+nnLB8vJiHOlGGoI1bGzmdNV4V0WJxkBbmzWpoUN/JaoAXdzBAzNeHdgMiTxg6TtqdY8pyOmJVlDX17/ts4PbrWmhFWWzOYPhusQs9cE5BJsLalg5Kv/FNbgQJBAPwSCyCAm372nY7a7ncVu0xUO4FK6/ISsOGQVADz22P5Ezry8WjRtbfmbmkJlf5KLbIfdJJpHb4xGrwWZ1gprNcCQQDb6huwAOXfjzJbVIlinxEyij3nuJ3ckJyPV6nQ5roM/t0bI+eewgxAP06nGHFEfeydGKZT8dm9yOnAIfbtNwqhAkActVFfGkabZyr6oiSWm3sBbnZ4ezf0EfzjM7TdhuhtsmhmRlUIQxoXH79jZxwWIgyiRMLaCe7BQoZw9Xw/pj9xAkBJXO0FpxcIoHW1IBuA6f3LtXB3aBBJr3h7HUyKYx44DaHnVvAC90ss97GebroCllukAMAkCu+Pr4HDVdFRS2ZhAkEA0TBO0SWtabiiHoAHrADX3qbMosq3lOEPTRHBNk+/P+E/tGE+FD13Hj9XplNGjTDfv43zZ4h3s6cV1n2QtBsy5g==
+aes:
+  #AES加密密钥
+  encryptKey: LwGop09a6XXXXXXNzaihBY==
+
+# sm.ms 图床的 token
+smms:
+  token: 1oOP3ykFDI0K6ifmtvU7c8Y1eTWZSlyl
+
+mshop:
+  # 配置
+  version: 3.3
+  apiUrl: http://127.0.0.1:8009/api
+
+logging:
+  level:
+    com.mailvor: DEBUG
+    org.springframework.web: DEBUG
+    com.github.binarywang.demo.wx.mp: DEBUG
+    me.chanjar.weixin: DEBUG
+
+mybatis-plus:
+  check-config-location: true
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      mapper-locations: classpath*:mapper/**/*Mapper.xml
+# PageHelper分页插件
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+pay:
+  adapay:
+    payMode: "delay"
