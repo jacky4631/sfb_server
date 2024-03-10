@@ -200,4 +200,6 @@ public interface MwUserService extends BaseService<MwUser>{
     List<MwUser> getMemberExpiredList(Date now);
 
     void expiredUser();
+
+    void spreadUserHb(MwUser parentUser, MwUser user);
 }

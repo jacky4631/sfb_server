@@ -24,16 +24,19 @@ import java.io.IOException;
 @Slf4j
 @Component
 public class EleService {
-    @Value(("${ele.api}"))
+    @Value("${ele.api}")
     private String api;
-    @Value(("${ele.appKey}"))
+    @Value("${ele.appKey}")
     private String appKey;
-    @Value(("${ele.appSecret}"))
+    @Value("${ele.appSecret}")
     private String appSecret;
 
+    @Value("${ele.pid}")
+    private String pid;
 
 
-    public JSONObject contentParse(String activityId, String pid) throws IOException {
+
+    public JSONObject contentParse(String activityId, Long uid) throws IOException {
 
         // create Client
         TopApiClient client = new DefaultTopApiClient(appKey,appSecret,api);
@@ -42,7 +45,7 @@ public class EleService {
         AlibabaAlscUnionElemePromotionOfficialactivityGetActivityRequest alibabaAlscUnionElemePromotionOfficialactivityGetActivityRequest = new AlibabaAlscUnionElemePromotionOfficialactivityGetActivityRequest();
         alibabaAlscUnionElemePromotionOfficialactivityGetActivityRequest.setPid(pid);
         alibabaAlscUnionElemePromotionOfficialactivityGetActivityRequest.setActivityId(activityId);
-        alibabaAlscUnionElemePromotionOfficialactivityGetActivityRequest.setSid("1111");
+        alibabaAlscUnionElemePromotionOfficialactivityGetActivityRequest.setSid(uid.toString());
         alibabaAlscUnionElemePromotionOfficialactivityGetActivityRequest.setIncludeWxImg(true);
         alibabaAlscUnionElemePromotionOfficialactivityGetActivityRequest.setIncludeQrCode(false);
 

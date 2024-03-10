@@ -294,17 +294,4 @@ public class RedisUtil {
         redisTemplate.opsForSet().add(FEE_TODAY_UID, uid);
     }
 
-    public static List<Object> getShare() {
-        try {
-            List<Object> images = redisTemplate.opsForList().range(MSHOP_USER_SHARE + ":" + PAY_NAME, 0, -1);
-            if(CollectionUtils.isEmpty(images)) {
-                images = redisTemplate.opsForList().range(MSHOP_USER_SHARE, 0, -1);
-            }
-            return images;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.EMPTY_LIST;
-        }
-
-    }
 }

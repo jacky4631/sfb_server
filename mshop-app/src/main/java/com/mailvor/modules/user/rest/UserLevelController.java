@@ -36,7 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
@@ -83,7 +82,7 @@ public class UserLevelController {
     }
     /**
     * 会员等级列表
-     * type null或0=加盟 1=体验卡 2=月卡
+     * type null或0=加盟 2=月卡
     */
     @AuthCheck
     @GetMapping("/user/level/grade")

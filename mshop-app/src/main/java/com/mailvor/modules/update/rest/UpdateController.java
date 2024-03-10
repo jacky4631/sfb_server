@@ -5,10 +5,13 @@
 package com.mailvor.modules.update.rest;
 
 
-import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mailvor.annotation.AnonymousAccess;
 import com.mailvor.api.ApiResult;
 import com.mailvor.modules.logging.aop.log.AppLog;
+import com.mailvor.modules.shop.domain.MwAppVersion;
+import com.mailvor.modules.shop.service.MwAppVersionService;
+import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.RedisUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,19 +39,28 @@ public class UpdateController {
     @Resource
     private RedisUtils redisUtils;
 
+    @Resource
+    private MwAppVersionService versionService;
 
     @AnonymousAccess
     @AppLog(value = "app更新配置", type = 1)
     @GetMapping("/update/config")
     @ApiOperation(value = "app更新配置",notes = "app更新配置")
-    public ApiResult<JSONObject> updateConfig(){
-        String updateKey = UPDATE_CONFIG + "_" + PAY_NAME;
+    public ApiResult<MwAppVersion> updateConfig(){
+        MwAppVersion appVersion;
+
+        String updateKey = TkUtil.getMixedPlatformKey(UPDATE_CONFIG);
         Object objS = redisUtils.get(updateKey);
         if(objS == null) {
-            objS = redisUtils.get(UPDATE_CONFIG);
+            appVersion = versionService.getOne(new LambdaQueryWrapper<MwAppVersion>()
+                    .eq(MwAppVersion::getEnable, 1).eq(MwAppVersion::getPlatformName, PAY_NAME));
+            if(appVersion != null) {
+                redisUtils.set(updateKey, appVersion);
+            }
+        } else {
+            appVersion = (MwAppVersion)objS;
         }
-        JSONObject obj = (JSONObject) objS;
-        return ApiResult.ok(obj);
+        return ApiResult.ok(appVersion);
     }
 
 }

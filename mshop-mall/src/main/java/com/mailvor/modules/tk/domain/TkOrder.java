@@ -39,7 +39,7 @@ public class TkOrder extends BaseDomain {
     /** 店主奖励金额 */
     private Double shopHb;
 
-    /** 内部类型 0=默认 1=体验 2=热度*/
+    /** 内部类型 0=默认 2=热度*/
     private Integer innerType;
 
     /** 拆红包时间 */

@@ -15,7 +15,6 @@ import com.mailvor.modules.energy.config.EnergyOrderConfig;
 import com.mailvor.modules.energy.domain.UserEnergyOrder;
 import com.mailvor.modules.energy.domain.UserEnergyOrderLog;
 import com.mailvor.modules.energy.dto.EnergyConfigDto;
-import com.mailvor.modules.energy.dto.ExpCardConfigDto;
 import com.mailvor.modules.energy.dto.UserEnergyOrderDto;
 import com.mailvor.modules.energy.dto.UserEnergyOrderQueryCriteria;
 import com.mailvor.modules.energy.service.UserEnergyOrderLogService;
@@ -59,7 +58,7 @@ public class UserEnergyOrderServiceImpl extends BaseServiceImpl<UserEnergyOrderM
     @Resource
     private UserEnergyOrderLogService orderLogService;
     /**
-     * 找到未拆红包的流量扶持订单
+     * 找到未拆红包的热度订单
      * */
     @Override
     public List<UserEnergyOrder> getUnpackEnergyList() {
@@ -76,7 +75,7 @@ public class UserEnergyOrderServiceImpl extends BaseServiceImpl<UserEnergyOrderM
         mapper.unlockOrder();
     }
     /**
-     * 找到未分配给用户的流量扶持订单
+     * 找到未分配给用户的热度订单
      * */
     @Override
     public List<UserEnergyOrder> getUnpaidList(List<String> platforms) {
@@ -88,7 +87,7 @@ public class UserEnergyOrderServiceImpl extends BaseServiceImpl<UserEnergyOrderM
     }
 
     /**
-     * 找到需要退款的流量扶持订单
+     * 找到需要退款的热度订单
      * */
     @Override
     public List<UserEnergyOrder> getRefundList() {
@@ -185,35 +184,6 @@ public class UserEnergyOrderServiceImpl extends BaseServiceImpl<UserEnergyOrderM
 
     }
 
-    @Override
-    public void createExpOrders(Long uid, String platform, ExpCardConfigDto config, Integer type) {
-
-        //生成总佣金
-        BigDecimal minFee = NumberUtil.div(NumberUtil.div(NumberUtil.mul(config.getPrice(),config.getOrderMin()), config.getExpired()), 100);
-        BigDecimal maxFee = NumberUtil.div(NumberUtil.div(NumberUtil.mul(config.getPrice(),config.getOrderMax()), config.getExpired()), 100);
-
-        BigDecimal money = CashUtils.randomBD(minFee.doubleValue(), maxFee.doubleValue());
-        //生成订单数量
-        Integer orderCount = CashUtils.randomInt(config.getMin(), config.getMax());
-
-        //生成热度日志
-        UserEnergyOrderLog energyOrderLog = new UserEnergyOrderLog();
-        energyOrderLog.setMoney(money);
-        energyOrderLog.setCount(orderCount);
-        energyOrderLog.setUid(uid);
-        energyOrderLog.setPlatform(platform);
-        energyOrderLog.setEnergy(BigDecimal.ZERO);
-        energyOrderLog.setType(type);
-        energyOrderLogMapper.insert(energyOrderLog);
-
-        List<UserEnergyOrder> energyOrders = new ArrayList<>();
-        //创建热度订单
-        createSelfEnergyOrders(uid, money, orderCount, platform, energyOrders, config.getUnlockMin(), config.getUnlockMax());
-
-        energyOrders.stream().forEach(energyOrder -> energyOrder.setLogId(energyOrderLog.getId()));
-        mapper.insertBatch(energyOrders);
-
-    }
     protected void createSelfEnergyOrders(Long uid, BigDecimal money, Integer orderCount,
                                      String platform,List<UserEnergyOrder> energyOrders, Integer unlockMin, Integer unlockMax) {
         //生成时间数据

@@ -13,7 +13,6 @@ import com.mailvor.api.MshopException;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.AuthCheck;
 import com.mailvor.enums.PayTypeEnum;
-import com.mailvor.modules.energy.dto.ExpCardConfigDto;
 import com.mailvor.modules.energy.dto.MonthCardConfigDto;
 import com.mailvor.modules.logging.aop.log.AppLog;
 import com.mailvor.modules.pay.adapay.AdaPayService;
@@ -34,9 +33,9 @@ import com.mailvor.modules.pay.ysepay.YsePayService;
 import com.mailvor.modules.shop.domain.MwSystemGroupData;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.shop.service.MwSystemGroupDataService;
+import com.mailvor.modules.shop.service.dto.PayConfigDto;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.domain.MwUserBank;
-import com.mailvor.modules.user.domain.MwUserExtra;
 import com.mailvor.modules.user.domain.MwUserRecharge;
 import com.mailvor.modules.user.service.*;
 import com.mailvor.modules.user.service.dto.UserLevelDto;
@@ -67,8 +66,6 @@ import java.util.Map;
 import static com.mailvor.config.PayConfig.PAY_NAME;
 import static com.mailvor.constant.SystemConfigConstants.PAY_CONFIG;
 import static com.mailvor.modules.utils.PayUtil.*;
-import static com.mailvor.modules.utils.TkUtil.EXPIRED_LEVEL;
-import static com.mailvor.modules.utils.TkUtil.VIP_LEVEL;
 
 /**
  * <p>
@@ -192,23 +189,6 @@ public class PayController {
         MwUserCardQueryVo cardQueryVo = cardService.getUserCardById(loginUser.getUid());
         if(cardQueryVo == null || StringUtils.isBlank(cardQueryVo.getContractPath())) {
             throw new MshopException("需要实名认证签署合同后方可加盟");
-        }
-        if(param.getType() == 1) {
-            throw new MshopException("体验卡已经下架，请选择月卡或者年卡");
-            //如果是体验会员 需要校验用户是否开过体验卡
-//            MwUserExtra userExtra = userExtraService.getById(checkUid);
-//            if(userExtra != null) {
-//                Integer curExpLevel = TkUtil.getLevel(param.getPlatform(), userExtra);
-//                if(curExpLevel == VIP_LEVEL) {
-//                    log.error("用户uid{}已经开通体验卡，无法再次开通", checkUid);
-//                    throw new MshopException("已经开通体验卡，无法再次开通");
-//                }
-//                if(curExpLevel == EXPIRED_LEVEL) {
-//                    log.error("用户uid{}已经开通过体验卡，无法再次开通", checkUid);
-//                    throw new MshopException("已经开通过体验卡，无法再次开通");
-//                }
-//            }
-
         }
         try {
             OrderDto orderDto = recharge(param, payChannel.getId(), checkUid, param.getType());
@@ -352,19 +332,15 @@ public class PayController {
             }
 
             priceB = new BigDecimal(price);
-            JSONObject obj = getPayConfig();
+            PayConfigDto obj = systemConfigService.getAppPayConfig();
             Integer payType = param.getPayType();
             //是否支持满减
-            if((payType == 1 && "1".equals(obj.getString("ac"))) ||
-                    (payType == 2 && "1".equals(obj.getString("wc"))) ||
-                    (payType == 3 && "1".equals(obj.getString("bc"))) ||
-                    (payType == 4 && "1".equals(obj.getString("bbc")))) {
+            if((payType == 1 && "1".equals(obj.getAc())) ||
+                    (payType == 2 && "1".equals(obj.getWc())) ||
+                    (payType == 3 && "1".equals(obj.getBc())) ||
+                    (payType == 4 && "1".equals(obj.getBbc()))) {
                 priceB = NumberUtil.sub(Double.parseDouble(price), coupon);
             }
-        } else if(type == 1) {
-            //体验
-            ExpCardConfigDto expCardConfigDto = systemConfigService.getExpCardConfig();
-            priceB = expCardConfigDto.getPrice();
         } else if (type == 2) {
             //月卡
             MonthCardConfigDto monthCardConfig = systemConfigService.getMonthCardConfig();
@@ -407,8 +383,8 @@ public class PayController {
     @AuthCheck
     @GetMapping("/pay/config")
     @ApiOperation(value = "用户支付配置",notes = "用户支付配置")
-    public ApiResult<JSONObject> extractConfig(){
-        return ApiResult.ok(getPayConfig());
+    public ApiResult<PayConfigDto> extractConfig(){
+        return ApiResult.ok(systemConfigService.getAppPayConfig());
     }
 
     @AppLog(value = "银行卡绑定签约", type = 1)

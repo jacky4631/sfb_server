@@ -222,8 +222,10 @@ public class TkService {
         return res;
     }
     @Transactional
-    public void submitOrder(String orderId, Long uid) throws ExecutionException, InterruptedException {
-        log.info("用户{} 提交订单号 {}", uid, orderId);
+    public void submitOrder(String origOrderId, Long uid) throws ExecutionException, InterruptedException {
+        log.info("用户{} 提交订单号 {}", uid, origOrderId);
+        //美团订单有空格 需要清除
+        String orderId = origOrderId.replace(" ", "");
         if(!ReUtil.isMatch("^[0-9-]{10,30}$", orderId)){
             throw new MshopException("不是正确的订单号");
         }
@@ -241,10 +243,9 @@ public class TkService {
         CompletableFuture<MailvorPddOrder> pddOrderFuture = CompletableFuture.supplyAsync(()->pddOrderService.getById(orderId));
         CompletableFuture<MailvorVipOrder> vipOrderFuture = CompletableFuture.supplyAsync(()->vipOrderService.getById(orderId));
         CompletableFuture<MailvorDyOrder> dyOrderFuture = CompletableFuture.supplyAsync(()->dyOrderService.getById(orderId));
-        CompletableFuture<MailvorMtOrder> mtOrderFuture = CompletableFuture.supplyAsync(()->mtOrderService.getById(orderId));
         CompletableFuture<List<MailvorMtOrder>> mtOrder2Future = CompletableFuture.supplyAsync(()->mtOrderService
                 .list(Wrappers.<MailvorMtOrder>lambdaQuery().eq(MailvorMtOrder::getOrderId,orderId)));
-        CompletableFuture.allOf(tbOrderFuture, jdOrderFuture, pddOrderFuture, vipOrderFuture, dyOrderFuture, mtOrderFuture, mtOrder2Future);
+        CompletableFuture.allOf(tbOrderFuture, jdOrderFuture, pddOrderFuture, vipOrderFuture, dyOrderFuture, mtOrder2Future);
 
 
         List<MailvorTbOrder> tbOrders = tbOrderFuture.get();
@@ -252,12 +253,10 @@ public class TkService {
         MailvorPddOrder pddOrder = pddOrderFuture.get();
         MailvorVipOrder vipOrder = vipOrderFuture.get();
         MailvorDyOrder dyOrder = dyOrderFuture.get();
-        MailvorMtOrder mtOrder = mtOrderFuture.get();
         List<MailvorMtOrder> mtOrders = mtOrder2Future.get();
 
         if (CollectionUtils.isEmpty(tbOrders) && CollectionUtils.isEmpty(jdOrders) && ObjectUtil.isNull(pddOrder) &&
-                ObjectUtil.isNull(vipOrder) && ObjectUtil.isNull(dyOrder)
-        && ObjectUtil.isNull(mtOrder) && CollectionUtils.isEmpty(mtOrders)) {
+                ObjectUtil.isNull(vipOrder) && ObjectUtil.isNull(dyOrder) && CollectionUtils.isEmpty(mtOrders)) {
             throw new MshopException("订单不存在");
         }
         if(!CollectionUtils.isEmpty(tbOrders)) {
@@ -284,11 +283,7 @@ public class TkService {
         } else if (dyOrder != null) {
             checkBinding(dyOrder.getBind(), uid, dyOrder.getUid());
             suStoreOrderService.bindOrder(uid, dyOrder);
-        } else if (mtOrder != null) {
-            checkBinding(mtOrder.getBind(), uid, mtOrder.getUid());
-            suStoreOrderService.bindOrder(uid, mtOrder);
-        }
-        if(!CollectionUtils.isEmpty(mtOrders)) {
+        } else if (!CollectionUtils.isEmpty(mtOrders)) {
             for(MailvorMtOrder mtOrder1: mtOrders) {
                 checkBinding(mtOrder1.getBind(), uid, mtOrder1.getUid());
                 suStoreOrderService.bindOrder(uid, mtOrder1);
@@ -298,7 +293,7 @@ public class TkService {
 
 
     protected void checkBinding(Integer bind, Long loginUid, Long orderUid) {
-        if(bind == 1) {
+        if(orderUid != null && orderUid > 0) {
             if(loginUid.equals(orderUid)) {
                 throw new MshopException("订单已绑定，请勿重复提交");
             } else {

@@ -7,6 +7,7 @@ package com.mailvor.modules.tools.service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * @author huangyu
@@ -17,4 +18,7 @@ public interface AliOssService {
     String uploadFileAvatar(MultipartFile file);
 
     String uploadCard(InputStream inputStream, String filename, String path);
+
+    String uploadImage(MultipartFile file);
+    List<String> uploadImages(MultipartFile[] files);
 }

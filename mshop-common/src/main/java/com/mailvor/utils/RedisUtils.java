@@ -667,4 +667,28 @@ public class RedisUtils {
             return 0;
         }
     }
+
+    public List<Object> getList(String key) {
+        try {
+            return redisTemplate.opsForList().range(key, 0, -1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.EMPTY_LIST;
+        }
+
+    }
+
+    public void setList(String key, List<String> images) {
+        try {
+            redisTemplate.delete(key);
+            //？rightPushAll???
+            for(String image: images) {
+                redisTemplate.opsForList().rightPush(key,image);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 }

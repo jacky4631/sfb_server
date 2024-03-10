@@ -9,8 +9,8 @@ import com.mailvor.api.MshopException;
 import com.mailvor.constant.ShopConstants;
 import com.mailvor.constant.SystemConfigConstants;
 import com.mailvor.enums.ShopCommonEnum;
+import com.mailvor.modules.tools.service.AliOssService;
 import com.mailvor.modules.tools.service.dto.LocalStorageDto;
-import com.mailvor.modules.tools.domain.QiniuContent;
 import com.mailvor.modules.tools.service.LocalStorageService;
 import com.mailvor.modules.tools.service.QiNiuService;
 import com.mailvor.utils.RedisUtils;
@@ -25,7 +25,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,15 +40,16 @@ import java.util.Map;
 @Slf4j
 @SuppressWarnings("unchecked")
 public class UploadController {
-
-    private final LocalStorageService localStorageService;
-    private final QiNiuService qiNiuService;
-    private final RedisUtils redisUtils;
+    @Resource
+    private LocalStorageService localStorageService;
+    @Resource
+    private RedisUtils redisUtils;
+    @Resource
+    private AliOssService ossService;
 
     public UploadController(LocalStorageService localStorageService, QiNiuService qiNiuService,
                             RedisUtils redisUtils) {
         this.localStorageService = localStorageService;
-        this.qiNiuService = qiNiuService;
         this.redisUtils = redisUtils;
     }
 
@@ -75,15 +78,10 @@ public class UploadController {
                     url = url.append(","+localUrl + "/file/" + localStorageDTO.getType() + "/" + localStorageDTO.getRealName());
                 }
             }
-        } else {//走七牛云
-            for (MultipartFile file : files) {
-                QiniuContent qiniuContent = qiNiuService.upload(file, qiNiuService.find());
-                if ("".equals(url.toString())) {
-                    url = url.append(qiniuContent.getUrl());
-                }else{
-                    url = url.append(","+qiniuContent.getUrl());
-                }
-            }
+        } else {//走阿里云oss
+
+            List<String> paths = ossService.uploadImages(files);
+            url = new StringBuilder(String.join(",", paths));
         }
 
         Map<String, Object> map = new HashMap<>(2);

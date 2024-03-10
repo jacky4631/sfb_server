@@ -11,7 +11,6 @@ import com.mailvor.modules.user.vo.MwCommissionInfoQueryVo;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -229,6 +228,7 @@ public class FeeUtil {
                                   Double pddFee, Long pddCount,
                                   Double dyFee, Long dyCount,
                                   Double vipFee, Long vipCount,
+                                  Double mtFee, Long mtCount,
                                   Map<String, MwUserFeeLog> optLogMap) {
 
         //保存总览淘宝
@@ -256,6 +256,12 @@ public class FeeUtil {
         MwUserFeeLog allVipLog = FeeUtil.createGeneralFeeLogs(uid, type, min, max, vipFee, vipCount,
                 PlatformEnum.VIP.getValue(), PlatformEnum.VIP.getDesc(), 1);
         optLogMap.put(allVipLog.getId(), allVipLog);
+
+
+        //保存总览美团
+        MwUserFeeLog allMtLog = FeeUtil.createGeneralFeeLogs(uid, type, min, max, mtFee, mtCount,
+                PlatformEnum.MT.getValue(), PlatformEnum.MT.getDesc(), 1);
+        optLogMap.put(allMtLog.getId(), allMtLog);
     }
 
 }

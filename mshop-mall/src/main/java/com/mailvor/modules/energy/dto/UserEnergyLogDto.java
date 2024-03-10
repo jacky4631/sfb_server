@@ -10,7 +10,7 @@ import java.util.Date;
 
 /**
  * <p>
- * 用户流量扶持记录
+ * 用户热度记录
  * </p>
  *
  * @author huangyu

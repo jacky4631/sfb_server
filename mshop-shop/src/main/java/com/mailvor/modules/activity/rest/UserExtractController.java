@@ -10,6 +10,7 @@ import com.mailvor.modules.activity.domain.MwUserExtractConfig;
 import com.mailvor.modules.activity.domain.MwUserExtracts;
 import com.mailvor.modules.activity.service.MwUserExtractConfigService;
 import com.mailvor.modules.activity.service.MwUserExtractService;
+import com.mailvor.modules.activity.service.dto.MwExtractConfigParam;
 import com.mailvor.modules.activity.service.dto.MwUserExtractQueryCriteria;
 import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.user.domain.MwUser;
@@ -94,13 +95,13 @@ public class UserExtractController {
 
     @Log("查询禁止提现用户")
     @ApiOperation(value = "查询禁止提现用户")
-    @GetMapping(value = "/extract/config/list")
+    @GetMapping(value = "/extract/ban/list")
     @PreAuthorize("hasAnyRole('admin','MWUSEREXTRACT_ALL','MWUSEREXTRACT_SELECT')")
     public ResponseEntity getInvalidExtractList(MwUserExtractQueryCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(extractConfigService.queryAll(criteria,pageable),HttpStatus.OK);
     }
 
-    @PostMapping(value = "/extract/config")
+    @PostMapping(value = "/extract/ban")
     @Log("新增禁止提现用户")
     @ApiOperation("新增禁止提现用户")
     @PreAuthorize("@el.check('admin','MWUSEREXTRACT_ALL','MWUSEREXTRACT_EDIT')")
@@ -123,4 +124,21 @@ public class UserExtractController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+
+    @PostMapping(value = "/extract/config")
+    @Log("修改提现配置")
+    @ApiOperation("修改提现配置")
+    @PreAuthorize("@el.check('admin','MWUSEREXTRACT_ALL','MWUSEREXTRACT_EDIT')")
+    public ResponseEntity<Object> editConfig(@Validated @RequestBody MwExtractConfigParam param){
+        mwUserExtractService.setExtractConfig(param);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping(value = "/extract/config")
+    @Log("获取提现配置")
+    @ApiOperation("获取提现配置")
+    @PreAuthorize("@el.check('admin','MWUSEREXTRACT_ALL','MWUSEREXTRACT_EDIT')")
+    public ResponseEntity<Object> getConfig(){
+        return new ResponseEntity<>(mwUserExtractService.getExtractConfig(),HttpStatus.OK);
+    }
 }

@@ -9,9 +9,12 @@ import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.TimedCache;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.api.ApiResult;
+import com.mailvor.common.bean.LocalUser;
+import com.mailvor.common.interceptor.UserCheck;
 import com.mailvor.modules.meituan.MeituanService;
 import com.mailvor.modules.shop.service.MwSystemGroupDataService;
 import com.mailvor.modules.shop.service.dto.MwSystemGroupDataQueryCriteria;
+import com.mailvor.modules.user.domain.MwUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -98,10 +101,16 @@ public class MeituanController {
         return ApiResult.ok(meituanService.orderRefund(body));
     }
 
-    @PostMapping("/mt/activity/code")
+    @UserCheck
+    @GetMapping("/mt/activity/code")
     @ApiOperation(value = "会场转链",notes = "会场转链")
-    public ApiResult<Object> activityCode(@RequestBody JSONObject body) {
-        return ApiResult.ok(meituanService.getCode(body.getString("activityId"), body.getLong("uid")));
+    public ApiResult<Object> activityCode(@RequestParam String activityId) {
+        MwUser mwUser = LocalUser.getUser();
+        Long uid = 0L;
+        if(mwUser != null) {
+            uid = mwUser.getUid();
+        }
+        return ApiResult.ok(meituanService.getCode(activityId, uid));
     }
 
     @ApiOperation(value = "查询美团活动列表")

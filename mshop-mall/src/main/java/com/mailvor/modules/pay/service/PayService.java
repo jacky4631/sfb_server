@@ -100,10 +100,7 @@ public class PayService {
             if(!OrderInfoEnum.PAY_STATUS_1.getValue().equals(userRecharge.getPaid())){
                 //更新订单状态
                 userRechargeService.updateRecharge(userRecharge);
-                //如果是体验卡，修改用户体验卡级别
-                if(userRecharge.getType() == 1) {
-                    userExtraService.setUserLevel(userRecharge.getUid(), userRecharge.getGrade(), userRecharge.getPlatform());
-                } else if(userRecharge.getType() == 2){
+                if(userRecharge.getType() == 2){
                     //设置用户月卡级别
                     userLevelService.setUserLevelMonth(userRecharge.getUid(), userRecharge.getGrade(), userRecharge.getPlatform());
                 } else {

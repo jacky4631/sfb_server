@@ -13,7 +13,7 @@ import java.util.Date;
 
 /**
  * <p>
- * 用户流量扶持
+ * 用户热度订单
  * </p>
  *
  * @author huangyu
@@ -30,7 +30,7 @@ public class UserEnergyOrderDto extends BaseDomain {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "用户流量扶持id")
+    @ApiModelProperty(value = "用户热度订单id")
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 

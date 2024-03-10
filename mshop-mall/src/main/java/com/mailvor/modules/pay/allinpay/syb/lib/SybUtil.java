@@ -116,7 +116,7 @@ public class SybUtil {
 	public static boolean rsaVerifyPublickey(String content, String sign,
 			PublicKey pubKey, String charset) throws Exception {
 		try {
-			java.security.Signature signature = java.security.Signature
+			Signature signature = Signature
 					.getInstance("SHA1WithRSA");
 
 			signature.initVerify(pubKey);
@@ -181,7 +181,7 @@ public class SybUtil {
 
 	public static String rsaSign(String content, PrivateKey priKey,
 			String charset) throws Exception {
-		java.security.Signature signature = java.security.Signature
+		Signature signature = Signature
 				.getInstance("SHA1WithRSA");
 		signature.initSign(priKey);
 		if (charset == null || "".equals(charset)) {

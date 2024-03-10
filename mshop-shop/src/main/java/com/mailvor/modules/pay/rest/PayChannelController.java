@@ -4,17 +4,18 @@
  */
 package com.mailvor.modules.pay.rest;
 
-import com.alibaba.fastjson.JSON;
-import com.mailvor.api.MshopException;
 import com.mailvor.constant.ShopConstants;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.modules.aop.ForbidSubmit;
 import com.mailvor.modules.logging.aop.log.Log;
-import com.mailvor.modules.pay.rest.param.PayChannelEditParam;
-import com.mailvor.modules.pay.rest.param.PayChannelParam;
-import com.mailvor.modules.pay.service.MwPayChannelService;
 import com.mailvor.modules.pay.domain.MwPayChannel;
 import com.mailvor.modules.pay.dto.PayChannelQueryCriteria;
+import com.mailvor.modules.pay.rest.param.PayChannelEditParam;
+import com.mailvor.modules.pay.rest.param.PayChannelParam;
+import com.mailvor.modules.pay.rest.param.PayConfigParam;
+import com.mailvor.modules.pay.service.MwPayChannelService;
+import com.mailvor.modules.shop.service.MwSystemConfigService;
+import com.mailvor.modules.shop.service.dto.PayConfigDto;
 import com.mailvor.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -42,6 +43,9 @@ public class PayChannelController {
 
     @Resource
     private IGenerator generator;
+
+    @Resource
+    private MwSystemConfigService systemConfigService;
 
     @Log("查询支付通道")
     @ApiOperation(value = "查询支付通道")
@@ -94,6 +98,23 @@ public class PayChannelController {
     public ResponseEntity delete(@PathVariable Long id) {
         payConfigService.removeById(id);
         return new ResponseEntity(HttpStatus.OK);
+    }
+    @Log("设置APP支付开关")
+    @ApiOperation(value = "设置APP支付开关")
+    @PostMapping(value = "/pay/config")
+    @PreAuthorize("hasAnyRole('admin','PAYSET_ALL','PAYSET_DELETE')")
+    public ResponseEntity setPayConfig(@Valid @RequestBody PayConfigParam param){
+        systemConfigService.setAppPayConfig(generator.convert(param, PayConfigDto.class));
+        return new ResponseEntity(HttpStatus.OK);
+
+    }
+    @Log("获取APP支付开关")
+    @ApiOperation(value = "获取APP支付开关")
+    @GetMapping(value = "/pay/config")
+    @PreAuthorize("hasAnyRole('admin','PAYSET_ALL','PAYSET_DELETE')")
+    public ResponseEntity setPayConfig(){
+        return new ResponseEntity(systemConfigService.getAppPayConfig(), HttpStatus.OK);
+
     }
 
 }

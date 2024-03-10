@@ -36,6 +36,8 @@ public interface MwUserBillService extends BaseService<MwUserBill>{
     public void expend(Long uid,Long origUid, String title,String category,
                        String type,double number,
                        double balance,String mark,String linkid, Date orderCreateTime);
+    void income(Long uid,Long origUid,String title,String category,String type,double number,
+                double balance,String mark,String linkid);
     /**
      * 增加收入/支入流水
      * @param uid uid

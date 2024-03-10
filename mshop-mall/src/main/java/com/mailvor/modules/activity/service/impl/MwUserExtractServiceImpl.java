@@ -10,7 +10,6 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.pagehelper.PageInfo;
 import com.mailvor.api.MshopException;
@@ -29,11 +28,14 @@ import com.mailvor.modules.activity.domain.MwUserExtract;
 import com.mailvor.modules.activity.domain.MwUserExtractConfig;
 import com.mailvor.modules.activity.param.UserExtParam;
 import com.mailvor.modules.activity.service.MwUserExtractService;
+import com.mailvor.modules.activity.service.dto.MwExtractConfigDto;
+import com.mailvor.modules.activity.service.dto.MwExtractConfigParam;
 import com.mailvor.modules.activity.service.dto.MwUserExtractDto;
 import com.mailvor.modules.activity.service.dto.MwUserExtractQueryCriteria;
 import com.mailvor.modules.activity.service.mapper.MwUserExtractConfigMapper;
 import com.mailvor.modules.activity.service.mapper.MwUserExtractMapper;
 import com.mailvor.modules.push.service.JPushService;
+import com.mailvor.modules.shop.domain.MwSystemConfig;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.domain.MwUserBank;
@@ -42,6 +44,7 @@ import com.mailvor.modules.user.service.MwUserBankService;
 import com.mailvor.modules.user.service.MwUserBillService;
 import com.mailvor.modules.user.service.MwUserService;
 import com.mailvor.modules.user.service.MwUserUnionService;
+import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.DateUtils;
 import com.mailvor.utils.FileUtil;
 import com.mailvor.utils.RedisUtils;
@@ -104,7 +107,7 @@ public class MwUserExtractServiceImpl extends BaseServiceImpl<MwUserExtractMappe
      * @param param UserExtParam
      */
     @Override
-    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
+    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
     public void userExtract(MwUser userInfo, UserExtParam param,String ip) {
 
         double decMoney = Double.valueOf(param.getMoney());
@@ -147,8 +150,8 @@ public class MwUserExtractServiceImpl extends BaseServiceImpl<MwUserExtractMappe
             throw new MshopException("超过每天最大提现次数");
         }
 
-        JSONObject obj = getExtractConfig();
-        double charge = Double.parseDouble(obj.getString("charge"));
+        MwExtractConfigDto obj = systemConfigService.getAppExtractConfig();
+        double charge = Double.parseDouble(obj.getCharge());
         double extractScale = NumberUtil.div(NumberUtil.sub(100.0, charge), 100);
 
         MwUserExtract userExtract = new MwUserExtract();
@@ -225,18 +228,18 @@ public class MwUserExtractServiceImpl extends BaseServiceImpl<MwUserExtractMappe
         }catch (Exception e) {
             e.printStackTrace();
         }
-        //校验用户是否开启自动提现
+        //校验用户是否禁止提现
         MwUserExtractConfig extractConfig = extractConfigMapper.selectById(uid);
         if(extractConfig != null && extractConfig.getAutoExtract() == 1) {
             return;
         }
 
         //自动提现
-        String extractAutoStr =  systemConfigService.getData(SystemConfigConstants.USER_EXTRACT_AUTO);
+        String extractAutoStr =  systemConfigService.getData(TkUtil.getMixedPlatformKey(SystemConfigConstants.USER_EXTRACT_AUTO));
         if(StringUtils.isNotBlank(extractAutoStr) && !DateUtils.betweenHour(0, 8))  {
             Integer extractAuto = Integer.parseInt(extractAutoStr);
             //设置最大提现金额
-            double extractMax = Double.parseDouble(systemConfigService.getData(SystemConfigConstants.USER_EXTRACT_MAX));
+            double extractMax = Double.parseDouble(systemConfigService.getData(TkUtil.getMixedPlatformKey(USER_EXTRACT_MAX)));
             //开启自动提现 同时提现金额小于设置的最大金额，自动提现
             if(extractAuto == 1 && decMoney < extractMax) {
                 userExtract.setStatus(1);
@@ -246,37 +249,135 @@ public class MwUserExtractServiceImpl extends BaseServiceImpl<MwUserExtractMappe
 
     }
 
-    protected Double getExtractMinPrice() {
-        Object obj = redisUtils.get(USER_EXTRACT_MIN_PRICE + "_" + PAY_NAME);
-        if(obj != null) {
-            return Double.parseDouble((String)obj);
+    public Double getExtractMinPrice() {
+        String obj = systemConfigService.getData(TkUtil.getMixedPlatformKey(USER_EXTRACT_MIN_PRICE));
+        if("".equals(obj)) {
+            return 1d;
         }
-        return Double.parseDouble(systemConfigService.getData(USER_EXTRACT_MIN_PRICE));
+        return Double.parseDouble(obj);
     }
 
-    protected Double getExtractMaxPrice() {
-        Object obj = redisUtils.get(USER_EXTRACT_MAX_PRICE + "_" + PAY_NAME);
-        if(obj != null) {
-            return Double.parseDouble((String)obj);
+    public Double getExtractMaxPrice() {
+        String obj = systemConfigService.getData(TkUtil.getMixedPlatformKey(USER_EXTRACT_MAX_PRICE));
+        if("".equals(obj)) {
+            return 3000D;
         }
-        return Double.parseDouble(systemConfigService.getData(USER_EXTRACT_MAX_PRICE));
+        return Double.parseDouble(obj);
     }
-    protected Integer getExtractCount() {
-        Object obj = redisUtils.get(USER_EXTRACT_COUNT + "_" + PAY_NAME);
-        if(obj != null) {
-            return Integer.parseInt((String)obj);
+    public Integer getExtractCount() {
+        String obj = systemConfigService.getData(TkUtil.getMixedPlatformKey(USER_EXTRACT_COUNT));
+        if("".equals(obj)) {
+            return 1;
         }
-        return Integer.parseInt(systemConfigService.getData(USER_EXTRACT_COUNT));
+        return Integer.parseInt(obj);
     }
 
-    @Override
-    public JSONObject getExtractConfig() {
-        Object obj = redisUtils.get(EXTRACT_CONFIG + "_" + PAY_NAME);
-        if(obj != null) {
-            return (JSONObject) obj;
+    public void setExtractConfig(MwExtractConfigParam param) {
+        MwSystemConfig minPriceConfig = systemConfigService.getOne(new LambdaQueryWrapper<MwSystemConfig>()
+                .eq(MwSystemConfig::getMenuName, TkUtil.getMixedPlatformKey(USER_EXTRACT_MIN_PRICE)));
+        if(minPriceConfig == null) {
+            minPriceConfig = new MwSystemConfig();
+            minPriceConfig.setMenuName(TkUtil.getMixedPlatformKey(USER_EXTRACT_MIN_PRICE));
+        }
+        minPriceConfig.setValue(param.getMinPrice().toString());
+        redisUtils.set(TkUtil.getMixedPlatformKey(USER_EXTRACT_MIN_PRICE), param.getMinPrice().toString());
+        MwSystemConfig maxPriceConfig = systemConfigService.getOne(new LambdaQueryWrapper<MwSystemConfig>()
+                .eq(MwSystemConfig::getMenuName,TkUtil.getMixedPlatformKey(USER_EXTRACT_MAX_PRICE) ));
+        if(maxPriceConfig == null) {
+            maxPriceConfig = new MwSystemConfig();
+            maxPriceConfig.setMenuName(TkUtil.getMixedPlatformKey(USER_EXTRACT_MAX_PRICE));
+        }
+        maxPriceConfig.setValue(param.getMaxPrice().toString());
+        redisUtils.set(TkUtil.getMixedPlatformKey(USER_EXTRACT_MAX_PRICE), param.getMaxPrice().toString());
+
+        MwSystemConfig countConfig = systemConfigService.getOne(new LambdaQueryWrapper<MwSystemConfig>()
+                .eq(MwSystemConfig::getMenuName,TkUtil.getMixedPlatformKey(USER_EXTRACT_COUNT)));
+        if(countConfig == null) {
+            countConfig = new MwSystemConfig();
+            countConfig.setMenuName(TkUtil.getMixedPlatformKey(USER_EXTRACT_COUNT));
+        }
+        countConfig.setValue(param.getCount().toString());
+        redisUtils.set(TkUtil.getMixedPlatformKey(USER_EXTRACT_COUNT), param.getCount().toString());
+
+        MwSystemConfig extractAuto = systemConfigService.getOne(new LambdaQueryWrapper<MwSystemConfig>()
+                .eq(MwSystemConfig::getMenuName,TkUtil.getMixedPlatformKey(USER_EXTRACT_AUTO)));
+        if(extractAuto == null) {
+            extractAuto = new MwSystemConfig();
+            extractAuto.setMenuName(TkUtil.getMixedPlatformKey(USER_EXTRACT_AUTO));
+        }
+        extractAuto.setValue(param.getAuto().toString());
+        redisUtils.set(TkUtil.getMixedPlatformKey(USER_EXTRACT_AUTO), param.getAuto().toString());
+
+        MwSystemConfig extractAutoMax = systemConfigService.getOne(new LambdaQueryWrapper<MwSystemConfig>()
+                .eq(MwSystemConfig::getMenuName,TkUtil.getMixedPlatformKey(USER_EXTRACT_MAX)));
+        if(extractAutoMax == null) {
+            extractAutoMax = new MwSystemConfig();
+            extractAutoMax.setMenuName(TkUtil.getMixedPlatformKey(USER_EXTRACT_MAX));
+        }
+        extractAutoMax.setValue(param.getAutoMax().toString());
+        redisUtils.set(TkUtil.getMixedPlatformKey(USER_EXTRACT_MAX), param.getAutoMax().toString());
+
+        MwSystemConfig appExtractConfig = systemConfigService.getOne(new LambdaQueryWrapper<MwSystemConfig>()
+                .eq(MwSystemConfig::getMenuName,TkUtil.getMixedPlatformKey(EXTRACT_CONFIG)));
+        if(appExtractConfig == null) {
+            appExtractConfig = new MwSystemConfig();
+            appExtractConfig.setMenuName(TkUtil.getMixedPlatformKey(EXTRACT_CONFIG));
+        }
+        MwExtractConfigDto appConfig = generator.convert(param, MwExtractConfigDto.class);
+        appConfig.setExtractMin(param.getMinPrice().toString());
+        appConfig.setExtractMax(param.getMaxPrice().toString());
+        appExtractConfig.setValue(JSON.toJSONString(appConfig));
+        redisUtils.set(TkUtil.getMixedPlatformKey(EXTRACT_CONFIG), appConfig);
+
+        //保存
+        List<MwSystemConfig> systemConfigs = Arrays.asList(minPriceConfig, maxPriceConfig,
+                countConfig, extractAuto, extractAutoMax, appExtractConfig);
+        systemConfigService.saveOrUpdateBatch(systemConfigs);
+
+    }
+
+    public MwExtractConfigParam getExtractConfig() {
+        MwExtractConfigParam param = new MwExtractConfigParam();
+        MwSystemConfig minPriceConfig = systemConfigService.getOne(new LambdaQueryWrapper<MwSystemConfig>()
+                .eq(MwSystemConfig::getMenuName, TkUtil.getMixedPlatformKey(USER_EXTRACT_MIN_PRICE)));
+        if(minPriceConfig != null) {
+            param.setMinPrice(Integer.parseInt(minPriceConfig.getValue()));
+        }
+        MwSystemConfig maxPriceConfig = systemConfigService.getOne(new LambdaQueryWrapper<MwSystemConfig>()
+                .eq(MwSystemConfig::getMenuName,TkUtil.getMixedPlatformKey(USER_EXTRACT_MAX_PRICE) ));
+        if(maxPriceConfig != null) {
+            param.setMaxPrice(Integer.parseInt(maxPriceConfig.getValue()));
         }
 
-        return (JSONObject) redisUtils.get(EXTRACT_CONFIG);
+        MwSystemConfig countConfig = systemConfigService.getOne(new LambdaQueryWrapper<MwSystemConfig>()
+                .eq(MwSystemConfig::getMenuName,TkUtil.getMixedPlatformKey(USER_EXTRACT_COUNT)));
+        if(countConfig != null) {
+            param.setCount(Integer.parseInt(countConfig.getValue()));
+        }
+
+        MwSystemConfig extractAuto = systemConfigService.getOne(new LambdaQueryWrapper<MwSystemConfig>()
+                .eq(MwSystemConfig::getMenuName,TkUtil.getMixedPlatformKey(USER_EXTRACT_AUTO)));
+        if(extractAuto != null) {
+            param.setAuto(Integer.parseInt(extractAuto.getValue()));
+        }
+
+        MwSystemConfig extractAutoMax = systemConfigService.getOne(new LambdaQueryWrapper<MwSystemConfig>()
+                .eq(MwSystemConfig::getMenuName,TkUtil.getMixedPlatformKey(USER_EXTRACT_MAX)));
+        if(extractAutoMax != null) {
+            param.setAutoMax(Integer.parseInt(extractAutoMax.getValue()));
+        }
+
+        MwExtractConfigDto appConfig = systemConfigService.getAppExtractConfig();
+
+        param.setAlipay(Integer.parseInt(appConfig.getAlipay()));
+        param.setBank(Integer.parseInt(appConfig.getBank()));
+        param.setCharge(Integer.parseInt(appConfig.getCharge()));
+        param.setWeixin(Integer.parseInt(appConfig.getWeixin()));
+        param.setExtractFeeDesc(appConfig.getExtractFeeDesc());
+        param.setExtractIntervalDesc(appConfig.getExtractIntervalDesc());
+        param.setExtractMinDesc(appConfig.getExtractMinDesc());
+
+        return param;
     }
     /**
      * 累计提现金额

@@ -7,7 +7,6 @@ package com.mailvor.modules.energy.service;
 import com.mailvor.common.service.BaseService;
 import com.mailvor.modules.energy.domain.UserEnergyOrder;
 import com.mailvor.modules.energy.dto.EnergyConfigDto;
-import com.mailvor.modules.energy.dto.ExpCardConfigDto;
 import com.mailvor.modules.energy.dto.UserEnergyOrderQueryCriteria;
 import org.springframework.data.domain.Pageable;
 
@@ -35,5 +34,4 @@ public interface UserEnergyOrderService extends BaseService<UserEnergyOrder>{
     void createEnergyOrders(Long uid, BigDecimal energy, String platform, EnergyConfigDto configDto, Integer type);
 
     void createEnergyOrders(Long uid, BigDecimal energy, String platform, EnergyConfigDto configDto, Integer type, BigDecimal times);
-    void createExpOrders(Long uid, String platform, ExpCardConfigDto config, Integer type);
 }

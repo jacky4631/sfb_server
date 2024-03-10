@@ -4,6 +4,7 @@
  */
 package com.mailvor.modules.shop.service.dto;
 
+import com.mailvor.annotation.Query;
 import lombok.Data;
 
 /**
@@ -12,4 +13,7 @@ import lombok.Data;
 */
 @Data
 public class MwAppVersionQueryCriteria {
+    @Query(type = Query.Type.EQUAL)
+    private String platformName;
+
 }

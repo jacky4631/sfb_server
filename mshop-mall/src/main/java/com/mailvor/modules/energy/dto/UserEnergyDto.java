@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 
 /**
  * <p>
- * 用户流量扶持
+ * 用户热度
  * </p>
  *
  * @author huangyu

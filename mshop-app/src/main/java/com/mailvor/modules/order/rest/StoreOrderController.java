@@ -37,6 +37,7 @@ import com.mailvor.modules.product.service.MwStoreProductService;
 import com.mailvor.modules.product.vo.MwStoreProductQueryVo;
 import com.mailvor.modules.services.CreatShareProductService;
 import com.mailvor.modules.services.OrderSupplyService;
+import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.tk.service.*;
 import com.mailvor.modules.tools.express.ExpressService;
 import com.mailvor.modules.tools.express.config.ExpressAutoConfiguration;
@@ -46,7 +47,6 @@ import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.service.MwUserPoolService;
 import com.mailvor.modules.user.service.MwUserService;
 import com.mailvor.modules.utils.TkUtil;
-import com.mailvor.utils.RedisUtils;
 import com.vdurmont.emoji.EmojiParser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -64,8 +64,6 @@ import javax.validation.Valid;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
-import static com.mailvor.constant.SystemConfigConstants.HB_UNLOCK_CONFIG;
 
 /**
  * <p>
@@ -119,7 +117,7 @@ public class StoreOrderController {
     @Resource
     private MwUserPoolService poolService;
     @Resource
-    private RedisUtils redisUtil;
+    private MwSystemConfigService systemConfigService;
     /**
      * 订单确认
      */
@@ -479,10 +477,8 @@ public class StoreOrderController {
         if(checkOrder) {
             MwUser user = userService.getById(uid);
             Integer refund = poolService.getRefund(uid);
-            HbUnlockConfig unlockConfig = (HbUnlockConfig) redisUtil.get(HB_UNLOCK_CONFIG);
+            HbUnlockConfig unlockConfig = systemConfigService.getHbUnlockConfig();
             tabs.add(new OrderTabDto("淘单", tbOrderService.hasUnlockOrder(uid, innerType,
-                    TkUtil.getUnlockDay(user.getLevel(), refund, unlockConfig))));
-            tabs.add(new OrderTabDto("美团", mtOrderService.hasUnlockOrder(uid, innerType,
                     TkUtil.getUnlockDay(user.getLevel(), refund, unlockConfig))));
             tabs.add(new OrderTabDto("京单", jdOrderService.hasUnlockOrder(uid, innerType,
                     TkUtil.getUnlockDay(user.getLevelJd(), refund, unlockConfig))));
@@ -492,14 +488,21 @@ public class StoreOrderController {
                     TkUtil.getUnlockDay(user.getLevelDy(), refund, unlockConfig))));
             tabs.add(new OrderTabDto("唯单", vipOrderService.hasUnlockOrder(uid, innerType,
                     TkUtil.getUnlockDay(user.getLevelVip(), refund, unlockConfig))));
+            //美团不加入热度订单
+            if(innerType != 2) {
+                tabs.add(new OrderTabDto("美团", mtOrderService.hasUnlockOrder(uid, innerType,
+                        TkUtil.getUnlockDay(user.getLevel(), refund, unlockConfig))));
+            }
         } else {
 
             tabs.add(new OrderTabDto("淘单", false));
-            tabs.add(new OrderTabDto("美团", false));
             tabs.add(new OrderTabDto("京单", false));
             tabs.add(new OrderTabDto("拼单", false));
             tabs.add(new OrderTabDto("抖单", false));
             tabs.add(new OrderTabDto("唯单", false));
+            if(innerType != 2) {
+                tabs.add(new OrderTabDto("美团", false));
+            }
         }
         return ApiResult.ok(tabs);
     }

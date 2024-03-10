@@ -29,6 +29,7 @@ public enum BillDetailEnum {
 
 	TYPE_12("upgrade","加盟星选会员奖励"),
 	TYPE_13("retail","订单分销奖励"),
+	TYPE_14("retail","邀请用户奖励"),
 
 
 	CATEGORY_1("now_money","金额"),

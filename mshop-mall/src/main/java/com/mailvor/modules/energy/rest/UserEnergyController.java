@@ -4,9 +4,6 @@
  */
 package com.mailvor.modules.energy.rest;
 
-import cn.hutool.core.util.ObjectUtil;
-import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mailvor.api.MshopException;
 import com.mailvor.modules.energy.domain.UserEnergyOrder;
 import com.mailvor.modules.energy.domain.UserEnergyOrderLog;
@@ -18,13 +15,11 @@ import com.mailvor.modules.energy.service.UserEnergyOrderLogService;
 import com.mailvor.modules.energy.service.UserEnergyOrderService;
 import com.mailvor.modules.energy.service.UserEnergyService;
 import com.mailvor.modules.logging.aop.log.Log;
-import com.mailvor.modules.shop.domain.MwSystemConfig;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.domain.MwUserHbScale;
 import com.mailvor.modules.user.service.MwUserHbScaleService;
 import com.mailvor.modules.user.service.MwUserService;
-import com.mailvor.utils.RedisUtil;
 import com.mailvor.utils.RedisUtils;
 import com.mailvor.utils.StringUtils;
 import io.swagger.annotations.Api;
@@ -40,8 +35,6 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
-
-import static com.mailvor.constant.SystemConfigConstants.ENERGY_CONFIG;
 
 /**
 * @author huangyu
@@ -84,28 +77,13 @@ public class UserEnergyController {
         return new ResponseEntity<>(systemConfigService.getEnergyConfig(),HttpStatus.OK);
     }
 
-    @Log("新增或修改")
-    @ApiOperation(value = "新增或修改")
+    @Log("修改热度配置")
+    @ApiOperation(value = "修改热度配置")
     @PostMapping(value = "/config")
     @PreAuthorize("hasAnyRole('admin','ENERGY_ALL','ENERGY_CONFIG_CREATE')")
     public ResponseEntity create(@RequestBody EnergyConfigDto param){
 
-        MwSystemConfig systemConfig = systemConfigService.getOne(new LambdaQueryWrapper<MwSystemConfig>()
-                .eq(MwSystemConfig::getMenuName,ENERGY_CONFIG));
-
-        MwSystemConfig mwSystemConfigModel = new MwSystemConfig();
-        mwSystemConfigModel.setMenuName(ENERGY_CONFIG);
-        String value = JSON.toJSONString(param);
-        mwSystemConfigModel.setValue(JSON.toJSONString(param));
-
-        RedisUtil.set(ENERGY_CONFIG,value,0);
-        if(ObjectUtil.isNull(systemConfig)){
-            systemConfigService.save(mwSystemConfigModel);
-        }else{
-            mwSystemConfigModel.setId(systemConfig.getId());
-            systemConfigService.saveOrUpdate(mwSystemConfigModel);
-        }
-
+        systemConfigService.setEnergyConfig(param);
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
@@ -132,7 +110,7 @@ public class UserEnergyController {
         }
         UserEnergyOrderLog orderLog = orderLogService.getById(energyOrder.getLogId());
         if(orderLog != null && orderLog.getType() != 2) {
-            throw new MshopException("不是体验订单，无法修改");
+            throw new MshopException("无法修改");
         }
         energyOrder.setReleaseMoney(param.getReleaseMoney().setScale(2, RoundingMode.HALF_UP));
         energyOrderService.updateById(energyOrder);
@@ -211,8 +189,6 @@ public class UserEnergyController {
         }
         scale = new MwUserHbScale();
         scale.setUid(param.getUid());
-        scale.setExpScale(param.getExpScale());
-        scale.setExpInvalidDay(param.getExpInvalidDay());
         scale.setMonthScale(param.getMonthScale());
         scale.setMonthInvalidDay(param.getMonthInvalidDay());
 
@@ -230,8 +206,6 @@ public class UserEnergyController {
         if(scale == null) {
             throw new MshopException("记录不存在");
         }
-        scale.setExpScale(param.getExpScale());
-        scale.setExpInvalidDay(param.getExpInvalidDay());
         scale.setMonthScale(param.getMonthScale());
         scale.setMonthInvalidDay(param.getMonthInvalidDay());
 

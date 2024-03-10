@@ -24,8 +24,11 @@ public class MwAppVersionDto implements Serializable {
 
     private Date updateTime;
 
-    /** 版本code */
-    private String versionCode;
+    /** ios版本号 */
+    private String iosVersion;
+
+    /** 安卓版本号 */
+    private String androidVersion;
 
     /** 版本名称 */
     private String versionName;
@@ -41,4 +44,8 @@ public class MwAppVersionDto implements Serializable {
 
     /** ios store应用商店链接 */
     private String iosUrl;
+
+
+    /** 是否启用 */
+    private Integer enable;
 }

@@ -71,9 +71,7 @@ public class YeePayService {
         request.setOrderId(orderId);
         request.setOrderAmount(new BigDecimal(price));
 		String title = payConfig.getTitle();
-		if(type == 1) {
-			title = title.replace("一年服务费", "体验卡");
-		} else if(type == 2){
+		if(type == 2){
 			title = title.replace("一年服务费", "月卡服务费");
 		}
         request.setGoodsName(title);

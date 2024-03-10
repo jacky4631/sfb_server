@@ -27,7 +27,6 @@ public class TkConstants {
     public static final String BRAND_LIST_DATA = "cache:index:brandList";
     public static final String HOT_DATA = "cache:index:hot";
     public static final String DDQ_DATA = "cache:index:ddq";
-    public static final String HOME_DATA = "url:home";
     public static final String HOME_BANNER = "cache:home:banner";
 
 

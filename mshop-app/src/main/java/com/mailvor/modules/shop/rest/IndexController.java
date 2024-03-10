@@ -17,14 +17,11 @@ import com.mailvor.modules.canvas.service.StoreCanvasService;
 import com.mailvor.modules.mp.service.MwWechatLiveService;
 import com.mailvor.modules.product.service.MwStoreProductService;
 import com.mailvor.modules.product.vo.MwSystemStoreQueryVo;
-import com.mailvor.modules.shop.domain.MwAppVersion;
 import com.mailvor.modules.shop.param.MwSystemStoreQueryParam;
 import com.mailvor.modules.shop.service.MwAppVersionService;
 import com.mailvor.modules.shop.service.MwSystemGroupDataService;
 import com.mailvor.modules.shop.service.MwSystemStoreService;
-import com.mailvor.modules.shop.vo.AppCheckVersion;
 import com.mailvor.modules.shop.vo.IndexVo;
-import com.mailvor.modules.shop.vo.MwAppVersionVo;
 import com.mailvor.utils.FileUtil;
 import com.mailvor.utils.RedisUtil;
 import com.mailvor.utils.ShopKeyUtils;
@@ -147,23 +144,6 @@ public class IndexController {
                 param.getPage(),param.getLimit());
         map.put("list",lists);
         return ApiResult.ok(map);
-    }
-
-
-    @GetMapping("/version")
-    @ApiOperation(value = "获取app版本信息",notes = "获取app版本信息")
-    public ApiResult<MwAppVersionVo> storeList(AppCheckVersion param){
-        MwAppVersion appVersion= appVersionService.lambdaQuery().orderByDesc(MwAppVersion::getCreateTime).one();
-        MwAppVersionVo appVersionVo=new MwAppVersionVo();
-        appVersionVo.setVersionCode(appVersion.getVersionCode());
-        appVersionVo.setVersionInfo(appVersion.getVersionInfo());
-        appVersionVo.setVersionName(appVersion.getVersionName());
-        appVersionVo.setDownloadUrl("1101".equals(param.getType())?appVersion.getAndroidUrl():appVersion.getIosUrl());
-        appVersionVo.setForceUpdate(appVersion.getForceUpdate()==0);
-        if (!param.getVersionName().equals(appVersion.getVersionName())){
-            return ApiResult.ok(appVersionVo);
-        }
-        return ApiResult.ok(new MwAppVersionVo());
     }
 
 }

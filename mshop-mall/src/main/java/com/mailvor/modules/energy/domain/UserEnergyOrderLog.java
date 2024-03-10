@@ -48,6 +48,6 @@ public class UserEnergyOrderLog extends BaseDomain {
 
     @ApiModelProperty(value = "平台 tb jd pdd dy vip")
     private String platform;
-    @ApiModelProperty(value = "类型 0=赠送 1=推广 2=体验")
+    @ApiModelProperty(value = "类型 0=赠送 1=推广")
     private Integer type;
 }

@@ -67,8 +67,6 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.mailvor.constant.SystemConfigConstants.HB_UNLOCK_CONFIG;
-
 /**
  * <p>
  * 商品控制器
@@ -434,7 +432,7 @@ public class StoreProductController {
         return new ResponseEntity<>(mtOrderService.queryAll(criteria,pageable, unlockDay), HttpStatus.OK);
     }
     protected Integer getUnlockDay(Long uid, Integer level, Integer innerType, Integer grade) {
-        HbUnlockConfig unlockConfig = (HbUnlockConfig) redisUtil.get(HB_UNLOCK_CONFIG);
+        HbUnlockConfig unlockConfig = systemConfigService.getHbUnlockConfig();
         if((innerType != null && (innerType == 1 || innerType == 2)) || (grade != null && grade > 0)) {
             return unlockConfig.getUnlock();
         }

@@ -117,7 +117,7 @@ public class MeituanUtil {
         StringBuffer sb = new StringBuffer(bytes.length * 2);
         String tmp = "";
         for (int n = 0; n < bytes.length; n++) {
-            tmp = (java.lang.Integer.toHexString(bytes[n] & 0XFF));
+            tmp = (Integer.toHexString(bytes[n] & 0XFF));
             if (tmp.length() == 1) {
                 sb.append("0");
             }

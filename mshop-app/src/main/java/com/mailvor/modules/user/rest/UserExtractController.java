@@ -6,7 +6,6 @@ package com.mailvor.modules.user.rest;
 
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.mailvor.api.ApiResult;
 import com.mailvor.api.MshopException;
 import com.mailvor.common.aop.NoRepeatSubmit;
@@ -16,6 +15,7 @@ import com.mailvor.constant.SystemConfigConstants;
 import com.mailvor.modules.activity.param.UserExtParam;
 import com.mailvor.modules.activity.service.MwUserExtractConfigService;
 import com.mailvor.modules.activity.service.MwUserExtractService;
+import com.mailvor.modules.activity.service.dto.MwExtractConfigDto;
 import com.mailvor.modules.activity.service.dto.MwUserExtractQueryCriteria;
 import com.mailvor.modules.logging.aop.log.AppLog;
 import com.mailvor.modules.pay.dto.PayChannelDto;
@@ -113,8 +113,8 @@ public class UserExtractController {
     @AuthCheck
     @GetMapping("/extract/config")
     @ApiOperation(value = "用户提现配置",notes = "用户提现配置")
-    public ApiResult<JSONObject> extractConfig(){
-        JSONObject obj = userExtractService.getExtractConfig();
+    public ApiResult<MwExtractConfigDto> extractConfig(){
+        MwExtractConfigDto obj = systemConfigService.getAppExtractConfig();
         return ApiResult.ok(obj);
     }
     /**

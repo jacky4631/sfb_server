@@ -5,10 +5,14 @@
 package com.mailvor.modules.shop.service;
 
 import com.mailvor.common.service.BaseService;
+import com.mailvor.modules.activity.service.dto.MwExtractConfigDto;
 import com.mailvor.modules.energy.dto.*;
 import com.mailvor.modules.shop.domain.MwSystemConfig;
 import com.mailvor.modules.shop.service.dto.MwSystemConfigDto;
 import com.mailvor.modules.shop.service.dto.MwSystemConfigQueryCriteria;
+import com.mailvor.modules.shop.service.dto.PayConfigDto;
+import com.mailvor.modules.user.config.AppDataConfig;
+import com.mailvor.modules.user.config.HbUnlockConfig;
 import org.springframework.data.domain.Pageable;
 
 import javax.servlet.http.HttpServletResponse;
@@ -55,8 +59,7 @@ public interface MwSystemConfigService extends BaseService<MwSystemConfig>{
     MwSystemConfig findByKey(String store_brokerage_statu);
 
     EnergyConfigDto getEnergyConfig();
-
-    ExpCardConfigDto getExpCardConfig();
+    void setEnergyConfig(EnergyConfigDto param);
 
     MonthCardConfigDto getMonthCardConfig();
 
@@ -65,4 +68,20 @@ public interface MwSystemConfigService extends BaseService<MwSystemConfig>{
     Long getSpreadHbCount();
 
     OrderCheckConfigDto getOrderCheckConfig();
+
+    HbUnlockConfig getHbUnlockConfig();
+    void setHbUnlockConfig(HbUnlockConfig param);
+    PayConfigDto getAppPayConfig();
+    void setAppPayConfig(PayConfigDto configDTO);
+
+    MwExtractConfigDto getAppExtractConfig();
+
+
+    AppDataConfig getAppDataConfig();
+    void setAppDataConfig(AppDataConfig param);
+
+
+
+    List<String> getAppShareConfig();
+    void setAppShareConfig(List<String> images);
 }

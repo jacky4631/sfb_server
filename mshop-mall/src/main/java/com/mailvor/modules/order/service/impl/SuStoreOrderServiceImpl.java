@@ -40,7 +40,6 @@ import com.mailvor.modules.utils.TkOrderFee;
 import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.OrderUtil;
 import com.mailvor.utils.RedisUtil;
-import com.mailvor.utils.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,7 +54,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.mailvor.constant.SystemConfigConstants.*;
 import static com.mailvor.utils.OrderUtil.*;
 
 
@@ -101,15 +99,10 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
     private MwSystemConfigService systemConfigService;
 
     @Resource
-    private TkService tkService;
-
-    @Resource
     private MwUserPoolService poolService;
 
     @Resource
     private UserEnergyService energyService;
-    @Resource
-    private RedisUtils redisUtil;
 
     @Resource
     private MwUserHbScaleService userHbScaleService;
@@ -237,7 +230,7 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         }
         userInfo.setNowMoney(newMoney);
         userService.updateById(userInfo);
-        //订单退款扣除能量
+        //订单退款扣除热度
         energyService.decEnergy(spreadUid, platformEnum.getValue(), feeOne, 1);
 
         //增加流水
@@ -576,9 +569,12 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
             if(user == null) {
                 return;
             }
-            //抽多少红包 增加多少热度
-            energyService.addEnergy(uid, uid, platformEnum.getValue(), incMoney, 1);
-
+            //抽多少红包 增加多少热度 只有前五大平台才增加热度
+            if(platformEnum == PlatformEnum.TB || platformEnum == PlatformEnum.JD ||
+                    platformEnum == PlatformEnum.PDD || platformEnum == PlatformEnum.DY ||
+                    platformEnum == PlatformEnum.VIP) {
+                energyService.addEnergy(uid, uid, platformEnum.getValue(), incMoney, 1);
+            }
             String mark = TkUtil.getSelfOrderBillMark(platformEnum.getDesc(),
                         orderId, incMoney.doubleValue());
             String title = TkUtil.getOrderBillTitle(null, platformEnum.getDesc(), 0);
@@ -604,7 +600,7 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
                 return;
             }
             Long origUid = 0L;
-                //流量扶持订单特殊
+                //热度订单特殊
             String mark = TkUtil.getEnergyOrderBillMark(
                         platformEnum.getDesc(), orderId,
                         orderHb,
@@ -669,6 +665,7 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         if(refund != null && refund >=3) {
             hb = NumberUtil.round(hb/8, 2).doubleValue();
         }
+        hb = NumberUtil.round(hb, 2).doubleValue();
 
         return hb;
     }
@@ -725,20 +722,16 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         PlatformEnum platform = orderFee.getPlatform();
         BigDecimal discountOne;
 
-        //如果是体验订单 比例是20%
-        if(order.getInnerType() == 1) {
-            discountOne = BigDecimal.valueOf(20);
-        } else {
-            MwUser user = userService.getById(uid);
-            MwSystemUserLevel selfUserLevel = systemUserLevelService.getUserLevel(user, platform.getValue());
+        MwUser user = userService.getById(uid);
+        MwSystemUserLevel selfUserLevel = systemUserLevelService.getUserLevel(user, platform.getValue());
 
-            //因为会员等级一级分佣比例为40%，订单展示需要除以40%，如果会员一级分佣修改，这里需要同步修改
-            if(selfUserLevel != null) {
-                discountOne = selfUserLevel.getDiscountOne();
-            } else {
-                discountOne = BigDecimal.valueOf(20);
-            }
+        //因为会员等级一级分佣比例为40%，订单展示需要除以40%，如果会员一级分佣修改，这里需要同步修改
+        if(selfUserLevel != null) {
+            discountOne = selfUserLevel.getDiscountOne();
+        } else {
+            discountOne = BigDecimal.valueOf(20);
         }
+
 
         if(discountOne.doubleValue() <= 0) {
             log.info("用户{}所在平台{} 当前一级佣金{},订单{}无法获得热度佣金", uid, platform, discountOne, orderId);
@@ -772,10 +765,7 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
             BigDecimal scale = BigDecimal.valueOf(1);
 
             long betweenDay = DateUtil.between(userHbScale.getCreateTime(), new Date(), DateUnit.DAY);
-            //体验订单 同时没有超过有效日期
-            if(innerType == 1 && betweenDay < userHbScale.getExpInvalidDay()) {
-                scale = userHbScale.getExpScale();
-            } else if(innerType == 2 && betweenDay < userHbScale.getMonthInvalidDay()) {
+            if(innerType == 2 && betweenDay < userHbScale.getMonthInvalidDay()) {
                 //热度订单 需要校验是否是月卡
                 MwUserRecharge userRecharge = userRechargeService.getOne(new LambdaQueryWrapper<MwUserRecharge>()
                         .eq(MwUserRecharge::getUid, uid)
@@ -922,7 +912,7 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         }
         Integer refund = poolService.getRefund(uid);
 
-        HbUnlockConfig unlockConfig = (HbUnlockConfig) redisUtil.get(HB_UNLOCK_CONFIG);
+        HbUnlockConfig unlockConfig = systemConfigService.getHbUnlockConfig();
         Integer unlockDay = TkUtil.getUnlockDay(level, refund, unlockConfig);
 
         String remain = CashUtils.getRemainDate(unlockDay, createTime.getTime()/1000, fee, tkOrder.getInnerType());

@@ -56,7 +56,6 @@ public class HaodankuWaimaiController {
         res.addAll(eTime);
         return ApiResult.ok(res);
     }
-
     @UserCheck
     @GetMapping(value = "/waimai/word")
     public JSONObject meiTuanWord(@RequestParam String activityId, @RequestParam Integer type) {
@@ -71,5 +70,25 @@ public class HaodankuWaimaiController {
             uid = mwUser.getUid();
         }
         return kuService.eleWord(activityId, uid);
+    }
+    @GetMapping(value = "/ele/list")
+    public ApiResult eleActivityList() {
+        JSONObject eList = kuService.eleActivityList(1, 10).getJSONObject("data");
+        JSONArray eRed = eList.getJSONArray("red_activity");
+        eRed.stream().forEach(o -> {
+            if(o instanceof JSONObject) {
+                ((JSONObject)o).put("type", 2);
+            }
+        });
+        JSONArray eTime = eList.getJSONArray("time_activity");
+        eTime.stream().forEach(o -> {
+            if(o instanceof JSONObject) {
+                ((JSONObject)o).put("type", 2);
+            }
+        });
+        JSONArray res = new JSONArray();
+        res.addAll(eRed);
+        res.addAll(eTime);
+        return ApiResult.ok(res);
     }
 }

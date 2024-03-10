@@ -59,6 +59,9 @@ public class OrderTask {
 
     @Resource
     protected MailvorMtOrderService mtOrderService;
+
+    @Resource
+    protected MailvorEleOrderService eleOrderService;
     @Resource
     protected DataokeService dataokeService;
 
@@ -357,7 +360,7 @@ public class OrderTask {
                         order.setUniqueItemId(order.getOrderId());
                     }
                 }
-                //拼多多授权后customParams格式为{"uid":"55"}，未授权为pid，解析报错
+                //美团uid解析
                 String medium = order.getUtmMedium();
                 if(StringUtils.isBlank(medium)) {
                     return;
@@ -422,5 +425,35 @@ public class OrderTask {
             }
         }
         return null;
+    }
+
+
+    protected Integer saveEleKu(QueryEleKuParam param) {
+        EleKuResVo res = kuService.eleOrder(param);
+        if(res != null && res.getCode() == 200 && !CollectionUtils.isEmpty(res.getData())) {
+            ArrayList<MailvorEleKuOrder> eleOrders = res.getData();
+            List<MailvorEleOrder> orders = eleOrders.stream().map(dyKuOrder-> dyKuOrder.convert()).collect(Collectors.toList());
+            orders.forEach(dyOrder -> {
+                if(StringUtils.isNotBlank(dyOrder.getChannelCode())) {
+                    try {
+                        Long uid = Long.parseLong(dyOrder.getChannelCode());
+                        if(uid > 0) {
+                            dyOrder.setUid(uid);
+                            //设置需要刷新今日预估的用户uid
+                            RedisUtil.setFeeUid(uid);
+                        }
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            });
+            boolean saved = eleOrderService.saveOrUpdateBatch(orders);
+
+            log.warn(saved? "饿了么库订单保存成功": "饿了么库订单保存失败");
+            return res.getMinId();
+        }
+
+        return 0;
     }
 }

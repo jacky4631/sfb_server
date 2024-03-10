@@ -4,11 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.modules.order.service.SuStoreOrderService;
 import com.mailvor.modules.order.service.dto.UserRefundDto;
+import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.tk.domain.*;
 import com.mailvor.modules.tk.service.*;
 import com.mailvor.modules.user.config.HbUnlockConfig;
 import com.mailvor.modules.user.service.MwUserService;
-import com.mailvor.utils.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.mailvor.constant.SystemConfigConstants.HB_UNLOCK_CONFIG;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -50,8 +49,9 @@ public class SelfOrderHbTask {
 
     @Resource
     private MwUserService userService;
+
     @Resource
-    private RedisUtils redisUtil;
+    private MwSystemConfigService systemConfigService;
 
     @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
     protected void run(String paramStr) throws InterruptedException {
@@ -62,7 +62,7 @@ public class SelfOrderHbTask {
         //找到尚未拆红包，并且已经超过解锁时间的订单
         //todo 每次找到10条 已经绑定用户 未拆红包的 bind=0  并且已经超过默认解锁天数3天的订单
 
-        HbUnlockConfig unlockConfig = (HbUnlockConfig) redisUtil.get(HB_UNLOCK_CONFIG);
+        HbUnlockConfig unlockConfig = systemConfigService.getHbUnlockConfig();
         //普通用户解锁+3天
         Integer unlockDay = unlockConfig.getUnlock() + day;
         List<Long> uidList = new ArrayList<>();

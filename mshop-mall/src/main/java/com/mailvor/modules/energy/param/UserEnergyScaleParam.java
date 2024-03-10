@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 
 /**
  * <p>
- * 用户流量扶持
+ * 用户热度翻倍
  * </p>
  *
  * @author huangyu
@@ -24,15 +24,10 @@ public class UserEnergyScaleParam extends BaseDomain {
 
     @NotNull
     private Long uid;
-    @NotNull
-    /** 体验翻倍比例 */
-    private BigDecimal expScale;
+
     @NotNull
     /** 月卡翻倍比例 */
     private BigDecimal monthScale;
-    /** 体验翻倍失效天数，相比create_time */
-    @NotNull
-    private Integer expInvalidDay;
     /** 月卡翻倍失效天数，相比create_time */
     @NotNull
     private Integer monthInvalidDay;

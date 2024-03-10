@@ -72,14 +72,10 @@ public class MwUserRecharge extends BaseDomain {
 
     private String platform;
 
-
-    /** 是否已被用于开启流量扶持 0=未使用 1=使用 */
-    private Integer used;
-
     private String result;
 
     /**
-     * 加盟类型 0=加盟 1=体验卡 2=月卡
+     * 加盟类型 0=年卡 2=月卡
      * */
     private Integer type;
 

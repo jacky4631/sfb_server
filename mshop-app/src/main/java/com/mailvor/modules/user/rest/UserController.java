@@ -5,7 +5,6 @@
 package com.mailvor.modules.user.rest;
 
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -22,9 +21,7 @@ import com.mailvor.common.util.PhoneUtil;
 import com.mailvor.constant.ShopConstants;
 import com.mailvor.constant.SystemConfigConstants;
 import com.mailvor.enums.BillInfoEnum;
-import com.mailvor.enums.PlatformEnum;
 import com.mailvor.modules.energy.dto.EnergyConfigDto;
-import com.mailvor.modules.energy.dto.ExpCardConfigDto;
 import com.mailvor.modules.energy.dto.UserEnergyDto;
 import com.mailvor.modules.energy.service.UserEnergyService;
 import com.mailvor.modules.logging.aop.log.AppLog;
@@ -39,7 +36,6 @@ import com.mailvor.modules.tools.domain.SensitiveWord;
 import com.mailvor.modules.tools.service.SensitiveWordService;
 import com.mailvor.modules.tools.utils.SensitiveWordUtil;
 import com.mailvor.modules.user.domain.MwUser;
-import com.mailvor.modules.user.domain.MwUserExtra;
 import com.mailvor.modules.user.domain.MwUserUnion;
 import com.mailvor.modules.user.param.*;
 import com.mailvor.modules.user.service.*;
@@ -108,10 +104,6 @@ public class UserController {
 
     @Resource
     private MwUserBankService bankService;
-
-    @Resource
-    private MwUserExtraService userExtraService;
-
 
     @GetMapping("/push")
     @ApiOperation(value = "测试推送",notes = "测试推送",response = MwUserQueryVo.class)
@@ -414,6 +406,7 @@ public class UserController {
             mwUser.setRealName(param.getRealName());
         }
         if(StringUtils.isNotBlank(param.getCode())) {
+            //绑定邀请码
             //根据code找到用户
             LambdaQueryWrapper<MwUser> wrapper = new LambdaQueryWrapper<>();
             String code = param.getCode();
@@ -432,6 +425,7 @@ public class UserController {
             //设置上级id
             boolean success = mwUserService.setSpread(parentUser.getUid().toString(), mwUser.getUid());
             if(success) {
+                mwUserService.spreadUserHb(parentUser,mwUser);
                 return ApiResult.ok("修改成功");
             } else {
                 return ApiResult.fail("绑定失败");
@@ -601,7 +595,7 @@ public class UserController {
     @ApiOperation(value = "获取用户分享图",notes = "获取用户分享图",response = UserEnergyDto.class)
     public ApiResult<List> userShare(){
 
-        return ApiResult.ok(RedisUtil.getShare());
+        return ApiResult.ok(systemConfigService.getAppShareConfig());
     }
 
     @AuthCheck
@@ -627,102 +621,5 @@ public class UserController {
         return ApiResult.ok(bankQueryVos);
     }
 
-    @AuthCheck
-    @GetMapping("/user/exp")
-    @ApiOperation(value = "获取体验卡信息",notes = "获取体验卡信息",response = JSONObject.class)
-    public ApiResult<JSONObject> getExpConfig(){
-        Long uid = LocalUser.getUser().getUid();
-        MwUserExtra userExtra = userExtraService.getById(uid);
-        List<JSONObject> exps = new ArrayList<>();
-        if(userExtra != null) {
-            Date now = new Date();
-            if(userExtra.getLevel() == 5) {
-                JSONObject jLevel = new JSONObject();
-                jLevel.put("platform", PlatformEnum.TB.getValue());
-                long remain = DateUtil.betweenDay(now, userExtra.getExpired(), true);
-                if(remain < 0) {
-                    remain = 0;
-                }
-                jLevel.put("remain", remain);
-                jLevel.put("expired", userExtra.getExpired());
-                exps.add(jLevel);
-            } else if (userExtra.getLevel() == 99) {
-                JSONObject jLevel = new JSONObject();
-                jLevel.put("platform", PlatformEnum.TB.getValue());
-                jLevel.put("remain", 0);
-                exps.add(jLevel);
-            }
-            if(userExtra.getLevelJd() == 5) {
-                JSONObject jLevel = new JSONObject();
-                jLevel.put("platform", PlatformEnum.JD.getValue());
-                long remain = DateUtil.betweenDay(now, userExtra.getExpiredJd(), true);
-                if(remain < 0) {
-                    remain = 0;
-                }
-                jLevel.put("remain", remain);
-                jLevel.put("expired", userExtra.getExpiredJd());
-                exps.add(jLevel);
-            } else if (userExtra.getLevelJd() == 99) {
-                JSONObject jLevel = new JSONObject();
-                jLevel.put("platform", PlatformEnum.JD.getValue());
-                jLevel.put("remain", 0);
-                exps.add(jLevel);
-            }
-            if(userExtra.getLevelPdd() == 5) {
-                JSONObject jLevel = new JSONObject();
-                jLevel.put("platform", PlatformEnum.PDD.getValue());
-                long remain = DateUtil.betweenDay(now, userExtra.getExpiredPdd(), true);
-                if(remain < 0) {
-                    remain = 0;
-                }
-                jLevel.put("remain", remain);
-                jLevel.put("expired", userExtra.getExpiredPdd());
-                exps.add(jLevel);
-            } else if (userExtra.getLevelPdd() == 99) {
-                JSONObject jLevel = new JSONObject();
-                jLevel.put("platform", PlatformEnum.PDD.getValue());
-                jLevel.put("remain", 0);
-                exps.add(jLevel);
-            }
-            if(userExtra.getLevelDy() == 5) {
-                JSONObject jLevel = new JSONObject();
-                jLevel.put("platform", PlatformEnum.DY.getValue());
-                long remain = DateUtil.betweenDay(now, userExtra.getExpiredDy(), true);
-                if(remain < 0) {
-                    remain = 0;
-                }
-                jLevel.put("remain", remain);
-                jLevel.put("expired", userExtra.getExpiredDy());
-                exps.add(jLevel);
-            } else if (userExtra.getLevelDy() == 99) {
-                JSONObject jLevel = new JSONObject();
-                jLevel.put("platform", PlatformEnum.DY.getValue());
-                jLevel.put("remain", 0);
-                exps.add(jLevel);
-            }
-            if(userExtra.getLevelVip() == 5) {
-                JSONObject jLevel = new JSONObject();
-                jLevel.put("platform", PlatformEnum.VIP.getValue());
-                long remain = DateUtil.betweenDay(now, userExtra.getExpiredVip(), true);
-                if(remain < 0) {
-                    remain = 0;
-                }
-                jLevel.put("remain", remain);
-                jLevel.put("expired", userExtra.getExpiredVip());
-                exps.add(jLevel);
-            } else if (userExtra.getLevelVip() == 99) {
-                JSONObject jLevel = new JSONObject();
-                jLevel.put("platform", PlatformEnum.VIP.getValue());
-                jLevel.put("remain", 0);
-                exps.add(jLevel);
-            }
-        }
-        ExpCardConfigDto configDto = systemConfigService.getExpCardConfig();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("price", configDto.getPrice());
-        jsonObject.put("valid", configDto.getExpired());
-        jsonObject.put("exps", exps);
-        return ApiResult.ok(jsonObject);
-    }
 }
 

@@ -44,7 +44,7 @@ public class PayChannelParam implements Serializable {
     @ApiModelProperty(value = "用户银行卡id payType=4是必须传入")
     private Long bankId;
 
-    @ApiModelProperty(value = "订单类型 0=加盟 1=体验卡 2=月卡")
+    @ApiModelProperty(value = "订单类型 0=加盟 2=月卡")
     private Integer type;
 
 

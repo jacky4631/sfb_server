@@ -29,7 +29,7 @@ public class MwUserFeeLogOpt extends BaseDomain {
 
 //    @ApiModelProperty(value = "平台,tb jd pdd dy vip fans up")
 //    @ApiModelProperty(value = "type时间 1=今天 2=昨天 3=本月 4=上月 5=近30天 6近7天")
-//    @ApiModelProperty(value = "cid佣金类型 1=总览 2=自购 3=流量扶持 4=金客 5=银客 6=已结算")
+//    @ApiModelProperty(value = "cid佣金类型 1=总览 2=自购 4=金客 5=银客 6=已结算 7=热度订单")
     @TableId
     private Long uid;
 

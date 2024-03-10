@@ -11,7 +11,6 @@ import com.mailvor.modules.shop.domain.MwSystemUserLevel;
 import com.mailvor.modules.tk.domain.*;
 import com.mailvor.modules.user.config.HbUnlockConfig;
 import com.mailvor.modules.user.domain.MwUser;
-import com.mailvor.modules.user.domain.MwUserExtra;
 import com.mailvor.modules.user.service.dto.VipOrderDetailDto;
 import com.mailvor.utils.DateUtils;
 import com.mailvor.utils.OrderUtil;
@@ -23,6 +22,8 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import static com.mailvor.config.PayConfig.PAY_NAME;
 
 @Data
 public class TkUtil {
@@ -274,7 +275,6 @@ public class TkUtil {
 
     }
     public static String getEnergyOrderBillTitle(String platformDesc) {
-        //level 0=自己 1=上级 2=上上级 3=扶持用户，其实就是1为了区分流量扶持)
         StringBuilder sb = new StringBuilder();
         sb.append("用户拆开");
         sb.append(platformDesc);
@@ -298,7 +298,6 @@ public class TkUtil {
         sb.append("元");
     }
     public static String getOrderBillTitle(String nickname, String platformDesc, int level) {
-        //level 0=自己 1=上级 2=上上级 3=扶持用户，其实就是1为了区分流量扶持)
         StringBuilder sb = new StringBuilder();
         if(level == 0) {
             sb.append("自己");
@@ -511,22 +510,11 @@ public class TkUtil {
         }
         return new Date();
     }
-    public static Integer getLevel(String platform, MwUserExtra user) {
-        if(user == null || StringUtils.isBlank(platform)) {
-            return 0;
-        }
-        switch (platform) {
-            case "tb":
-                return user.getLevel();
-            case "jd":
-                return user.getLevelJd();
-            case "pdd":
-                return user.getLevelPdd();
-            case "dy":
-                return user.getLevelDy();
-            case "vip":
-                return user.getLevelVip();
-        }
-        return 0;
+    public static String getMixedPlatformKey(String configKey) {
+        return configKey + "_" + PAY_NAME;
+    }
+
+    public static String getOrigPlatformKey(String configKey) {
+        return configKey.replace("_" + PAY_NAME, "");
     }
 }

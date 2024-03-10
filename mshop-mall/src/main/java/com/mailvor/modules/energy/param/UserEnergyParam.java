@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 
 /**
  * <p>
- * 用户流量扶持
+ * 用户热度参数
  * </p>
  *
  * @author huangyu
@@ -23,7 +23,7 @@ public class UserEnergyParam extends BaseDomain {
     private static final long serialVersionUID = 1L;
 
     @NotNull
-    @ApiModelProperty(value = "用户流量扶持id")
+    @ApiModelProperty(value = "用户热度参数id")
     private Long id;
 
 

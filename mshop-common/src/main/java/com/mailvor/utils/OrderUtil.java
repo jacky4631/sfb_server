@@ -32,6 +32,9 @@ public class OrderUtil {
     public static final List<Integer> TB_VALID_ORDER_STATUS = Arrays.asList(3, 12);
     public static final List PDD_VALID_ORDER_STATUS = Arrays.asList(0,1,2,3,5);
     public static final String DY_NOT_VALID_ORDER_STATUS = "REFUND";
+
+
+    public static final Integer ELE_NOT_VALID_ORDER_STATUS = 3;
     public static final String VIP_NOT_VALID_ORDER_STATUS = "已失效";
 
 

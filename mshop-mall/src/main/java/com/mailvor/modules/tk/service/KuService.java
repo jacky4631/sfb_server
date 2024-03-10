@@ -6,10 +6,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.modules.tk.param.ParseContentParam;
 import com.mailvor.modules.tk.param.QueryDyKuParam;
+import com.mailvor.modules.tk.param.QueryEleKuParam;
 import com.mailvor.modules.tk.service.dto.DyLifeCityDto;
 import com.mailvor.modules.tk.util.HttpUtils;
 import com.mailvor.modules.tk.util.SignMD5Util;
 import com.mailvor.modules.tk.vo.DyKuResVo;
+import com.mailvor.modules.tk.vo.EleKuResVo;
 import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,6 +58,7 @@ public class KuService {
 
     public static final String ELE_ACTIVITY_LIST_API = KU_API_BASE + "/elm_activity_list";
     public static final String ELE_ACTIVITY_WORD_API = KU_API_BASE + "/elm_activity_ratesurl";
+    public static final String ELE_ACTIVITY_ORDER_API = KU_API_BASE + "/elm_order_list";
 
     public static final String MEITUAN_ORDER_LIST_API = KU_API_BASE + "/meituan_order_list";
     @Resource
@@ -314,6 +317,31 @@ public class KuService {
                 requestParam,
                 String.class);
         return JSON.parseObject(re.getBody());
+    }
+
+
+    public EleKuResVo eleOrder(QueryEleKuParam param) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("apikey=");
+        sb.append(waimaiKey);
+        sb.append("&min_id=");
+        sb.append(param.getPage());
+        sb.append("&back=");
+        sb.append(param.getSize());
+        sb.append("&start_date=");
+        sb.append(param.getStart());
+        sb.append("&end_date=");
+        sb.append(param.getEnd());
+        HttpHeaders headers = new HttpHeaders();
+        // 以表单的方式提交
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        HttpEntity<String> requestParam = new HttpEntity<>(sb.toString(),headers);
+        ResponseEntity<String> re = restTemplate.postForEntity(
+                ELE_ACTIVITY_ORDER_API,
+                requestParam,
+                String.class);
+        return JSON.parseObject(re.getBody(), EleKuResVo.class);
     }
     /**
      * Dy life list json object.

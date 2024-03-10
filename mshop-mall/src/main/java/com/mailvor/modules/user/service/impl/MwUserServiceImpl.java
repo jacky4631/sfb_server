@@ -28,7 +28,6 @@ import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.enums.*;
 import com.mailvor.modules.activity.service.MwUserExtractService;
 import com.mailvor.modules.cart.vo.MwStoreCartQueryVo;
-import com.mailvor.modules.energy.dto.ExpCardConfigDto;
 import com.mailvor.modules.energy.service.UserEnergyService;
 import com.mailvor.modules.order.domain.MwStoreOrderCartInfo;
 import com.mailvor.modules.order.service.MwStoreOrderCartInfoService;
@@ -74,7 +73,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.mailvor.config.PayConfig.PAY_NAME;
-import static com.mailvor.constant.SystemConfigConstants.HB_UNLOCK_CONFIG;
 import static com.mailvor.enums.BillDetailEnum.TYPE_12;
 import static com.mailvor.modules.utils.FeeUtil.DEFAULT_FEE_SCALE;
 import static com.mailvor.modules.utils.TkUtil.EXPIRED_LEVEL;
@@ -127,6 +125,10 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
     @Resource
     private MailvorDyOrderService dyOrderService;
 
+
+    @Resource
+    private MailvorMtOrderService mtOrderService;
+
     @Resource
     private JPushService jPushService;
 
@@ -143,14 +145,10 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
 
     @Resource
     private UserEnergyService energyService;
-    @Resource
-    private RedisUtils redisUtil;
 
     @Resource
     private MwUserUnionService userUnionService;
 
-    @Resource
-    private MwUserExtraService userExtraService;
     /**
      * 返回用户累计充值金额与消费金额
      * @param uid uid
@@ -495,6 +493,38 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
         return userQueryVo;
     }
 
+    public void spreadUserHb(MwUser parentUser, MwUser user) {
+        //邀请用户奖励
+        //前五位用户奖励给parentUser 0.4元 5人2元
+        String spreadUserCountStr = systemConfigService.getData(SystemConfigConstants.SPREAD_USER_COUNT);
+        if(StringUtils.isBlank(spreadUserCountStr)) {
+            spreadUserCountStr = "5";
+        }
+        Integer spreadUserCount = Integer.parseInt(spreadUserCountStr);
+
+        //如果设置为0无奖励 直接返回
+        if(spreadUserCount == 0) {
+            return;
+        }
+        String spreadUserHbStr = systemConfigService.getData(SystemConfigConstants.SPREAD_USER_HB);
+        if(StringUtils.isBlank(spreadUserHbStr)) {
+            spreadUserHbStr = "0.4";
+        }
+        Double spreadUserHb = Double.parseDouble(spreadUserHbStr);
+
+        List<MwUser> userList = getSpreadList(parentUser.getUid(), 0);
+        if(userList.size() <= spreadUserCount) {
+            incMoney(parentUser.getUid(),  BigDecimal.valueOf(spreadUserHb));
+            parentUser = getById(parentUser.getUid());
+            //增加流水
+            String mark = "邀请用户‘"+TkUtil.getAnonymousName(user.getNickname()) + "'获得"+spreadUserHb + "元";
+            billService.income(parentUser.getUid(),user.getUid(), "邀请用户奖励", BillDetailEnum.CATEGORY_1.getValue(),
+                    BillDetailEnum.TYPE_14.getValue(),spreadUserHb,parentUser.getNowMoney().doubleValue(), mark,user.getUid().toString());
+            jPushService.push(mark, parentUser.getUid());
+
+        }
+    }
+
     @Override
     public MwUserVipQueryVo getUserVipInfo(MwUser mwUser) {
         Long uid = mwUser.getUid();
@@ -558,7 +588,7 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
         Long uid = mwUser.getUid();
         MwUser user = getById(uid);
         Integer refund = poolService.getRefund(uid);
-        HbUnlockConfig unlockConfig = (HbUnlockConfig) redisUtil.get(HB_UNLOCK_CONFIG);
+        HbUnlockConfig unlockConfig = systemConfigService.getHbUnlockConfig();
 
         CompletableFuture<Boolean> tbCashFuture = CompletableFuture.supplyAsync(()->
                 tbOrderService.hasUnlockOrder(uid, 0, TkUtil.getUnlockDay(user.getLevel(), refund, unlockConfig)));
@@ -1015,7 +1045,8 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
      * 开通星选会员一二级返佣
      */
     @Override
-    public void gainParentMoney(Long uid, BigDecimal price, String orderId, Date orderCreateTime, String platform, Integer type) {
+    public void gainParentMoney(Long uid, BigDecimal price, String orderId, Date orderCreateTime,
+                                String platform, Integer type) {
         //如果分销没开启直接返回
         String open = systemConfigService.getData(SystemConfigConstants.STORE_BROKERAGE_OPEN);
         if(StrUtil.isBlank(open) || ShopCommonEnum.ENABLE_2.getValue().toString().equals(open)) {
@@ -1026,7 +1057,7 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
         if(childUser == null) {
             return;
         }
-        //如果是加盟 直接赠送热度，如果是体验卡 不加热度
+        //如果是加盟 直接赠送热度
         if(type == 0) {
             //设置自己的热度值 自己的为赠送
             energyService.addEnergy(uid, uid, platform, 0, 0);
@@ -1045,14 +1076,8 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
             return;
         }
         //校验用户等级是否>1，大于1才返还
-        String storeBrokerageRatioStr;
-        //得到体验卡1级分佣比例
-        if(type == 1) {
-            ExpCardConfigDto expCardConfigDto = systemConfigService.getExpCardConfig();
-            storeBrokerageRatioStr = expCardConfigDto.getOne();
-        } else {
-            storeBrokerageRatioStr = systemConfigService.getData(SystemConfigConstants.STORE_BROKERAGE_RATIO);
-        }
+        String storeBrokerageRatioStr = systemConfigService.getData(SystemConfigConstants.STORE_BROKERAGE_RATIO);
+
 
         //一级返佣比例未设置直接返回
         if(StrUtil.isBlank(storeBrokerageRatioStr)
@@ -1067,14 +1092,8 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
         String mark;
         String shopName = getShopName(platform);
         String shopType = getShopType();
-        //是否体验会员
-        boolean isExpVip = false;
-        if(type == 1) {
-            MwUserExtra userExtra = userExtraService.getById(userInfo.getUid());
-            isExpVip = TkUtil.getLevel(platform, userExtra) == 5;
-        }
 
-        if(TkUtil.getLevel(platform, userInfo) >= 4 || isExpVip) {
+        if(TkUtil.getLevel(platform, userInfo) >= 4) {
             userInfo.setNowMoney(NumberUtil.add(userInfo.getNowMoney(), feeOne));
             updateById(userInfo);
             mark = "金客‘" + TkUtil.getAnonymousName(childUser.getNickname()) + "’加盟" + shopName + shopType + "，奖励您" + feeOne + "元";
@@ -1121,14 +1140,8 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
             return;
         }
 
-        String storeBrokerageTwoStr;
-        //得到体验卡2级分佣比例
-        if(type == 1) {
-            ExpCardConfigDto expCardConfigDto = systemConfigService.getExpCardConfig();
-            storeBrokerageTwoStr = expCardConfigDto.getTwo();
-        } else {
-            storeBrokerageTwoStr = systemConfigService.getData(SystemConfigConstants.STORE_BROKERAGE_TWO);
-        }
+        String storeBrokerageTwoStr = systemConfigService.getData(SystemConfigConstants.STORE_BROKERAGE_TWO);
+
         //二级返佣比例未设置直接返回
         if(StrUtil.isBlank(storeBrokerageTwoStr)
                 || !NumberUtil.isNumber(storeBrokerageTwoStr)){
@@ -1142,14 +1155,9 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
         String mark;
         String shopName = getShopName(platform);
         String shopType = getShopType();
-        //是否是体验卡会员
-        boolean isExpVip = false;
-        if(type == 1) {
-            MwUserExtra userExtra = userExtraService.getById(preUser.getUid());
-            isExpVip = TkUtil.getLevel(platform, userExtra) == 5;
-        }
+
         //校验用户等级是否>4，大于4才返还
-        if(TkUtil.getLevel(platform, preUser) > 4 || isExpVip) {
+        if(TkUtil.getLevel(platform, preUser) > 4) {
             preUser.setNowMoney(NumberUtil.add(preUser.getNowMoney(), feeTwo));
             updateById(preUser);
             mark = "银客‘" + TkUtil.getAnonymousName(levelOneUser.getNickname()) + "’加盟"+shopName+shopType+"，奖励您" + feeTwo + "元";
@@ -1164,7 +1172,7 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
                 //设置上上级的拆红包佣金池
                 energyService.addEnergy(preUid, origUid, platform, 2, 1);
             } else if (type == 2) {
-                //月卡增加二级能量
+                //月卡增加二级热度
                 energyService.addMonthEnergy(preUid, origUid, platform, 2, 1);
             }
             //触发刷新每日预估等信息
@@ -1203,7 +1211,7 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
     public UserFeeQueryVo userFeeInfo(MwUser mwUser) {
         Long uid = mwUser.getUid();
         //今日
-        //cid "佣金类型 1=总览 2=自购 3=流量扶持 4=金客 5=银客 6=已结算")
+        //cid "佣金类型 1=总览 2=自购 4=金客 5=银客 6=已结算 7=热度订单")
         //type 1=今日 2=昨日 3=本月 4=上月 5=近30日
         MwUserFeeLogOpt feeLogOpt = feeLogOptService.getById(uid);
         if(feeLogOpt == null) {
@@ -1287,11 +1295,11 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
         Map<Long, MwUserFeeLogOpt> logOptMap = feeLogOptService.listByIds(newList).stream()
                 .collect(Collectors.toMap(MwUserFeeLogOpt::getUid, Function.identity()));
 
-        //生成每个用户自购佣金和流量扶持佣金
+        //生成每个用户自购佣金和热度佣金
         List<MwUserFeeLogOpt> feeLogOpts = new ArrayList<>();
 
         for(Long uid : newList) {
-            //"cid佣金类型 1=总览 2=自购 3=体验订单 4=金客 5=银客 6=已结算 7热度订单")
+            //"cid佣金类型 1=总览 2=自购 4=金客 5=银客 6=已结算 7=热度订单")
             //取得今日自己订单的预估收益
             List<Long> queryUid = Collections.singletonList(uid);
             MwUser user = userMap.get(uid);
@@ -1331,29 +1339,13 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
 
             //获取用户的当前等级，并取得一二级订单返佣比例
             Map<String, MwSystemUserLevel> systemUserLevelMap = FeeUtil.initUserLevelMap(systemUserLevels, user, multiVipOpen);
-            Map<String, MwSystemUserLevel> topLevelMap = systemUserLevels.stream().filter(mwSystemUserLevel -> mwSystemUserLevel.getGrade() == 5)
-                    .collect(Collectors.toMap(MwSystemUserLevel::getType, Function.identity()));
-
-            //淘宝体验
-            Long expTbCount = tbOrderService.totalCount(type, queryUid, 1);
-            Double expTbFee = 0.0;
-            if(expTbCount != 0) {
-                expTbFee = tbOrderService.totalFee(type, queryUid, 1);
-                //体验订单要看会员1级返佣
-                BigDecimal tbScale = FeeUtil.getScale(topLevelMap, PlatformEnum.TB.getValue(), 1);
-                expTbFee = OrderUtil.getRoundFee(NumberUtil.div(NumberUtil.mul(expTbFee, tbScale),100)).doubleValue();
-
-            }
-            MwUserFeeLog expTbLog = FeeUtil.createGeneralFeeLogs(uid, type, min, max, expTbFee, expTbCount,
-                    PlatformEnum.TB.getValue(), PlatformEnum.TB.getDesc(), 3);
-            optLogMap.put(expTbLog.getId(), expTbLog);
 
             //淘宝热度订单
             Long energyTbCount = tbOrderService.totalCount(type, queryUid, 2);
             Double energyTbFee = 0.0;
             if(energyTbCount != 0) {
                 energyTbFee = tbOrderService.totalFee(type, queryUid, 2);
-                //流量扶持需要计算1级返佣
+                //热度订单需要计算1级返佣
                 BigDecimal tbScale = FeeUtil.getScale(systemUserLevelMap, PlatformEnum.TB.getValue(), 1);
                 energyTbFee = OrderUtil.getRoundFee(NumberUtil.div(NumberUtil.mul(energyTbFee, tbScale),100)).doubleValue();
 
@@ -1363,8 +1355,8 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
             optLogMap.put(energyTbLog.getId(), energyTbLog);
 
             //保存总览淘宝
-            Double tbFee = selfTbFee + expTbFee + energyTbFee;
-            Long tbCount = selfTbCount + expTbCount + energyTbCount;
+            Double tbFee = selfTbFee + energyTbFee;
+            Long tbCount = selfTbCount + energyTbCount;
 
             //生成京东预估
             Double jdTimes = FeeUtil.getPlatformTimes(user, PlatformEnum.JD, comInfo);
@@ -1383,23 +1375,11 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
                     PlatformEnum.JD.getValue(), PlatformEnum.JD.getDesc(), 2);
             optLogMap.put(selfJdLog.getId(), selfJdLog);
 
-            //京东体验预估
-            Long expJdCount = jdOrderService.totalCount(type, queryUid, 1);
-            Double expJdFee = 0.0;
-            if(expJdCount != 0) {
-                expJdFee = jdOrderService.totalFee(type, queryUid, 1);//流量扶持需要计算1级返佣
-                BigDecimal jdScale = FeeUtil.getScale(topLevelMap, PlatformEnum.JD.getValue(), 1);
-                expJdFee = OrderUtil.getRoundFee(NumberUtil.div(NumberUtil.mul(expJdFee, jdScale),100)).doubleValue();
-            }
-            MwUserFeeLog expJdLog = FeeUtil.createGeneralFeeLogs(uid, type, min, max, expJdFee, expJdCount,
-                    PlatformEnum.JD.getValue(), PlatformEnum.JD.getDesc(), 3);
-            optLogMap.put(expJdLog.getId(), expJdLog);
-
             //京东热度订单
             Long energyJdCount = jdOrderService.totalCount(type, queryUid, 2);
             Double energyJdFee = 0.0;
             if(energyJdCount != 0) {
-                energyJdFee = jdOrderService.totalFee(type, queryUid, 2);//流量扶持需要计算1级返佣
+                energyJdFee = jdOrderService.totalFee(type, queryUid, 2);//热度订单需要计算1级返佣
                 BigDecimal jdScale = FeeUtil.getScale(systemUserLevelMap, PlatformEnum.JD.getValue(), 1);
                 energyJdFee = OrderUtil.getRoundFee(NumberUtil.div(NumberUtil.mul(energyJdFee, jdScale),100)).doubleValue();
             }
@@ -1407,8 +1387,8 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
                     PlatformEnum.JD.getValue(), PlatformEnum.JD.getDesc(), 7);
             optLogMap.put(energyJdLog.getId(), energyJdLog);
             //京东总览
-            Double jdFee = selfJdFee + expJdFee + energyJdFee;
-            Long jdCount = selfJdCount + expJdCount + energyJdCount;
+            Double jdFee = selfJdFee + energyJdFee;
+            Long jdCount = selfJdCount + energyJdCount;
 
             //生成拼多多预估
             Double pddTimes = FeeUtil.getPlatformTimes(user, PlatformEnum.PDD, comInfo);
@@ -1427,26 +1407,12 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
                     PlatformEnum.PDD.getValue(), PlatformEnum.PDD.getDesc(), 2);
             optLogMap.put(selfPddLog.getId(), selfPddLog);
 
-            //拼多多体验预估
-            Long expPddCount = pddOrderService.totalCount(type, queryUid, 1);
-            Double expPddFee = 0.0;
-            if(expPddCount != 0) {
-                expPddFee = pddOrderService.totalFee(type, queryUid, 1);
-                //流量扶持需要计算1级返佣
-                BigDecimal pddScale = FeeUtil.getScale(topLevelMap, PlatformEnum.PDD.getValue(), 1);
-                expPddFee = OrderUtil.getRoundFee(NumberUtil.div(NumberUtil.mul(expPddFee, pddScale),100)).doubleValue();
-
-            }
-            MwUserFeeLog expPddLog = FeeUtil.createGeneralFeeLogs(uid, type, min, max, expPddFee, expPddCount,
-                    PlatformEnum.PDD.getValue(), PlatformEnum.PDD.getDesc(), 3);
-            optLogMap.put(expPddLog.getId(), expPddLog);
-
             //拼多多热度订单
             Long energyPddCount = pddOrderService.totalCount(type, queryUid, 2);
             Double energyPddFee = 0.0;
             if(energyPddCount != 0) {
                 energyPddFee = pddOrderService.totalFee(type, queryUid, 2);
-                //流量扶持需要计算1级返佣
+                //需要计算1级返佣
                 BigDecimal pddScale = FeeUtil.getScale(systemUserLevelMap, PlatformEnum.PDD.getValue(), 1);
                 energyPddFee = OrderUtil.getRoundFee(NumberUtil.div(NumberUtil.mul(energyPddFee, pddScale),100)).doubleValue();
 
@@ -1456,8 +1422,8 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
             optLogMap.put(energyPddLog.getId(), energyPddLog);
 
             //拼多多总览预估
-            Double pddFee = selfPddFee + expPddFee + energyPddFee;
-            Long pddCount = selfPddCount + expPddCount + energyPddCount;
+            Double pddFee = selfPddFee + energyPddFee;
+            Long pddCount = selfPddCount + energyPddCount;
 
 
             //抖音预估
@@ -1477,24 +1443,11 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
                     PlatformEnum.DY.getValue(), PlatformEnum.DY.getDesc(), 2);
             optLogMap.put(selfDyLog.getId(), selfDyLog);
 
-            //抖音体验预估
-            Long expDyCount = dyOrderService.totalCount(type, queryUid, 1);
-            Double expDyFee = 0.0;
-            if(expDyCount != 0) {
-                expDyFee = dyOrderService.totalFee(type, queryUid, 1);//流量扶持需要计算1级返佣
-                BigDecimal dyScale = FeeUtil.getScale(topLevelMap, PlatformEnum.DY.getValue(), 1);
-                expDyFee = OrderUtil.getRoundFee(NumberUtil.div(NumberUtil.mul(expDyFee, dyScale),100)).doubleValue();
-
-            }
-            MwUserFeeLog expDyLog = FeeUtil.createGeneralFeeLogs(uid, type, min, max, expDyFee, expDyCount,
-                    PlatformEnum.DY.getValue(), PlatformEnum.DY.getDesc(), 3);
-            optLogMap.put(expDyLog.getId(), expDyLog);
-
             //抖音热度订单
             Long energyDyCount = dyOrderService.totalCount(type, queryUid, 2);
             Double energyDyFee = 0.0;
             if(energyDyCount != 0) {
-                energyDyFee = dyOrderService.totalFee(type, queryUid, 2);//流量扶持需要计算1级返佣
+                energyDyFee = dyOrderService.totalFee(type, queryUid, 2);//热度订单需要计算1级返佣
                 BigDecimal dyScale = FeeUtil.getScale(systemUserLevelMap, PlatformEnum.DY.getValue(), 1);
                 energyDyFee = OrderUtil.getRoundFee(NumberUtil.div(NumberUtil.mul(energyDyFee, dyScale),100)).doubleValue();
 
@@ -1504,8 +1457,8 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
             optLogMap.put(energyDyLog.getId(), energyDyLog);
 
             //抖音总览
-            Double dyFee = selfDyFee + expDyFee + energyDyFee;
-            Long dyCount = selfDyCount + expDyCount + energyDyCount;
+            Double dyFee = selfDyFee + energyDyFee;
+            Long dyCount = selfDyCount + energyDyCount;
 
             //生成唯品会预估
             Double vipTimes = FeeUtil.getPlatformTimes(user, PlatformEnum.VIP, comInfo);
@@ -1524,23 +1477,11 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
                     PlatformEnum.VIP.getValue(), PlatformEnum.VIP.getDesc(), 2);
             optLogMap.put(selfVipLog.getId(), selfVipLog);
 
-            //唯品会体验预估
-            Long expVipCount = vipOrderService.totalCount(type, queryUid, 1);
-            Double expVipFee = 0.0;
-            if(expVipCount != 0) {
-                expVipFee = vipOrderService.totalFee(type, queryUid, 1);//流量扶持需要计算1级返佣
-                BigDecimal vipScale = FeeUtil.getScale(topLevelMap, PlatformEnum.VIP.getValue(), 1);
-                expVipFee = OrderUtil.getRoundFee(NumberUtil.div(NumberUtil.mul(expVipFee, vipScale),100)).doubleValue();
-            }
-            MwUserFeeLog expVipLog = FeeUtil.createGeneralFeeLogs(uid, type, min, max, expVipFee, expVipCount,
-                    PlatformEnum.VIP.getValue(), PlatformEnum.VIP.getDesc(), 3);
-            optLogMap.put(expVipLog.getId(), expVipLog);
-
             //唯品会热度订单
             Long energyVipCount = vipOrderService.totalCount(type, queryUid, 2);
             Double energyVipFee = 0.0;
             if(energyVipCount != 0) {
-                energyVipFee = vipOrderService.totalFee(type, queryUid, 2);//流量扶持需要计算1级返佣
+                energyVipFee = vipOrderService.totalFee(type, queryUid, 2);//热度订单需要计算1级返佣
                 BigDecimal vipScale = FeeUtil.getScale(systemUserLevelMap, PlatformEnum.VIP.getValue(), 1);
                 energyVipFee = OrderUtil.getRoundFee(NumberUtil.div(NumberUtil.mul(energyVipFee, vipScale),100)).doubleValue();
             }
@@ -1549,8 +1490,33 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
             optLogMap.put(energyVipLog.getId(), energyVipLog);
 
             //唯品会总览预估
-            Double vipFee = selfVipFee + expVipFee + energyVipFee;
-            Long vipCount = selfVipCount + expVipCount + energyVipCount;
+            Double vipFee = selfVipFee + energyVipFee;
+            Long vipCount = selfVipCount + energyVipCount;
+
+
+
+
+            //生成美团预估 美团以淘宝为准
+            Double mtTimes = FeeUtil.getPlatformTimes(user, PlatformEnum.TB, comInfo);
+
+            //美团自购预估
+            Long selfMtCount = mtOrderService.totalCount(type, queryUid, 0);
+            Double selfMtFee = 0.0;
+            if(selfMtCount != 0) {
+                selfMtFee = mtOrderService.totalFee(type, queryUid, 0);
+
+                Double bigDecimal = NumberUtil.mul(selfMtFee, mtTimes);
+                selfMtFee = NumberUtil.mul(bigDecimal, DEFAULT_FEE_SCALE);
+
+            }
+            MwUserFeeLog selfMtLog = FeeUtil.createGeneralFeeLogs(uid, type, min, max, selfMtFee, selfMtCount,
+                    PlatformEnum.MT.getValue(), PlatformEnum.MT.getDesc(), 2);
+            optLogMap.put(selfMtLog.getId(), selfMtLog);
+
+            //美团总览预估
+            Double mtFee = selfMtFee;
+            Long mtCount = selfMtCount;
+
 
 
             //生成开通星选会员预估
@@ -1623,6 +1589,9 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
                         } else if(platformEnum == PlatformEnum.VIP) {
                             vipFee += platformFee.doubleValue();
                             vipCount += platformCount;
+                        } else if(platformEnum == PlatformEnum.VIP) {
+                            mtFee += platformFee.doubleValue();
+                            mtCount += platformCount;
                         }
                     }
 
@@ -1681,6 +1650,9 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
                             } else if(platformEnum == PlatformEnum.VIP) {
                                 vipFee += platformFee.doubleValue();
                                 vipCount += platformCount;
+                            } else if(platformEnum == PlatformEnum.MT) {
+                                mtFee += platformFee.doubleValue();
+                                mtCount += platformCount;
                             }
                         }
 
@@ -1693,7 +1665,9 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
             }
             //初始化总览
             FeeUtil.initPreviewFee(uid, type, min, max,
-                    tbFee, tbCount, jdFee, jdCount, pddFee, pddCount, dyFee, dyCount, vipFee, vipCount, optLogMap);
+                    tbFee, tbCount, jdFee, jdCount, pddFee, pddCount,
+                    dyFee, dyCount, vipFee, vipCount, mtFee, mtCount,
+                    optLogMap);
 
             //生成已结算 收益
             initSettledFee(uid, type, start, end, optLogMap);

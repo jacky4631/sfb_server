@@ -189,7 +189,7 @@ server{
  #include enable-php.conf;
    
  location / {
-  proxy_pass http://127.0.0.1:8000;
+  proxy_pass http://127.0.0.1:8008;
   proxy_set_header X-Forwarded-Proto $scheme;
          proxy_set_header X-Forwarded-Port $server_port;
          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -227,10 +227,10 @@ server
     root /home/wwwroot/system/mshop;
 
 
-    location / {
+ location / {
         try_files $uri $uri/ @router;
         index index.html;
-·   }
+ }
  location @router {
   rewrite ^.*$ /index.html last;
  } 
@@ -250,6 +250,22 @@ server
             expires      12h;
         }
  
+ location /api {
+        proxy_pass http://127.0.0.1:8001;
+        proxy_set_header Host $Host:$server_port;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header REMOTE-HOST $remote_addr;
+        add_header X-Cache $upstream_cache_status;
+        proxy_set_header X-Host $host:$server_port;
+        proxy_set_header X-Scheme $scheme;
+        proxy_connect_timeout 30s;
+        proxy_read_timeout 86400s;
+        proxy_send_timeout 30s;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
       
  access_log  /home/wwwlogs/mshop.log;
  

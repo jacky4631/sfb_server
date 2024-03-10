@@ -23,7 +23,7 @@ public class OrderMtCPSCollectionTask extends OrderTask{
         } else {
             param = JSON.parseObject(paramStr, QueryMtParam.class);
         }
-        if(StringUtils.isEmpty(param.getStartTime()) || StringUtils.isEmpty(param.getStartTime())) {
+        if(StringUtils.isEmpty(param.getStartTime()) || StringUtils.isEmpty(param.getEndTime())) {
             LocalDateTime end = LocalDateTime.now();
             LocalDateTime start;
             //默认10分钟之前的订单

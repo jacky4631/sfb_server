@@ -417,6 +417,18 @@ public class AuthService {
             WxOAuth2AccessToken wxMpOAuth2AccessToken = wxService.getOAuth2Service().getAccessToken(code);
             WxOAuth2UserInfo wxMpUser = wxService.getOAuth2Service().getUserInfo(wxMpOAuth2AccessToken, null);
 
+            //校验该微信是否已经绑定过其他用户
+            String openid = wxMpUser.getOpenid();
+
+            //如果开启了UnionId
+            if (StrUtil.isNotBlank(wxMpUser.getUnionId())) {
+                openid = wxMpUser.getUnionId();
+            }
+            MwUserUnion findUserUnion = userUnionService.getByOpenId(openid);
+            if(findUserUnion != null && findUserUnion.getUid() != loginUser.getUid()) {
+                throw new MshopException("该微信已经被其他用户绑定");
+            }
+
             String nickname = wxMpUser.getNickname();
             log.debug("昵称：{}", nickname);
             //用户保存
@@ -475,70 +487,10 @@ public class AuthService {
      * @return uid
      */
     @Transactional(rollbackFor = Exception.class)
-    public MwUser wechatLogin(String code) {
+    public WechatLoginParam wechatLogin(String code) {
         WxMpService wxService = WxMpConfiguration.getWxMpService();
-        try {
-            WxOAuth2AccessToken wxMpOAuth2AccessToken = wxService.getOAuth2Service().getAccessToken(code);
-            WxOAuth2UserInfo wxMpUser = wxService.getOAuth2Service().getUserInfo(wxMpOAuth2AccessToken, null);
-            String openid = wxMpUser.getOpenid();
+        return appLogin(wxService, code, PAY_NAME);
 
-            //如果开启了UnionId
-            if (StrUtil.isNotBlank(wxMpUser.getUnionId())) {
-                openid = wxMpUser.getUnionId();
-            }
-
-            WechatLoginParam loginParam = new WechatLoginParam();
-            MwUserUnion userUnion = userUnionService.getByOpenId(openid);
-
-            if (userUnion == null) {
-                loginParam.setRegister(true);
-                loginParam.setOpenId(openid);
-                String nickname = wxMpUser.getNickname();
-                log.debug("昵称：{}", nickname);
-                //用户保存
-                String ip = IpUtil.getRequestIp();
-
-                MwUser user = MwUser.builder()
-                        .username(openid)
-                        .nickname(nickname)
-                        .avatar(wxMpUser.getHeadImgUrl())
-                        .addIp(ip)
-                        .lastIp(ip)
-                        .level(3)
-                        .levelJd(3)
-                        .levelPdd(3)
-                        .levelVip(3)
-                        .levelDy(3)
-                        .userType(AppFromEnum.APP.getValue())
-                        .code(getCode())
-                        .status(0)
-                        .build();
-
-                //构建微信用户
-                WechatUserDto wechatUserDTO = WechatUserDto.builder()
-                        .nickname(nickname)
-                        .openid(wxMpUser.getOpenid())
-                        .unionId(wxMpUser.getUnionId())
-                        .language("")
-                        .headimgurl(wxMpUser.getHeadImgUrl())
-                        .subscribe(false)
-                        .subscribeTime(0L)
-                        .build();
-                user.setMark(PAY_NAME);
-                loginParam.setUser(user);
-
-                //微信登录直接注册用户
-                userService.save(user);
-                userUnionService.save(user.getUid(), wechatUserDTO);
-                return user;
-            }
-            return userService.getById(userUnion.getUid());
-
-        } catch (WxErrorException e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new MshopException(e.toString());
-        }
 
     }
 

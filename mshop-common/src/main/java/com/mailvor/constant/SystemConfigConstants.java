@@ -1,5 +1,10 @@
 package com.mailvor.constant;
 
+import java.util.Arrays;
+import java.util.List;
+
+import static com.mailvor.constant.ShopConstants.MSHOP_USER_SHARE;
+
 public class SystemConfigConstants {
     //地址配置
     public final static String API="api";
@@ -74,7 +79,6 @@ public class SystemConfigConstants {
     public final static String HB_UNLOCK_CONFIG="hb_unlock_config";
 
     public final static String ENERGY_CONFIG="energy_config";
-    public final static String EXP_CARD_CONFIG= "exp_card_config";
     public final static String MONTH_CARD_CONFIG= "month_card_config";
     public final static String RECOVER_SCALE_CONFIG= "recover_scale_config";
 
@@ -82,4 +86,13 @@ public class SystemConfigConstants {
     public final static String SPREAD_HB_COUNT_CONFIG= "spread_hb_count_config";
     public final static String ORDER_CHECK_CONFIG= "order_check_config";
 
+    public static final String HOME_DATA = "url:home";
+
+
+    public final static String SPREAD_USER_COUNT="spread_user_count";
+    public final static String SPREAD_USER_HB="spread_user_hb";
+
+    public final static List<String> INIT_JSON_LIST
+            = Arrays.asList(UPDATE_CONFIG, PAY_CONFIG, EXTRACT_CONFIG,
+            ENERGY_CONFIG, HB_UNLOCK_CONFIG,MSHOP_USER_SHARE, HOME_DATA);
 }

@@ -6,8 +6,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.constant.SystemConfigConstants;
 import com.mailvor.modules.energy.domain.UserEnergyOrder;
-import com.mailvor.modules.energy.domain.UserEnergyOrderLog;
-import com.mailvor.modules.energy.service.UserEnergyOrderLogService;
 import com.mailvor.modules.energy.service.UserEnergyOrderService;
 import com.mailvor.modules.push.service.JPushService;
 import com.mailvor.modules.quartz.utils.OrderTaskUtil;
@@ -62,8 +60,6 @@ public class EnergyOrderTask {
     private UserEnergyOrderService energyOrderService;
 
     @Resource
-    private UserEnergyOrderLogService orderLogService;
-    @Resource
     private OrderTaskUtil orderTaskUtil;
     @Resource
     private MwSystemUserLevelService userLevelService;
@@ -99,29 +95,18 @@ public class EnergyOrderTask {
         JSONArray pddDetailVos = null;
         JSONArray dyDetailVos = null;
         JSONArray vipDetailVos = null;
-        List<Long> logIdList = energyOrders.stream().map(energyOrder -> energyOrder.getLogId()).distinct().collect(Collectors.toList());
-
-        List<UserEnergyOrderLog> logList = orderLogService.listByIds(logIdList);
-        Map<Long, UserEnergyOrderLog> logMap = logList.stream().collect(Collectors.toMap(UserEnergyOrderLog::getId, Function.identity()));
 
         List<Long> energyUids = new ArrayList<>();
-        List<Long> expUids = new ArrayList<>();
-
 
         for(UserEnergyOrder energyOrder : energyOrders) {
 
             Long uid = energyOrder.getUid();
             Date time = energyOrder.getReleaseTime();
             String platform = energyOrder.getPlatform();
-            //2=热度订单 1=体验订单
+            //2=热度订单
             Integer innerType = 2;
-            UserEnergyOrderLog orderLog = logMap.get(energyOrder.getLogId());
-            if(orderLog != null && orderLog.getType() == 2) {
-                innerType = 1;
-                expUids.add(uid);
-            } else {
-                energyUids.add(uid);
-            }
+
+            energyUids.add(uid);
 
 
             //因为会员等级一级分佣比例为20%，获取当前平台
@@ -273,7 +258,6 @@ public class EnergyOrderTask {
                 List<Long> uidList = updateEnergyOrders.stream().map(UserEnergyOrder::getUid).distinct().collect(Collectors.toList());
                 RedisUtil.setFeeUid(uidList.toArray(new Long[0]));
                 jPushService.push("有新的热度订单，进订单中心查看", energyUids);
-                jPushService.push("有新的体验订单，进订单中心查看", expUids);
             }
 
         }catch (Exception e) {

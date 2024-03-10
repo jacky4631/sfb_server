@@ -4,10 +4,11 @@
  */
 package com.mailvor.modules.activity.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.mailvor.common.service.BaseService;
 import com.mailvor.modules.activity.domain.MwUserExtract;
 import com.mailvor.modules.activity.param.UserExtParam;
+import com.mailvor.modules.activity.service.dto.MwExtractConfigDto;
+import com.mailvor.modules.activity.service.dto.MwExtractConfigParam;
 import com.mailvor.modules.activity.service.dto.MwUserExtractDto;
 import com.mailvor.modules.activity.service.dto.MwUserExtractQueryCriteria;
 import com.mailvor.modules.user.domain.MwUser;
@@ -74,7 +75,8 @@ public interface MwUserExtractService extends BaseService<MwUserExtract>{
 
     Double totalExtractPrice(Integer type);
 
-    JSONObject getExtractConfig();
-
     void updateUnpaidAliCode(Long uid, String userId);
+
+    void setExtractConfig(MwExtractConfigParam param);
+    MwExtractConfigParam getExtractConfig();
 }

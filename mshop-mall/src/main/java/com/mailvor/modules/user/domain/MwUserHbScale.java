@@ -34,13 +34,8 @@ public class MwUserHbScale extends BaseDomain {
     @TableId(value = "uid", type = IdType.AUTO)
     private Long uid;
 
-    /** 体验翻倍比例 */
-    private BigDecimal expScale;
-
     /** 月卡翻倍比例 */
     private BigDecimal monthScale;
-    /** 体验翻倍失效天数，相比create_time */
-    private Integer expInvalidDay;
     /** 月卡翻倍失效天数，相比create_time */
     private Integer monthInvalidDay;
 

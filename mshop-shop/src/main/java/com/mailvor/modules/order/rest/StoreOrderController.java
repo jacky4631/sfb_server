@@ -7,7 +7,6 @@ package com.mailvor.modules.order.rest;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.mailvor.annotation.AnonymousAccess;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.enums.OrderInfoEnum;
 import com.mailvor.enums.OrderLogEnum;

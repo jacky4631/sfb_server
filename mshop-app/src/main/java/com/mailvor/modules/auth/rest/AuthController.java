@@ -353,7 +353,7 @@ public class AuthController {
             @ApiImplicitParam(name = "code", value = "微信授权code", paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "spread", value = "分销绑定关系的ID", paramType = "query", dataType = "string")
     })
-    @ApiOperation(value = "微信登录", notes = "微信登录")
+    @ApiOperation(value = "微信APP登录", notes = "微信APP登录")
     public ApiResult<Map<String, Object>> appAuthLogin(@RequestParam(value = "code") String code, HttpServletRequest request) {
 
         WechatLoginParam wechatLoginParam = authService.wechatAppLogin(code);
@@ -479,16 +479,21 @@ public class AuthController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "code", value = "微信授权code", paramType = "query", dataType = "string")
     })
-    @ApiOperation(value = "微信公众号授权", notes = "微信公众号授权")
+    @ApiOperation(value = "微信公众号登录", notes = "微信公众号登录")
     public ApiResult<Map<String, Object>> authLogin(@RequestParam(value = "code") String code,
                                                     HttpServletRequest request) {
 
-        MwUser user = authService.wechatLogin(code);
-        //微信公众号登录不需要绑定手机号直接登录
-        return appLogin(user, request);
+        WechatLoginParam wechatLoginParam = authService.wechatLogin(code);
+        if(wechatLoginParam.isRegister()) {
+            //如果是注册 直接返回 等待手机号绑定
+            Map<String, Object> map = new HashMap<String, Object>(3) {{
+                put("openId", wechatLoginParam.getOpenId());
+            }};
+            return ApiResult.ok(map).setMsg("登陆成功");
+        }
+        return appLogin(wechatLoginParam.getUser(), request);
 
 
     }
-
 
 }

@@ -4,6 +4,7 @@ package com.mailvor.modules.meituan;
 import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.mailvor.api.MshopException;
 import com.mailvor.modules.meituan.config.MeituanConfig;
 import com.mailvor.modules.meituan.utils.MeituanUtil;
 import com.mailvor.modules.tk.vo.MtResVo;
@@ -205,6 +206,11 @@ public class MeituanService {
         Map<String, Object> params = initPublicParams();
         ResponseEntity<JSONObject> response = restTemplate
                 .postForEntity(MeituanUtil.concatUrl(MT_URL_ACTIVITY_CDOE, params), body, JSONObject.class);
-        return response.getBody().getJSONObject("data");
+        JSONObject res = response.getBody();
+        Integer code = res.getInteger("code");
+        if(code != 200) {
+            throw new MshopException(res.getString("msg"));
+        }
+        return res.getJSONObject("data");
     }
 }

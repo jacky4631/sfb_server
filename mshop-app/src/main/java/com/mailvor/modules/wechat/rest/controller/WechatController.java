@@ -32,15 +32,13 @@ import com.mailvor.modules.mp.config.WxMpConfiguration;
 import com.mailvor.modules.mp.config.WxPayConfiguration;
 import com.mailvor.modules.mp.config.WxMaConfiguration;
 import com.mailvor.modules.user.service.MwUserService;
-import com.mailvor.utils.BigNum;
+import com.mailvor.utils.*;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse;
 import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
 import com.github.binarywang.wxpay.bean.notify.WxPayRefundNotifyResult;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
-import com.mailvor.utils.OrderUtil;
-import com.mailvor.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -88,6 +86,7 @@ public class WechatController {
     private final MwUserService userService;
 
     private final PayService payService;
+    private final RedisUtils redisUtils;
     /**
      * 微信分享配置
      */
@@ -428,6 +427,12 @@ public class WechatController {
         }
 
         return null;
+    }
+    @GetMapping( value = "/wechat/id")
+    @ApiOperation(value = "获取微信公众号id",notes = "获取微信公众号id")
+    public ApiResult getWechatId(){
+        return ApiResult.ok(redisUtils.getY(ShopKeyUtils.getWechatAppId()));
+
     }
 
 

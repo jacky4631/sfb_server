@@ -1,15 +1,16 @@
 package com.mailvor.modules.dataoke.rest;
 
 import cn.hutool.core.codec.Base64Encoder;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.UserCheck;
+import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.tk.param.*;
 import com.mailvor.modules.tk.service.DataokeService;
 import com.mailvor.modules.tk.service.TkService;
 import com.mailvor.modules.tk.vo.DataokeResVo;
 import com.mailvor.modules.tk.vo.GoodsParseVo;
+import com.mailvor.modules.user.config.AppDataConfig;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.domain.MwUserUnion;
 import com.mailvor.modules.user.service.MwUserUnionService;
@@ -26,9 +27,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
 
-import static com.mailvor.config.PayConfig.PAY_NAME;
 import static com.mailvor.modules.tk.constants.TkConstants.*;
 
 @RestController
@@ -51,24 +50,24 @@ public class DataokeController {
 
     @Resource
     private MwUserUnionService userUnionService;
+
+    @Resource
+    private MwSystemConfigService systemConfigService;
     /**
      * redis保存在线地址 key:url.home, value参照根目录data/home.json
      * */
     @UserCheck
     @GetMapping(value = "/home/url")
-    public JSONObject getUrl() {
-        Object objs = redisUtils.get(HOME_DATA + ":" + PAY_NAME);
-        if (objs == null) {
-            objs = redisUtils.get(HOME_DATA);
-        }
-        JSONObject homeData = (JSONObject) objs;
+    public AppDataConfig getUrl() {
+        AppDataConfig config = systemConfigService.getAppDataConfig();
+
         if(LocalUser.getUser() != null) {
             //替换分享地址
-            String shareUrl = homeData.getString("share");
+            String shareUrl = config.getShare();
             shareUrl += "?v=" + Base64Encoder.encode(LocalUser.getUser().getCode());
-            homeData.put("share", shareUrl);
+            config.setShare(shareUrl);
         }
-        return homeData;
+        return config;
     }
 
     @GetMapping(value = "/goods/list")

@@ -63,15 +63,16 @@ public class MwAppVersionServiceImpl extends BaseServiceImpl<MwAppVersionMapper,
         List<Map<String, Object>> list = new ArrayList<>();
         for (MwAppVersionDto mwAppVersion : all) {
             Map<String,Object> map = new LinkedHashMap<>();
-            map.put(" isDel",  mwAppVersion.getIsDel());
-            map.put("更新时间", mwAppVersion.getCreateTime());
-            map.put(" updateTime",  mwAppVersion.getUpdateTime());
-            map.put("版本code", mwAppVersion.getVersionCode());
+            map.put("是否删除",  mwAppVersion.getIsDel());
+            map.put("创建时间", mwAppVersion.getCreateTime());
+            map.put("更新",  mwAppVersion.getUpdateTime());
+            map.put("安卓版本号", mwAppVersion.getAndroidVersion());
+            map.put("iOS版本号", mwAppVersion.getIosVersion());
             map.put("版本名称", mwAppVersion.getVersionName());
             map.put("版本描述", mwAppVersion.getVersionInfo());
             map.put("安卓下载链接", mwAppVersion.getAndroidUrl());
             map.put("是否强制升级", mwAppVersion.getForceUpdate());
-            map.put("ios store应用商店链接", mwAppVersion.getIosUrl());
+            map.put("iOS下载链接", mwAppVersion.getIosUrl());
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);

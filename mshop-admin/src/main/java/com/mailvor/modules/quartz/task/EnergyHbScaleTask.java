@@ -37,12 +37,6 @@ public class EnergyHbScaleTask {
     private MwUserRechargeService userRechargeService;
 
     protected void run(String paramStr) throws InterruptedException {
-
-        //计算体验翻倍用户
-        scale(1);
-
-        Thread.sleep(1000);
-
         //计算月卡翻倍用户
         scale(2);
     }
@@ -55,7 +49,7 @@ public class EnergyHbScaleTask {
         RecoverScaleConfigDto scaleConfigDto = systemConfigService.getRecoverScaleConfig();
 
         Date yesterday = DateUtil.yesterday();
-        //找到前一天的体验和月卡用户
+        //找到前一天月卡用户
         List<MwUserRecharge> expRecharges = userRechargeService.list(new LambdaQueryWrapper<MwUserRecharge>()
                 .eq(MwUserRecharge::getPaid, 1)
                 .in(MwUserRecharge::getType, type)
@@ -66,15 +60,11 @@ public class EnergyHbScaleTask {
         }
 
         List<Long> uidList = expRecharges.stream().map(mwUserRecharge -> mwUserRecharge.getUid()).distinct().collect(Collectors.toList());
-        BigDecimal recoverScale = scaleConfigDto.getExpRecoverScale();
-        String desc = "体验";
-        if(type == 2) {
-            desc = "月卡";
-            recoverScale = scaleConfigDto.getMonthRecoverScale();
-        }
+        BigDecimal recoverScale = scaleConfigDto.getMonthRecoverScale();
+        String desc = "月卡";
 
         Integer count = NumberUtil.div(NumberUtil.mul(uidList.size(), recoverScale), 100).intValue();
-        log.info("执行{}订单翻倍任务 uid长度{} 翻倍比例{} 最终数量{}", desc, uidList.size(), scaleConfigDto.getExpRecoverScale(), count);
+        log.info("执行{}订单翻倍任务 uid长度{} 翻倍比例{} 最终数量{}", desc, uidList.size(), scaleConfigDto.getMonthRecoverScale(), count);
         if(count < 0) {
             return;
         }
@@ -82,16 +72,10 @@ public class EnergyHbScaleTask {
         List<Long> scaleUidList = randomUid(uidList, count);
         log.info("执行{}订单翻倍任务 uidList{} scaleUidList{}", desc, JSON.toJSONString(uidList), JSON.toJSONString(scaleUidList));
         for(int i= 0; i < scaleUidList.size();i++) {
-            MwUserHbScale mwUserHbScale;
-            if(type == 1) {
-                mwUserHbScale = MwUserHbScale.builder().uid(scaleUidList.get(i))
-                        .expScale(scaleConfigDto.getExpScale())
-                        .expInvalidDay(scaleConfigDto.getExpInvalidDay()).build();
-            } else {
-                mwUserHbScale = MwUserHbScale.builder().uid(scaleUidList.get(i))
+            MwUserHbScale mwUserHbScale = MwUserHbScale.builder().uid(scaleUidList.get(i))
                         .monthScale(scaleConfigDto.getMonthScale())
                         .monthInvalidDay(scaleConfigDto.getMonthInvalidDay()).build();
-            }
+
 
             userHbScales.add(mwUserHbScale);
         }

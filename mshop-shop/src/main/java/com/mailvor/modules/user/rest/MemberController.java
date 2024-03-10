@@ -7,7 +7,6 @@ package com.mailvor.modules.user.rest;
 import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mailvor.api.ApiResult;
 import com.mailvor.api.MshopException;
 import com.mailvor.modules.aop.ForbidSubmit;
@@ -16,13 +15,19 @@ import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.pay.dto.PayChannelDto;
 import com.mailvor.modules.pay.service.MwPayChannelService;
 import com.mailvor.modules.pay.ysepay.YsePayService;
+import com.mailvor.modules.shop.service.MwSystemConfigService;
+import com.mailvor.modules.user.config.AppDataConfig;
+import com.mailvor.modules.user.config.HbUnlockConfig;
 import com.mailvor.modules.user.domain.*;
 import com.mailvor.modules.user.param.MwUserParam;
 import com.mailvor.modules.user.rest.param.BankBindConfirmParam;
 import com.mailvor.modules.user.rest.param.BankBindParam;
 import com.mailvor.modules.user.rest.param.BankExtractParam;
 import com.mailvor.modules.user.service.*;
-import com.mailvor.modules.user.service.dto.*;
+import com.mailvor.modules.user.service.dto.MwUserQueryCriteria;
+import com.mailvor.modules.user.service.dto.UserEnergyDto;
+import com.mailvor.modules.user.service.dto.UserIntegralDto;
+import com.mailvor.modules.user.service.dto.UserMoneyDto;
 import com.mailvor.modules.user.vo.MwUserCardQueryVo;
 import com.mailvor.utils.RedisUtils;
 import com.mailvor.utils.StringUtils;
@@ -46,7 +51,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.mailvor.config.PayConfig.PAY_NAME;
 import static com.mailvor.modules.utils.PayUtil.CHANNEL_KEY_YSEPAY_BANK_BIND;
 
 /**
@@ -87,6 +91,9 @@ public class MemberController {
 
     @Resource
     private MwUserBankService userBankService;
+
+    @Resource
+    private MwSystemConfigService systemConfigService;
 
     @Log("查看下级")
     @ApiOperation(value = "查看下级")
@@ -396,4 +403,57 @@ public class MemberController {
         return extractRes;
     }
 
+
+    @Log("查询红包解锁配置")
+    @ApiOperation(value = "查询红包解锁配置")
+    @GetMapping(value = "/order/unlock/config")
+    @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
+    public ResponseEntity getOrderUnlockConfig(){
+        return new ResponseEntity<>(systemConfigService.getHbUnlockConfig(),HttpStatus.OK);
+    }
+
+    @Log("修改红包解锁配置")
+    @ApiOperation(value = "修改红包解锁配置")
+    @PostMapping(value = "/order/unlock/config")
+    @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
+    public ResponseEntity setOrderUnlockConfig(@RequestBody @Validated HbUnlockConfig param){
+        systemConfigService.setHbUnlockConfig(param);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+
+    @Log("查询APP基础信息配置")
+    @ApiOperation(value = "查询APP基础信息配置")
+    @GetMapping(value = "/app/data/config")
+    @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
+    public ResponseEntity getAppDataConfig(){
+        return new ResponseEntity<>(systemConfigService.getAppDataConfig(),HttpStatus.OK);
+    }
+
+    @Log("修改APP基础信息配置")
+    @ApiOperation(value = "修改APP基础信息配置")
+    @PostMapping(value = "/app/data/config")
+    @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
+    public ResponseEntity setAppDataConfig(@RequestBody @Validated AppDataConfig param){
+        systemConfigService.setAppDataConfig(param);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+
+    @Log("查询APP分享图配置")
+    @ApiOperation(value = "查询APP分享图配置")
+    @GetMapping(value = "/app/share/config")
+    @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
+    public ResponseEntity getAppShareConfig(){
+        return new ResponseEntity<>(systemConfigService.getAppShareConfig(),HttpStatus.OK);
+    }
+
+    @Log("修改APP分享图配置")
+    @ApiOperation(value = "修改APP分享图配置")
+    @PostMapping(value = "/app/share/config")
+    @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
+    public ResponseEntity setAppShareConfig(@RequestBody @Validated List<String> param){
+        systemConfigService.setAppShareConfig(param);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

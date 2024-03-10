@@ -80,7 +80,23 @@ public class MwUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, MwUse
 
         mwUserBillMapper.insert(userBill);
     }
+    @Override
+    public void income(Long uid,String title,String category,String type,double number,
+                       double balance,String mark,String linkid){
+        MwUserBill userBill = MwUserBill.builder()
+                .uid(uid)
+                .title(title)
+                .category(category)
+                .type(type)
+                .number(BigDecimal.valueOf(number))
+                .balance(BigDecimal.valueOf(balance))
+                .mark(mark)
+                .pm(BillEnum.PM_1.getValue())
+                .linkId(linkid)
+                .build();
 
+        mwUserBillMapper.insert(userBill);
+    }
     /**
      * 增加收入/支入流水
      * @param uid uid
@@ -93,10 +109,11 @@ public class MwUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, MwUse
      * @param linkid 关联id
      */
     @Override
-    public void income(Long uid,String title,String category,String type,double number,
+    public void income(Long uid,Long origUid,String title,String category,String type,double number,
                        double balance,String mark,String linkid){
         MwUserBill userBill = MwUserBill.builder()
                 .uid(uid)
+                .origUid(origUid)
                 .title(title)
                 .category(category)
                 .type(type)

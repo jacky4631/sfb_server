@@ -34,14 +34,14 @@ public class MwUserFeeLog extends BaseDomain {
 
     @ApiModelProperty(value = "用户id")
     private Long uid;
-    @ApiModelProperty(value = "佣金类型 1=总览 2=自购 3=体验订单 4=金客 5=银客 6=已结算 7=热度订单")
+    @ApiModelProperty(value = "佣金类型 1=总览 2=自购 4=金客 5=银客 6=已结算 7=热度订单")
     private Integer cid;
     @ApiModelProperty(value = "时间 1=今天 2=昨天 3=本月 4=上月 5=近30天 6近7天")
     private Integer type;
     @ApiModelProperty(value = "平台,tb jd pdd dy vip fans up")
     private String platform;
 
-    @ApiModelProperty(value = "渠道, 淘宝 。。。体验订单 用户")
+    @ApiModelProperty(value = "渠道, 淘宝 。。。 用户")
     private String channel;
 
     @ApiModelProperty(value = "付款笔数")

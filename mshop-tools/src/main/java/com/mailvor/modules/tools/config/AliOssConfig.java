@@ -36,7 +36,7 @@ public class AliOssConfig implements InitializingBean {
     public static String AVATAR_PATH;
 
     public static String CARD_PATH;
-
+    public static String IMAGE_PATH = "sfb/image/";
     @Override
     public void afterPropertiesSet() throws Exception {
         END_POINT = endpoint;

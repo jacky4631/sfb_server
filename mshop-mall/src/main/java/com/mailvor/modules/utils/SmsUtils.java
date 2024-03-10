@@ -35,7 +35,7 @@ public class SmsUtils {
      * @return Client
      * @throws Exception
      */
-    public static com.aliyun.dysmsapi20170525.Client createClient(String accessKeyId, String accessKeySecret) throws Exception {
+    public static Client createClient(String accessKeyId, String accessKeySecret) throws Exception {
         Config config = new Config()
                 // 您的 AccessKey ID
                 .setAccessKeyId(accessKeyId)

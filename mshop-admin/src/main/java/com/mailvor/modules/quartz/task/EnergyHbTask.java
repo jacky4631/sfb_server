@@ -9,11 +9,8 @@ import com.mailvor.modules.order.service.SuStoreOrderService;
 import com.mailvor.modules.tk.domain.MailvorJdOrder;
 import com.mailvor.modules.tk.domain.TkOrder;
 import com.mailvor.modules.tk.service.*;
-import com.mailvor.modules.user.domain.MwUser;
-import com.mailvor.modules.user.domain.MwUserExtra;
 import com.mailvor.modules.user.service.MwUserExtraService;
 import com.mailvor.modules.user.service.MwUserService;
-import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -21,7 +18,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -59,12 +55,6 @@ public class EnergyHbTask {
     @Resource
     private UserEnergyOrderLogService orderLogService;
 
-    @Resource
-    private MwUserExtraService userExtraService;
-
-    @Resource
-    private MwUserService userService;
-
     @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
     protected void run(String paramStr) {
         //找到尚未拆红包，并且已经超过解锁时间的订单
@@ -73,38 +63,16 @@ public class EnergyHbTask {
             return;
         }
         List<Long> logList = energyOrders.stream().map(UserEnergyOrder::getLogId).distinct().collect(toList());
-//        //这里查找体验订单和赠送订单
+//        //这里查找赠送订单
         List<UserEnergyOrderLog> orderLogs = orderLogService.listByIds(logList)
-                .stream().filter(log -> log.getType()!=1).collect(toList());
-//
+                .stream().filter(log -> log.getType()==0).collect(toList());
+
         Map<Long, UserEnergyOrderLog> logMap = orderLogs
                 .stream().collect(Collectors.toMap(UserEnergyOrderLog::getId, Function.identity()));
-//
-//        List<Long> uidList = orderLogs.stream().map(log -> log.getUid()).distinct().collect(toList());
-//        Map<Long, MwUserExtra> userExtraMap = new HashMap<>();
-//        Map<Long, MwUser> userMap = new HashMap<>();
-//        if(!uidList.isEmpty()) {
-//            userExtraMap = userExtraService.listByIds(uidList)
-//                    .stream().collect(Collectors.toMap(MwUserExtra::getUid, Function.identity()));
-//            userMap = userService.listByIds(uidList)
-//                    .stream().collect(Collectors.toMap(MwUser::getUid, Function.identity()));
-//        }
 
         for (UserEnergyOrder energyOrder : energyOrders) {
             String platform = energyOrder.getPlatform();
             UserEnergyOrderLog log = logMap.get(energyOrder.getLogId());
-//            //只要找到log 说明是体验订单
-//            if(log != null) {
-//                //只校验体验订单 这里校验用户是否是加盟会员或者体验会员 是就拆红包 都不是设置订单锁住状态 今天不拆红包
-//                MwUser user = userMap.get(energyOrder.getUid());
-//                MwUserExtra userExtra = userExtraMap.get(energyOrder.getUid());
-//                if(TkUtil.getLevel(platform, user) != 5 && TkUtil.getLevel(platform, userExtra) != 5) {
-//                    //都不是锁住订单，今天不再做拆红包校验，防止一直查找到，后续的订单无法拆开
-//                    energyOrder.setIsLock(1);
-//                    energyOrderService.updateById(energyOrder);
-//                    continue;
-//                }
-//            }
             String orderId = energyOrder.getOrderId();
             //设置已拆红包
             energyOrder.setHb(1);
