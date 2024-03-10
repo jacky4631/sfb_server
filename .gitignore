@@ -7,3 +7,5 @@ target
 *.log
 logs
 *.DS_Store
+mshop-app/src/main/resources/config/
+mshop-admin/src/main/resources/config/
