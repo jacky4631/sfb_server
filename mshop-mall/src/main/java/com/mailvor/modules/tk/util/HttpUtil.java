@@ -8,6 +8,7 @@ import com.mailvor.utils.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -66,6 +67,8 @@ public class HttpUtil {
                         return true;
                     }
                 })
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build())
                 .setConnectionManager(cm).setConnectionManagerShared(true).build();
     }
 
