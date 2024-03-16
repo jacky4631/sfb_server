@@ -198,4 +198,7 @@ public interface ShopConstants {
 
 
 	String APP_LOGIN_WHITELIST = "mshop:app:login:whitelist";
+
+
+	String DY_CATE = "mshop:dy:cate";
 }

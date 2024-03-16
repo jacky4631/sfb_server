@@ -15,9 +15,9 @@ import com.mailvor.modules.tk.param.KuCustomParam;
 import com.mailvor.modules.tk.service.KuService;
 import com.mailvor.modules.tk.vo.HotWordsVo;
 import com.mailvor.modules.user.domain.MwUser;
+import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.RedisUtil;
 import com.mailvor.utils.RedisUtils;
-import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -284,7 +284,15 @@ public class HaodankuController {
 
     @GetMapping(value = "/dy/product/cate")
     public JSONObject dyProductCate() {
-        return kuService.dyProductCateList();
+        String key = TkUtil.getMixedPlatformKey(DY_CATE);
+        Object obj = redisUtils.get(key);
+        if(obj != null) {
+            return (JSONObject) obj;
+        }
+
+        JSONObject cateList = kuService.dyProductCateList();
+        redisUtils.set(key, cateList, 7*24*3600);
+        return cateList;
     }
     @GetMapping(value = "/dy/product/list")
     public JSONObject dyProductList(GoodsListDyParam param) {

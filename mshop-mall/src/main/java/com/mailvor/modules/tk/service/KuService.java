@@ -540,7 +540,7 @@ public class KuService {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         HttpEntity<String> requestParam = new HttpEntity<>(sb.toString(),headers);
         ResponseEntity<JSONObject> re = restTemplate.postForEntity(
-                KU_API_BASE+"/dy_life_share",
+                KU_API_BASE+"/get_dyitem_link",
                 requestParam,
                 JSONObject.class);
         return re.getBody();
