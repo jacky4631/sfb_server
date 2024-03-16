@@ -474,9 +474,9 @@ public class KuService {
         sb.append("apikey=");
         sb.append(key);
         sb.append("&min_id=");
-        sb.append(param.getPage());
+        sb.append(param.getPageId());
         sb.append("&back=");
-        sb.append(param.getSize());
+        sb.append(param.getPageSize());
         if(StringUtils.isNotBlank(param.getKeyword())) {
             sb.append("&keyword=");
             sb.append(param.getKeyword());

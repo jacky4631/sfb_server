@@ -195,4 +195,7 @@ public interface ShopConstants {
 	String WECHAT_FOLLOW_IMG="wechat_follow_img";
 	/**后台api地址*/
 	String ADMIN_API_URL="admin_api_url";
+
+
+	String APP_LOGIN_WHITELIST = "mshop:app:login:whitelist";
 }

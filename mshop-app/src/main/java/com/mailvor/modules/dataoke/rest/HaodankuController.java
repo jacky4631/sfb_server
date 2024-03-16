@@ -146,7 +146,7 @@ public class HaodankuController {
     }
     @GetMapping(value = "/dy/list")
     public JSONObject dyList(DyListParam param) {
-        String url = String.format(DY_LIST, param.getPage(), param.getSize(), param.getCateId(), param.getSearchType());
+        String url = String.format(DY_LIST, param.getPageId(), param.getPageSize(), param.getCateId(), param.getSearchType());
         if(param.getFirstCid() != null){
             url = url + "&first_cids=" + param.getFirstCid();
         }

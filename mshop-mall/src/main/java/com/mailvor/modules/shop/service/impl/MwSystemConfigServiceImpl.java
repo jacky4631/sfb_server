@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.mailvor.constant.ShopConstants.APP_LOGIN_WHITELIST;
 import static com.mailvor.constant.ShopConstants.MSHOP_USER_SHARE;
 import static com.mailvor.constant.SystemConfigConstants.*;
 
@@ -370,6 +371,45 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
         }
         systemConfig.setValue(JSON.toJSONString(images));
         redisUtils.setList(key, images);
+        saveOrUpdate(systemConfig);
+    }
+
+
+
+
+    @Override
+    public List<String> getAppLoginWhitelist() {
+
+        String key = TkUtil.getMixedPlatformKey(APP_LOGIN_WHITELIST);
+        List<Object> result = redisUtils.getList(key);
+        if (result != null) {
+            return result.stream()
+                    .map(obj -> (String) obj) // 根据需求进行类型转换
+                    .collect(Collectors.toList());
+        }
+        MwSystemConfig config = getOne(new LambdaQueryWrapper<MwSystemConfig>()
+                .eq(MwSystemConfig::getMenuName,key));
+        List<String> res;
+        if(config == null) {
+            res = Collections.EMPTY_LIST;
+        } else {
+            res = JSON.parseObject(config.getValue(), List.class);
+        }
+        redisUtils.setList(key, res);
+        return res;
+    }
+
+    @Override
+    public void setAppLoginWhiteList(List<String> whiteList){
+        String key = TkUtil.getMixedPlatformKey(APP_LOGIN_WHITELIST);
+        MwSystemConfig systemConfig = getOne(new LambdaQueryWrapper<MwSystemConfig>()
+                .eq(MwSystemConfig::getMenuName, key));
+        if(systemConfig == null) {
+            systemConfig = new MwSystemConfig();
+            systemConfig.setMenuName(key);
+        }
+        systemConfig.setValue(JSON.toJSONString(whiteList));
+        redisUtils.setList(key, whiteList);
         saveOrUpdate(systemConfig);
     }
 

@@ -47,9 +47,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.mailvor.modules.utils.PayUtil.CHANNEL_KEY_YSEPAY_BANK_BIND;
 
@@ -454,6 +452,30 @@ public class MemberController {
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
     public ResponseEntity setAppShareConfig(@RequestBody @Validated List<String> param){
         systemConfigService.setAppShareConfig(param);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+
+
+    @Log("查询APP登录白名单")
+    @ApiOperation(value = "查询APP登录白名单")
+    @GetMapping(value = "/app/login/whitelist")
+    @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
+    public ResponseEntity getAppLoginWhitelist(){
+        return new ResponseEntity<>(String.join(",", systemConfigService.getAppLoginWhitelist()),HttpStatus.OK);
+    }
+
+    @Log("修改APP登录白名单")
+    @ApiOperation(value = "修改APP登录白名单")
+    @PostMapping(value = "/app/login/whitelist")
+    @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
+    public ResponseEntity setAppLoginWhitelist(@RequestBody @Validated String whitelistStr){
+        try {
+            String[] list = whitelistStr.split(",");
+            systemConfigService.setAppLoginWhiteList(Arrays.asList(list));
+        }catch (Exception e) {
+            log.error("修改APP登录白名单失败", e);
+        }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

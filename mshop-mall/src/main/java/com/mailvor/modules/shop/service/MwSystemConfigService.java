@@ -84,4 +84,8 @@ public interface MwSystemConfigService extends BaseService<MwSystemConfig>{
 
     List<String> getAppShareConfig();
     void setAppShareConfig(List<String> images);
+
+    List<String> getAppLoginWhitelist();
+
+    void setAppLoginWhiteList(List<String> whiteList);
 }
