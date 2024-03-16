@@ -52,9 +52,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.mailvor.config.PayConfig.PAY_NAME;
@@ -70,8 +68,6 @@ import static com.mailvor.modules.user.config.ShopConfig.CONVERT_CONTRACT;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Api(value = "认证模块", tags = "商城:认证")
 public class AuthController {
-
-    private static final List<String> LOGIN_WHITE_LIST = Arrays.asList("");
     private final MwUserService userService;
     private final RedisUtils redisUtil;
     private final AuthService authService;
@@ -144,7 +140,7 @@ public class AuthController {
     @PostMapping(value = "/login/mobile")
     public ApiResult<Map<String, Object>> loginVerify(@Validated @RequestBody LoginVerifyParam loginVerifyParam, HttpServletRequest request) {
         Object codeObj = redisUtil.get("code_" + loginVerifyParam.getAccount());
-        if(LOGIN_WHITE_LIST.contains(loginVerifyParam.getAccount())) {
+        if(systemConfigService.getAppLoginWhitelist().contains(loginVerifyParam.getAccount())) {
             if(!"1234".equals(loginVerifyParam.getCaptcha())) {
                 throw new MshopException("验证码错误");
             }

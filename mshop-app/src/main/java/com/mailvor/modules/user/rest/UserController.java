@@ -79,8 +79,6 @@ import static com.mailvor.config.PayConfig.PAY_NAME;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Api(value = "用户中心", tags = "用户:用户中心")
 public class UserController {
-
-    private static final List<String> LOGIN_WHITE_LIST = Arrays.asList("");
     private static Set<String> sensitiveWordSet = new HashSet<>();
 
     private final MwUserService mwUserService;
@@ -514,7 +512,7 @@ public class UserController {
     @PostMapping(value = "/user/bind/mobile")
     public ApiResult<Map<String, Object>> loginVerify(@Validated @RequestBody MobileBindParam bindParam, HttpServletRequest request) {
         Object codeObj = redisUtil.get("code_" + bindParam.getAccount());
-        if(LOGIN_WHITE_LIST.contains(bindParam.getAccount())) {
+        if(systemConfigService.getAppLoginWhitelist().contains(bindParam.getAccount())) {
             if(!"1234".equals(bindParam.getCaptcha())) {
                 throw new MshopException("验证码错误");
             }
