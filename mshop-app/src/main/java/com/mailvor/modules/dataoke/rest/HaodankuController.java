@@ -5,13 +5,16 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.api.ApiResult;
+import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.UserCheck;
 import com.mailvor.constant.ShopConstants;
 import com.mailvor.modules.tk.config.PddConfig;
 import com.mailvor.modules.tk.param.DyListParam;
+import com.mailvor.modules.tk.param.GoodsListDyParam;
 import com.mailvor.modules.tk.param.KuCustomParam;
 import com.mailvor.modules.tk.service.KuService;
 import com.mailvor.modules.tk.vo.HotWordsVo;
+import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.utils.RedisUtil;
 import com.mailvor.utils.RedisUtils;
 import com.mailvor.utils.StringUtils;
@@ -24,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -142,7 +146,7 @@ public class HaodankuController {
     }
     @GetMapping(value = "/dy/list")
     public JSONObject dyList(DyListParam param) {
-        String url = String.format(DY_LIST, param.getPageId(), param.getPageSize(), param.getCateId(), param.getSearchType());
+        String url = String.format(DY_LIST, param.getPage(), param.getSize(), param.getCateId(), param.getSearchType());
         if(param.getFirstCid() != null){
             url = url + "&first_cids=" + param.getFirstCid();
         }
@@ -278,6 +282,32 @@ public class HaodankuController {
         return ApiResult.ok(words).setMsg("获取成功");
     }
 
+    @GetMapping(value = "/dy/product/cate")
+    public JSONObject dyProductCate() {
+        return kuService.dyProductCateList();
+    }
+    @GetMapping(value = "/dy/product/list")
+    public JSONObject dyProductList(GoodsListDyParam param) {
+        return kuService.dyProductList(param);
+    }
+
+    @GetMapping(value = "/dy/product/detail")
+    public JSONObject dyProductDetail(@RequestParam String itemId) {
+        return kuService.dyProductDetail(itemId);
+    }
+
+    @UserCheck
+    @GetMapping(value = "/dy/product/word")
+    public JSONObject dyProductWord(@RequestParam String itemId) {
+        String channel;
+        MwUser mwUser = LocalUser.getUser();
+        if(mwUser != null) {
+            channel = mwUser.getUid().toString();
+        } else {
+            channel = "0";
+        }
+        return kuService.dyProductWord(itemId, channel);
+    }
     public static void main(String[] args) {
 //        String res = "jsonpCBKB({\"retcode\":0,\"retmsg\":\"\",\"from\":\"cache\",\"def\":\n" +
 //                "[\"手机\",\"洗衣机\",\"电视\",\"冰箱\",\"笔记本\",\"手表\",\"耳机\",\"空调\",\"充电宝\",\"路由器\",\"保温杯\",\"牛奶\"], \"owner\":\n" +

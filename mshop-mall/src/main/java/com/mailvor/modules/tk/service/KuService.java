@@ -4,6 +4,7 @@ package com.mailvor.modules.tk.service;
 import cn.hutool.http.HttpRequest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.mailvor.modules.tk.param.GoodsListDyParam;
 import com.mailvor.modules.tk.param.ParseContentParam;
 import com.mailvor.modules.tk.param.QueryDyKuParam;
 import com.mailvor.modules.tk.param.QueryEleKuParam;
@@ -61,6 +62,14 @@ public class KuService {
     public static final String ELE_ACTIVITY_ORDER_API = KU_API_BASE + "/elm_order_list";
 
     public static final String MEITUAN_ORDER_LIST_API = KU_API_BASE + "/meituan_order_list";
+
+    /**
+     *  抖音本地生活分类
+     *  参照这个链接做了精简 KU_API_BASE + "/dy_life_category
+     *  因为有些分类下没有商品
+     * */
+    private static String DY_LIFE_CATE_STR = "{\"code\":200,\"msg\":\"success\",\"data\":{\"list\":[{\"title\":\"餐饮美食\",\"val\":1000000,\"children\":[{\"title\":\"饮品\",\"val\":1015000},{\"title\":\"地方菜\",\"val\":1001000},{\"title\":\"火锅\",\"val\":1003000},{\"title\":\"烧烤\",\"val\":1004000},{\"title\":\"烤肉\",\"val\":1005000},{\"title\":\"自助餐\",\"val\":1009000},{\"title\":\"东南亚菜\",\"val\":1010000},{\"title\":\"日韩料理\",\"val\":1011000},{\"title\":\"西餐\",\"val\":1012000},{\"title\":\"其他美食\",\"val\":1013000},{\"title\":\"面包甜点\",\"val\":1014000},{\"title\":\"音乐餐厅\",\"val\":1016000},{\"title\":\"快餐小吃\",\"val\":1017000},{\"title\":\"热门特色菜\",\"val\":1018000},{\"title\":\"生鲜果蔬\",\"val\":5004000}]},{\"title\":\"休闲娱乐\",\"val\":4000000,\"children\":[{\"title\":\"洗浴按摩\",\"val\":4001000},{\"title\":\"酒吧\",\"val\":4003000},{\"title\":\"DIY手工坊\",\"val\":4009000},{\"title\":\"其他休闲娱乐\",\"val\":4013000},{\"title\":\"电影演出\",\"val\":4014000},{\"title\":\"休闲运动\",\"val\":4015000},{\"title\":\"新奇体验\",\"val\":4017000},{\"title\":\"推理桌游\",\"val\":4019000},{\"title\":\"传统娱乐\",\"val\":4020000},{\"title\":\"户外玩乐\",\"val\":4021000},{\"title\":\"图书馆\",\"val\":4022000},{\"title\":\"茶馆\",\"val\":4024000},{\"title\":\"演出\",\"val\":4025000}]},{\"title\":\"商城购物\",\"val\":5000000,\"children\":[{\"title\":\"花鸟鱼虫市场\",\"val\":5001000},{\"title\":\"综合商场\",\"val\":5002000},{\"title\":\"日用商超\",\"val\":5003000},{\"title\":\"眼镜店\",\"val\":5005000},{\"title\":\"免税店\",\"val\":5006000},{\"title\":\"商业街步行街\",\"val\":5007000},{\"title\":\"家居建材\",\"val\":5008000},{\"title\":\"配饰\",\"val\":5009000},{\"title\":\"服饰鞋帽\",\"val\":5010000},{\"title\":\"数码家电\",\"val\":5011000},{\"title\":\"美妆个护\",\"val\":5012000},{\"title\":\"交通工具\",\"val\":5013000},{\"title\":\"运动户外\",\"val\":5014000}]},{\"title\":\"亲子乐园\",\"val\":21000000,\"children\":[{\"title\":\"儿童乐园\",\"val\":4016000},{\"title\":\"儿童才艺\",\"val\":7006000},{\"title\":\"STEAM\",\"val\":7007000},{\"title\":\"婴幼服务\",\"val\":21001000},{\"title\":\"儿童运动\",\"val\":21002000},{\"title\":\"亲子活动\",\"val\":21003000},{\"title\":\"孕婴童摄影\",\"val\":21004000},{\"title\":\"早教\",\"val\":21005000},{\"title\":\"母婴购物\",\"val\":21006000}]},{\"title\":\"生活服务\",\"val\":6000000,\"children\":[{\"title\":\"印刷摄影\",\"val\":6001000},{\"title\":\"房产家政\",\"val\":6003000},{\"title\":\"维修服务\",\"val\":6004000},{\"title\":\"洗涤护理\",\"val\":6005000},{\"title\":\"旅行社\",\"val\":6006000},{\"title\":\"孕产服务\",\"val\":6007000},{\"title\":\"搬家运输\",\"val\":6009000},{\"title\":\"法律财会\",\"val\":6010000},{\"title\":\"房产服务\",\"val\":6020000},{\"title\":\"养老服务\",\"val\":6021000},{\"title\":\"汽车服务\",\"val\":19005000}]},{\"title\":\"运动健身\",\"val\":3000000,\"children\":[{\"title\":\"游泳馆\",\"val\":3001000},{\"title\":\"综合体育馆\",\"val\":3002000},{\"title\":\"瑜伽\",\"val\":3003000},{\"title\":\"舞蹈\",\"val\":3004000},{\"title\":\"健身房\",\"val\":3005000},{\"title\":\"武术搏击\",\"val\":3006000},{\"title\":\"球类运动\",\"val\":3007000},{\"title\":\"其他运动健身\",\"val\":3008000}]},{\"title\":\"丽人美发\",\"val\":17000000,\"children\":[{\"title\":\"美发\",\"val\":17001000},{\"title\":\"美甲美睫\",\"val\":17002000},{\"title\":\"美容美体\",\"val\":17003000},{\"title\":\"其他丽人\",\"val\":17005000},{\"title\":\"医疗美容\",\"val\":17006000},{\"title\":\"纹眉纹绣\",\"val\":17007000}]},{\"title\":\"礼仪婚庆\",\"val\":22000000,\"children\":[{\"title\":\"结婚旅拍\",\"val\":22001000},{\"title\":\"婚宴\",\"val\":22002000},{\"title\":\"婚庆策划\",\"val\":22003000},{\"title\":\"婚纱礼服\",\"val\":22004000},{\"title\":\"彩妆造型\",\"val\":22005000},{\"title\":\"婚车租赁\",\"val\":22006000},{\"title\":\"婚礼跟拍\",\"val\":22007000},{\"title\":\"司仪主持\",\"val\":22008000},{\"title\":\"其他婚礼服务\",\"val\":22009000},{\"title\":\"婚纱摄影\",\"val\":22010000},{\"title\":\"婚礼喜品\",\"val\":22011000},{\"title\":\"珠宝首饰\",\"val\":22012000}]}]}}";
+
     @Resource
     private RestTemplate restTemplate;
 
@@ -73,7 +82,6 @@ public class KuService {
     private String appId;
     @Value(("${haodanku.vip.appSecret}"))
     private String appSecret;
-
 
 
     public JSONObject contentParse(String content) {
@@ -367,7 +375,7 @@ public class KuService {
         sb.append("&back=");
         sb.append(size);
         if(StringUtils.isNotBlank(cityCode)) {
-            sb.append("&cityCode=");
+            sb.append("&city_code=");
             sb.append(cityCode);
         }
         if(StringUtils.isNotBlank(categoryId)) {
@@ -425,10 +433,11 @@ public class KuService {
     }
 
     public DyLifeCityDto dyLifeCategoryList() {
-        String data = HttpRequest
-                .get(KU_API_BASE + "/dy_life_category")
-                .execute().body();
-        return JSON.parseObject(data, DyLifeCityDto.class);
+        return JSON.parseObject(DY_LIFE_CATE_STR, DyLifeCityDto.class);
+//        String data = HttpRequest
+//                .get(KU_API_BASE + "/dy_life_category")
+//                .execute().body();
+//        return JSON.parseObject(data, DyLifeCityDto.class);
     }
 
 
@@ -456,5 +465,107 @@ public class KuService {
                 requestParam,
                 String.class);
         return JSON.parseObject(re.getBody(), DyKuResVo.class);
+    }
+
+    public JSONObject dyProductList(GoodsListDyParam param) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(KU_API_BASE);
+        sb.append("/dy_item_list?");
+        sb.append("apikey=");
+        sb.append(key);
+        sb.append("&min_id=");
+        sb.append(param.getPage());
+        sb.append("&back=");
+        sb.append(param.getSize());
+        if(StringUtils.isNotBlank(param.getKeyword())) {
+            sb.append("&keyword=");
+            sb.append(param.getKeyword());
+        }
+
+        if(param.getSort() != null) {
+            sb.append("&sort=");
+            sb.append(param.getSort());
+        }
+        if(param.getCateId() != null) {
+            sb.append("&cate_id=");
+            sb.append(param.getCateId());
+        }
+
+        if(param.getPriceMin() != null) {
+            sb.append("&price_min=");
+            sb.append(param.getPriceMin());
+        }
+        if(param.getPriceMax() != null) {
+            sb.append("&price_max=");
+            sb.append(param.getPriceMax());
+        }
+        if(param.getSalesMin() != null) {
+            sb.append("&sales_min=");
+            sb.append(param.getSalesMin());
+        }
+        if(param.getSalesMax() != null) {
+            sb.append("&sales_max=");
+            sb.append(param.getSalesMax());
+        }
+        ResponseEntity<JSONObject> re = restTemplate.getForEntity(
+                sb.toString(),
+                JSONObject.class);
+        return re.getBody();
+    }
+
+    public JSONObject dyProductDetail(String itemId) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(KU_API_BASE);
+        sb.append("/dy_detail?");
+        sb.append("apikey=");
+        sb.append(key);
+        sb.append("&itemid=");
+        sb.append(itemId);
+        ResponseEntity<JSONObject> re = restTemplate.getForEntity(
+                sb.toString(),
+                JSONObject.class);
+        return re.getBody();
+    }
+
+    public JSONObject dyProductWord(String itemId, String channel) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("apikey=");
+        sb.append(key);
+        sb.append("&itemid=");
+        sb.append(itemId);
+        sb.append("&channel=");
+        sb.append(channel);
+        HttpHeaders headers = new HttpHeaders();
+        // 以表单的方式提交
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        HttpEntity<String> requestParam = new HttpEntity<>(sb.toString(),headers);
+        ResponseEntity<JSONObject> re = restTemplate.postForEntity(
+                KU_API_BASE+"/dy_life_share",
+                requestParam,
+                JSONObject.class);
+        return re.getBody();
+    }
+    public JSONObject dyProductCateList() {
+        return getCateList(4, null);
+    }
+
+
+    public JSONObject getCateList(Integer type, Integer labelId) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(KU_API_BASE);
+        sb.append("/category_list?");
+        sb.append("apikey=");
+        sb.append(key);
+        sb.append("&type=");
+        sb.append(type);
+        if(labelId != null) {
+            sb.append("&label_id=");
+            sb.append(labelId);
+        }
+
+        ResponseEntity<JSONObject> re = restTemplate.getForEntity(
+                sb.toString(),
+                JSONObject.class);
+        return re.getBody();
     }
 }
