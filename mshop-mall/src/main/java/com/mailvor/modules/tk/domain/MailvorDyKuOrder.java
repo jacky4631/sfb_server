@@ -83,7 +83,7 @@ public class MailvorDyKuOrder{
 
     public MailvorDyOrder convert() {
         return MailvorDyOrder.builder()
-                .settleTime(new Date(earningTime*1000))
+                .settleTime(earningTime > 0 ? new Date(earningTime*1000) : null)
                 .productName(itemTitle)
                 .totalPayAmount(payPrice)
                 .productImg(itemImg)
@@ -91,12 +91,13 @@ public class MailvorDyKuOrder{
                 .shopName(shopName)
                 .flowPoint(covertOrderStatus(orderStatus))
                 .paySuccessTime(new Date(paidTime*1000))
-                .refundTime(new Date(refundTime*1000))
+                .refundTime(refundTime > 0 ? new Date(refundTime*1000) : null)
                 .productId(productId)
                 .estimatedTotalCommission(predictMoney)
                 .realCommission(actualMoney)
                 .itemNum(itemNum)
-                .externalInfo(channelCode)
+                //773026_8_0200 中间的是用户id
+                .externalInfo("773026_" + channelCode + "_0200")
                 .commissionRate(NumberUtil.round(NumberUtil.div(actualMoney, payPrice), 2).doubleValue())
                 .build();
     }
