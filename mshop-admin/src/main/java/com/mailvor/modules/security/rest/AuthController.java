@@ -133,6 +133,9 @@ public class AuthController {
     public ResponseEntity<Object> getCode(@RequestParam String username){
 
         User user = userService.findByUsername(username);
+        if(user == null) {
+            throw new MshopException("用户不存在");
+        }
         if(StringUtils.isBlank(user.getPhone())) {
             throw new MshopException("手机号不存在");
         }
