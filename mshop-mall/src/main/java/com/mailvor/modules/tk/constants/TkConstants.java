@@ -21,16 +21,21 @@ public class TkConstants {
     public static final String NINE_CATE = CMS_API_PREFIX + "/page-goods-nine-cate";
     public static final String NINE_TOP = CMS_API_PREFIX + "/page-goods-nine-top";
     public static final String NINE_LIST = CMS_API_PREFIX + "/page-goods-nine?aid=0&cid=%s&pageNo=%s&pageSize=%s&app_key=aqoadw";
-    public static final String TOP_CATE = "cache:index:top:cate";
-    public static final String MENU_DATA = "cache:index:menu";
-    public static final String GOODS_LIST_DATA = "cache:index:goodsList";
-    public static final String BRAND_LIST_DATA = "cache:index:brandList";
-    public static final String HOT_DATA = "cache:index:hot";
-    public static final String DDQ_DATA = "cache:index:ddq";
-    public static final String HOME_BANNER = "cache:home:banner";
+    public static final String HOME_DATA_TOP_CATE = "cache:home:top:cate";
+    public static final String HOME_DATA_BRAND_LIST = "cache:home:brandList";
+    public static final String HOME_DATA_HOT = "cache:home:hot";
+    public static final String HOME_DATA_DDQ = "cache:home:ddq";
+    public static final String HOME_DATA_BANNER = "cache:home:banner";
+
+    /**
+     * 大家都在买
+     * */
+    public static final String HOME_DATA_EVERY = "cache:home:every";
+
+    public static final String HOME_DATACATEGORY = "cache:home:category";
+    public static final String HOME_DATA_TILES = "cache:home:tiles";
 
 
-    public static final String HOME_CATEGORY = "cache:home:category";
-    public static final String HOME_TILES = "cache:home:tiles";
+    public static final Long HOME_DATA_EXPIRED = 86400L;
 
 }

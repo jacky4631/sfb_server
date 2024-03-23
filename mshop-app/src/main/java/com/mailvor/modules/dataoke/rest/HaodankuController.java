@@ -33,7 +33,6 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -72,8 +71,6 @@ public class HaodankuController {
     public static final String HOT_WORDS_JD = "https://wq.jd.com/bases/searchhotword/GetHotWords?_=1663927810750&sceneval=2&callback=jsonpCBKB";
 
     public static final String HOT_WORDS_KU = "https://api.cmspro.haodanku.com/index/hotKeyword?cid=";
-
-    private static final Long HOME_DATA_EXPIRED = 86400L;
 
     @Value("${haodanku.key}")
     private String key;
@@ -184,27 +181,27 @@ public class HaodankuController {
 
     @GetMapping(value = "/banners")
     public JSONArray banners() {
-        JSONArray homeBanner = (JSONArray) redisUtils.get(HOME_BANNER);
+        JSONArray homeBanner = (JSONArray) redisUtils.get(HOME_DATA_BANNER);
         if(homeBanner == null) {
             JSONObject origData = restTemplate
                     .getForObject(BANNER_LIST + kuService.getKuCid(), JSONObject.class);
             JSONObject data = origData.getJSONObject("data");
             homeBanner = data.getJSONArray("banners");
-            redisUtils.set(HOME_BANNER, homeBanner, HOME_DATA_EXPIRED);
-            redisUtils.set(HOME_TILES, data.getJSONArray("tile_long"), HOME_DATA_EXPIRED);
+            redisUtils.set(HOME_DATA_BANNER, homeBanner, HOME_DATA_EXPIRED);
+            redisUtils.set(HOME_DATA_TILES, data.getJSONArray("tile_long"), HOME_DATA_EXPIRED);
         }
         return homeBanner;
     }
     @GetMapping(value = "/tiles")
     public JSONArray tiles() {
-        JSONArray homeTiles = (JSONArray) redisUtils.get(HOME_TILES);
+        JSONArray homeTiles = (JSONArray) redisUtils.get(HOME_DATA_TILES);
         if(homeTiles == null) {
             JSONObject origData = restTemplate
                     .getForObject(BANNER_LIST + kuService.getKuCid(), JSONObject.class);
             JSONObject data = origData.getJSONObject("data");
             homeTiles = data.getJSONArray("tile_long");
-            redisUtils.set(HOME_BANNER, data.getJSONArray("banners"), HOME_DATA_EXPIRED);
-            redisUtils.set(HOME_TILES, homeTiles, HOME_DATA_EXPIRED);
+            redisUtils.set(HOME_DATA_BANNER, data.getJSONArray("banners"), HOME_DATA_EXPIRED);
+            redisUtils.set(HOME_DATA_TILES, homeTiles, HOME_DATA_EXPIRED);
         }
         return homeTiles;
     }

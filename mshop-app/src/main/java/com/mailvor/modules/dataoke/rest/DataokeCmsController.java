@@ -39,7 +39,7 @@ public class DataokeCmsController {
 
     @GetMapping(value = "/brand/list")
     public Object brandList() {
-        Object dataObj = redisUtils.get(BRAND_LIST_DATA);
+        Object dataObj = redisUtils.get(HOME_DATA_BRAND_LIST);
         if(dataObj == null) {
             JSONObject data = restTemplate.getForObject(String.format("%s/brand-list", CMS_PREFIX), JSONObject.class);
             List list = data.getJSONObject("data").getJSONArray("list").subList(0, 3);
@@ -50,7 +50,7 @@ public class DataokeCmsController {
                 map.put("list", subList.size() < splitSize ? subList : subList.subList(0, splitSize));
             });
             //接口数据缓存6小时
-            redisUtils.set(BRAND_LIST_DATA, list, 6*3600);
+            redisUtils.set(HOME_DATA_BRAND_LIST, list, HOME_DATA_EXPIRED);
             return list;
         }
         return dataObj;
@@ -58,7 +58,7 @@ public class DataokeCmsController {
 
     @GetMapping(value = "/hot")
     public Object hot() {
-        Object dataObj = redisUtils.get(HOT_DATA);
+        Object dataObj = redisUtils.get(HOME_DATA_HOT);
         if(dataObj == null) {
             RankingListParam param = new RankingListParam();
             param.setRankType(1);
@@ -66,7 +66,7 @@ public class DataokeCmsController {
             param.setPageSize(2);
             JSONObject data = dataokeService.rankingList(param);;
             //接口数据缓存2个小时
-            redisUtils.set(HOT_DATA, data, 2*3600);
+            redisUtils.set(HOME_DATA_HOT, data, HOME_DATA_EXPIRED);
             return data;
         }
         return dataObj;
@@ -74,11 +74,11 @@ public class DataokeCmsController {
 
     @GetMapping(value = "/ddq")
     public Object ddq() {
-        Object dataObj = redisUtils.get(DDQ_DATA);
+        Object dataObj = redisUtils.get(HOME_DATA_DDQ);
         if(dataObj == null) {
             JSONObject data = dataokeService.ddq(null);
-            //接口数据缓存2个小时
-            redisUtils.set(DDQ_DATA, data, 2*3600);
+            //接口数据缓存24个小时
+            redisUtils.set(HOME_DATA_DDQ, data, HOME_DATA_EXPIRED);
             return data;
         }
         return dataObj;
@@ -86,19 +86,16 @@ public class DataokeCmsController {
 
     @GetMapping(value = "/everyone/buy")
     public Object everyoneBuy() {
-        String url = API_PREFIX + "/goods/search?version=v1.0.0&appKey=612bcfe884763&choice=1&brand=1&activityGroup=1,3,4,6,11&sign=448080add3799cb87538ad6116786763&pageId=1&pageSize=10";
-        return restTemplate.getForObject(url, JSONObject.class);
-//        TreeMap<String, String> paraMap = new TreeMap<>();
-//        paraMap.put("version", "v1.0.0");
-//        paraMap.put("appKey", config.getKey());
-//        paraMap.put("choice", "1");
-//        paraMap.put("brand", "1");
-//        paraMap.put("activityGroup", "1,3,4,6,11");
-//        String url = apiUrl + "/goods/search?version=v1.0.0&choice=1&brand=1&activityGroup=1,3,4,6,11";
-//
-//        String secret = SignMD5Util.getSignStr(paraMap, config.getSecret());
-//        String res = DataokeApiClient.sendReq(url, secret, paraMap);
-//        return JSON.parseObject(res);
+        Object dataObj = redisUtils.get(HOME_DATA_EVERY);
+        if(dataObj == null) {
+            String url = API_PREFIX + "/goods/search?version=v1.0.0&appKey=612bcfe884763&choice=1&brand=1&activityGroup=1,3,4,6,11&sign=448080add3799cb87538ad6116786763&pageId=1&pageSize=10";
+            JSONObject data = restTemplate.getForObject(url, JSONObject.class);
+
+            //接口数据缓存6个小时
+            redisUtils.set(HOME_DATA_DDQ, data, HOME_DATA_EXPIRED/4);
+            return data;
+        }
+        return dataObj;
     }
 
     @GetMapping(value = "/hot-words")
@@ -111,12 +108,12 @@ public class DataokeCmsController {
     }
     @GetMapping(value = "/ranking/cate")
     public JSONObject rankingCate() {
-        JSONObject data = (JSONObject) redisUtils.get(TOP_CATE);
+        JSONObject data = (JSONObject) redisUtils.get(HOME_DATA_TOP_CATE);
         if(data == null) {
             data = restTemplate
                     .getForObject(RANKING_CATE, JSONObject.class);
             //接口数据缓存24小时
-            redisUtils.set(TOP_CATE, data, 24*3600);
+            redisUtils.set(HOME_DATA_TOP_CATE, data, HOME_DATA_EXPIRED);
             return data;
         }
         return data;
