@@ -23,6 +23,7 @@ import com.mailvor.modules.shop.service.dto.MwSystemConfigDto;
 import com.mailvor.modules.shop.service.dto.MwSystemConfigQueryCriteria;
 import com.mailvor.modules.shop.service.dto.PayConfigDto;
 import com.mailvor.modules.shop.service.mapper.SystemConfigMapper;
+import com.mailvor.modules.tk.constants.TkConstants;
 import com.mailvor.modules.user.config.AppDataConfig;
 import com.mailvor.modules.user.config.HbUnlockConfig;
 import com.mailvor.modules.utils.TkUtil;
@@ -334,6 +335,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
             systemConfig.setMenuName(key);
         }
         systemConfig.setValue(JSON.toJSONString(param));
+        TkConstants.kuCid = null;
         redisUtils.set(key, param);
         saveOrUpdate(systemConfig);
     }

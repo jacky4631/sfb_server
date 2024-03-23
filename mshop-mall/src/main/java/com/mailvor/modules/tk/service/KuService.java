@@ -4,6 +4,8 @@ package com.mailvor.modules.tk.service;
 import cn.hutool.http.HttpRequest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.mailvor.modules.shop.service.MwSystemConfigService;
+import com.mailvor.modules.tk.constants.TkConstants;
 import com.mailvor.modules.tk.param.GoodsListDyParam;
 import com.mailvor.modules.tk.param.ParseContentParam;
 import com.mailvor.modules.tk.param.QueryDyKuParam;
@@ -83,6 +85,9 @@ public class KuService {
     @Value(("${haodanku.vip.appSecret}"))
     private String appSecret;
 
+
+    @Resource
+    private MwSystemConfigService systemConfigService;
 
     public JSONObject contentParse(String content) {
 
@@ -567,5 +572,12 @@ public class KuService {
                 sb.toString(),
                 JSONObject.class);
         return re.getBody();
+    }
+
+    public String getKuCid() {
+        if(StringUtils.isBlank(TkConstants.kuCid)) {
+            TkConstants.kuCid = systemConfigService.getAppDataConfig().getKuCid();
+        }
+        return TkConstants.kuCid;
     }
 }

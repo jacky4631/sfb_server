@@ -7,8 +7,6 @@ package com.mailvor.modules.tk.param;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
-import static com.mailvor.modules.tk.constants.TkConstants.KU_CID;
-
 /**
  *
  *
@@ -50,5 +48,5 @@ public class KuCustomParam{
     private String collect="";
     private String classify ="";
 
-    private String cid = KU_CID;
+    private String cid;
 }

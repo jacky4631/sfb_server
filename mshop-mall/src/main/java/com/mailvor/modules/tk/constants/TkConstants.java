@@ -7,7 +7,7 @@ package com.mailvor.modules.tk.constants;
  */
 public class TkConstants {
 
-    public static final String KU_CID = "FazG6352";
+    public static String kuCid;
     //da cms start
     public static final String CMS_PREFIX = "https://cmscg.dataoke.com/cms-v2";
     public static final String API_PREFIX = "https://openapi.dataoke.com/api";

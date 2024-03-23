@@ -50,29 +50,30 @@ public class HaodankuController {
     public static final String PDD_NAV = PPD_CMS_PREFIX + "/index/index?type=1&cid=XDgQx14e";
     public static final String PDD_CATE = PPD_CMS_PREFIX + "/index/category?type=1&cid=XDgQx14e";
     public static final String PDD_LIST = PPD_CMS_PREFIX + "/pddItem/lists?cat_id=%s&min_id=%s&cid=XDgQx14e";
-    public static final String DY_NAV = PPD_CMS_PREFIX + "/index/index?type=9&cid=" + KU_CID;
-    public static final String DY_CATE = PPD_CMS_PREFIX + "/index/category?type=9&cid=" + KU_CID;
-    public static final String DY_LIST = API_CMS_PREFIX + "/douyin/item/getListsByDy?page=%s&page_size=%s&cate_id=%s&is_get_similar=0&search_type=%s&sort_type=1&cos_fee_min=1&cid=" + KU_CID;
+    public static final String DY_NAV = PPD_CMS_PREFIX + "/index/index?type=9&cid=";
+    public static final String DY_CATE = PPD_CMS_PREFIX + "/index/category?type=9&cid=";
+    public static final String DY_LIST = API_CMS_PREFIX + "/douyin/item/getListsByDy?page=%s&page_size=%s&cate_id=%s&is_get_similar=0&search_type=%s&sort_type=1&cos_fee_min=1&cid=";
     public static final String PICK_CATE = "http://v2.api.haodanku.com/activity_category?code=zFxBnq&version=2.0.1";
     public static final String PICK_LIST = "http://v2.api.haodanku.com/activity_items?cat_id=%s&min_id=%s&cs=1&code=zFxBnq";
     //小样种草机
     public static final String MINI_LIST = "http://v2.api.haodanku.com/makeup_items?code=9HxUb0&keyword=%s&min_id=%s&back=10";
 
     //首页banner
-    public static final String BANNER_LIST = API_CMS_PREFIX + "/index/index?cid=" + KU_CID;
+    public static final String BANNER_LIST = API_CMS_PREFIX + "/index/index?cid=";
 
-    public static final String CUSTOM_CATE = API_CMS_PREFIX + "/activity/hdkActivityInfo?id=%s&cid=" + KU_CID;
+    public static final String CUSTOM_CATE = API_CMS_PREFIX + "/activity/hdkActivityInfo?id=%s&cid=";
     public static final String CUSTOM_LIST = API_CMS_PREFIX + "/activity/hdkActivityItemList";
 
     public static final String DY_WORD = API_CMS_PREFIX +"/douyin/douyin/getActivityLink";
 
     //link_type=6
-    public static final String ACTIVITY_DETAIL = API_CMS_PREFIX +"/meetingActivity/detail?id=%s&cid=" + KU_CID;
+    public static final String ACTIVITY_DETAIL = API_CMS_PREFIX +"/meetingActivity/detail?id=%s&cid=";
 
     public static final String HOT_WORDS_JD = "https://wq.jd.com/bases/searchhotword/GetHotWords?_=1663927810750&sceneval=2&callback=jsonpCBKB";
 
-    public static final String HOT_WORDS_KU = "https://api.cmspro.haodanku.com/index/hotKeyword?cid=" + KU_CID;
+    public static final String HOT_WORDS_KU = "https://api.cmspro.haodanku.com/index/hotKeyword?cid=";
 
+    private static final Long HOME_DATA_EXPIRED = 86400L;
 
     @Value("${haodanku.key}")
     private String key;
@@ -137,16 +138,16 @@ public class HaodankuController {
     @GetMapping(value = "/dy/nav")
     public JSONObject dyNav() {
         return restTemplate
-                .getForObject(DY_NAV, JSONObject.class);
+                .getForObject(DY_NAV + kuService.getKuCid(), JSONObject.class);
     }
     @GetMapping(value = "/dy/cate")
     public JSONObject dyCate() {
         return restTemplate
-                .getForObject(DY_CATE, JSONObject.class);
+                .getForObject(DY_CATE + kuService.getKuCid(), JSONObject.class);
     }
     @GetMapping(value = "/dy/list")
     public JSONObject dyList(DyListParam param) {
-        String url = String.format(DY_LIST, param.getPageId(), param.getPageSize(), param.getCateId(), param.getSearchType());
+        String url = String.format(DY_LIST + kuService.getKuCid(), param.getPageId(), param.getPageSize(), param.getCateId(), param.getSearchType());
         if(param.getFirstCid() != null){
             url = url + "&first_cids=" + param.getFirstCid();
         }
@@ -178,7 +179,7 @@ public class HaodankuController {
     @GetMapping(value = "/banner")
     public JSONObject banner() {
         return restTemplate
-                .getForObject(BANNER_LIST, JSONObject.class);
+                .getForObject(BANNER_LIST + kuService.getKuCid(), JSONObject.class);
     }
 
     @GetMapping(value = "/banners")
@@ -186,11 +187,11 @@ public class HaodankuController {
         JSONArray homeBanner = (JSONArray) redisUtils.get(HOME_BANNER);
         if(homeBanner == null) {
             JSONObject origData = restTemplate
-                    .getForObject(BANNER_LIST, JSONObject.class);
+                    .getForObject(BANNER_LIST + kuService.getKuCid(), JSONObject.class);
             JSONObject data = origData.getJSONObject("data");
             homeBanner = data.getJSONArray("banners");
-            redisUtils.set(HOME_BANNER, homeBanner, 7200);
-            redisUtils.set(HOME_TILES, data.getJSONArray("tile_long"), 7200);
+            redisUtils.set(HOME_BANNER, homeBanner, HOME_DATA_EXPIRED);
+            redisUtils.set(HOME_TILES, data.getJSONArray("tile_long"), HOME_DATA_EXPIRED);
         }
         return homeBanner;
     }
@@ -199,11 +200,11 @@ public class HaodankuController {
         JSONArray homeTiles = (JSONArray) redisUtils.get(HOME_TILES);
         if(homeTiles == null) {
             JSONObject origData = restTemplate
-                    .getForObject(BANNER_LIST, JSONObject.class);
+                    .getForObject(BANNER_LIST + kuService.getKuCid(), JSONObject.class);
             JSONObject data = origData.getJSONObject("data");
             homeTiles = data.getJSONArray("tile_long");
-            redisUtils.set(HOME_BANNER, data.getJSONArray("banners"), 3600);
-            redisUtils.set(HOME_TILES, homeTiles, 3600);
+            redisUtils.set(HOME_BANNER, data.getJSONArray("banners"), HOME_DATA_EXPIRED);
+            redisUtils.set(HOME_TILES, homeTiles, HOME_DATA_EXPIRED);
         }
         return homeTiles;
     }
@@ -213,12 +214,13 @@ public class HaodankuController {
     @GetMapping(value = "/custom/cate")
     public JSONObject customCate(String id) {
         return restTemplate
-                .getForObject(String.format(CUSTOM_CATE, id), JSONObject.class);
+                .getForObject(String.format(CUSTOM_CATE + kuService.getKuCid(), id), JSONObject.class);
     }
 
     @GetMapping(value = "/custom/list")
     public JSONObject customList(KuCustomParam param) {
         param.setCategory_id(param.getClassify());
+        param.setCid(kuService.getKuCid());
         TreeMap<String, String> map = JSON.parseObject(JSON.toJSONString(param), TreeMap.class);
         StringBuilder sb = new StringBuilder();
         sb.append(CUSTOM_LIST);
@@ -256,7 +258,7 @@ public class HaodankuController {
     @GetMapping(value = "/activity/detail")
     public JSONObject parseMeeting(String id) {
         return restTemplate
-                .getForObject(String.format(ACTIVITY_DETAIL, id), JSONObject.class);
+                .getForObject(String.format(ACTIVITY_DETAIL + kuService.getKuCid(), id), JSONObject.class);
     }
 
 
@@ -272,7 +274,7 @@ public class HaodankuController {
 
             //读取库的关键词
             JSONObject kuObj = restTemplate
-                    .getForObject(HOT_WORDS_KU, JSONObject.class);
+                    .getForObject(HOT_WORDS_KU + kuService.getKuCid(), JSONObject.class);
             words = JSON.parseArray(kuObj.getJSONObject("data").getJSONArray("recently_keyword").toString(),
                     HotWordsVo.class);
 
