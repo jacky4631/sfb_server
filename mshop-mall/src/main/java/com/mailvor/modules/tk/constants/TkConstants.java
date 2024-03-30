@@ -32,7 +32,9 @@ public class TkConstants {
      * */
     public static final String HOME_DATA_EVERY = "cache:home:every";
 
-    public static final String HOME_DATACATEGORY = "cache:home:category";
+    public static final String HOME_DATA_CATEGORY_TB = "cache:home:category:tb";
+    public static final String HOME_DATA_CATEGORY_PDD = "cache:home:category:pdd";
+
     public static final String HOME_DATA_TILES = "cache:home:tiles";
 
 

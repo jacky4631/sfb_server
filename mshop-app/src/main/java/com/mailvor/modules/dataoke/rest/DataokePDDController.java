@@ -9,6 +9,7 @@ import com.mailvor.modules.tk.param.GoodsListPddParam;
 import com.mailvor.modules.tk.service.DataokeService;
 import com.mailvor.modules.tk.service.PddService;
 import com.mailvor.modules.user.domain.MwUser;
+import com.mailvor.utils.RedisUtils;
 import com.pdd.pop.sdk.http.api.pop.response.PddDdkRpPromUrlGenerateResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.List;
+
+import static com.mailvor.modules.tk.constants.TkConstants.HOME_DATA_CATEGORY_PDD;
 
 @RestController
 @RequestMapping("/pdd")
@@ -29,6 +32,8 @@ public class DataokePDDController {
     @Resource
     private PddService pddService;
 
+    @Resource
+    private RedisUtils redisUtils;
     @GetMapping(value = "/goods/list")
     public JSONObject getGoodList(GoodsListPddParam goodQueryParam) {
 
@@ -36,8 +41,14 @@ public class DataokePDDController {
     }
     @GetMapping(value = "/goods/cate")
     public JSONObject getGoodList(Integer parentId) {
+        JSONObject homeCategory = (JSONObject) redisUtils.get(HOME_DATA_CATEGORY_PDD);
+        if(homeCategory == null) {
+            homeCategory = service.goodsCatePdd(parentId);
+            //接口数据缓存24小时
+            redisUtils.set(HOME_DATA_CATEGORY_PDD, homeCategory, 24*3600);
 
-        return service.goodsCatePdd(parentId);
+        }
+        return homeCategory;
     }
     @GetMapping(value = "/goods/detail")
     public JSONObject getGoodsDetail(String goodsSign) {

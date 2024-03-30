@@ -141,11 +141,11 @@ public class DataokeController {
 
     @GetMapping(value = "/goods/category")
     public JSONObject getCategory() {
-        JSONObject homeCategory = (JSONObject) redisUtils.get(HOME_DATACATEGORY);
+        JSONObject homeCategory = (JSONObject) redisUtils.get(HOME_DATA_CATEGORY_TB);
         if(homeCategory == null) {
             homeCategory = service.getCategory();
             //接口数据缓存24小时
-            redisUtils.set(HOME_DATACATEGORY, homeCategory, 24*3600);
+            redisUtils.set(HOME_DATA_CATEGORY_TB, homeCategory, 24*3600);
 
         }
         return homeCategory;
