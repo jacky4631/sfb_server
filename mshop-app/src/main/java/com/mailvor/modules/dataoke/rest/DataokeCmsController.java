@@ -92,7 +92,7 @@ public class DataokeCmsController {
             JSONObject data = restTemplate.getForObject(url, JSONObject.class);
 
             //接口数据缓存6个小时
-            redisUtils.set(HOME_DATA_DDQ, data, HOME_DATA_EXPIRED/4);
+            redisUtils.set(HOME_DATA_EVERY, data, HOME_DATA_EXPIRED/4);
             return data;
         }
         return dataObj;
