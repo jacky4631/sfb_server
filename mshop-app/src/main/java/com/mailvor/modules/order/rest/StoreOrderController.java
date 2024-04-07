@@ -478,15 +478,15 @@ public class StoreOrderController {
             MwUser user = userService.getById(uid);
             Integer refund = poolService.getRefund(uid);
             HbUnlockConfig unlockConfig = systemConfigService.getHbUnlockConfig();
-            tabs.add(new OrderTabDto("淘单", tbOrderService.hasUnlockOrder(uid, innerType,
+            tabs.add(new OrderTabDto("淘宝", tbOrderService.hasUnlockOrder(uid, innerType,
                     TkUtil.getUnlockDay(user.getLevel(), refund, unlockConfig))));
-            tabs.add(new OrderTabDto("京单", jdOrderService.hasUnlockOrder(uid, innerType,
+            tabs.add(new OrderTabDto("京东", jdOrderService.hasUnlockOrder(uid, innerType,
                     TkUtil.getUnlockDay(user.getLevelJd(), refund, unlockConfig))));
-            tabs.add(new OrderTabDto("拼单", pddOrderService.hasUnlockOrder(uid, innerType,
+            tabs.add(new OrderTabDto("拼多多", pddOrderService.hasUnlockOrder(uid, innerType,
                     TkUtil.getUnlockDay(user.getLevelPdd(), refund, unlockConfig))));
-            tabs.add(new OrderTabDto("抖单", dyOrderService.hasUnlockOrder(uid, innerType,
+            tabs.add(new OrderTabDto("抖音", dyOrderService.hasUnlockOrder(uid, innerType,
                     TkUtil.getUnlockDay(user.getLevelDy(), refund, unlockConfig))));
-            tabs.add(new OrderTabDto("唯单", vipOrderService.hasUnlockOrder(uid, innerType,
+            tabs.add(new OrderTabDto("唯品会", vipOrderService.hasUnlockOrder(uid, innerType,
                     TkUtil.getUnlockDay(user.getLevelVip(), refund, unlockConfig))));
             //美团不加入热度订单
             if(innerType != 2) {
@@ -495,11 +495,11 @@ public class StoreOrderController {
             }
         } else {
 
-            tabs.add(new OrderTabDto("淘单", false));
-            tabs.add(new OrderTabDto("京单", false));
-            tabs.add(new OrderTabDto("拼单", false));
-            tabs.add(new OrderTabDto("抖单", false));
-            tabs.add(new OrderTabDto("唯单", false));
+            tabs.add(new OrderTabDto("淘宝", false));
+            tabs.add(new OrderTabDto("京东", false));
+            tabs.add(new OrderTabDto("拼多多", false));
+            tabs.add(new OrderTabDto("抖音", false));
+            tabs.add(new OrderTabDto("唯品会", false));
             if(innerType != 2) {
                 tabs.add(new OrderTabDto("美团", false));
             }
