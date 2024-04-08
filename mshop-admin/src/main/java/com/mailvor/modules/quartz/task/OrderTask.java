@@ -171,7 +171,7 @@ public class OrderTask {
                 boolean saved = jdOrderService.saveOrUpdateBatch(filterOrders);
                 log.warn(saved? "京东订单保存成功": "京东订单保存失败");
             }catch (Exception e) {
-                e.printStackTrace();
+                log.error("京东订单保存失败 {}", e);
             }
         }
         if(res != null && res.getData() != null) {
