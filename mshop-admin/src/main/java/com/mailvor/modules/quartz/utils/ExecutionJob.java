@@ -40,7 +40,7 @@ public class ExecutionJob extends QuartzJobBean {
     @SuppressWarnings("unchecked")
     protected void executeInternal(JobExecutionContext context) {
         QuartzJob quartzJob = (QuartzJob) context.getMergedJobDataMap().get(QuartzJob.JOB_KEY);
-        //如果是副server 同时不在全执行的列表中，不执行task
+        //QUARTZ_FULL_LIST设置的任务在副server中执行
         if(!QUARTZ_MAIN && !QUARTZ_FULL_LIST.contains(quartzJob.getBeanName())) {
             return;
         }

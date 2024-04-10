@@ -145,7 +145,7 @@ public interface ShopConstants {
 	/**
 	 * 短信缓存时间
 	 */
-	long MSHOP_SMS_REDIS_TIME = 60L;
+	long MSHOP_SMS_REDIS_TIME = 600L;
 
 	//零标识
 	String MSHOP_ZERO =  "0";
