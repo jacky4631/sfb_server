@@ -21,14 +21,12 @@ public class PayConfig implements InitializingBean {
 
     public static String PAY_TITLE;
     public static String PAY_DESC;
-    public static String PAY_ADA_MODE;
     public static String PAY_NAME;
 
     @Override
     public void afterPropertiesSet() {
         PAY_TITLE = title;
         PAY_DESC = desc;
-        PAY_ADA_MODE = payAdaMode;
         PAY_NAME = payName;
     }
 
