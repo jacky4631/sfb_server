@@ -1192,6 +1192,20 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
     }
 
     protected String getShopName(String platform) {
+        if("tsq".equals(PAY_NAME)) {
+            switch (platform){
+                case "jd":
+                    return "京店";
+                case "pdd":
+                    return "多店";
+                case "dy":
+                    return "抖店";
+                case "vip":
+                    return "唯店";
+                default:
+                    return "淘店";
+            }
+        }
         switch (platform){
             case "jd":
                 return "京星选";

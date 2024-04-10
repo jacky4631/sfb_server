@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.mailvor.config.PayConfig.PAY_NAME;
+
 /**
  * <p>
  * 用户等级 前端控制器
@@ -132,7 +134,11 @@ public class UserLevelController {
         List multiList = new ArrayList();
         if(!list.isEmpty()) {
             Map map = new HashMap<>(2);
-            map.put("name", "淘星选");
+            if("tsq".equals(PAY_NAME)) {
+                map.put("name", "淘店");
+            } else {
+                map.put("name", "淘星选");
+            }
             map.put("key", "level");
             map.put("expKey", "expired");
             map.put("platform", "tb");
@@ -141,7 +147,11 @@ public class UserLevelController {
         }
         if(!jdList.isEmpty()) {
             Map map = new HashMap<>(2);
-            map.put("name", "京星选");
+            if("tsq".equals(PAY_NAME)) {
+                map.put("name", "京店");
+            } else {
+                map.put("name", "京星选");
+            }
             map.put("key", "levelJd");
             map.put("expKey", "expiredJd");
             map.put("platform", "jd");
@@ -150,7 +160,11 @@ public class UserLevelController {
         }
         if(!pddList.isEmpty()) {
             Map map = new HashMap<>(2);
-            map.put("name", "多星选");
+            if("tsq".equals(PAY_NAME)) {
+                map.put("name", "多店");
+            } else {
+                map.put("name", "多星选");
+            }
             map.put("key", "levelPdd");
             map.put("expKey", "expiredPdd");
             map.put("platform", "pdd");
@@ -159,7 +173,11 @@ public class UserLevelController {
         }
         if(!dyList.isEmpty()) {
             Map map = new HashMap<>(2);
-            map.put("name", "抖星选");
+            if("tsq".equals(PAY_NAME)) {
+                map.put("name", "抖店");
+            } else {
+                map.put("name", "抖星选");
+            }
             map.put("key", "levelDy");
             map.put("expKey", "expiredDy");
             map.put("platform", "dy");
@@ -168,7 +186,11 @@ public class UserLevelController {
         }
         if(!vipList.isEmpty()) {
             Map map = new HashMap<>(2);
-            map.put("name", "唯星选");
+            if("tsq".equals(PAY_NAME)) {
+                map.put("name", "唯店");
+            } else {
+                map.put("name", "唯星选");
+            }
             map.put("key", "levelVip");
             map.put("expKey", "expiredVip");
             map.put("platform", "vip");

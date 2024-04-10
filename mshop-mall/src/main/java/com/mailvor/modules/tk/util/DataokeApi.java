@@ -37,6 +37,7 @@ public enum DataokeApi {
     TB_RANK_LIST("https://openapi.dataoke.com/api/goods/get-ranking-list", "v1.3.1","各大榜单"),
     TB_SHOP_CONVERT("https://openapi.dataoke.com/api/dels/shop/convert", "v1.0.0","店铺转链"),
     TB_BRAND_LIST("https://openapi.dataoke.com/api/delanys/brand/get-column-list", "v1.0.0","品牌栏目"),
+    TB_BRAND_GOODS_LIST("https://openapi.dataoke.com/api/delanys/brand/get-goods-list", "v1.0.0","单个品牌详情"),
 
     DY_GOODS_SEARCH("https://openapiv2.dataoke.com/tiktok/tiktok-materials-products-search", "v1.0.0","抖音搜索"),
     DY_GOODS_DETAIL("https://openapiv2.dataoke.com/tiktok/tiktok-materials-products-details", "v1.0.0","抖音详情"),

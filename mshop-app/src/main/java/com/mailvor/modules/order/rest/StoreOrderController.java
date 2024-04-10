@@ -65,6 +65,8 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static com.mailvor.config.PayConfig.PAY_NAME;
+
 /**
  * <p>
  * 订单控制器
@@ -457,7 +459,11 @@ public class StoreOrderController {
         List<OrderTabFirstDto> tabs = new ArrayList<>();
 
         tabs.add(new OrderTabFirstDto("自购", false, 0, 0));
-        tabs.add(new OrderTabFirstDto("热度订单", false, 0, 2));
+        if("tsq".equals(PAY_NAME)) {
+            tabs.add(new OrderTabFirstDto("店铺订单", false, 0, 2));
+        } else {
+            tabs.add(new OrderTabFirstDto("热度订单", false, 0, 2));
+        }
         tabs.add(new OrderTabFirstDto("金客", false, 1, 0));
         tabs.add(new OrderTabFirstDto("银客", false, 2, 0));
         tabs.add(new OrderTabFirstDto("积分订单", false, 0, null));

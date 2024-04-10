@@ -420,7 +420,15 @@ public class DataokeService {
         String data = getData(DataokeApi.TB_BRAND_LIST.getUrl(), DataokeApi.TB_BRAND_LIST.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
-
+    public JSONObject getBrandGoodsList(String brandId, Integer pageId, Integer pageSize) {
+        TreeMap<String, String> paraMap = new TreeMap<>();
+        paraMap.put("brandId", brandId);
+        paraMap.put("pageId", pageId.toString());
+        paraMap.put("pageSize", pageSize.toString());
+        paraMap.put("appkey", config.getKey());
+        String data = getData(DataokeApi.TB_BRAND_GOODS_LIST.getUrl(), DataokeApi.TB_BRAND_GOODS_LIST.getVersion(), paraMap);
+        return JSON.parseObject(data);
+    }
     public JSONObject goodsListVip(GoodsListVipParam param) {
 
         TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);

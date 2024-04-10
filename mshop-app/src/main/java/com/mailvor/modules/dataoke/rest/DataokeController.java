@@ -246,4 +246,10 @@ public class DataokeController {
         }
         return service.getBrandList(cid, pageId);
     }
+
+    @GetMapping(value = "/brand/goods/list")
+    public JSONObject getBrandGoodsList(String brandId, Integer pageId, Integer pageSize) {
+
+        return service.getBrandGoodsList(brandId, pageId, pageSize);
+    }
 }
