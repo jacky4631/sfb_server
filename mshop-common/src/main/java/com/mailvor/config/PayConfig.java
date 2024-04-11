@@ -11,10 +11,6 @@ public class PayConfig implements InitializingBean {
     private String title;
     @Value("${pay.goods.desc}")
     private String desc;
-
-    @Value("${pay.adapay.payMode}")
-    private String payAdaMode;
-
     @Value("${pay.name}")
     private String payName;
 
