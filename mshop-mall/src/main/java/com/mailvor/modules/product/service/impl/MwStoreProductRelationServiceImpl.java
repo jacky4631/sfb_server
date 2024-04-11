@@ -234,4 +234,40 @@ public class MwStoreProductRelationServiceImpl extends BaseServiceImpl<MwStorePr
         return mwStoreProductRelationMapper.selectList(wrapper);
     }
 
+    /**
+     * 添加足迹
+     * @param productId 商品id
+     * @param uid 用户id
+     */
+    @Override
+    public void addProductFoot(String productId, long uid, String category
+            ,String img, String title, String startPrice, String endPrice, String originalId) {
+        //如果商品已在足迹里面 直接更新创建时间
+        MwStoreProductRelation foot = getOne(new LambdaQueryWrapper<MwStoreProductRelation>()
+                .eq(MwStoreProductRelation::getUid, uid)
+                .eq(MwStoreProductRelation::getProductId, productId)
+                .eq(MwStoreProductRelation::getType, "foot")
+                .eq(MwStoreProductRelation::getCategory, category));
+        if (ObjectUtil.isNotNull(foot)) {
+            foot.setCreateTime(new Date());
+            saveOrUpdate(foot);
+        } else {
+            //todo 如果足迹已经满100个，删除最早一个，再添加
+
+            MwStoreProductRelation storeProductRelation = MwStoreProductRelation.builder()
+                    .productId(productId)
+                    .originalProductId(originalId)
+                    .uid(uid)
+                    .type("foot")
+                    .img(img)
+                    .title(title)
+                    .category(category)
+                    .startPrice(startPrice)
+                    .endPrice(endPrice)
+                    .build();
+            mwStoreProductRelationMapper.insert(storeProductRelation);
+
+        }
+    }
+
 }

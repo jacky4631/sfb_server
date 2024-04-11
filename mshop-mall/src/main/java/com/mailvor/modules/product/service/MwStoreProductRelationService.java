@@ -93,4 +93,7 @@ public interface MwStoreProductRelationService extends BaseService<MwStoreProduc
     void collectDelFoot(List<Long> ids);
 
     List<MwStoreProductRelation> queryAll(Integer interval, String category, String type);
+
+    void addProductFoot(String productId, long uid, String category
+            ,String img, String title, String startPrice, String endPrice, String originalId);
 }

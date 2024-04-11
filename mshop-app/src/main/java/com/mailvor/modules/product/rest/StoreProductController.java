@@ -286,7 +286,20 @@ public class StoreProductController {
                 uid);
         return ApiResult.ok(relation);
     }
-
+    /**
+     * 添加收藏
+     */
+    @AppLog(value = "添加足迹", type = 1)
+    @NoRepeatSubmit
+    @AuthCheck
+    @PostMapping("/collect/addFoot")
+    @ApiOperation(value = "添加足迹",notes = "添加足迹")
+    public ApiResult<Boolean> footAdd(@Validated @RequestBody MwStoreProductRelationQueryParam param){
+        long uid = LocalUser.getUser().getUid();
+        productRelationService.addProductFoot(param.getId(),uid,param.getCategory(),
+                param.getImg(), param.getTitle(), param.getStartPrice(), param.getEndPrice(), param.getOriginalId());
+        return ApiResult.ok();
+    }
     /**
      * 取消收藏/足跡
      */
