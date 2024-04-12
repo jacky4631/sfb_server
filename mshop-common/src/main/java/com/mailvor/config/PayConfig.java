@@ -11,6 +11,9 @@ public class PayConfig implements InitializingBean {
     private String title;
     @Value("${pay.goods.desc}")
     private String desc;
+
+    private String payAdaMode = "delay";
+
     @Value("${pay.name}")
     private String payName;
 

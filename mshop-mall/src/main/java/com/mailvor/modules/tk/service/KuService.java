@@ -63,6 +63,9 @@ public class KuService {
     public static final String ELE_ACTIVITY_WORD_API = KU_API_BASE + "/elm_activity_ratesurl";
     public static final String ELE_ACTIVITY_ORDER_API = KU_API_BASE + "/elm_order_list";
 
+    public static final String COUDAN_API = "http://v2.api.haodanku.com/make_order";
+
+
     public static final String MEITUAN_ORDER_LIST_API = KU_API_BASE + "/meituan_order_list";
 
     /**
@@ -579,5 +582,27 @@ public class KuService {
             TkConstants.kuCid = systemConfigService.getAppDataConfig().getKuCid();
         }
         return TkConstants.kuCid;
+    }
+
+
+    public JSONObject coudanList(Integer page, Integer size, String search) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(COUDAN_API);
+        sb.append("?apikey=");
+        sb.append(key);
+        sb.append("&min_id=");
+        sb.append(page);
+        sb.append("&min_size=");
+        sb.append(size);
+        if(StringUtils.isNotBlank(search)) {
+            sb.append("&search_items=");
+            sb.append(search);
+        }
+
+        ResponseEntity<JSONObject> re = restTemplate.getForEntity(
+                sb.toString(),
+                JSONObject.class);
+        return re.getBody();
     }
 }

@@ -346,4 +346,11 @@ public class HaodankuController {
 
         System.out.println(words.size());
     }
+
+    @UserCheck
+    @GetMapping(value = "/makeOrder")
+    public ApiResult getCoudanList(@RequestParam Integer page, @RequestParam Integer size) {
+
+        return ApiResult.ok(kuService.coudanList(page, size, null));
+    }
 }
