@@ -417,8 +417,8 @@ public class UserController {
             }
             MwUser parentUser = mwUserService.getOne(wrapper);
             //getSpreadUid() == 0 用户没有正确被邀请，不允许被邀请
-            if(parentUser == null || parentUser.getSpreadUid() == 0) {
-                return ApiResult.fail(isMobile? "手机号不存在":"邀请口令不存在");
+            if(parentUser == null) {
+                return ApiResult.fail(isMobile? "手机号不存在":"邀请码不存在");
             }
             //设置上级id
             boolean success = mwUserService.setSpread(parentUser.getUid().toString(), mwUser.getUid());
