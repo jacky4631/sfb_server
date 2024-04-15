@@ -1,15 +1,16 @@
 package com.mailvor.modules.tk.service;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mailvor.api.MshopException;
 import com.mailvor.modules.order.service.SuStoreOrderService;
-import com.mailvor.modules.shop.domain.MwSystemStore;
 import com.mailvor.modules.tk.config.JdConfig;
 import com.mailvor.modules.tk.config.PddConfig;
 import com.mailvor.modules.tk.config.TbConfig;
@@ -24,6 +25,13 @@ import com.mailvor.modules.user.service.MwUserUnionService;
 import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.DateUtils;
 import com.mailvor.utils.StringUtils;
+import com.taobao.api.ApiException;
+import com.taobao.api.DefaultTaobaoClient;
+import com.taobao.api.TaobaoClient;
+import com.taobao.api.request.TbkDgVegasTljCreateRequest;
+import com.taobao.api.request.TbkDgVegasTljReportRequest;
+import com.taobao.api.response.TbkDgVegasTljCreateResponse;
+import com.taobao.api.response.TbkDgVegasTljReportResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -32,9 +40,14 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+
+import static com.mailvor.utils.DateUtils.YYYY_MM_DD;
 
 /**
  * @projectName:openapi
@@ -355,4 +368,38 @@ public class TkService {
     public Long orderCount(Long uid, Integer innerType) {
         return orderMapper.orderCount(uid, innerType);
     }
+
+    public JSONObject createTlj(String goodsId, Double tljMoney) throws ApiException {
+        // create Client
+        TaobaoClient client = new DefaultTaobaoClient(tbConfig.getUrl(), tbConfig.getAppKey(), tbConfig.getAppSecret());
+        TbkDgVegasTljCreateRequest req = new TbkDgVegasTljCreateRequest();
+        req.setSecurityLevel(0L);
+        req.setUseStartTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern(YYYY_MM_DD)));
+        req.setUseEndTimeMode(1L);
+        req.setUseEndTime("1");
+        req.setSendEndTime(DateUtil.endOfDay(new Date()));
+        req.setSendStartTime(DateUtil.beginOfDay(new Date()));
+        req.setPerFace(tljMoney.toString());
+        req.setSecuritySwitch(true);
+        req.setUserTotalWinNumLimit(1L);
+        req.setName("淘礼金来啦");
+        req.setTotalNum(1L);
+        req.setItemId(goodsId);
+        req.setCampaignType("MKT");
+        req.setAdzoneId(tbConfig.getAdZoneId());
+        TbkDgVegasTljCreateResponse rsp = client.execute(req);
+        log.info("淘礼金返回:{}", rsp.getBody());
+        return JSON.parseObject(rsp.getBody());
+    }
+    public JSONObject getTljUse(String tljId) throws ApiException {
+        // create Client
+        TaobaoClient client = new DefaultTaobaoClient(tbConfig.getUrl(), tbConfig.getAppKey(), tbConfig.getAppSecret());
+        TbkDgVegasTljReportRequest req = new TbkDgVegasTljReportRequest();
+        req.setRightsId(tljId);
+        req.setAdzoneId(tbConfig.getAdZoneId());
+        TbkDgVegasTljReportResponse rsp = client.execute(req);
+        log.info("淘礼金状态返回:{}", rsp.getBody());
+        return JSON.parseObject(rsp.getBody());
+    }
+
 }

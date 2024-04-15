@@ -286,7 +286,27 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
 
         return map;
     }
+    @Override
+    public Long getSpreadCount(Long uid, Integer grade) {
 
+        if (ShopCommonEnum.GRADE_0.getValue().equals(grade)) {
+            return mwUserMapper.selectCount(Wrappers.<MwUser>lambdaQuery()
+                    .eq(MwUser::getSpreadUid,uid));
+        } else if(ShopCommonEnum.GRADE_1.getValue().equals(grade)){
+
+            Long countTwo = 0L;
+            List<MwUser> userList = mwUserMapper.selectList((Wrappers.<MwUser>lambdaQuery()
+                    .eq(MwUser::getSpreadUid,uid)));
+            List<Long> userIds = userList.stream().map(MwUser::getUid)
+                    .collect(toList());
+            if(!userIds.isEmpty()){
+                countTwo = mwUserMapper.selectCount(Wrappers.<MwUser>lambdaQuery()
+                        .in(MwUser::getSpreadUid,userIds));
+            }
+            return countTwo;
+        }
+        return 0L;
+    }
     /**
      * 一级返佣
      * @param order 订单

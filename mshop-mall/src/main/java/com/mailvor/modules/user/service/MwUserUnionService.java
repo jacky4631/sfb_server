@@ -28,4 +28,12 @@ public interface MwUserUnionService extends BaseService<MwUserUnion>{
     List<MwUserUnion> getByUid(Long uid);
 
     List<MwUserUnion> listByTbPid(List<String> pids);
+
+
+    /**
+     * 增加淘礼金领取次数
+     * @param uid uid
+     */
+    void incTljCount(Long uid);
+
 }

@@ -15,6 +15,12 @@ public class TbConfig {
     private String url;
     @Value("${tb.pid.channelPid}")
     private String channelPid;
+    @Value("${tb.pid.tljPid}")
+    private String tljPid;
     @Value("${tb.inviterCode}")
     private String inviterCode;
+
+    public Long getAdZoneId() {
+        return Long.parseLong(getTljPid().substring(getTljPid().lastIndexOf("_") + 1));
+    }
 }

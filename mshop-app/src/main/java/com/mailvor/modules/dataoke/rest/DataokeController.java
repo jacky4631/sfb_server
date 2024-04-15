@@ -1,10 +1,15 @@
 package com.mailvor.modules.dataoke.rest;
 
 import cn.hutool.core.codec.Base64Encoder;
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.mailvor.api.MshopException;
 import com.mailvor.common.bean.LocalUser;
+import com.mailvor.common.interceptor.AuthCheck;
 import com.mailvor.common.interceptor.UserCheck;
+import com.mailvor.enums.ShopCommonEnum;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
+import com.mailvor.modules.tk.config.TbConfig;
 import com.mailvor.modules.tk.param.*;
 import com.mailvor.modules.tk.service.DataokeService;
 import com.mailvor.modules.tk.service.TkService;
@@ -13,12 +18,15 @@ import com.mailvor.modules.tk.vo.GoodsParseVo;
 import com.mailvor.modules.user.config.AppDataConfig;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.domain.MwUserUnion;
+import com.mailvor.modules.user.service.MwUserService;
 import com.mailvor.modules.user.service.MwUserUnionService;
+import com.mailvor.modules.user.service.dto.TljDataDto;
 import com.mailvor.utils.RedisUtil;
 import com.mailvor.utils.RedisUtils;
 import com.mailvor.utils.StringUtils;
+import com.taobao.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,8 +35,14 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import static com.mailvor.modules.tk.constants.TkConstants.*;
+import static com.mailvor.constant.SystemConfigConstants.TLJ_KEY;
+import static com.mailvor.modules.tk.constants.TkConstants.HOME_DATA_CATEGORY_TB;
 
 @RestController
 @RequestMapping("/tao")
@@ -40,8 +54,8 @@ public class DataokeController {
     @Resource
     private TkService tkService;
 
-    @Value("${tb.pid.channelPid}")
-    private String channelPid;
+    @Resource
+    private TbConfig tbConfig;
 
     @Resource
     private RedisUtils redisUtils;
@@ -53,6 +67,9 @@ public class DataokeController {
 
     @Resource
     private MwSystemConfigService systemConfigService;
+
+    @Resource
+    private MwUserService userService;
     /**
      * redis保存在线地址 key:url.home, value参照根目录data/home.json
      * */
@@ -75,6 +92,7 @@ public class DataokeController {
 
         return service.goodsList(goodQueryParam);
     }
+
     @GetMapping(value = "/goods/search")
     public JSONObject goodsSearch(GoodsSearchParam goodQueryParam) {
 
@@ -121,7 +139,7 @@ public class DataokeController {
         String channelId = null;
         if(userUnion != null && StringUtils.isNotBlank(userUnion.getTbPid())) {
             //如果渠道id存在使用渠道id，并使用渠道pid
-            pid = channelPid;
+            pid = tbConfig.getChannelPid();
             channelId = userUnion.getTbPid();
         }
         if(channelId == null && mwUser != null) {
@@ -179,7 +197,7 @@ public class DataokeController {
             MwUserUnion userUnion = userUnionService.getOne(mwUser.getUid());
             //如果渠道id存在使用渠道id，并使用渠道pid
             if(userUnion != null && StringUtils.isNotBlank(userUnion.getTbPid())) {
-                param.setPid(channelPid);
+                param.setPid(tbConfig.getChannelPid());
                 param.setRelationId(userUnion.getTbPid());
             }
         }
@@ -227,7 +245,7 @@ public class DataokeController {
             MwUserUnion userUnion = userUnionService.getOne(mwUser.getUid());
             //如果渠道id存在使用渠道id，并使用渠道pid
             if(userUnion != null && StringUtils.isNotBlank(userUnion.getTbPid())) {
-                pid = channelPid;
+                pid = tbConfig.getChannelPid();
                 channelId = userUnion.getTbPid();
             }
         }
@@ -251,5 +269,205 @@ public class DataokeController {
     public JSONObject getBrandGoodsList(String brandId, Integer pageId, Integer pageSize) {
 
         return service.getBrandGoodsList(brandId, pageId, pageSize);
+    }
+    @UserCheck
+    @GetMapping(value = "/tlj/goods/list")
+    public JSONObject getZeroGoodList(GoodsListParam goodQueryParam) {
+        goodQueryParam.setPriceUpperLimit("5");
+        goodQueryParam.setCommissionRateLowerLimit("30");
+        goodQueryParam.setCouponPriceLowerLimit("4");
+        JSONObject res = service.goodsList(goodQueryParam);
+        //如果是第一页 并且已登录 查看已领取的商品
+
+        if(goodQueryParam.getPageId() == 1 && LocalUser.getUser() != null) {
+            Long uid = LocalUser.getUser().getUid();
+            MwUserUnion userUnion = userUnionService.getOne(uid);
+            if(userUnion.getTljData() != null && !CollectionUtils.isEmpty(userUnion.getTljData().getData())){
+                for(JSONObject data : userUnion.getTljData().getData()) {
+                    JSONObject detail = data.getJSONObject("detail");
+                    detail.put("tljGet", data.getDoubleValue("get_rate")==100);
+                    boolean used = data.getDoubleValue("use_rate")==100;
+                    detail.put("tljUse", used);
+                    //如果未使用 领取时间超过一天 显示过期
+                    if(!used) {
+                        long betweenDay = DateUtil.betweenDay(DateUtil.parseDate(data.getString("getTljDate")), new Date(), false);
+                        detail.put("tljExpired", betweenDay >= 1);
+                    }
+                    res.getJSONObject("data").getJSONArray("list").add(0, detail);
+                }
+
+            }
+        }
+        return res;
+    }
+    /**
+     * Goods word json object.
+     *
+     * @param goodsId the goods id
+     * @return the json object
+     */
+    @AuthCheck
+    @GetMapping(value = "/tlj/goods/word")
+    public JSONObject tljGoodsWord(String goodsId) throws ApiException {
+
+        Long uid = LocalUser.getUser().getUid();
+        MwUserUnion userUnion = userUnionService.getOne(uid);
+
+        //获取pid为了实现自动追单
+        String channelId = null;
+        if(userUnion != null && StringUtils.isNotBlank(userUnion.getTbPid())) {
+            //如果渠道id存在使用渠道id，并使用渠道pid
+            channelId = userUnion.getTbPid();
+        }
+        String pid = tbConfig.getTljPid();
+        //如果淘礼金领取次数>=2 并且都使用了，不允许再领取
+        //如果淘礼金领取次数=1 需要校验用户粉丝是否大于1，才能领取
+        //如果淘礼金领取次数=0
+        if(userUnion.getTljCount() >= 2) {
+            JSONObject useData = getUse(userUnion);
+            //如果已经使用，返回错误
+            if(useData.getBooleanValue("use")) {
+                throw new MshopException("已经超过补贴次数");
+            }
+        } else if (userUnion.getTljCount() == 1) {
+            //如果已经使用 提示邀请好友 如果还没使用，允许使用
+            JSONObject useData = getUse(userUnion);
+            if(useData.getBooleanValue("use")) {
+                Long count = userService.getSpreadCount(uid, ShopCommonEnum.GRADE_0.getValue());
+                if(count == 0) {
+                    throw new MshopException("邀请好友后方可领取补贴");
+                }
+                if(count == 1) {
+                    throw new MshopException("还少1位好友方可领取补贴");
+                }
+            }
+
+        }
+        String suffixGoodsId = "";
+        String[] goodsIdSplit = goodsId.split("-");
+        if(goodsIdSplit.length > 1) {
+            suffixGoodsId = goodsIdSplit[1];
+        } else {
+            suffixGoodsId = goodsId;
+        }
+
+        String tljKey = TLJ_KEY + uid + ":" + suffixGoodsId;
+        Object redisData = redisUtils.get(tljKey);
+        String sendUrl = null;
+        if(redisData != null) {
+            JSONObject tljObj = (JSONObject) redisData;
+            sendUrl = tljObj.getString("send_url");
+        } else {
+
+            JSONObject detail = service.goodsDetail(goodsId);
+            JSONObject data = detail.getJSONObject("data");
+            double startPrice = data.getDoubleValue("originalPrice");
+            double couponPrice = data.getDoubleValue("couponPrice");
+            double tljPrice = startPrice - couponPrice - 1;
+            //限制最大淘礼金金额为10元，防止被刷
+            if(tljPrice > 10 || tljPrice < 1) {
+                throw new MshopException("该商品不支持淘礼金");
+            }
+            JSONObject tljObj = tkService.createTlj(goodsId, tljPrice);
+            JSONObject tljRes = tljObj.getJSONObject("tbk_dg_vegas_tlj_create_response").getJSONObject("result");
+            boolean success = tljRes.getBooleanValue("success");
+            if(!success) {
+                throw new MshopException("淘礼金领取失败，请换商品重试");
+            }
+            JSONObject tljData = tljRes.getJSONObject("model");
+            sendUrl = tljData.getString("send_url");
+            tljData.put("goodsId", goodsId);
+            tljData.put("detail", data);
+            tljData.put("getTljDate", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+
+            //淘礼金领取成功 增加次数 设置redis 24小时过期
+            userUnion.setTljCount(userUnion.getTljCount() + 1);
+            TljDataDto tljDataDto = userUnion.getTljData();
+            if(tljDataDto == null) {
+                tljDataDto = new TljDataDto();
+                List<JSONObject> tljIds = new ArrayList<>();
+                tljDataDto.setData(tljIds);
+                userUnion.setTljData(tljDataDto);
+            }
+            tljDataDto.getData().add(tljData);
+            userUnionService.saveOrUpdate(userUnion);
+            redisUtils.set(tljKey, tljData, 24*3600);
+        }
+
+        JSONObject resVo = new JSONObject();
+        resVo.put("code", 0);
+        resVo.put("url", sendUrl);
+        return resVo;
+
+    }
+
+    @AuthCheck
+    @GetMapping(value = "/tlj/use")
+    public JSONObject getTljUse() throws ApiException {
+
+        Long uid = LocalUser.getUser().getUid();
+        MwUserUnion userUnion = userUnionService.getOne(uid);
+        return getUse(userUnion);
+
+    }
+
+    protected JSONObject getUse(MwUserUnion userUnion) throws ApiException {
+        JSONObject resVo = new JSONObject();
+        resVo.put("code", 0);
+        resVo.put("canBuy", true);
+        if(userUnion.getTljData() == null) {
+            resVo.put("use", false);
+            resVo.put("get", false);
+            return resVo;
+        }
+        List<JSONObject> tljDataList = userUnion.getTljData().getData();
+
+        boolean shouldSave = false;
+        for(JSONObject data : tljDataList) {
+            String tljId = data.getString("rights_id");
+            double useRate = data.getDoubleValue("use_rate");
+            double getRate = data.getDoubleValue("get_rate");
+            //如果领取并且使用 直接返回
+            JSONObject rate = new JSONObject();
+            if(useRate == 100 && getRate == 100) {
+                rate.put("use", true);
+                rate.put("get", true);
+                resVo.put(data.getString("goodsId"), rate);
+                resVo.put("use", true);
+                resVo.put("get", true);
+            } else {
+                shouldSave = true;
+                JSONObject tljUse = tkService.getTljUse(tljId);
+
+                JSONObject tljRes = tljUse.getJSONObject("tbk_dg_vegas_tlj_report_response");
+                if(tljRes.getBooleanValue("result_success")) {
+                    JSONObject extra = tljRes.getJSONObject("model").getJSONObject("extra");
+                    //因为每个用户指领取一个，所以比例只要领了比例就是100
+                    //只要领取比例是100，就代表无法再次领取其他商品
+                    useRate = extra.getDouble("use_rate");
+                    getRate = extra.getDouble("get_rate");
+                    if(getRate == 100) {
+                        rate.put("get", true);
+                        resVo.put("get", true);
+                    }
+                    if(useRate == 100) {
+                        rate.put("use", true);
+                        resVo.put("use", true);
+                    }
+                    resVo.put(data.getString("goodsId"), rate);
+                    data.put("get_rate", getRate);
+                    data.put("use_rate", useRate);
+                }
+            }
+        }
+        if(shouldSave) {
+            userUnionService.saveOrUpdate(userUnion);
+        }
+        //如果只使用过一次淘礼金，还能领取淘礼金
+        if(userUnion.getTljCount() >= 2) {
+            resVo.put("canBuy", false);
+        }
+
+        return resVo;
     }
 }

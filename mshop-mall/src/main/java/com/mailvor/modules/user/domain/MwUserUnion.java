@@ -9,7 +9,7 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
 import com.mailvor.domain.BaseDeleteDomain;
-import com.mailvor.domain.BaseDomain;
+import com.mailvor.modules.user.service.dto.TljDataDto;
 import com.mailvor.modules.user.service.dto.WechatUserDto;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -48,6 +48,10 @@ public class MwUserUnion extends BaseDeleteDomain {
 
     /**淘宝渠道id， 非pid*/
     private String tbPid;
+    /**淘礼金领取次数*/
+    private Integer tljCount;
+    @TableField(typeHandler = FastjsonTypeHandler.class,updateStrategy = FieldStrategy.IGNORED)
+    private TljDataDto tljData;
 
     public void copy(MwUserUnion source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

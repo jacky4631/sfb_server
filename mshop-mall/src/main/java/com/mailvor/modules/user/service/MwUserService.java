@@ -52,6 +52,13 @@ public interface MwUserService extends BaseService<MwUser>{
      * @return map
      */
     Map<String,Long> getSpreadCount(Long uid);
+    /**
+     * 统计分销人员
+     *
+     * @param uid uid
+     * @return map
+     */
+    Long getSpreadCount(Long uid, Integer grade);
 
     /**
      * 获取我的分销下人员列表

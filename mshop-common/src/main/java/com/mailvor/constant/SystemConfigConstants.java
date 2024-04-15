@@ -89,6 +89,7 @@ public class SystemConfigConstants {
     public static final String HOME_DATA = "url:home";
 
 
+    public static final String TLJ_KEY = "tlj:";
     public final static String SPREAD_USER_COUNT="spread_user_count";
     public final static String SPREAD_USER_HB="spread_user_hb";
 

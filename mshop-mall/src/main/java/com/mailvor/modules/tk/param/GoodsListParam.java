@@ -68,4 +68,11 @@ public class GoodsListParam extends BaseParam {
     private Integer brand;
     @ApiModelProperty(value = "1-天猫超市商品， 0-所有商品，不填默认为0")
     private Integer tchaoshi;
+
+    @ApiModelProperty(value = "最低优惠券面额")
+    private String couponPriceLowerLimit;
+    @ApiModelProperty(value = "最高优惠券面额")
+    private String maxCouponAmount;
+
+
 }

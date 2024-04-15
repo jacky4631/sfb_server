@@ -102,4 +102,14 @@ public class MwUserUnionServiceImpl extends BaseServiceImpl<UserUnionMapper, MwU
         wrapper.in(MwUserUnion::getTbPid, pids);
         return mapper.selectList(wrapper);
     }
+
+    /**
+     * 增加淘礼金领取次数
+     * @param uid uid
+     */
+    @Override
+    public void incTljCount(Long uid) {
+        mapper.incTljCount(uid);
+    }
+
 }
