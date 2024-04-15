@@ -285,11 +285,14 @@ public class DataokeController {
             if(userUnion.getTljData() != null && !CollectionUtils.isEmpty(userUnion.getTljData().getData())){
                 for(JSONObject data : userUnion.getTljData().getData()) {
                     JSONObject detail = data.getJSONObject("detail");
-                    detail.put("tljGet", data.getDoubleValue("get_rate")==100);
+                    //表明淘礼金已经发送，可能未领取 未使用
+                    detail.put("tljSend", true);
+                    boolean tljGet = data.getDoubleValue("get_rate")==100;
+                    detail.put("tljGet", tljGet);
                     boolean used = data.getDoubleValue("use_rate")==100;
                     detail.put("tljUse", used);
                     //如果未使用 领取时间超过一天 显示过期
-                    if(!used) {
+                    if(tljGet && !used) {
                         long betweenDay = DateUtil.betweenDay(DateUtil.parseDate(data.getString("getTljDate")), new Date(), false);
                         detail.put("tljExpired", betweenDay >= 1);
                     }
@@ -320,25 +323,30 @@ public class DataokeController {
             channelId = userUnion.getTbPid();
         }
         String pid = tbConfig.getTljPid();
-        //如果淘礼金领取次数>=2 并且都使用了，不允许再领取
+        //如果淘礼金领取次数>=2 判断淘礼金是否使用了，未使用，可以使用，已经使用，直接返回
         //如果淘礼金领取次数=1 需要校验用户粉丝是否大于1，才能领取
         //如果淘礼金领取次数=0
         if(userUnion.getTljCount() >= 2) {
             JSONObject useData = getUse(userUnion);
             //如果已经使用，返回错误
-            if(useData.getBooleanValue("use")) {
+            JSONObject data = useData.getJSONObject(goodsId);
+            if(data != null && data.getBooleanValue("use")) {
                 throw new MshopException("已经超过补贴次数");
             }
         } else if (userUnion.getTljCount() == 1) {
             //如果已经使用 提示邀请好友 如果还没使用，允许使用
             JSONObject useData = getUse(userUnion);
-            if(useData.getBooleanValue("use")) {
+            JSONObject data = useData.getJSONObject(goodsId);
+            //如果不是同一个商品，提示邀请好友
+            if(data == null) {
                 Long count = userService.getSpreadCount(uid, ShopCommonEnum.GRADE_0.getValue());
                 if(count == 0) {
                     throw new MshopException("邀请好友后方可领取补贴");
                 }
-                if(count == 1) {
-                    throw new MshopException("还少1位好友方可领取补贴");
+            } else {
+                //如果已经使用，提示已经使用
+                if(data.getBooleanValue("use")) {
+                    throw new MshopException("该礼金已经使用");
                 }
             }
 
@@ -416,8 +424,6 @@ public class DataokeController {
         resVo.put("code", 0);
         resVo.put("canBuy", true);
         if(userUnion.getTljData() == null) {
-            resVo.put("use", false);
-            resVo.put("get", false);
             return resVo;
         }
         List<JSONObject> tljDataList = userUnion.getTljData().getData();
@@ -433,8 +439,6 @@ public class DataokeController {
                 rate.put("use", true);
                 rate.put("get", true);
                 resVo.put(data.getString("goodsId"), rate);
-                resVo.put("use", true);
-                resVo.put("get", true);
             } else {
                 shouldSave = true;
                 JSONObject tljUse = tkService.getTljUse(tljId);
@@ -448,11 +452,9 @@ public class DataokeController {
                     getRate = extra.getDouble("get_rate");
                     if(getRate == 100) {
                         rate.put("get", true);
-                        resVo.put("get", true);
                     }
                     if(useRate == 100) {
                         rate.put("use", true);
-                        resVo.put("use", true);
                     }
                     resVo.put(data.getString("goodsId"), rate);
                     data.put("get_rate", getRate);
@@ -463,7 +465,7 @@ public class DataokeController {
         if(shouldSave) {
             userUnionService.saveOrUpdate(userUnion);
         }
-        //如果只使用过一次淘礼金，还能领取淘礼金
+        //如果领取次数大于等于2 无法再次领取
         if(userUnion.getTljCount() >= 2) {
             resVo.put("canBuy", false);
         }
