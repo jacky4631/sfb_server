@@ -9,6 +9,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mailvor.api.MshopException;
 import com.mailvor.common.service.impl.BaseServiceImpl;
@@ -28,6 +29,7 @@ import com.mailvor.modules.product.vo.MwStoreProductQueryVo;
 import com.mailvor.modules.push.service.JPushService;
 import com.mailvor.modules.shop.domain.MwSystemUserLevel;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
+import com.mailvor.modules.tk.config.TbConfig;
 import com.mailvor.modules.tk.domain.*;
 import com.mailvor.modules.tk.service.*;
 import com.mailvor.modules.tools.utils.CashUtils;
@@ -35,6 +37,7 @@ import com.mailvor.modules.user.config.HbUnlockConfig;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.domain.MwUserHbScale;
 import com.mailvor.modules.user.domain.MwUserRecharge;
+import com.mailvor.modules.user.domain.MwUserUnion;
 import com.mailvor.modules.user.service.*;
 import com.mailvor.modules.utils.TkOrderFee;
 import com.mailvor.modules.utils.TkUtil;
@@ -45,6 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -110,6 +114,11 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
     @Resource
     private MwUserRechargeService userRechargeService;
 
+    @Resource
+    private TbConfig tbConfig;
+
+    @Resource
+    private MwUserUnionService userUnionService;
 
     /**
      * 返回订单确认数据
@@ -412,8 +421,25 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
     @Override
     public void bindOrder(Long uid, MailvorTbOrder order) {
         tbOrderService.bindUser(uid, order.getTradeParentId());
+
         //设置需要刷新今日预估的用户uid
         RedisUtil.setFeeUid(uid);
+        //如果是淘礼金订单，保存订单号 用于app端跳转订单页
+        if(order.getAdzoneId().equals(tbConfig.getAdZoneId())) {
+            MwUserUnion userUnion = userUnionService.getOne(uid);
+            if(userUnion != null && userUnion.getTljData() != null && !CollectionUtils.isEmpty(userUnion.getTljData().getData())) {
+                List<JSONObject> tljDataList = userUnion.getTljData().getData();
+                for(JSONObject data : tljDataList) {
+                    JSONObject detail = data.getJSONObject("detail");
+                    //这里使用商品title匹配 可能不精确 后期优化
+                    String title = detail.getString("title");
+                    if(title.equals(order.getItemTitle())) {
+                        data.put("orderId", order.getTradeParentId());
+                    }
+                }
+                userUnionService.saveOrUpdate(userUnion);
+            }
+        }
         if(order.getTkStatus() == OrderUtil.TB_NOT_VALID_ORDER_STATUS) {
             return;
         }
@@ -692,8 +718,18 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
             map.put("shopHb", 0);
             return map;
         }
-
-        double hb = getHb(commission, platform.getValue(), user);
+        //获取商品是否是0元购
+        boolean isTlj = false;
+        if(order instanceof MailvorTbOrder) {
+            isTlj = ((MailvorTbOrder)order).getAdzoneId().equals(tbConfig.getAdZoneId());
+        }
+        //0元购商品佣金1元
+        double hb;
+        if(isTlj) {
+            hb = 1.00;
+        } else {
+            hb = getHb(commission, platform.getValue(), user);
+        }
         BigDecimal baseHb = TkUtil.getBaseHb(BigDecimal.valueOf(hb));
         order.setHb(baseHb.doubleValue());
         //设置基础红包和店铺红包

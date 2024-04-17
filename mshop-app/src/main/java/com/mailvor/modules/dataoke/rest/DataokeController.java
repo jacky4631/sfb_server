@@ -272,7 +272,7 @@ public class DataokeController {
     }
     @UserCheck
     @GetMapping(value = "/tlj/goods/list")
-    public JSONObject getZeroGoodList(GoodsListParam goodQueryParam) {
+    public JSONObject getZeroGoodList(GoodsListParam goodQueryParam) throws ApiException {
         goodQueryParam.setPriceUpperLimit("5");
         goodQueryParam.setCommissionRateLowerLimit("30");
         goodQueryParam.setCouponPriceLowerLimit("4");
@@ -282,6 +282,7 @@ public class DataokeController {
         if(goodQueryParam.getPageId() == 1 && LocalUser.getUser() != null) {
             Long uid = LocalUser.getUser().getUid();
             MwUserUnion userUnion = userUnionService.getOne(uid);
+            getUse(userUnion);
             if(userUnion.getTljData() != null && !CollectionUtils.isEmpty(userUnion.getTljData().getData())){
                 for(JSONObject data : userUnion.getTljData().getData()) {
                     JSONObject detail = data.getJSONObject("detail");
@@ -291,9 +292,10 @@ public class DataokeController {
                     detail.put("tljGet", tljGet);
                     boolean used = data.getDoubleValue("use_rate")==100;
                     detail.put("tljUse", used);
+                    detail.put("tljBind", data.getLongValue("orderId") != 0);
                     //如果未使用 领取时间超过一天 显示过期
                     if(tljGet && !used) {
-                        long betweenDay = DateUtil.betweenDay(DateUtil.parseDate(data.getString("getTljDate")), new Date(), false);
+                        long betweenDay = DateUtil.betweenDay(DateUtil.parseDateTime(data.getString("getTljDate")), new Date(), false);
                         detail.put("tljExpired", betweenDay >= 1);
                     }
                     res.getJSONObject("data").getJSONArray("list").add(0, detail);

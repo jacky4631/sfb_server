@@ -14,6 +14,7 @@ import com.mailvor.domain.PageResult;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.enums.CommonEnum;
 import com.mailvor.modules.order.service.dto.ChartDataDto;
+import com.mailvor.modules.tk.config.TbConfig;
 import com.mailvor.modules.tk.domain.MailvorTbOrder;
 import com.mailvor.modules.tk.service.MailvorTbOrderService;
 import com.mailvor.modules.tk.service.dto.MailvorTbOrderDto;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -52,6 +54,9 @@ public class MailvorTbOrderServiceImpl extends BaseServiceImpl<MailvorTbOrderMap
 
     @Autowired
     private MailvorTbOrderMapper orderMapper;
+
+    @Resource
+    private TbConfig tbConfig;
 
     @Override
     //@Cacheable
@@ -75,6 +80,8 @@ public class MailvorTbOrderServiceImpl extends BaseServiceImpl<MailvorTbOrderMap
                 Date createTime = orderDto.getTkCreateTime();
                 orderDto.setRemain(CashUtils.getRemainDate(unlockDay, createTime.getTime()/1000,
                         orderDto.getPubSharePreFee(), orderDto.getInnerType()));
+                //设置 订单是否是淘礼金0元购订单，前端显示返1元
+                orderDto.setIsTlj(orderDto.getAdzoneId().equals(tbConfig.getAdZoneId()));
             }
         });
 

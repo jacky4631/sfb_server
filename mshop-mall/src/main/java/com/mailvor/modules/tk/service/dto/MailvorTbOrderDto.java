@@ -106,4 +106,6 @@ public class MailvorTbOrderDto extends BaseOrderDto{
 
     private String itemImg;
 
+    private Boolean isTlj;
+
 }
