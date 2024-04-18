@@ -72,7 +72,7 @@ public interface MwUserBillService extends BaseService<MwUserBill>{
      * @param type BillDetailEnum
      * @return map
      */
-    Map<String,Object> getUserBillList(int page, int limit, long uid, int type);
+    Map<String,Object> getUserBillList(int page, int limit, long uid, int type, String month);
 
 
     double getBrokerage(int uid);

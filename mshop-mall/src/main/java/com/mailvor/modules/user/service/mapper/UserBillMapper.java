@@ -54,7 +54,7 @@ public interface UserBillMapper extends CoreMapper<MwUserBill> {
             " FROM mw_user_bill ${ew.customSqlSegment}")
     List<BillVo> getBillList(@Param(Constants.WRAPPER) Wrapper<MwUserBill> userWrapper, Page page);
 
-    @Select("SELECT DATE_FORMAT(create_time,'%Y-%m-%d %H:%i') as add_time,title,number,pm " +
+    @Select("SELECT DATE_FORMAT(create_time,'%Y-%m-%d %H:%i') as add_time,DATE_FORMAT(create_time,'%Y-%m-%d') as add_day,title,number,pm " +
             " FROM mw_user_bill ${ew.customSqlSegment}")
     List<MUserBillDto> getUserBillList(@Param(Constants.WRAPPER) Wrapper<MwUserBill> userWrapper);
 

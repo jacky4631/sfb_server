@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
+
 /**
 * @author mazhongjun
 * @date 2019-12-04
@@ -35,11 +37,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api")
 public class SystemUserTaskController {
 
-    private final MwSystemUserTaskService mwSystemUserTaskService;
-
-    public SystemUserTaskController(MwSystemUserTaskService mwSystemUserTaskService) {
-        this.mwSystemUserTaskService = mwSystemUserTaskService;
-    }
+    @Resource
+    private MwSystemUserTaskService mwSystemUserTaskService;
 
     @Log("查询")
     @ApiOperation(value = "查询")

@@ -302,9 +302,10 @@ public class UserController {
     })
     @ApiOperation(value = "签到列表（年月）",notes = "签到列表（年月）")
     public ApiResult<Object> signMonthList(@RequestParam(value = "page",defaultValue = "1") int page,
-                                           @RequestParam(value = "limit",defaultValue = "10") int limit){
+                                           @RequestParam(value = "limit",defaultValue = "10") int limit,
+                                           @RequestParam(required = false, value = "month") String month){
         Long uid = LocalUser.getUser().getUid();
-        return ApiResult.ok(userBillService.getUserBillList(page, limit,uid, BillInfoEnum.SIGN_INTEGRAL.getValue()));
+        return ApiResult.ok(userBillService.getUserBillList(page, limit,uid, BillInfoEnum.SIGN_INTEGRAL.getValue(), month));
     }
 
     /**

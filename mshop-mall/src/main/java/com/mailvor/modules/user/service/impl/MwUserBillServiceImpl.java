@@ -4,6 +4,7 @@
  */
 package com.mailvor.modules.user.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import com.mailvor.common.service.impl.BaseServiceImpl;
 import com.mailvor.common.utils.QueryHelpPlus;
 import com.mailvor.dozer.service.IGenerator;
@@ -209,8 +210,16 @@ public class MwUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, MwUse
      * @return map
      */
     @Override
-    public Map<String,Object> getUserBillList(int page, int limit, long uid, int type) {
+    public Map<String,Object> getUserBillList(int page, int limit, long uid, int type, String month) {
+
        QueryWrapper<MwUserBill> wrapper = new QueryWrapper<>();
+        if(StringUtils.isNotBlank(month)) {
+            //YYYYMM
+            Date monthD = DateUtil.parse(month, "yyyyMM");
+            Date beginOfMonth = DateUtil.beginOfMonth(monthD);
+            Date endOfMonth = DateUtil.endOfMonth(monthD);
+            wrapper.lambda().ge(MwUserBill::getCreateTime, beginOfMonth).le(MwUserBill::getCreateTime, endOfMonth);
+        }
         wrapper.lambda().eq(MwUserBill::getUid,uid).orderByDesc(MwUserBill::getCreateTime)
                 .orderByAsc(MwUserBill::getId);
         wrapper.groupBy("time");

@@ -32,15 +32,19 @@ public class MwSystemUserTask extends BaseDomain {
     private String realName;
 
 
-    /** 任务类型 */
+    /** 任务类型 fans=粉丝数量 order=订单数量 sign=签到*/
     private String taskType;
 
+    /** 奖励类型 0=金额 1=积分*/
+    private Integer rewardType;
+    /** 奖励数值 */
+    private Double reward;
 
     /** 限定数 */
     private Integer number;
 
 
-    /** 等级id */
+    /** 等级id 未用*/
     private Integer levelId;
 
 
@@ -52,7 +56,7 @@ public class MwSystemUserTask extends BaseDomain {
     private Integer isShow;
 
 
-    /** 是否务必达成任务,1务必达成,0=满足其一 */
+    /** 是否务必达成任务,1务必达成,0=满足其一 未用*/
     private Integer isMust;
 
 

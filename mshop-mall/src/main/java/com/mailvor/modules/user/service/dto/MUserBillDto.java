@@ -10,6 +10,7 @@ import lombok.Data;
 @Data
 public class MUserBillDto {
     private String addTime;
+    private String addDay;
     private String title;
     private Double number;
     private Integer pm;

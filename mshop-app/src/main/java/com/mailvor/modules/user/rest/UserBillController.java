@@ -234,13 +234,14 @@ public class UserBillController {
     @ApiOperation(value = "推广佣金明细",notes = "推广佣金明细")
     public ApiResult<Object> spreadCommission(@RequestParam(value = "page",defaultValue = "1") int page,
                                               @RequestParam(value = "limit",defaultValue = "10") int limit,
-                                              @PathVariable String type){
+                                              @PathVariable String type,
+                                              @RequestParam(required = false, value = "month") String month){
         int newType = 0;
         if(NumberUtil.isNumber(type)) {
             newType = Integer.valueOf(type);
         }
         Long uid = LocalUser.getUser().getUid();
-        Map<String, Object> map = userBillService.getUserBillList(page,limit,uid,newType);
+        Map<String, Object> map = userBillService.getUserBillList(page,limit,uid,newType, month);
         Long total = (Long)map.get("total");
         Long totalPage = (Long)map.get("totalPage");
         return ApiResult.resultPage(total,totalPage.intValue(),map.get("list"));
