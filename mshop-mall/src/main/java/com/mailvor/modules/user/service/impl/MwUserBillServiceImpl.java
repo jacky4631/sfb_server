@@ -295,7 +295,7 @@ public class MwUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, MwUse
                 .eq(MwUserBill::getStatus, ShopCommonEnum.IS_STATUS_1.getValue())
                 .eq(MwUserBill::getUid,uid)
                 .eq(MwUserBill::getCategory,category)
-                .orderByDesc(MwUserBill::getId);
+                .orderByDesc(MwUserBill::getCreateTime);
         if(StringUtils.isNotBlank(type)) {
             wrapper.eq(MwUserBill::getType,type);
         }
