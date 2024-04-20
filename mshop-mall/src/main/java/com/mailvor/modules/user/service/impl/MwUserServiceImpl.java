@@ -1028,13 +1028,16 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
         if(user == null) {
             //保存用户追单号
             mwUserMapper.updateAdditionalNo(goodsAddi, uid);
-        } else {
-            if(user.getUid() != uid) {
-                user.setAdditionalNo(null);
-                mwUserMapper.updateById(user);
-                mwUserMapper.updateAdditionalNo(goodsAddi, uid);
-            }
         }
+        //如果已经有追单号的用户，不增加新用户的追单号
+//        else {
+//
+//            if(user.getUid() != uid) {
+//                user.setAdditionalNo(null);
+//                mwUserMapper.updateById(user);
+//                mwUserMapper.updateAdditionalNo(goodsAddi, uid);
+//            }
+//        }
 
     }
 
