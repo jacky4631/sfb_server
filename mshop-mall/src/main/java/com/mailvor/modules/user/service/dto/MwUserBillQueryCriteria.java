@@ -30,4 +30,7 @@ public class MwUserBillQueryCriteria {
     private String startTime;
 
     private String endTime;
+
+    @Query(type = Query.Type.EQUAL)
+    private Integer unlockStatus;
 }
