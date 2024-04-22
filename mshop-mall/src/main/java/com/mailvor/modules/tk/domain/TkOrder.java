@@ -24,12 +24,6 @@ public class TkOrder extends BaseDomain {
 
     /** 用户ID */
     private Long uid;
-
-    /** 积分 */
-    private Long integral;
-
-    /** 未用 */
-    private Integer cash;
     /** 拆红包奖励金额 */
     private Double hb;
 
