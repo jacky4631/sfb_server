@@ -991,14 +991,6 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
             level = user.getLevelVip();
         }
         return getUnlockTime(uid, createTime, level);
-//
-//        String remain = CashUtils.getRemainDate(unlockDay, createTime.getTime()/1000, fee, tkOrder.getInnerType());
-//
-//        //ok说明已解锁，不是ok尚未解锁
-//        if(!"ok".equals(remain)) {
-//            throw new MshopException("订单尚未解锁");
-//        }
-
     }
 
     public Date getUnlockTime(Long uid, Date orderCreateTime, Integer level) {
@@ -1089,14 +1081,5 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
             level = user.getLevelVip();
         }
         return getUnlockTime(uid, createTime, level);
-//        Integer unlockDay = TkUtil.getUnlockDay(level, user.getRefund(), unlockConfig);
-//
-//        //超过3天可以自动拆红包
-//        String remain = CashUtils.getRemainDate(unlockDay + 3,
-//                createTime.getTime()/1000, fee, tkOrder.getInnerType());
-//
-//        //ok说明已解锁，不是ok尚未解锁
-//        return "ok".equals(remain);
-
     }
 }

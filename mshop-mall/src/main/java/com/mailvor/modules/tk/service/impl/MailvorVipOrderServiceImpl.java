@@ -22,7 +22,6 @@ import com.mailvor.modules.tk.service.dto.MailvorVipOrderDto;
 import com.mailvor.modules.tk.service.dto.MailvorVipOrderQueryCriteria;
 import com.mailvor.modules.tk.service.dto.OrderCheckDTO;
 import com.mailvor.modules.tk.service.mapper.MailvorVipOrderMapper;
-import com.mailvor.modules.tools.utils.CashUtils;
 import com.mailvor.modules.user.service.dto.VipOrderDetailDto;
 import com.mailvor.utils.DateUtils;
 import com.mailvor.utils.FileUtil;
@@ -56,13 +55,7 @@ public class MailvorVipOrderServiceImpl extends BaseServiceImpl<MailvorVipOrderM
     private MailvorVipOrderMapper orderMapper;
 
     @Override
-    //@Cacheable
     public PageResult<MailvorVipOrderDto> queryAll(MailvorVipOrderQueryCriteria criteria, Pageable pageable) {
-        return queryAll(criteria, pageable, 0);
-
-    }
-    @Override
-    public PageResult<MailvorVipOrderDto> queryAll(MailvorVipOrderQueryCriteria criteria, Pageable pageable, Integer unlockDay) {
         getPage(pageable);
         PageInfo<MailvorVipOrder> page = new PageInfo<>(queryAll(criteria));
         PageResult<MailvorVipOrderDto> results = generator.convertPageInfo(page,MailvorVipOrderDto.class);
@@ -71,9 +64,7 @@ public class MailvorVipOrderServiceImpl extends BaseServiceImpl<MailvorVipOrderM
                     || Double.parseDouble(orderDto.getTotalCost()) <= 0) {
                 orderDto.setRemain("err");
             } else {
-                Date createTime = orderDto.getOrderTime();
-                orderDto.setRemain(CashUtils.getRemainDate(unlockDay, createTime.getTime()/1000,
-                        Double.parseDouble(orderDto.getCommission()), orderDto.getInnerType()));
+                orderDto.setRemain("ok");
             }
         });
 
@@ -138,7 +129,7 @@ public class MailvorVipOrderServiceImpl extends BaseServiceImpl<MailvorVipOrderM
     }
 
     @Override
-    public boolean hasUnlockOrder(Long uid, Integer innerType, Integer unlockDay) {
+    public boolean hasUnlockOrder(Long uid, Integer innerType) {
         LambdaQueryWrapper<MailvorVipOrder> wrapper = new LambdaQueryWrapper<>();
         if(innerType != null) {
             wrapper.eq(MailvorVipOrder::getInnerType, innerType);
@@ -147,8 +138,6 @@ public class MailvorVipOrderServiceImpl extends BaseServiceImpl<MailvorVipOrderM
         wrapper.eq(MailvorVipOrder::getBind, 0);
         wrapper.ne(MailvorVipOrder::getOrderSubStatusName, VIP_NOT_VALID_ORDER_STATUS);
 
-        LocalDateTime now = LocalDateTime.now().minusDays(unlockDay);
-        wrapper.le(MailvorVipOrder::getOrderTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
         return orderMapper.selectCount(wrapper) > 0;
     }
     @Override

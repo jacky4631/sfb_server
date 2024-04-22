@@ -20,7 +20,6 @@ import com.mailvor.modules.tk.service.dto.MailvorPddOrderDto;
 import com.mailvor.modules.tk.service.dto.MailvorPddOrderQueryCriteria;
 import com.mailvor.modules.tk.service.dto.OrderCheckDTO;
 import com.mailvor.modules.tk.service.mapper.MailvorPddOrderMapper;
-import com.mailvor.modules.tools.utils.CashUtils;
 import com.mailvor.utils.DateUtils;
 import com.mailvor.utils.FileUtil;
 import com.mailvor.utils.OrderUtil;
@@ -53,14 +52,9 @@ public class MailvorPddOrderServiceImpl extends BaseServiceImpl<MailvorPddOrderM
 
     @Autowired
     private MailvorPddOrderMapper orderMapper;
-    @Override
-    //@Cacheable
-    public PageResult<MailvorPddOrderDto> queryAll(MailvorPddOrderQueryCriteria criteria, Pageable pageable) {
-        return queryAll(criteria, pageable, 0);
-    }
 
     @Override
-    public PageResult<MailvorPddOrderDto> queryAll(MailvorPddOrderQueryCriteria criteria, Pageable pageable, Integer unlockDay) {
+    public PageResult<MailvorPddOrderDto> queryAll(MailvorPddOrderQueryCriteria criteria, Pageable pageable) {
         getPage(pageable);
         PageInfo<MailvorPddOrder> page = new PageInfo<>(queryAll(criteria));
         PageResult<MailvorPddOrderDto> results = generator.convertPageInfo(page,MailvorPddOrderDto.class);
@@ -70,9 +64,7 @@ public class MailvorPddOrderServiceImpl extends BaseServiceImpl<MailvorPddOrderM
                     || orderDto.getPriceCompareStatus() == 1) {
                 orderDto.setRemain("err");
             } else {
-                Date createTime = orderDto.getOrderCreateTime();
-                orderDto.setRemain(CashUtils.getRemainDate(unlockDay, createTime.getTime()/1000,
-                        orderDto.getPromotionAmount()/100, orderDto.getInnerType()));
+                orderDto.setRemain("ok");
             }
         });
         return results;
@@ -164,7 +156,7 @@ public class MailvorPddOrderServiceImpl extends BaseServiceImpl<MailvorPddOrderM
         return orderMapper.selectList(wrapper);
     }
     @Override
-    public boolean hasUnlockOrder(Long uid, Integer innerType, Integer unlockDay) {
+    public boolean hasUnlockOrder(Long uid, Integer innerType) {
         LambdaQueryWrapper<MailvorPddOrder> wrapper = new LambdaQueryWrapper<>();
         if(innerType != null) {
             wrapper.eq(MailvorPddOrder::getInnerType, innerType);
@@ -175,8 +167,6 @@ public class MailvorPddOrderServiceImpl extends BaseServiceImpl<MailvorPddOrderM
         wrapper.in(MailvorPddOrder::getOrderStatus, PDD_VALID_ORDER_STATUS);
         wrapper.eq(MailvorPddOrder::getPriceCompareStatus, 0);
 
-        LocalDateTime now = LocalDateTime.now().minusDays(unlockDay);
-        wrapper.le(MailvorPddOrder::getOrderCreateTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
         return orderMapper.selectCount(wrapper) > 0;
     }
 

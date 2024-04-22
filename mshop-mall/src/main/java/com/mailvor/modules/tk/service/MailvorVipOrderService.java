@@ -31,7 +31,6 @@ public interface MailvorVipOrderService  extends TkOrderService<MailvorVipOrder>
     * @return Map<String,Object>
     */
     PageResult<MailvorVipOrderDto> queryAll(MailvorVipOrderQueryCriteria criteria, Pageable pageable);
-    PageResult<MailvorVipOrderDto> queryAll(MailvorVipOrderQueryCriteria criteria, Pageable pageable, Integer unlockDay);
     /**
     * 查询所有数据不分页
     * @param criteria 条件参数

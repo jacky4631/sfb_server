@@ -364,37 +364,6 @@ public class TkUtil {
 
     }
     public static void main(String[] args) {
-//        BigDecimal times = NumberUtil.div(BigDecimal.valueOf(90L), BigDecimal.valueOf(30L));
-//        System.out.println(times);
-////        times = NumberUtil.add(times, 1);
-////        System.out.println(times);
-//        BigDecimal hb = BigDecimal.valueOf(17.26);
-//        BigDecimal baseHb = getBaseHb(hb, times);
-//        System.out.println(baseHb);
-//        BigDecimal shopHb = getShopHb(hb, baseHb);
-//        System.out.println(shopHb);
-//
-//        HbUnlockConfig unlockConfig = new HbUnlockConfig();
-//        Integer unlockDay = getUnlockDay(5,0, unlockConfig);
-//        System.out.println(unlockDay);
-//        unlockDay = getUnlockDay(5,1, unlockConfig);
-//        System.out.println(unlockDay);
-//        unlockDay = getUnlockDay(5,2, unlockConfig);
-//        System.out.println(unlockDay);
-//        unlockDay = getUnlockDay(5,3, unlockConfig);
-//        System.out.println(unlockDay);
-//        unlockDay = getUnlockDay(5,4, unlockConfig);
-//        System.out.println(unlockDay);
-//        unlockDay = getUnlockDay(3,0, unlockConfig);
-//        System.out.println(unlockDay);
-//        unlockDay = getUnlockDay(3,1, unlockConfig);
-//        System.out.println(unlockDay);
-//        unlockDay = getUnlockDay(3,2, unlockConfig);
-//        System.out.println(unlockDay);
-//        unlockDay = getUnlockDay(3,3, unlockConfig);
-//        System.out.println(unlockDay);
-//        unlockDay = getUnlockDay(3,4, unlockConfig);
-//        System.out.println(unlockDay);
         long start = System.currentTimeMillis();
         for(int i = 0; i < 100; i++) {
             System.out.println(getPriceList(BigDecimal.valueOf(126), 100, 20));

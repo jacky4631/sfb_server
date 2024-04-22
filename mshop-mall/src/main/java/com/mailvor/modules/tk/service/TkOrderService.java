@@ -43,7 +43,7 @@ public interface TkOrderService<T> extends IService<T> {
 
     List<ChartDataDto> chartListFee(Date time);
 
-    boolean hasUnlockOrder(Long uid, Integer innerType, Integer unlockDay);
+    boolean hasUnlockOrder(Long uid, Integer innerType);
 
     Double totalFee(Integer type, List<Long> uid, Integer innerType);
     Double totalFee(Integer type, List<Long> uid, Integer innerType, boolean skipInvalid);

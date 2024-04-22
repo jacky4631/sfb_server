@@ -37,16 +37,11 @@ import com.mailvor.modules.product.service.MwStoreProductService;
 import com.mailvor.modules.product.vo.MwStoreProductQueryVo;
 import com.mailvor.modules.services.CreatShareProductService;
 import com.mailvor.modules.services.OrderSupplyService;
-import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.tk.service.*;
 import com.mailvor.modules.tools.express.ExpressService;
 import com.mailvor.modules.tools.express.config.ExpressAutoConfiguration;
 import com.mailvor.modules.tools.express.dao.ExpressInfo;
-import com.mailvor.modules.user.config.HbUnlockConfig;
 import com.mailvor.modules.user.domain.MwUser;
-import com.mailvor.modules.user.service.MwUserPoolService;
-import com.mailvor.modules.user.service.MwUserService;
-import com.mailvor.modules.utils.TkUtil;
 import com.vdurmont.emoji.EmojiParser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -108,18 +103,12 @@ public class StoreOrderController {
     @Resource
     private MailvorMtOrderService mtOrderService;
 
-    @Resource
-    private MwUserService userService;
     @Value("${file.path}")
     private String path;
 
     @Resource
     private TkService tkService;
 
-    @Resource
-    private MwUserPoolService poolService;
-    @Resource
-    private MwSystemConfigService systemConfigService;
     /**
      * 订单确认
      */
@@ -481,23 +470,14 @@ public class StoreOrderController {
             checkOrder = false;
         }
         if(checkOrder) {
-            MwUser user = userService.getById(uid);
-            Integer refund = poolService.getRefund(uid);
-            HbUnlockConfig unlockConfig = systemConfigService.getHbUnlockConfig();
-            tabs.add(new OrderTabDto("淘宝", tbOrderService.hasUnlockOrder(uid, innerType,
-                    TkUtil.getUnlockDay(user.getLevel(), refund, unlockConfig))));
-            tabs.add(new OrderTabDto("京东", jdOrderService.hasUnlockOrder(uid, innerType,
-                    TkUtil.getUnlockDay(user.getLevelJd(), refund, unlockConfig))));
-            tabs.add(new OrderTabDto("拼多多", pddOrderService.hasUnlockOrder(uid, innerType,
-                    TkUtil.getUnlockDay(user.getLevelPdd(), refund, unlockConfig))));
-            tabs.add(new OrderTabDto("抖音", dyOrderService.hasUnlockOrder(uid, innerType,
-                    TkUtil.getUnlockDay(user.getLevelDy(), refund, unlockConfig))));
-            tabs.add(new OrderTabDto("唯品会", vipOrderService.hasUnlockOrder(uid, innerType,
-                    TkUtil.getUnlockDay(user.getLevelVip(), refund, unlockConfig))));
+            tabs.add(new OrderTabDto("淘宝", tbOrderService.hasUnlockOrder(uid, innerType)));
+            tabs.add(new OrderTabDto("京东", jdOrderService.hasUnlockOrder(uid, innerType)));
+            tabs.add(new OrderTabDto("拼多多", pddOrderService.hasUnlockOrder(uid, innerType)));
+            tabs.add(new OrderTabDto("抖音", dyOrderService.hasUnlockOrder(uid, innerType)));
+            tabs.add(new OrderTabDto("唯品会", vipOrderService.hasUnlockOrder(uid, innerType)));
             //美团不加入热度订单
             if(innerType != 2) {
-                tabs.add(new OrderTabDto("美团", mtOrderService.hasUnlockOrder(uid, innerType,
-                        TkUtil.getUnlockDay(user.getLevel(), refund, unlockConfig))));
+                tabs.add(new OrderTabDto("美团", mtOrderService.hasUnlockOrder(uid, innerType)));
             }
         } else {
 

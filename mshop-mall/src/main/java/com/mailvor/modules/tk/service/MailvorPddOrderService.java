@@ -31,7 +31,6 @@ public interface MailvorPddOrderService  extends TkOrderService<MailvorPddOrder>
     * @return Map<String,Object>
     */
     PageResult<MailvorPddOrderDto> queryAll(MailvorPddOrderQueryCriteria criteria, Pageable pageable);
-    PageResult<MailvorPddOrderDto> queryAll(MailvorPddOrderQueryCriteria criteria, Pageable pageable, Integer unlockDay);
     /**
     * 查询所有数据不分页
     * @param criteria 条件参数

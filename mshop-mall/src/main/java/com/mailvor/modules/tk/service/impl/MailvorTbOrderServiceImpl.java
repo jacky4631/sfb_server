@@ -21,7 +21,6 @@ import com.mailvor.modules.tk.service.dto.MailvorTbOrderDto;
 import com.mailvor.modules.tk.service.dto.MailvorTbOrderQueryCriteria;
 import com.mailvor.modules.tk.service.dto.OrderCheckDTO;
 import com.mailvor.modules.tk.service.mapper.MailvorTbOrderMapper;
-import com.mailvor.modules.tools.utils.CashUtils;
 import com.mailvor.utils.DateUtils;
 import com.mailvor.utils.FileUtil;
 import com.mailvor.utils.OrderUtil;
@@ -59,14 +58,7 @@ public class MailvorTbOrderServiceImpl extends BaseServiceImpl<MailvorTbOrderMap
     private TbConfig tbConfig;
 
     @Override
-    //@Cacheable
     public PageResult<MailvorTbOrderDto> queryAll(MailvorTbOrderQueryCriteria criteria, Pageable pageable) {
-        return queryAll(criteria, pageable, 0);
-
-    }
-
-    @Override
-    public PageResult<MailvorTbOrderDto> queryAll(MailvorTbOrderQueryCriteria criteria, Pageable pageable, Integer unlockDay) {
         getPage(pageable);
         PageInfo<MailvorTbOrder> page = new PageInfo<>(queryAll(criteria));
         PageResult<MailvorTbOrderDto> results = generator.convertPageInfo(page,MailvorTbOrderDto.class);
@@ -77,9 +69,7 @@ public class MailvorTbOrderServiceImpl extends BaseServiceImpl<MailvorTbOrderMap
                     || orderDto.getAlipayTotalPrice() <= 0) {
                 orderDto.setRemain("err");
             } else {
-                Date createTime = orderDto.getTkCreateTime();
-                orderDto.setRemain(CashUtils.getRemainDate(unlockDay, createTime.getTime()/1000,
-                        orderDto.getPubSharePreFee(), orderDto.getInnerType()));
+                orderDto.setRemain("ok");
                 //设置 订单是否是淘礼金0元购订单，前端显示返1元
                 orderDto.setIsTlj(orderDto.getAdzoneId().equals(tbConfig.getAdZoneId()));
             }
@@ -154,7 +144,7 @@ public class MailvorTbOrderServiceImpl extends BaseServiceImpl<MailvorTbOrderMap
         return orderMapper.selectList(wrapper);
     }
     @Override
-    public boolean hasUnlockOrder(Long uid, Integer innerType, Integer unlockDay) {
+    public boolean hasUnlockOrder(Long uid, Integer innerType) {
         LambdaQueryWrapper<MailvorTbOrder> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(MailvorTbOrder::getUid, uid);
         if(innerType != null) {
@@ -164,8 +154,6 @@ public class MailvorTbOrderServiceImpl extends BaseServiceImpl<MailvorTbOrderMap
         wrapper.ne(MailvorTbOrder::getTkStatus, OrderUtil.TB_NOT_VALID_ORDER_STATUS);
         wrapper.eq(MailvorTbOrder::getRefundTag, 0);
 
-        LocalDateTime now = LocalDateTime.now().minusDays(unlockDay);
-        wrapper.le(MailvorTbOrder::getTkCreateTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
         return orderMapper.selectCount(wrapper) > 0;
     }
 

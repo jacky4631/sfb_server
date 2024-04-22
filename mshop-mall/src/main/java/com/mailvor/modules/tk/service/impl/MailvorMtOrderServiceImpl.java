@@ -19,7 +19,6 @@ import com.mailvor.modules.tk.service.MailvorMtOrderService;
 import com.mailvor.modules.tk.service.dto.MailvorMtOrderQueryCriteria;
 import com.mailvor.modules.tk.service.dto.OrderCheckDTO;
 import com.mailvor.modules.tk.service.mapper.MailvorMtOrderMapper;
-import com.mailvor.modules.tools.utils.CashUtils;
 import com.mailvor.utils.DateUtils;
 import com.mailvor.utils.FileUtil;
 import com.mailvor.utils.OrderUtil;
@@ -53,14 +52,7 @@ public class MailvorMtOrderServiceImpl extends BaseServiceImpl<MailvorMtOrderMap
     private MailvorMtOrderMapper orderMapper;
 
     @Override
-    //@Cacheable
     public PageResult<MailvorMtOrder> queryAll(MailvorMtOrderQueryCriteria criteria, Pageable pageable) {
-        return queryAll(criteria, pageable, 0);
-
-    }
-
-    @Override
-    public PageResult<MailvorMtOrder> queryAll(MailvorMtOrderQueryCriteria criteria, Pageable pageable, Integer unlockDay) {
         getPage(pageable);
         PageInfo<MailvorMtOrder> page = new PageInfo<>(queryAll(criteria));
         PageResult<MailvorMtOrder> results = generator.convertPageInfo(page,MailvorMtOrder.class);
@@ -70,10 +62,7 @@ public class MailvorMtOrderServiceImpl extends BaseServiceImpl<MailvorMtOrderMap
             //淘宝订单状态失效 维权 订单金额为0
             if(OrderUtil.MT_VALID_ORDER_STATUS.contains(orderDto.getItemStatus())
                     && OrderUtil.MT_VALID_ORDER_BIZ_STATUS.contains(orderDto.getItemBizStatus())) {
-                Date createTime = orderDto.getOrderPayTime();
-                orderDto.setRemain(CashUtils.getRemainDate(unlockDay, createTime.getTime()/1000,
-                        orderDto.getBalanceAmount(), orderDto.getInnerType()));
-
+                orderDto.setRemain("ok");
             } else {
                 orderDto.setRemain("err");
             }
@@ -149,7 +138,7 @@ public class MailvorMtOrderServiceImpl extends BaseServiceImpl<MailvorMtOrderMap
         return orderMapper.selectList(wrapper);
     }
     @Override
-    public boolean hasUnlockOrder(Long uid, Integer innerType, Integer unlockDay) {
+    public boolean hasUnlockOrder(Long uid, Integer innerType) {
         LambdaQueryWrapper<MailvorMtOrder> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(MailvorMtOrder::getUid, uid);
         if(innerType != null) {
@@ -159,8 +148,6 @@ public class MailvorMtOrderServiceImpl extends BaseServiceImpl<MailvorMtOrderMap
         wrapper.in(MailvorMtOrder::getItemStatus, OrderUtil.MT_VALID_ORDER_STATUS);
         wrapper.in(MailvorMtOrder::getItemBizStatus, OrderUtil.MT_VALID_ORDER_BIZ_STATUS);
 
-        LocalDateTime now = LocalDateTime.now().minusDays(unlockDay);
-        wrapper.le(MailvorMtOrder::getOrderPayTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
         return orderMapper.selectCount(wrapper) > 0;
     }
 

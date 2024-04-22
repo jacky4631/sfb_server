@@ -31,7 +31,6 @@ public interface MailvorEleOrderService extends TkOrderService<MailvorEleOrder> 
     * @return Map<String,Object>
     */
     PageResult<MailvorEleOrderDto> queryAll(MailvorEleOrderQueryCriteria criteria, Pageable pageable);
-    PageResult<MailvorEleOrderDto> queryAll(MailvorEleOrderQueryCriteria criteria, Pageable pageable, Integer unlockDay);
     /**
     * 查询所有数据不分页
     * @param criteria 条件参数

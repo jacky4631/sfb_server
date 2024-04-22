@@ -60,8 +60,6 @@ public class SelfOrderHbTask {
         //todo 每次找到10条 已经绑定用户 未拆红包的 bind=0  并且已经超过默认解锁天数3天的订单
 
         HbUnlockConfig unlockConfig = systemConfigService.getHbUnlockConfig();
-        //普通用户解锁+3天
-//        Integer unlockDay = unlockConfig.getUnlock() + day;
         List<Long> uidList = new ArrayList<>();
 
         //获取所有订单

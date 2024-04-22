@@ -29,10 +29,10 @@ import com.mailvor.modules.product.param.MwStoreProductRelationQueryParam;
 import com.mailvor.modules.product.service.MwStoreProductRelationService;
 import com.mailvor.modules.product.service.MwStoreProductReplyService;
 import com.mailvor.modules.product.service.MwStoreProductService;
-import com.mailvor.modules.product.vo.ProductVo;
-import com.mailvor.modules.product.vo.ReplyCountVo;
 import com.mailvor.modules.product.vo.MwStoreProductQueryVo;
 import com.mailvor.modules.product.vo.MwStoreProductReplyQueryVo;
+import com.mailvor.modules.product.vo.ProductVo;
+import com.mailvor.modules.product.vo.ReplyCountVo;
 import com.mailvor.modules.services.CreatShareProductService;
 import com.mailvor.modules.shop.domain.MwSystemAttachment;
 import com.mailvor.modules.shop.service.MwSystemAttachmentService;
@@ -40,12 +40,8 @@ import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.tk.domain.MailvorMtOrder;
 import com.mailvor.modules.tk.service.*;
 import com.mailvor.modules.tk.service.dto.*;
-import com.mailvor.modules.user.config.HbUnlockConfig;
 import com.mailvor.modules.user.domain.MwUser;
-import com.mailvor.modules.user.service.MwUserPoolService;
 import com.mailvor.modules.user.service.MwUserService;
-import com.mailvor.modules.utils.TkUtil;
-import com.mailvor.utils.RedisUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -63,8 +59,8 @@ import org.springframework.web.bind.annotation.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -95,10 +91,6 @@ public class StoreProductController {
     private final  MailvorMtOrderService mtOrderService;
 
     private final MwUserService userService;
-
-    private final MwUserPoolService poolService;
-
-    private final RedisUtils redisUtil;
 
     @Value("${file.path}")
     private String path;
@@ -357,10 +349,7 @@ public class StoreProductController {
         if(!hasChild) {
             return new ResponseEntity<>(new PageResult(0, Collections.emptyList()), HttpStatus.OK);
         }
-        Long uid = LocalUser.getUser().getUid();
-        MwUser user = userService.getById(uid);
-        Integer unlockDay = getUnlockDay(uid, user.getLevel(), criteria.getInnerType(), criteria.getLevel());
-        return new ResponseEntity<>(tbOrderService.queryAll(criteria,pageable, unlockDay), HttpStatus.OK);
+        return new ResponseEntity<>(tbOrderService.queryAll(criteria,pageable), HttpStatus.OK);
     }
     /**
      * 获取京东订单列表
@@ -373,10 +362,7 @@ public class StoreProductController {
         if(!hasChild) {
             return new ResponseEntity<>(new PageResult(0, Collections.emptyList()), HttpStatus.OK);
         }
-        Long uid = LocalUser.getUser().getUid();
-        MwUser user = userService.getById(uid);
-        Integer unlockDay = getUnlockDay(uid, user.getLevelJd(), criteria.getInnerType(), criteria.getLevel());
-        return new ResponseEntity<>(jdOrderService.queryAll(criteria,pageable, unlockDay), HttpStatus.OK);
+        return new ResponseEntity<>(jdOrderService.queryAll(criteria,pageable), HttpStatus.OK);
     }
     /**
      * 获取拼多多订单列表
@@ -389,10 +375,7 @@ public class StoreProductController {
         if(!hasChild) {
             return new ResponseEntity<>(new PageResult(0, Collections.emptyList()), HttpStatus.OK);
         }
-        Long uid = LocalUser.getUser().getUid();
-        MwUser user = userService.getById(uid);
-        Integer unlockDay = getUnlockDay(uid, user.getLevelPdd(), criteria.getInnerType(), criteria.getLevel());
-        return new ResponseEntity<>(pddOrderService.queryAll(criteria,pageable, unlockDay), HttpStatus.OK);
+        return new ResponseEntity<>(pddOrderService.queryAll(criteria,pageable), HttpStatus.OK);
     }
     /**
      * 获取唯品会订单列表
@@ -405,11 +388,7 @@ public class StoreProductController {
         if(!hasChild) {
             return new ResponseEntity<>(new PageResult(0, Collections.emptyList()), HttpStatus.OK);
         }
-
-        Long uid = LocalUser.getUser().getUid();
-        MwUser user = userService.getById(uid);
-        Integer unlockDay = getUnlockDay(uid, user.getLevelVip(), criteria.getInnerType(), criteria.getLevel());
-        return new ResponseEntity<>(vipOrderService.queryAll(criteria,pageable, unlockDay), HttpStatus.OK);
+        return new ResponseEntity<>(vipOrderService.queryAll(criteria,pageable), HttpStatus.OK);
     }
     /**
      * 获取抖音订单列表
@@ -422,10 +401,7 @@ public class StoreProductController {
         if(!hasChild) {
             return new ResponseEntity<>(new PageResult(0, Collections.emptyList()), HttpStatus.OK);
         }
-        Long uid = LocalUser.getUser().getUid();
-        MwUser user = userService.getById(uid);
-        Integer unlockDay = getUnlockDay(uid, user.getLevelDy(), criteria.getInnerType(), criteria.getLevel());
-        return new ResponseEntity<>(dyOrderService.queryAll(criteria,pageable, unlockDay), HttpStatus.OK);
+        return new ResponseEntity<>(dyOrderService.queryAll(criteria,pageable), HttpStatus.OK);
     }
 
     /**
@@ -439,18 +415,7 @@ public class StoreProductController {
         if(!hasChild) {
             return new ResponseEntity<>(new PageResult(0, Collections.emptyList()), HttpStatus.OK);
         }
-        Long uid = LocalUser.getUser().getUid();
-        MwUser user = userService.getById(uid);
-        Integer unlockDay = getUnlockDay(uid, user.getLevel(), criteria.getInnerType(), criteria.getLevel());
-        return new ResponseEntity<>(mtOrderService.queryAll(criteria,pageable, unlockDay), HttpStatus.OK);
-    }
-    protected Integer getUnlockDay(Long uid, Integer level, Integer innerType, Integer grade) {
-        HbUnlockConfig unlockConfig = systemConfigService.getHbUnlockConfig();
-        if((innerType != null && (innerType == 1 || innerType == 2)) || (grade != null && grade > 0)) {
-            return unlockConfig.getUnlock();
-        }
-        Integer refund = poolService.getRefund(uid);
-        return TkUtil.getUnlockDay(level, refund, unlockConfig);
+        return new ResponseEntity<>(mtOrderService.queryAll(criteria,pageable), HttpStatus.OK);
     }
 
     protected boolean initCriteria(MailvorOrderQueryCriteria criteria) {

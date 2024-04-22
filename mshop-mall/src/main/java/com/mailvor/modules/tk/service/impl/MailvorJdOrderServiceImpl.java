@@ -20,7 +20,6 @@ import com.mailvor.modules.tk.service.dto.MailvorJdOrderDto;
 import com.mailvor.modules.tk.service.dto.MailvorJdOrderQueryCriteria;
 import com.mailvor.modules.tk.service.dto.OrderCheckDTO;
 import com.mailvor.modules.tk.service.mapper.MailvorJdOrderMapper;
-import com.mailvor.modules.tools.utils.CashUtils;
 import com.mailvor.modules.user.service.dto.GoodsInfoDto;
 import com.mailvor.utils.DateUtils;
 import com.mailvor.utils.FileUtil;
@@ -57,11 +56,6 @@ public class MailvorJdOrderServiceImpl extends BaseServiceImpl<MailvorJdOrderMap
 
     @Override
     public PageResult<MailvorJdOrderDto> queryAll(MailvorJdOrderQueryCriteria criteria, Pageable pageable) {
-        return queryAll(criteria, pageable, 0);
-
-    }
-    @Override
-    public PageResult<MailvorJdOrderDto> queryAll(MailvorJdOrderQueryCriteria criteria, Pageable pageable, Integer unlockDay) {
         getPage(pageable);
         PageInfo<MailvorJdOrder> page = new PageInfo<>(queryAll(criteria));
         PageResult<MailvorJdOrderDto> results = generator.convertPageInfo(page,MailvorJdOrderDto.class);
@@ -70,9 +64,7 @@ public class MailvorJdOrderServiceImpl extends BaseServiceImpl<MailvorJdOrderMap
                     || orderDto.getEstimateCosPrice()== null || orderDto.getEstimateCosPrice() <=0) {
                 orderDto.setRemain("err");
             } else {
-                Date createTime = orderDto.getOrderTime();
-                orderDto.setRemain(CashUtils.getRemainDate(unlockDay, createTime.getTime()/1000,
-                        orderDto.getEstimateFee(), orderDto.getInnerType()));
+                orderDto.setRemain("ok");
             }
         });
 
@@ -151,7 +143,7 @@ public class MailvorJdOrderServiceImpl extends BaseServiceImpl<MailvorJdOrderMap
     }
 
     @Override
-    public boolean hasUnlockOrder(Long uid, Integer innerType, Integer unlockDay) {
+    public boolean hasUnlockOrder(Long uid, Integer innerType) {
         LambdaQueryWrapper<MailvorJdOrder> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(MailvorJdOrder::getUid, uid);
         if(innerType != null) {
@@ -161,8 +153,6 @@ public class MailvorJdOrderServiceImpl extends BaseServiceImpl<MailvorJdOrderMap
         wrapper.gt(MailvorJdOrder::getEstimateCosPrice, 0);
         wrapper.in(MailvorJdOrder::getValidCode, JD_VALID_ORDER_STATUS);
 
-        LocalDateTime now = LocalDateTime.now().minusDays(unlockDay);
-        wrapper.le(MailvorJdOrder::getOrderTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
         return orderMapper.selectCount(wrapper) > 0;
     }
 

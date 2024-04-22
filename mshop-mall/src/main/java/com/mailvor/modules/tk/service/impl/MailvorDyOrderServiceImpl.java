@@ -20,7 +20,6 @@ import com.mailvor.modules.tk.service.dto.MailvorDyOrderDto;
 import com.mailvor.modules.tk.service.dto.MailvorDyOrderQueryCriteria;
 import com.mailvor.modules.tk.service.dto.OrderCheckDTO;
 import com.mailvor.modules.tk.service.mapper.MailvorDyOrderMapper;
-import com.mailvor.modules.tools.utils.CashUtils;
 import com.mailvor.utils.DateUtils;
 import com.mailvor.utils.FileUtil;
 import lombok.AllArgsConstructor;
@@ -53,13 +52,7 @@ public class MailvorDyOrderServiceImpl extends BaseServiceImpl<MailvorDyOrderMap
     private MailvorDyOrderMapper orderMapper;
 
     @Override
-    //@Cacheable
     public PageResult<MailvorDyOrderDto> queryAll(MailvorDyOrderQueryCriteria criteria, Pageable pageable) {
-        return queryAll(criteria, pageable, 0);
-    }
-
-    @Override
-    public PageResult<MailvorDyOrderDto> queryAll(MailvorDyOrderQueryCriteria criteria, Pageable pageable, Integer unlockDay) {
         getPage(pageable);
         PageInfo<MailvorDyOrder> page = new PageInfo<>(queryAll(criteria));
         PageResult<MailvorDyOrderDto> results = generator.convertPageInfo(page,MailvorDyOrderDto.class);
@@ -68,9 +61,7 @@ public class MailvorDyOrderServiceImpl extends BaseServiceImpl<MailvorDyOrderMap
                     || orderDto.getTotalPayAmount() <= 0) {
                 orderDto.setRemain("err");
             } else {
-                Date createTime = orderDto.getPaySuccessTime();
-                orderDto.setRemain(CashUtils.getRemainDate(unlockDay, createTime.getTime()/1000,
-                        orderDto.getEstimatedTotalCommission(), orderDto.getInnerType()));
+                orderDto.setRemain("ok");
             }
         });
 
@@ -138,7 +129,7 @@ public class MailvorDyOrderServiceImpl extends BaseServiceImpl<MailvorDyOrderMap
         return orderMapper.selectList(wrapper);
     }
     @Override
-    public boolean hasUnlockOrder(Long uid, Integer innerType, Integer unlockDay) {
+    public boolean hasUnlockOrder(Long uid, Integer innerType) {
         //抖音订单状态 PAY_SUCC CONFIRM REFUND
         LambdaQueryWrapper<MailvorDyOrder> wrapper = new LambdaQueryWrapper<>();
         if(innerType != null) {
@@ -148,8 +139,6 @@ public class MailvorDyOrderServiceImpl extends BaseServiceImpl<MailvorDyOrderMap
         wrapper.eq(MailvorDyOrder::getBind, 0);
         wrapper.ne(MailvorDyOrder::getFlowPoint, DY_NOT_VALID_ORDER_STATUS);
 
-        LocalDateTime now = LocalDateTime.now().minusDays(unlockDay);
-        wrapper.le(MailvorDyOrder::getPaySuccessTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
         return orderMapper.selectCount(wrapper) > 0;
     }
 

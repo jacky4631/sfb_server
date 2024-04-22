@@ -39,7 +39,6 @@ import com.mailvor.modules.push.service.JPushService;
 import com.mailvor.modules.shop.domain.MwSystemUserLevel;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.tk.service.*;
-import com.mailvor.modules.user.config.HbUnlockConfig;
 import com.mailvor.modules.user.domain.*;
 import com.mailvor.modules.user.service.*;
 import com.mailvor.modules.user.service.dto.*;
@@ -140,9 +139,6 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
     private FeeOrderService feeOrderService;
     @Resource
     private MwUserCardService cardService;
-
-    @Resource
-    private MwUserPoolService poolService;
 
     @Resource
     private UserEnergyService energyService;
@@ -611,20 +607,17 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
     @Override
     public Boolean hasUnlockOrder(MwUser mwUser) {
         Long uid = mwUser.getUid();
-        MwUser user = getById(uid);
-        Integer refund = poolService.getRefund(uid);
-        HbUnlockConfig unlockConfig = systemConfigService.getHbUnlockConfig();
 
         CompletableFuture<Boolean> tbCashFuture = CompletableFuture.supplyAsync(()->
-                tbOrderService.hasUnlockOrder(uid, 0, TkUtil.getUnlockDay(user.getLevel(), refund, unlockConfig)));
+                tbOrderService.hasUnlockOrder(uid, 0));
         CompletableFuture<Boolean> pddCashFuture = CompletableFuture.supplyAsync(()->
-                pddOrderService.hasUnlockOrder(uid, 0,TkUtil.getUnlockDay(user.getLevelPdd(), refund, unlockConfig)));
+                pddOrderService.hasUnlockOrder(uid, 0));
         CompletableFuture<Boolean> jdCashFuture = CompletableFuture.supplyAsync(()->
-                jdOrderService.hasUnlockOrder(uid, 0,TkUtil.getUnlockDay(user.getLevelJd(), refund, unlockConfig)));
+                jdOrderService.hasUnlockOrder(uid, 0));
         CompletableFuture<Boolean> vipCashFuture = CompletableFuture.supplyAsync(()->
-                vipOrderService.hasUnlockOrder(uid, 0,TkUtil.getUnlockDay(user.getLevelVip(), refund, unlockConfig)));
+                vipOrderService.hasUnlockOrder(uid, 0));
         CompletableFuture<Boolean> dyCashFuture = CompletableFuture.supplyAsync(()->
-                dyOrderService.hasUnlockOrder(uid, 0,TkUtil.getUnlockDay(user.getLevelDy(), refund, unlockConfig)));
+                dyOrderService.hasUnlockOrder(uid, 0));
         CompletableFuture.allOf(tbCashFuture, pddCashFuture, jdCashFuture, vipCashFuture, dyCashFuture);
         Boolean hasUnlockOrder = false;
         try {
