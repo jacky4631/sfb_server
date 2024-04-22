@@ -782,10 +782,6 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         }
         BigDecimal baseHb = TkUtil.getBaseHb(BigDecimal.valueOf(hb));
         order.setHb(baseHb.doubleValue());
-        //设置基础红包和店铺红包
-        order.setBaseHb(baseHb.doubleValue());
-        BigDecimal shopHb = BigDecimal.ZERO;
-        order.setShopHb(shopHb.doubleValue());
         order.setBind(1);
         updateOrder(order);
 
@@ -795,8 +791,6 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         gainParentMoney(user, new BigDecimal(hb), orderId, createTime, order.getInnerType(), platform, order.getHb(), unlockTime);
         Map map = new HashMap();
         map.put("hb", hb);
-        map.put("baseHb", baseHb.doubleValue());
-        map.put("shopHb", shopHb.doubleValue());
         return map;
     }
 
