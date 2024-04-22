@@ -41,9 +41,8 @@ public class RedisKeyInitialization  implements CommandLineRunner {
         try {
             List<MwSystemConfig> systemConfigs = systemConfigService.list();
             for (MwSystemConfig systemConfig : systemConfigs) {
-                String origKey = TkUtil.getOrigPlatformKey(systemConfig.getMenuName());
                 //部分key不初始化
-                if(!INIT_JSON_LIST.contains(origKey)) {
+                if(!ignore(systemConfig.getMenuName())) {
                     redisUtils.set(systemConfig.getMenuName(),systemConfig.getValue());
                 }
             }
@@ -53,6 +52,15 @@ public class RedisKeyInitialization  implements CommandLineRunner {
             log.error("redisKey初始化失败: {}",e.getMessage());
         }
 
+    }
+
+    private boolean ignore(String key) {
+        for(String ignoreKey : INIT_JSON_LIST) {
+            if(key.contains(ignoreKey)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
