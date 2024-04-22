@@ -35,7 +35,7 @@ public interface MailvorTbOrderMapper extends CoreMapper<MailvorTbOrder> {
     void bindUser(@Param("uid")Long uid, @Param("id") Long id);
 
     @Update("update mailvor_tb_order set bind = 2 where trade_parent_id = #{id}")
-    void unbindUser(@Param("id") Long id);
+    void refundOrder(@Param("id") Long id);
 
     @Select("select IFNULL(sum(integral),0) from mailvor_tb_order " +
             "where uid=#{uid} and tk_create_time <= #{time} and bind=1 and cash=0")

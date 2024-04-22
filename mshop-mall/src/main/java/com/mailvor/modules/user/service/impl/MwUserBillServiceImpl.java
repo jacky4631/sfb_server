@@ -5,27 +5,29 @@
 package com.mailvor.modules.user.service.impl;
 
 import cn.hutool.core.date.DateUtil;
-import com.mailvor.common.service.impl.BaseServiceImpl;
-import com.mailvor.common.utils.QueryHelpPlus;
-import com.mailvor.dozer.service.IGenerator;
-import com.mailvor.enums.BillDetailEnum;
-import com.mailvor.enums.BillEnum;
-import com.mailvor.enums.BillInfoEnum;
-import com.mailvor.enums.ShopCommonEnum;
-import com.mailvor.modules.user.domain.MwUserBill;
-import com.mailvor.modules.user.service.MwUserBillService;
-import com.mailvor.modules.user.service.dto.*;
-import com.mailvor.modules.user.service.mapper.UserBillMapper;
-import com.mailvor.modules.user.vo.BillVo;
-import com.mailvor.modules.user.vo.MwUserBillQueryVo;
-import com.mailvor.utils.FileUtil;
-import com.mailvor.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.pagehelper.PageInfo;
+import com.mailvor.common.service.impl.BaseServiceImpl;
+import com.mailvor.common.utils.QueryHelpPlus;
+import com.mailvor.dozer.service.IGenerator;
+import com.mailvor.enums.BillDetailEnum;
+import com.mailvor.enums.BillEnum;
+import com.mailvor.enums.BillInfoEnum;
+import com.mailvor.modules.user.domain.MwUserBill;
+import com.mailvor.modules.user.service.MwUserBillService;
+import com.mailvor.modules.user.service.dto.BillOrderDto;
+import com.mailvor.modules.user.service.dto.BillOrderRecordDto;
+import com.mailvor.modules.user.service.dto.MwUserBillDto;
+import com.mailvor.modules.user.service.dto.MwUserBillQueryCriteria;
+import com.mailvor.modules.user.service.mapper.UserBillMapper;
+import com.mailvor.modules.user.vo.BillVo;
+import com.mailvor.modules.user.vo.MwUserBillQueryVo;
+import com.mailvor.utils.FileUtil;
+import com.mailvor.utils.StringUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+
+import static com.mailvor.enums.BillDetailEnum.CATEGORY_1;
+import static com.mailvor.enums.ShopCommonEnum.IS_ORDER_STATUS_1;
 
 
 /**
@@ -129,7 +134,7 @@ public class MwUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, MwUse
     }
     @Override
     public void income(Long uid,Long origUid,String title,String category,String type, String platform, double number,
-                       double balance,String mark,String linkid, Date orderCreateTime){
+                       double balance,String mark,String linkid, Date orderCreateTime, Integer status, Date unlockTime){
         MwUserBill userBill = MwUserBill.builder()
                 .uid(uid)
                 .origUid(origUid)
@@ -143,6 +148,8 @@ public class MwUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, MwUse
                 .pm(BillEnum.PM_1.getValue())
                 .linkId(linkid)
                 .orderCreateTime(orderCreateTime)
+                .unlockStatus(status)
+                .unlockTime(unlockTime)
                 .build();
 
         mwUserBillMapper.insert(userBill);
@@ -173,7 +180,7 @@ public class MwUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, MwUse
        QueryWrapper<MwUserBill> wrapper = new QueryWrapper<>();
         wrapper.lambda().in(MwUserBill::getUid, uid)
                 .eq(MwUserBill::getType, BillDetailEnum.TYPE_2.getValue())
-                .eq(MwUserBill::getCategory, BillDetailEnum.CATEGORY_1.getValue());
+                .eq(MwUserBill::getCategory, CATEGORY_1.getValue());
         wrapper.orderByDesc("time").groupBy("time");
         Page<MwUserBill> pageModel = new Page<>(page, limit);
         List<String> list = mwUserBillMapper.getBillOrderList(wrapper, pageModel);
@@ -181,7 +188,7 @@ public class MwUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, MwUse
         Long count = mwUserBillMapper.selectCount(Wrappers.<MwUserBill>lambdaQuery()
                 .eq(MwUserBill::getUid, uid)
                 .eq(MwUserBill::getType, BillDetailEnum.TYPE_2.getValue())
-                .eq(MwUserBill::getCategory, BillDetailEnum.CATEGORY_1.getValue()));
+                .eq(MwUserBill::getCategory, CATEGORY_1.getValue()));
         List<BillOrderDto> listT = new ArrayList<>();
         for (String str : list) {
             BillOrderDto billOrderDTO = new BillOrderDto();
@@ -225,19 +232,19 @@ public class MwUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, MwUse
         wrapper.groupBy("time");
         switch (BillInfoEnum.toType(type)){
             case PAY_PRODUCT:
-                wrapper.lambda().eq(MwUserBill::getCategory,BillDetailEnum.CATEGORY_1.getValue());
+                wrapper.lambda().eq(MwUserBill::getCategory, CATEGORY_1.getValue());
                 wrapper.lambda().eq(MwUserBill::getType,BillDetailEnum.TYPE_3.getValue());
                 break;
             case RECHAREGE:
-                wrapper.lambda().eq(MwUserBill::getCategory,BillDetailEnum.CATEGORY_1.getValue());
+                wrapper.lambda().eq(MwUserBill::getCategory, CATEGORY_1.getValue());
                 wrapper.lambda().eq(MwUserBill::getType,BillDetailEnum.TYPE_1.getValue());
                 break;
             case BROKERAGE:
-                wrapper.lambda().eq(MwUserBill::getCategory,BillDetailEnum.CATEGORY_1.getValue());
+                wrapper.lambda().eq(MwUserBill::getCategory, CATEGORY_1.getValue());
                 wrapper.lambda().eq(MwUserBill::getType,BillDetailEnum.TYPE_2.getValue());
                 break;
             case EXTRACT:
-                wrapper.lambda().eq(MwUserBill::getCategory,BillDetailEnum.CATEGORY_1.getValue());
+                wrapper.lambda().eq(MwUserBill::getCategory, CATEGORY_1.getValue());
                 wrapper.lambda().eq(MwUserBill::getType,BillDetailEnum.TYPE_4.getValue());
                 break;
             case SIGN_INTEGRAL:
@@ -245,7 +252,7 @@ public class MwUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, MwUse
                 wrapper.lambda().eq(MwUserBill::getType,BillDetailEnum.TYPE_10.getValue());
                 break;
             default:
-                wrapper.lambda().eq(MwUserBill::getCategory,BillDetailEnum.CATEGORY_1.getValue());
+                wrapper.lambda().eq(MwUserBill::getCategory, CATEGORY_1.getValue());
 
         }
         Page<MwUserBill> pageModel = new Page<>(page, limit);
@@ -292,7 +299,6 @@ public class MwUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, MwUse
     public Map<String, Object> userBillList(Long uid,String category,String type, String platform, int page,int limit) {
        LambdaQueryWrapper<MwUserBill> wrapper = new LambdaQueryWrapper<>();
         wrapper
-                .eq(MwUserBill::getStatus, ShopCommonEnum.IS_STATUS_1.getValue())
                 .eq(MwUserBill::getUid,uid)
                 .eq(MwUserBill::getCategory,category)
                 .orderByDesc(MwUserBill::getCreateTime);
@@ -344,6 +350,34 @@ public class MwUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, MwUse
             list.add(map);
         }
         FileUtil.downloadExcel(list, response);
+    }
+
+    @Override
+    public List<MwUserBill> getListByOrderId(String linkId) {
+        LambdaQueryWrapper<MwUserBill> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(MwUserBill::getLinkId,linkId);
+        return mwUserBillMapper.selectList(wrapper);
+    }
+
+    @Override
+    public void invalidByOrderId(String orderId) {
+        mwUserBillMapper.invalidByOrderId(orderId);
+    }
+
+    @Override
+    public double sumUnlockMoney(Long uid) {
+        return mwUserBillMapper.sumUnlockMoney(uid);
+    }
+
+
+    @Override
+    public List<MwUserBill> getUnlockList(Integer limit) {
+        LambdaQueryWrapper<MwUserBill> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(MwUserBill::getCategory, CATEGORY_1.getValue());
+        wrapper.eq(MwUserBill::getUnlockStatus, IS_ORDER_STATUS_1.getValue());
+
+        wrapper.last("limit " + limit);
+        return mwUserBillMapper.selectList(wrapper);
     }
 
 }

@@ -52,4 +52,11 @@ public class MwUserBillQueryVo implements Serializable {
     private Date orderCreateTime;
 
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    private Date unlockTime;
+
+
+    /** 0=已解锁 默认值 1=待解锁 2=失效  */
+    private Integer unlockStatus;
+
 }

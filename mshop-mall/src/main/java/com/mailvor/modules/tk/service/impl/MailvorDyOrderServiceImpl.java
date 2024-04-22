@@ -178,8 +178,8 @@ public class MailvorDyOrderServiceImpl extends BaseServiceImpl<MailvorDyOrderMap
         orderMapper.bindUser(uid, orderId);
     }
     @Override
-    public void unbindUser(String id) {
-        orderMapper.unbindUser(id);
+    public void refundOrder(String id) {
+        orderMapper.refundOrder(id);
     }
     @Override
     public Double totalCash(Long uid, LocalDateTime time) {
@@ -386,7 +386,7 @@ public class MailvorDyOrderServiceImpl extends BaseServiceImpl<MailvorDyOrderMap
     }
 
     @Override
-    public List<MailvorDyOrder> getSelfUnspreadHbList(Integer day, Integer limit) {
+    public List<MailvorDyOrder> getSelfUnspreadHbList(Integer limit) {
         LambdaQueryWrapper<MailvorDyOrder> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(MailvorDyOrder::getIsDel, CommonEnum.DEL_STATUS_0.getValue());
         wrapper.eq(MailvorDyOrder::getBind, 0);
@@ -394,8 +394,8 @@ public class MailvorDyOrderServiceImpl extends BaseServiceImpl<MailvorDyOrderMap
         wrapper.eq(MailvorDyOrder::getInnerType, 0);
         wrapper.ne(MailvorDyOrder::getFlowPoint, DY_NOT_VALID_ORDER_STATUS);
 
-        LocalDateTime now = LocalDateTime.now().minusDays(day);
-        wrapper.lt(MailvorDyOrder::getPaySuccessTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
+//        LocalDateTime now = LocalDateTime.now().minusDays(day);
+//        wrapper.lt(MailvorDyOrder::getPaySuccessTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
         wrapper.last("limit " + limit);
         return orderMapper.selectList(wrapper);
     }

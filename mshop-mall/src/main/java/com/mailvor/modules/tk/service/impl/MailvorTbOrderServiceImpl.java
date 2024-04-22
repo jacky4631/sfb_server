@@ -192,8 +192,8 @@ public class MailvorTbOrderServiceImpl extends BaseServiceImpl<MailvorTbOrderMap
         orderMapper.bindUser(uid, id);
     }
     @Override
-    public void unbindUser(Long id) {
-        orderMapper.unbindUser(id);
+    public void refundOrder(Long id) {
+        orderMapper.refundOrder(id);
     }
     @Override
     public Double totalCash(Long uid, LocalDateTime time) {
@@ -415,7 +415,7 @@ public class MailvorTbOrderServiceImpl extends BaseServiceImpl<MailvorTbOrderMap
     }
 
     @Override
-    public List<MailvorTbOrder> getSelfUnspreadHbList(Integer day, Integer limit) {
+    public List<MailvorTbOrder> getSelfUnspreadHbList(Integer limit) {
         LambdaQueryWrapper<MailvorTbOrder> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(MailvorTbOrder::getIsDel, CommonEnum.DEL_STATUS_0.getValue());
         wrapper.eq(MailvorTbOrder::getBind, 0);
@@ -425,9 +425,9 @@ public class MailvorTbOrderServiceImpl extends BaseServiceImpl<MailvorTbOrderMap
         wrapper.eq(MailvorTbOrder::getRefundTag, 0);
         wrapper.gt(MailvorTbOrder::getAlipayTotalPrice, 0);
 
-        LocalDateTime now = LocalDateTime.now().minusDays(day);
+//        LocalDateTime now = LocalDateTime.now().minusDays(day);
         //查找day之前的订单
-        wrapper.lt(MailvorTbOrder::getTkCreateTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
+//        wrapper.lt(MailvorTbOrder::getTkCreateTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
         wrapper.last("limit " + limit);
         return orderMapper.selectList(wrapper);
     }

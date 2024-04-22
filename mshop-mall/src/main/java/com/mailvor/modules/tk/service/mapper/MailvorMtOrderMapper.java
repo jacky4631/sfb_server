@@ -35,7 +35,7 @@ public interface MailvorMtOrderMapper extends CoreMapper<MailvorMtOrder> {
     void bindUser(@Param("uid")Long uid, @Param("id") Long id);
 
     @Update("update mailvor_mt_order set bind = 2 where unique_item_id = #{id}")
-    void unbindUser(@Param("id") Long id);
+    void refundOrder(@Param("id") Long id);
 
     @Select("select IFNULL(sum(integral),0) from mailvor_mt_order " +
             "where uid=#{uid} and order_pay_time <= #{time} and bind=1 and cash=0")

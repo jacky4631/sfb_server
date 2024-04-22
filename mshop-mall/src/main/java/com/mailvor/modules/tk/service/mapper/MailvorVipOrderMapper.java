@@ -34,7 +34,7 @@ public interface MailvorVipOrderMapper extends CoreMapper<MailvorVipOrder> {
     @Update("update mailvor_vip_order set uid = ${uid} where order_sn = #{id}")
     void bindUser(@Param("uid")Long uid, @Param("id") String orderSn);
     @Update("update mailvor_vip_order set bind = 2 where order_sn = #{id}")
-    void unbindUser(@Param("id") String orderSn);
+    void refundOrder(@Param("id") String orderSn);
 
 
     @Select("select IFNULL(sum(integral),0) from mailvor_vip_order " +

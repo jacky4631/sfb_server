@@ -74,6 +74,7 @@ import java.util.stream.Collectors;
 
 import static com.mailvor.config.PayConfig.PAY_NAME;
 import static com.mailvor.enums.BillDetailEnum.TYPE_12;
+import static com.mailvor.enums.ShopCommonEnum.IS_ORDER_STATUS_0;
 import static com.mailvor.modules.utils.FeeUtil.DEFAULT_FEE_SCALE;
 import static com.mailvor.modules.utils.TkUtil.EXPIRED_LEVEL;
 import static java.util.stream.Collectors.toList;
@@ -495,6 +496,10 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
         if(userQueryVo == null){
             throw new UnAuthenticatedException(ApiCode.UNAUTHORIZED);
         }
+        //设置未解锁金额
+        double unlockMoney = billService.sumUnlockMoney(uid);
+        userQueryVo.setUnlockMoney(unlockMoney);
+
         if(baseInfo != null && baseInfo) {
             return userQueryVo;
         }
@@ -1126,7 +1131,7 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
                     TYPE_12.getValue(), "up",
                     feeOne.doubleValue(),
                     userInfo.getNowMoney().doubleValue(),
-                    mark, orderId, orderCreateTime);
+                    mark, orderId, orderCreateTime, IS_ORDER_STATUS_0.getValue(), null);
             if(type == 0) {
                 //设置上级的拆红包佣金池
                 energyService.addEnergy(userInfo.getUid(), uid, platform, 1, 1);
@@ -1190,7 +1195,7 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
                     TYPE_12.getValue(), "up",
                     feeTwo.doubleValue(),
                     preUser.getNowMoney().doubleValue(),
-                    mark, orderId, orderCreateTime);
+                    mark, orderId, orderCreateTime, IS_ORDER_STATUS_0.getValue(), null);
             if(type == 0) {
                 //设置上上级的拆红包佣金池
                 energyService.addEnergy(preUid, origUid, platform, 2, 1);

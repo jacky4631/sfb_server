@@ -52,7 +52,7 @@ public interface MwUserBillService extends BaseService<MwUserBill>{
     void income(Long uid,String title,String category,String type,double number,
                 double balance,String mark,String linkid);
     void income(Long uid,Long origUid,String title,String category,String type,String platform, double number,
-                double balance,String mark,String linkid, Date orderCreateTime);
+                double balance,String mark,String linkid, Date orderCreateTime, Integer status, Date unlockTime);
     Long cumulativeAttendance(Long uid);
 
     /**
@@ -110,4 +110,11 @@ public interface MwUserBillService extends BaseService<MwUserBill>{
     */
     void download(List<MwUserBillDto> all, HttpServletResponse response) throws IOException;
 
+    List<MwUserBill> getListByOrderId(String linkId);
+
+    void invalidByOrderId(String orderId);
+
+    double sumUnlockMoney(Long uid);
+
+    List<MwUserBill> getUnlockList(Integer limit);
 }

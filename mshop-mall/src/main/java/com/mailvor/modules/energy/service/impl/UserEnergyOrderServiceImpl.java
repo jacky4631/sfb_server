@@ -66,7 +66,7 @@ public class UserEnergyOrderServiceImpl extends BaseServiceImpl<UserEnergyOrderM
                 .eq(UserEnergyOrder::getPaid, 1)
                 .eq(UserEnergyOrder::getHb, 0)
                 .eq(UserEnergyOrder::getRefund, 0)
-                .lt(UserEnergyOrder::getUnlockTime, new Date())
+//                .lt(UserEnergyOrder::getUnlockTime, new Date())
                 .last("limit 100"));
     }
 

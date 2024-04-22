@@ -32,6 +32,9 @@ public class OrderRefundTask {
     protected MailvorDyOrderService dyOrderService;
 
     @Resource
+    protected MailvorMtOrderService mtOrderService;
+
+    @Resource
     private SuStoreOrderService suStoreOrderService;
 
     protected void run(String paramStr) {
@@ -50,7 +53,7 @@ public class OrderRefundTask {
             if(tbOrder.getHb() == null) {
                 return;
             }
-            suStoreOrderService.decHbAndUnbindOrder(tbOrder.getUid(), tbOrder);
+            suStoreOrderService.decHbAndRefundOrder(tbOrder.getUid(), tbOrder);
         });
 
         List<MailvorJdOrder> jdOrders = jdOrderService.getRefundAndBindOrderList(param.getPrior());
@@ -58,7 +61,7 @@ public class OrderRefundTask {
             if(jdOrder.getHb() == null) {
                 return;
             }
-            suStoreOrderService.decHbAndUnbindOrder(jdOrder.getUid(), jdOrder);
+            suStoreOrderService.decHbAndRefundOrder(jdOrder.getUid(), jdOrder);
         });
 
         List<MailvorPddOrder> pddOrders = pddOrderService.getRefundAndBindOrderList(param.getPrior());
@@ -66,7 +69,7 @@ public class OrderRefundTask {
             if(pddOrder.getHb() == null) {
                 return;
             }
-            suStoreOrderService.decHbAndUnbindOrder(pddOrder.getUid(), pddOrder);
+            suStoreOrderService.decHbAndRefundOrder(pddOrder.getUid(), pddOrder);
         });
 
         List<MailvorDyOrder> dyOrders = dyOrderService.getRefundAndBindOrderList(param.getPrior());
@@ -74,7 +77,7 @@ public class OrderRefundTask {
             if(dyOrder.getHb() == null) {
                 return;
             }
-            suStoreOrderService.decHbAndUnbindOrder(dyOrder.getUid(), dyOrder);
+            suStoreOrderService.decHbAndRefundOrder(dyOrder.getUid(), dyOrder);
         });
 
         List<MailvorVipOrder> vipOrders = vipOrderService.getRefundAndBindOrderList(param.getPrior());
@@ -82,7 +85,15 @@ public class OrderRefundTask {
             if(vipOrder.getHb() == null) {
                 return;
             }
-            suStoreOrderService.decHbAndUnbindOrder(vipOrder.getUid(), vipOrder);
+            suStoreOrderService.decHbAndRefundOrder(vipOrder.getUid(), vipOrder);
+        });
+
+        List<MailvorMtOrder> mtOrders = mtOrderService.getRefundAndBindOrderList(param.getPrior());
+        mtOrders.stream().forEach(mtOrder -> {
+            if(mtOrder.getHb() == null) {
+                return;
+            }
+            suStoreOrderService.decHbAndRefundOrder(mtOrder.getUid(), mtOrder);
         });
     }
 

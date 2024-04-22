@@ -67,6 +67,10 @@ public class MwUserQueryVo implements Serializable {
     private Double totalCash;
     @ApiModelProperty(value = "累计提现金额")
     private Double totalExtract;
+
+
+    @ApiModelProperty(value = "未解锁金额")
+    private Double unlockMoney;
     @ApiModelProperty(value = "微信信息")
     private String wxProfile;
     @ApiModelProperty(value = "支付宝信息")

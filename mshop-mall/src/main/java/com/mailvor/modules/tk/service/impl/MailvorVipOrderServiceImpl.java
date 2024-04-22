@@ -169,8 +169,8 @@ public class MailvorVipOrderServiceImpl extends BaseServiceImpl<MailvorVipOrderM
         orderMapper.bindUser(uid, orderSn);
     }
     @Override
-    public void unbindUser(String id) {
-        orderMapper.unbindUser(id);
+    public void refundOrder(String id) {
+        orderMapper.refundOrder(id);
     }
     @Override
     public Double totalCash(Long uid, LocalDateTime time) {
@@ -404,7 +404,7 @@ public class MailvorVipOrderServiceImpl extends BaseServiceImpl<MailvorVipOrderM
     }
 
     @Override
-    public List<MailvorVipOrder> getSelfUnspreadHbList(Integer day, Integer limit) {
+    public List<MailvorVipOrder> getSelfUnspreadHbList(Integer limit) {
         LambdaQueryWrapper<MailvorVipOrder> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(MailvorVipOrder::getBind, 0);
         wrapper.isNotNull(MailvorVipOrder::getUid);
@@ -412,8 +412,8 @@ public class MailvorVipOrderServiceImpl extends BaseServiceImpl<MailvorVipOrderM
 
         wrapper.ne(MailvorVipOrder::getOrderSubStatusName, VIP_NOT_VALID_ORDER_STATUS);
 
-        LocalDateTime now = LocalDateTime.now().minusDays(day);
-        wrapper.le(MailvorVipOrder::getOrderTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
+//        LocalDateTime now = LocalDateTime.now().minusDays(day);
+//        wrapper.le(MailvorVipOrder::getOrderTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
         wrapper.last("limit " + limit);
         return orderMapper.selectList(wrapper);
     }

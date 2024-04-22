@@ -34,7 +34,7 @@ public interface MailvorDyOrderMapper extends CoreMapper<MailvorDyOrder> {
     @Update("update mailvor_dy_order set uid = ${uid} where order_id = #{id}")
     void bindUser(@Param("uid")Long uid, @Param("id") String orderId);
     @Update("update mailvor_dy_order set bind = 2 where order_id = #{id}")
-    void unbindUser(@Param("id") String orderId);
+    void refundOrder(@Param("id") String orderId);
 
 
     @Select("select IFNULL(sum(integral),0) from mailvor_dy_order " +

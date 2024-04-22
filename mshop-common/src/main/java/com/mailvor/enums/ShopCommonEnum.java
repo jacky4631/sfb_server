@@ -36,6 +36,9 @@ public enum ShopCommonEnum {
     IS_STATUS_0(0,"否"),
     IS_STATUS_1(1,"是"),
 
+    IS_ORDER_STATUS_0(0,"已解锁"),
+    IS_ORDER_STATUS_1(1,"待解锁"),
+    IS_ORDER_STATUS_2(2,"失效"),
 
     IS_PROMOTER_0(0,"默认"),
     IS_PROMOTER_1(1,"是客服"),

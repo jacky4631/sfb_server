@@ -50,7 +50,7 @@ public interface MailvorPddOrderService  extends TkOrderService<MailvorPddOrder>
     List<MailvorPddOrder> getUnbindOrderList(Integer prior);
     List<MailvorPddOrder> getRefundAndBindOrderList(Integer prior);
     void bindUser(Long uid, String orderSn);
-    void unbindUser(String orderSn);
+    void refundOrder(String orderSn);
 
 
 
@@ -62,7 +62,7 @@ public interface MailvorPddOrderService  extends TkOrderService<MailvorPddOrder>
 
     void invalidRefundOrders(List<String> ids);
 
-    List<MailvorPddOrder> getSelfUnspreadHbList(Integer day, Integer limit);
+    List<MailvorPddOrder> getSelfUnspreadHbList(Integer limit);
 
 
     Long getSpreadCountToday(Long uid);

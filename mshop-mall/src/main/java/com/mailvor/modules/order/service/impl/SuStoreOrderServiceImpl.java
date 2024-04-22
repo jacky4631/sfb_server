@@ -34,21 +34,18 @@ import com.mailvor.modules.tk.domain.*;
 import com.mailvor.modules.tk.service.*;
 import com.mailvor.modules.tools.utils.CashUtils;
 import com.mailvor.modules.user.config.HbUnlockConfig;
-import com.mailvor.modules.user.domain.MwUser;
-import com.mailvor.modules.user.domain.MwUserHbScale;
-import com.mailvor.modules.user.domain.MwUserRecharge;
-import com.mailvor.modules.user.domain.MwUserUnion;
+import com.mailvor.modules.user.domain.*;
 import com.mailvor.modules.user.service.*;
 import com.mailvor.modules.utils.TkOrderFee;
 import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.OrderUtil;
 import com.mailvor.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -58,6 +55,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.mailvor.enums.ShopCommonEnum.IS_ORDER_STATUS_1;
 import static com.mailvor.utils.OrderUtil.*;
 
 
@@ -141,33 +139,33 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
      * 淘客下单奖励积分
      *
      */
-    public void gainUserIntegral(Long uid, String orderId, Date orderCreateTime, BigDecimal gainIntegral, PlatformEnum platformEnum) {
-
-        if (gainIntegral.compareTo(BigDecimal.ZERO) > 0) {
-            MwUser user = userService.getById(uid);
-            if(user == null) {
-                return;
-            }
-            BigDecimal curIntegral = user.getIntegral();
-            if(curIntegral == null) {
-                curIntegral = BigDecimal.ZERO;
-            }
-            BigDecimal newIntegral = NumberUtil.add(curIntegral, gainIntegral);
-            user.setIntegral(newIntegral);
-            userService.updateById(user);
-
-            //增加流水
-            billService.income(user.getUid(), user.getUid(),
-                    "购买" + platformEnum.getDesc() +"商品赠送积分", BillDetailEnum.CATEGORY_2.getValue(),
-                    BillDetailEnum.TYPE_11.getValue(), platformEnum.getValue(),
-                    gainIntegral.doubleValue(),
-                    newIntegral.doubleValue(),
-                    "购买" + platformEnum.getDesc() + "商品" + orderId + "赠送" + gainIntegral + "积分", orderId, orderCreateTime);
-            //发送通知
-            jPushService.push("您有" +platformEnum.getDesc()+ "新订单啦", uid);
-
-        }
-    }
+//    public void gainUserIntegral(Long uid, String orderId, Date orderCreateTime, BigDecimal gainIntegral, PlatformEnum platformEnum) {
+//
+//        if (gainIntegral.compareTo(BigDecimal.ZERO) > 0) {
+//            MwUser user = userService.getById(uid);
+//            if(user == null) {
+//                return;
+//            }
+//            BigDecimal curIntegral = user.getIntegral();
+//            if(curIntegral == null) {
+//                curIntegral = BigDecimal.ZERO;
+//            }
+//            BigDecimal newIntegral = NumberUtil.add(curIntegral, gainIntegral);
+//            user.setIntegral(newIntegral);
+//            userService.updateById(user);
+//
+//            //增加流水
+//            billService.income(user.getUid(), user.getUid(),
+//                    "购买" + platformEnum.getDesc() +"商品赠送积分", BillDetailEnum.CATEGORY_2.getValue(),
+//                    BillDetailEnum.TYPE_11.getValue(), platformEnum.getValue(),
+//                    gainIntegral.doubleValue(),
+//                    newIntegral.doubleValue(),
+//                    "购买" + platformEnum.getDesc() + "商品" + orderId + "赠送" + gainIntegral + "积分", orderId, orderCreateTime);
+//            //发送通知
+//            jPushService.push("您有" +platformEnum.getDesc()+ "新订单啦", uid);
+//
+//        }
+//    }
     /**
      * 订单失效扣除积分
      *
@@ -316,7 +314,7 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
      */
     public void gainParentMoney(MwUser origUser, BigDecimal hb, String orderId, Date orderCreateTime, Integer innerType,
                                 PlatformEnum platformEnum,
-                                double orderHb) {
+                                double orderHb, Date unlockTime) {
         //虚拟订单不分销
         if(!TkUtil.isUserOrder(innerType)) {
             return;
@@ -346,11 +344,10 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         //计算一级返佣
         BigDecimal discountOne = systemUserLevel.getDiscountOne();
         BigDecimal feeOne = OrderUtil.getRoundFee(NumberUtil.div(NumberUtil.mul(hb, discountOne), 100));
-        levelOneUser.setNowMoney(NumberUtil.add(levelOneUser.getNowMoney(), feeOne));
-        userService.updateById(levelOneUser);
+//        levelOneUser.setNowMoney(NumberUtil.add(levelOneUser.getNowMoney(), feeOne));
+//        userService.updateById(levelOneUser);
         //抽多少红包 增加多少热度
-        energyService.addEnergy(spreadUid, origUser.getUid(), platformEnum.getValue(), feeOne, 1);
-
+//        energyService.addEnergy(spreadUid, origUser.getUid(), platformEnum.getValue(), feeOne, 1);
         //增加流水
         String mark = TkUtil.getOrderBillMark(origUser.getNickname(), platformEnum.getDesc(), orderId, orderHb, discountOne.intValue(),
                 feeOne.doubleValue(), 1);
@@ -360,19 +357,19 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
                 BillDetailEnum.TYPE_13.getValue(), platformEnum.getValue(),
                 feeOne.doubleValue(),
                 levelOneUser.getNowMoney().doubleValue(),
-                mark, orderId, orderCreateTime);
+                mark, orderId, orderCreateTime, IS_ORDER_STATUS_1.getValue(), unlockTime);
         //触发刷新每日预估等信息
         RedisUtil.setFeeUid(levelOneUser.getUid());
         //发送通知
         jPushService.push(mark, levelOneUser.getUid());
 
         //计算二级返佣
-        gainLevelTwoMoney(origUser.getUid(), levelOneUser, hb, orderId, orderCreateTime, platformEnum, orderHb, origUser);
+        gainLevelTwoMoney(origUser.getUid(), levelOneUser, hb, orderId, orderCreateTime, platformEnum, orderHb, origUser, unlockTime);
     }
 
     protected void gainLevelTwoMoney(Long origUid, MwUser userInfo, BigDecimal hb, String orderId, Date orderCreateTime,
                                      PlatformEnum platformEnum,
-                                     double orderHb,MwUser baseUser) {
+                                     double orderHb,MwUser baseUser, Date unlockTime) {
         //计算二级返佣
         Long preUid = userInfo.getSpreadUid();
         if(preUid == null || preUid == 0) {
@@ -409,7 +406,7 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
                 BillDetailEnum.TYPE_13.getValue(), platformEnum.getValue(),
                 feeTwo.doubleValue(),
                 preUser.getNowMoney().doubleValue(),
-                mark, orderId, orderCreateTime);
+                mark, orderId, orderCreateTime, IS_ORDER_STATUS_1.getValue(), unlockTime);
         //触发刷新每日预估等信息
         RedisUtil.setFeeUid(preUser.getUid());
         //发送通知
@@ -440,10 +437,10 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
                 userUnionService.saveOrUpdate(userUnion);
             }
         }
-        if(order.getTkStatus() == OrderUtil.TB_NOT_VALID_ORDER_STATUS) {
-            return;
-        }
-        gainUserIntegral(uid, order.getTradeParentId().toString(), order.getTkCreateTime(), new BigDecimal(10), PlatformEnum.TB);
+//        if(order.getTkStatus() == OrderUtil.TB_NOT_VALID_ORDER_STATUS) {
+//            return;
+//        }
+//        gainUserIntegral(uid, order.getTradeParentId().toString(), order.getTkCreateTime(), new BigDecimal(10), PlatformEnum.TB);
 
     }
     @Override
@@ -451,25 +448,30 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         mtOrderService.bindUser(uid, order.getUniqueItemId());
         //设置需要刷新今日预估的用户uid
         RedisUtil.setFeeUid(uid);
-        if(!OrderUtil.MT_VALID_ORDER_STATUS.contains(order.getItemStatus())) {
-            return;
-        }
-        gainUserIntegral(uid, order.getUniqueItemId().toString(), order.getOrderPayTime(), new BigDecimal(10), PlatformEnum.MT);
+//        if(!OrderUtil.MT_VALID_ORDER_STATUS.contains(order.getItemStatus())) {
+//            return;
+//        }
+//        gainUserIntegral(uid, order.getUniqueItemId().toString(), order.getOrderPayTime(), new BigDecimal(10), PlatformEnum.MT);
 
     }
     @Override
-    public void decHbAndUnbindOrder(Long uid, MailvorTbOrder order) {
+    public void decHbAndRefundOrder(Long uid, MailvorTbOrder order) {
         if(uid == null) {
             return;
         }
+        //如果订单退款，如果账单未解锁，账单改为失效，如果账单已解锁，直接扣除余额
         Long orderId = order.getTradeParentId();
-        MwUser user = userService.getById(uid);
+        boolean invalid = invalidBillList(orderId.toString());
+        if(!invalid) {
+            //如果账单已解锁，直接扣除余额
+            MwUser user = userService.getById(uid);
 
-        BigDecimal decHb = BigDecimal.valueOf(order.getHb());
-        boolean succ = decUserHb(uid, orderId.toString(), decHb, PlatformEnum.TB, order.getTkCreateTime());
-        if(succ) {
-            tbOrderService.unbindUser(orderId);
-            decParentMoney(user, decHb, orderId.toString(), order.getTkCreateTime(), PlatformEnum.TB);
+            BigDecimal decHb = BigDecimal.valueOf(order.getHb());
+            boolean succ = decUserHb(uid, orderId.toString(), decHb, PlatformEnum.TB, order.getTkCreateTime());
+            if (succ) {
+                tbOrderService.refundOrder(orderId);
+                decParentMoney(user, decHb, orderId.toString(), order.getTkCreateTime(), PlatformEnum.TB);
+            }
         }
     }
 
@@ -478,51 +480,70 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         jdOrderService.bindUser(uid, order.getOrderId());
         //设置需要刷新今日预估的用户uid
         RedisUtil.setFeeUid(uid);
-        if(!OrderUtil.JD_VALID_ORDER_STATUS.contains(order.getValidCode())) {
-            return;
-        }
-        gainUserIntegral(uid, order.getOrderId().toString(), order.getOrderTime(), new BigDecimal(10), PlatformEnum.JD);
+//        if(!OrderUtil.JD_VALID_ORDER_STATUS.contains(order.getValidCode())) {
+//            return;
+//        }
+//        gainUserIntegral(uid, order.getOrderId().toString(), order.getOrderTime(), new BigDecimal(10), PlatformEnum.JD);
 
     }
     @Override
-    public void decHbAndUnbindOrder(Long uid, MailvorJdOrder order) {
+    public void decHbAndRefundOrder(Long uid, MailvorJdOrder order) {
         if(uid == null) {
             return;
         }
         Long orderId = order.getOrderId();
-        MwUser user = userService.getById(uid);
+        boolean invalid = invalidBillList(orderId.toString());
+        if(!invalid) {
+            MwUser user = userService.getById(uid);
 
-        BigDecimal decHb = BigDecimal.valueOf(order.getHb());
-        boolean succ = decUserHb(uid, orderId.toString(), decHb, PlatformEnum.JD, order.getOrderTime());
-        if(succ) {
-            jdOrderService.unbindUser(orderId);
-            decParentMoney(user, decHb, orderId.toString(), order.getOrderTime(), PlatformEnum.JD);
+            BigDecimal decHb = BigDecimal.valueOf(order.getHb());
+            boolean succ = decUserHb(uid, orderId.toString(), decHb, PlatformEnum.JD, order.getOrderTime());
+            if(succ) {
+                jdOrderService.refundOrder(orderId);
+                decParentMoney(user, decHb, orderId.toString(), order.getOrderTime(), PlatformEnum.JD);
+            }
         }
+    }
+    public boolean invalidBillList(String orderId) {
+        List<MwUserBill> userBills = billService.getListByOrderId(orderId);
+        if(CollectionUtils.isNotEmpty(userBills)) {
+            //由于多条记录是一起解锁，所以只判断第一条是否解锁
+            MwUserBill userBill = userBills.get(0);
+            if (userBill.getUnlockStatus() == IS_ORDER_STATUS_1.getValue()) {
+                //把订单设置为失效
+                billService.invalidByOrderId(orderId);
+                return true;
+            }
+        }
+        return false;
     }
     @Override
     public void bindOrder(Long uid, MailvorPddOrder order) {
         pddOrderService.bindUser(uid, order.getOrderSn());
         //设置需要刷新今日预估的用户uid
         RedisUtil.setFeeUid(uid);
-        if(!OrderUtil.PDD_VALID_ORDER_STATUS.contains(order.getOrderStatus())) {
-            return;
-        }
-        gainUserIntegral(uid, order.getOrderSn(), order.getOrderCreateTime(), new BigDecimal(10), PlatformEnum.PDD);
+//        if(!OrderUtil.PDD_VALID_ORDER_STATUS.contains(order.getOrderStatus())) {
+//            return;
+//        }
+//        gainUserIntegral(uid, order.getOrderSn(), order.getOrderCreateTime(), new BigDecimal(10), PlatformEnum.PDD);
 
     }
     @Override
-    public void decHbAndUnbindOrder(Long uid, MailvorPddOrder order) {
+    public void decHbAndRefundOrder(Long uid, MailvorPddOrder order) {
         if(uid == null) {
             return;
         }
         String orderId = order.getOrderSn();
-        MwUser user = userService.getById(uid);
+        boolean invalid = invalidBillList(orderId);
+        if(!invalid) {
+            MwUser user = userService.getById(uid);
 
-        BigDecimal decHb = BigDecimal.valueOf(order.getHb());
-        boolean succ = decUserHb(uid, orderId, decHb, PlatformEnum.PDD, order.getOrderCreateTime());
-        if(succ) {
-            pddOrderService.unbindUser(orderId);
-            decParentMoney(user, decHb, orderId, order.getOrderCreateTime(), PlatformEnum.PDD);
+            BigDecimal decHb = BigDecimal.valueOf(order.getHb());
+            boolean succ = decUserHb(uid, orderId, decHb, PlatformEnum.PDD, order.getOrderCreateTime());
+            if (succ) {
+                pddOrderService.refundOrder(orderId);
+                decParentMoney(user, decHb, orderId, order.getOrderCreateTime(), PlatformEnum.PDD);
+            }
         }
     }
     @Override
@@ -534,25 +555,28 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         vipOrderService.bindUser(uid, order.getOrderSn());
         //设置需要刷新今日预估的用户uid
         RedisUtil.setFeeUid(uid);
-        if(OrderUtil.VIP_NOT_VALID_ORDER_STATUS.equals(order.getOrderSubStatusName())) {
-            return;
-        }
-        gainUserIntegral(uid, order.getOrderSn(), order.getOrderTime(), new BigDecimal(10), PlatformEnum.VIP);
+//        if(OrderUtil.VIP_NOT_VALID_ORDER_STATUS.equals(order.getOrderSubStatusName())) {
+//            return;
+//        }
+//        gainUserIntegral(uid, order.getOrderSn(), order.getOrderTime(), new BigDecimal(10), PlatformEnum.VIP);
 
     }
     @Override
-    public void decHbAndUnbindOrder(Long uid, MailvorVipOrder order) {
+    public void decHbAndRefundOrder(Long uid, MailvorVipOrder order) {
         if(uid == null) {
             return;
         }
         String orderId = order.getOrderSn();
-        MwUser user = userService.getById(uid);
+        boolean invalid = invalidBillList(orderId);
+        if(!invalid) {
+            MwUser user = userService.getById(uid);
 
-        BigDecimal decHb = BigDecimal.valueOf(order.getHb());
-        boolean succ = decUserHb(uid, orderId, decHb, PlatformEnum.VIP, order.getOrderTime());
-        if(succ) {
-            vipOrderService.unbindUser(orderId);
-            decParentMoney(user, decHb, orderId, order.getOrderTime(), PlatformEnum.VIP);
+            BigDecimal decHb = BigDecimal.valueOf(order.getHb());
+            boolean succ = decUserHb(uid, orderId, decHb, PlatformEnum.VIP, order.getOrderTime());
+            if (succ) {
+                vipOrderService.refundOrder(orderId);
+                decParentMoney(user, decHb, orderId, order.getOrderTime(), PlatformEnum.VIP);
+            }
         }
     }
     @Override
@@ -561,25 +585,28 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         dyOrderService.bindUser(uid, orderId);
         //设置需要刷新今日预估的用户uid
         RedisUtil.setFeeUid(uid);
-        if(OrderUtil.DY_NOT_VALID_ORDER_STATUS.equals(order.getFlowPoint())) {
-            return;
-        }
-        gainUserIntegral(uid, orderId, order.getPaySuccessTime(), new BigDecimal(10), PlatformEnum.DY);
+//        if(OrderUtil.DY_NOT_VALID_ORDER_STATUS.equals(order.getFlowPoint())) {
+//            return;
+//        }
+//        gainUserIntegral(uid, orderId, order.getPaySuccessTime(), new BigDecimal(10), PlatformEnum.DY);
     }
 
     @Override
-    public void decHbAndUnbindOrder(Long uid, MailvorDyOrder order) {
+    public void decHbAndRefundOrder(Long uid, MailvorDyOrder order) {
         if(uid == null) {
             return;
         }
         String orderId = order.getOrderId();
-        MwUser user = userService.getById(uid);
+        boolean invalid = invalidBillList(orderId);
+        if(!invalid) {
+            MwUser user = userService.getById(uid);
 
-        BigDecimal decHb = BigDecimal.valueOf(order.getHb());
-        boolean succ = decUserHb(uid, orderId, decHb, PlatformEnum.DY, order.getPaySuccessTime());
-        if(succ) {
-            dyOrderService.unbindUser(orderId);
-            decParentMoney(user, decHb, orderId, order.getPaySuccessTime(), PlatformEnum.DY);
+            BigDecimal decHb = BigDecimal.valueOf(order.getHb());
+            boolean succ = decUserHb(uid, orderId, decHb, PlatformEnum.DY, order.getPaySuccessTime());
+            if (succ) {
+                dyOrderService.refundOrder(orderId);
+                decParentMoney(user, decHb, orderId, order.getPaySuccessTime(), PlatformEnum.DY);
+            }
         }
     }
     /**
@@ -588,19 +615,20 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
      */
     public void incUserMoney(Long uid, String orderId, Date orderCreateTime,
                              BigDecimal incMoney,
-                             PlatformEnum platformEnum) {
+                             PlatformEnum platformEnum,
+                             Date unlockTime) {
         if (incMoney.compareTo(BigDecimal.ZERO) > 0) {
-            userService.incMoney(uid, incMoney);
+//            userService.incMoney(uid, incMoney);
             MwUser user = userService.getById(uid);
             if(user == null) {
                 return;
             }
             //抽多少红包 增加多少热度 只有前五大平台才增加热度
-            if(platformEnum == PlatformEnum.TB || platformEnum == PlatformEnum.JD ||
-                    platformEnum == PlatformEnum.PDD || platformEnum == PlatformEnum.DY ||
-                    platformEnum == PlatformEnum.VIP) {
-                energyService.addEnergy(uid, uid, platformEnum.getValue(), incMoney, 1);
-            }
+//            if(platformEnum == PlatformEnum.TB || platformEnum == PlatformEnum.JD ||
+//                    platformEnum == PlatformEnum.PDD || platformEnum == PlatformEnum.DY ||
+//                    platformEnum == PlatformEnum.VIP) {
+//                energyService.addEnergy(uid, uid, platformEnum.getValue(), incMoney, 1);
+//            }
             String mark = TkUtil.getSelfOrderBillMark(platformEnum.getDesc(),
                         orderId, incMoney.doubleValue());
             String title = TkUtil.getOrderBillTitle(null, platformEnum.getDesc(), 0);
@@ -610,7 +638,27 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
                     platformEnum.getValue(),
                     incMoney.doubleValue(),
                     user.getNowMoney().doubleValue(),
-                    mark, orderId, orderCreateTime);
+                    mark, orderId, orderCreateTime, unlockTime);
+        }
+    }
+    @Override
+    public void decHbAndRefundOrder(Long uid, MailvorMtOrder order) {
+        if(uid == null) {
+            return;
+        }
+        //如果订单退款，如果账单未解锁，账单改为失效，如果账单已解锁，直接扣除余额
+        Long orderId = order.getUniqueItemId();
+        boolean invalid = invalidBillList(orderId.toString());
+        if(!invalid) {
+            //如果账单已解锁，直接扣除余额
+            MwUser user = userService.getById(uid);
+
+            BigDecimal decHb = BigDecimal.valueOf(order.getHb());
+            boolean succ = decUserHb(uid, orderId.toString(), decHb, PlatformEnum.MT, order.getOrderPayTime());
+            if (succ) {
+                mtOrderService.refundOrder(orderId);
+                decParentMoney(user, decHb, orderId.toString(), order.getOrderPayTime(), PlatformEnum.MT);
+            }
         }
     }
 
@@ -620,7 +668,7 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
                                    PlatformEnum platformEnum,
                                    BigDecimal discountOne) {
         if (incMoney.compareTo(BigDecimal.ZERO) > 0) {
-            userService.incMoney(uid, incMoney);
+//            userService.incMoney(uid, incMoney);
             MwUser user = userService.getById(uid);
             if(user == null) {
                 return;
@@ -634,17 +682,19 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
                         incMoney.doubleValue());
             String title = TkUtil.getEnergyOrderBillTitle(platformEnum.getDesc());
             jPushService.push(mark, uid);
+            Integer curLevel = TkUtil.getLevel(platformEnum.getValue(), user);
+            Date unlockTime = getUnlockTime(uid, orderCreateTime, curLevel);
 
             //增加流水
             incomeOrderBill(uid, origUid, title,
                     platformEnum.getValue(),
                     incMoney.doubleValue(),
                     user.getNowMoney().doubleValue(),
-                    mark, orderId, orderCreateTime);
+                    mark, orderId, orderCreateTime, unlockTime);
         }
     }
     public void incomeOrderBill(Long uid,Long origUid,String title, String platform, double number,
-                                double balance,String mark,String linkid, Date orderCreateTime) {
+                                double balance,String mark,String linkid, Date orderCreateTime, Date unlockTime) {
         //增加流水
         billService.income(uid, origUid, title,
                 BillDetailEnum.CATEGORY_1.getValue(),
@@ -652,7 +702,7 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
                 platform,
                 number,
                 balance,
-                mark, linkid, orderCreateTime);
+                mark, linkid, orderCreateTime, IS_ORDER_STATUS_1.getValue(), unlockTime);
     }
 
     public double getHb(Double commission, String platform, MwUser user) {
@@ -697,7 +747,7 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
     }
 
     @Override
-    public Map<String, Double> incMoneyAndBindOrder(Long uid, TkOrder order) {
+    public Map<String, Double> incMoneyAndBindOrder(Long uid, TkOrder order, Date unlockTime) {
         TkOrderFee orderFee = TkUtil.getOrderFee(order);
         double commission = orderFee.getCommission();
         String orderId = orderFee.getOrderId();
@@ -740,9 +790,9 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         updateOrder(order);
 
         //更新用户余额
-        incUserMoney(uid, orderId.toString(), createTime, baseHb, platform);
+        incUserMoney(uid, orderId.toString(), createTime, baseHb, platform, unlockTime);
         //1级返利 2级返利
-        gainParentMoney(user, new BigDecimal(hb), orderId, createTime, order.getInnerType(), platform, order.getHb());
+        gainParentMoney(user, new BigDecimal(hb), orderId, createTime, order.getInnerType(), platform, order.getHb(), unlockTime);
         Map map = new HashMap();
         map.put("hb", hb);
         map.put("baseHb", baseHb.doubleValue());
@@ -842,7 +892,7 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
     }
 
     @Override
-    public void checkOrder(TkOrder tkOrder, Long uid) {
+    public Date checkOrder(TkOrder tkOrder, Long uid) {
         if(tkOrder == null) {
             throw new MshopException("订单不存在");
         }
@@ -946,27 +996,31 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
             fee = mtOrder.getBalanceAmount();
             level = user.getLevelVip();
         }
+        return getUnlockTime(uid, createTime, level);
+//
+//        String remain = CashUtils.getRemainDate(unlockDay, createTime.getTime()/1000, fee, tkOrder.getInnerType());
+//
+//        //ok说明已解锁，不是ok尚未解锁
+//        if(!"ok".equals(remain)) {
+//            throw new MshopException("订单尚未解锁");
+//        }
+
+    }
+
+    public Date getUnlockTime(Long uid, Date orderCreateTime, Integer level) {
         Integer refund = poolService.getRefund(uid);
 
         HbUnlockConfig unlockConfig = systemConfigService.getHbUnlockConfig();
         Integer unlockDay = TkUtil.getUnlockDay(level, refund, unlockConfig);
-
-        String remain = CashUtils.getRemainDate(unlockDay, createTime.getTime()/1000, fee, tkOrder.getInnerType());
-
-        //ok说明已解锁，不是ok尚未解锁
-        if(!"ok".equals(remain)) {
-            throw new MshopException("订单尚未解锁");
-        }
-
+        return DateUtil.offsetDay(orderCreateTime, unlockDay);
     }
-
 
     /**
      * 检查自购订单 不查数据库
      * 超过解锁天数3天的解锁
      * */
     @Override
-    public boolean checkSelfOrder(TkOrder tkOrder, UserRefundDto user, HbUnlockConfig unlockConfig) {
+    public Date checkSelfOrder(TkOrder tkOrder, UserRefundDto user, HbUnlockConfig unlockConfig) {
 
         if(user == null
                 || tkOrder == null
@@ -974,7 +1028,7 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
                 || !user.getUid().equals(tkOrder.getUid())
                 || !TkUtil.isUserOrder(tkOrder.getInnerType())
                 ||tkOrder.getBind() != 0) {
-            return false;
+            return null;
         }
 
         Long uid = tkOrder.getUid();
@@ -986,11 +1040,11 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
             if(OrderUtil.TB_NOT_VALID_ORDER_STATUS.equals(tbOrder.getTkStatus())
                     || tbOrder.getRefundTag() == 1
                     || tbOrder.getAlipayTotalPrice() <= 0) {
-                return false;
+                return null;
             }
             //如果今天拆的自购红包超过设定数量 不能继续拆
             if(tbOrderService.getSpreadCountToday(uid) >= systemConfigService.getSpreadHbCount()) {
-                return false;
+                return null;
             }
             createTime = tbOrder.getTkCreateTime();
             fee = tbOrder.getPubSharePreFee();
@@ -998,10 +1052,10 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         } else if (tkOrder instanceof MailvorJdOrder) {
             MailvorJdOrder jdOrder = (MailvorJdOrder) tkOrder;
             if(!OrderUtil.JD_VALID_ORDER_STATUS.contains(jdOrder.getValidCode()) || jdOrder.getEstimateCosPrice() <=0) {
-                return false;
+                return null;
             }
             if(jdOrderService.getSpreadCountToday(uid) >= systemConfigService.getSpreadHbCount()) {
-                return false;
+                return null;
             }
             createTime = jdOrder.getOrderTime();
             fee = jdOrder.getEstimateFee();
@@ -1009,10 +1063,10 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         }else if (tkOrder instanceof MailvorPddOrder) {
             MailvorPddOrder pddOrder = (MailvorPddOrder) tkOrder;
             if(!OrderUtil.PDD_VALID_ORDER_STATUS.contains(pddOrder.getOrderStatus()) || pddOrder.getOrderAmount() <= 0) {
-                return false;
+                return null;
             }
             if(pddOrderService.getSpreadCountToday(uid) >= systemConfigService.getSpreadHbCount()) {
-                return false;
+                return null;
             }
             createTime = pddOrder.getOrderCreateTime();
             fee = pddOrder.getPromotionAmount()/100;
@@ -1020,10 +1074,10 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         }else if (tkOrder instanceof MailvorDyOrder) {
             MailvorDyOrder dyOrder = (MailvorDyOrder) tkOrder;
             if(DY_NOT_VALID_ORDER_STATUS.equals(dyOrder.getFlowPoint()) || dyOrder.getTotalPayAmount() <= 0) {
-                return false;
+                return null;
             }
             if(dyOrderService.getSpreadCountToday(uid) >= systemConfigService.getSpreadHbCount()) {
-                return false;
+                return null;
             }
             createTime = dyOrder.getPaySuccessTime();
             fee = dyOrder.getEstimatedTotalCommission();
@@ -1031,24 +1085,24 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         }else if (tkOrder instanceof MailvorVipOrder) {
             MailvorVipOrder vipOrder = (MailvorVipOrder) tkOrder;
             if(VIP_NOT_VALID_ORDER_STATUS.equals(vipOrder.getOrderSubStatusName()) || Double.parseDouble(vipOrder.getTotalCost()) <= 0) {
-                return false;
+                return null;
             }
             if(vipOrderService.getSpreadCountToday(uid) >= systemConfigService.getSpreadHbCount()) {
-                return false;
+                return null;
             }
             createTime = vipOrder.getOrderTime();
             fee = Double.parseDouble(vipOrder.getCommission());
             level = user.getLevelVip();
         }
-
-        Integer unlockDay = TkUtil.getUnlockDay(level, user.getRefund(), unlockConfig);
-
-        //超过3天可以自动拆红包
-        String remain = CashUtils.getRemainDate(unlockDay + 3,
-                createTime.getTime()/1000, fee, tkOrder.getInnerType());
-
-        //ok说明已解锁，不是ok尚未解锁
-        return "ok".equals(remain);
+        return getUnlockTime(uid, createTime, level);
+//        Integer unlockDay = TkUtil.getUnlockDay(level, user.getRefund(), unlockConfig);
+//
+//        //超过3天可以自动拆红包
+//        String remain = CashUtils.getRemainDate(unlockDay + 3,
+//                createTime.getTime()/1000, fee, tkOrder.getInnerType());
+//
+//        //ok说明已解锁，不是ok尚未解锁
+//        return "ok".equals(remain);
 
     }
 }

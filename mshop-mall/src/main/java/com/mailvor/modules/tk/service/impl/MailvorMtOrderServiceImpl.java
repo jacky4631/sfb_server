@@ -188,8 +188,8 @@ public class MailvorMtOrderServiceImpl extends BaseServiceImpl<MailvorMtOrderMap
         orderMapper.bindUser(uid, id);
     }
     @Override
-    public void unbindUser(Long id) {
-        orderMapper.unbindUser(id);
+    public void refundOrder(Long id) {
+        orderMapper.refundOrder(id);
     }
     @Override
     public Double totalCash(Long uid, LocalDateTime time) {

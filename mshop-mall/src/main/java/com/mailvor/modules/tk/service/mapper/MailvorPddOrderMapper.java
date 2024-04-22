@@ -34,7 +34,7 @@ public interface MailvorPddOrderMapper extends CoreMapper<MailvorPddOrder> {
     @Update("update mailvor_pdd_order set uid = ${uid} where order_sn = #{id}")
     void bindUser(@Param("uid")Long uid, @Param("id") String orderSn);
     @Update("update mailvor_pdd_order set bind = 2 where order_sn = #{id}")
-    void unbindUser(@Param("id") String orderSn);
+    void refundOrder(@Param("id") String orderSn);
 
 
     @Select("select IFNULL(sum(integral),0) from mailvor_pdd_order " +

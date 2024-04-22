@@ -196,8 +196,8 @@ sku维度的有效码（-1：未知,2.无效-拆单,3.无效-取消,4.无效-京
         orderMapper.bindUser(uid, id);
     }
     @Override
-    public void unbindUser(Long id) {
-        orderMapper.unbindUser(id);
+    public void refundOrder(Long id) {
+        orderMapper.refundOrder(id);
     }
     @Override
     public Double totalCash(Long uid, LocalDateTime time) {
@@ -418,7 +418,7 @@ sku维度的有效码（-1：未知,2.无效-拆单,3.无效-取消,4.无效-京
 
 
     @Override
-    public List<MailvorJdOrder> getSelfUnspreadHbList(Integer day, Integer limit) {
+    public List<MailvorJdOrder> getSelfUnspreadHbList(Integer limit) {
         LambdaQueryWrapper<MailvorJdOrder> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(MailvorJdOrder::getIsDel, CommonEnum.DEL_STATUS_0.getValue());
         wrapper.eq(MailvorJdOrder::getBind, 0);
@@ -427,9 +427,9 @@ sku维度的有效码（-1：未知,2.无效-拆单,3.无效-取消,4.无效-京
         wrapper.gt(MailvorJdOrder::getEstimateCosPrice, 0);
         wrapper.in(MailvorJdOrder::getValidCode, JD_VALID_ORDER_STATUS);
 
-        LocalDateTime now = LocalDateTime.now().minusDays(day);
-        //查找day之前的订单
-        wrapper.lt(MailvorJdOrder::getOrderTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
+//        LocalDateTime now = LocalDateTime.now().minusDays(day);
+//        //查找day之前的订单
+//        wrapper.lt(MailvorJdOrder::getOrderTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
         wrapper.last("limit " + limit);
         return orderMapper.selectList(wrapper);
     }

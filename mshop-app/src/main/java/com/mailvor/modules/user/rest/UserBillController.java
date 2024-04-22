@@ -44,10 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @ClassName UserBillController
@@ -284,7 +281,6 @@ public class UserBillController {
         }else if("jd".equals(type)) {
             LambdaQueryWrapper<MailvorJdOrder> wrapperO = new LambdaQueryWrapper<>();
             wrapperO.eq(MailvorJdOrder::getOrderId, orderId)
-                    .eq(MailvorJdOrder::getSkuId, skuId)
                     .eq(MailvorJdOrder::getBind, 0)
                     .ne(MailvorJdOrder::getPrice, 0).last("limit 1");
             tkOrder =  jdOrderService.getOne(wrapperO);
@@ -297,8 +293,8 @@ public class UserBillController {
         }else if("mt".equals(type)) {
             tkOrder = mtOrderService.getById(orderId);
         }
-        suStoreOrderService.checkOrder(tkOrder, uid);
-        Map map = suStoreOrderService.incMoneyAndBindOrder(uid, tkOrder);
+        Date unlockTime = suStoreOrderService.checkOrder(tkOrder, uid);
+        Map map = suStoreOrderService.incMoneyAndBindOrder(uid, tkOrder, unlockTime);
         return ApiResult.ok(map);
     }
 

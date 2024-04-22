@@ -57,7 +57,7 @@ public interface MailvorMtOrderService extends TkOrderService<MailvorMtOrder> {
                              Double rate, Double fee,  Double payPrice,String img,String title,
                              String link, String itemId, Integer innerType);
     void bindUser(Long uid, Long id);
-    void unbindUser(Long id);
+    void refundOrder(Long id);
 
     void invalidRefundOrders(List<Long> ids);
 

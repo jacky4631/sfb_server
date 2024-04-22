@@ -50,7 +50,7 @@ public interface MailvorDyOrderService  extends TkOrderService<MailvorDyOrder> {
     List<MailvorDyOrder> getUnbindOrderList(Integer prior);
     List<MailvorDyOrder> getRefundAndBindOrderList(Integer prior);
     void bindUser(Long uid, String orderId);
-    void unbindUser(String id);
+    void refundOrder(String id);
 
 
     Set<MailvorDyOrder> selectCashOrderIds(Long uid, LocalDateTime time);
@@ -61,7 +61,7 @@ public interface MailvorDyOrderService  extends TkOrderService<MailvorDyOrder> {
 
     void invalidRefundOrders(List<String> ids);
 
-    List<MailvorDyOrder> getSelfUnspreadHbList(Integer day, Integer limit);
+    List<MailvorDyOrder> getSelfUnspreadHbList(Integer limit);
 
 
     Long getSpreadCountToday(Long uid);

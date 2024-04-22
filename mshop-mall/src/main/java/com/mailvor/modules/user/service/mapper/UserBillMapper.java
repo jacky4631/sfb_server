@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -85,4 +86,13 @@ public interface UserBillMapper extends CoreMapper<MwUserBill> {
             "<if test =\"search !=''\">and (b.uid LIKE CONCAT('%',#{search},'%') or b.mark LIKE CONCAT('%',#{search},'%') or u.nickname LIKE CONCAT('%',#{search},'%'))</if>" +
             "order by b.create_time desc </script> ")
     List<MwUserBillDto> findAllByQueryCriteria(@Param("category") String category, @Param("type") String type, @Param("search") String search, @Param("pm") Integer pm, @Param("date")String date, @Param("date1")String date1, @Param("title")String title);
+
+    @Update( "update mw_user_bill set unlock_status = 2 where link_id = #{id}")
+    void invalidByOrderId(@Param("id") String id);
+
+    @Select("select IFNULL(sum(number),0) from mw_user_bill " +
+            "where unlock_status=1 and category='now_money' " +
+            "and uid=#{uid}")
+    double sumUnlockMoney(@Param("uid") Long uid);
+
 }
