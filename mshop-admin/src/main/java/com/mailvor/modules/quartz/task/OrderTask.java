@@ -153,6 +153,10 @@ public class OrderTask {
                 if(order.getParentId() != 0) {
                     parentIdMap.put(order.getParentId(), order.getParentId());
                 }
+                //京东skuid为空导致拆红包异常，暂时生成时间戳
+                if(order.getSkuId() == null) {
+                    order.setSkuId(System.currentTimeMillis());
+                }
                 //绑定用户
                 Long uid = OrderUtil.getJdOrderUser(order.getPositionId());
                 if(uid > 0) {
