@@ -522,7 +522,7 @@ public class StoreOrderController {
     @ApiOperation(value = "提交订单", notes = "提交订单")
     public ApiResult submitOrder(@Validated @RequestBody SubmitOrderParam param) throws ExecutionException, InterruptedException {
         MwUser mwUser = LocalUser.getUser();
-        tkService.submitOrder(param.getOrderId(), mwUser.getUid());
+        tkService.submitOrder(param.getOrderId(), mwUser.getUid(), true);
         return ApiResult.ok();
 
     }

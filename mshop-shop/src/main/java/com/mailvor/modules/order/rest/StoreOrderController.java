@@ -258,7 +258,7 @@ public class StoreOrderController {
     @PreAuthorize("hasAnyRole('admin','MWSTOREORDER_ALL','MWSTOREORDER_EDIT')")
     public ResponseEntity editOrder(@RequestBody TkOrderParam param) throws ExecutionException, InterruptedException {
 
-        tkService.submitOrder(param.getOrderId(), param.getUid());
+        tkService.submitOrder(param.getOrderId(), param.getUid(), false);
         return new ResponseEntity(HttpStatus.OK);
     }
 

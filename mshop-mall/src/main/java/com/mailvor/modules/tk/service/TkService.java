@@ -235,7 +235,7 @@ public class TkService {
         return res;
     }
     @Transactional
-    public void submitOrder(String origOrderId, Long uid) throws ExecutionException, InterruptedException {
+    public void submitOrder(String origOrderId, Long uid, boolean checkBinding) throws ExecutionException, InterruptedException {
         log.info("用户{} 提交订单号 {}", uid, origOrderId);
         //美团订单有空格 需要清除
         String orderId = origOrderId.replace(" ", "");
@@ -277,28 +277,40 @@ public class TkService {
                 if(excludePids.contains(tbOrder.getAdzoneId().toString())){
                     throw new MshopException("订单不存在");
                 }
-                checkBinding(tbOrder.getBind(), uid, tbOrder.getUid());
+                if(checkBinding) {
+                    checkBinding(tbOrder.getBind(), uid, tbOrder.getUid());
+                }
                 suStoreOrderService.bindOrder(uid, tbOrder);
             }
             //保存用户追单号
             mwUserService.updateAdditionalNo(uid, DateUtils.getAdditionalNo(orderId));
         } else if (!CollectionUtils.isEmpty(jdOrders)) {
             for(MailvorJdOrder jdOrder: jdOrders) {
-                checkBinding(jdOrder.getBind(), uid, jdOrder.getUid());
+                if(checkBinding) {
+                    checkBinding(jdOrder.getBind(), uid, jdOrder.getUid());
+                }
                 suStoreOrderService.bindOrder(uid, jdOrder);
             }
         } else if (pddOrder != null) {
-            checkBinding(pddOrder.getBind(), uid, pddOrder.getUid());
+            if(checkBinding) {
+                checkBinding(pddOrder.getBind(), uid, pddOrder.getUid());
+            }
             suStoreOrderService.bindOrder(uid, pddOrder);
         } else if (vipOrder != null) {
-            checkBinding(vipOrder.getBind(), uid, vipOrder.getUid());
+            if(checkBinding) {
+                checkBinding(vipOrder.getBind(), uid, vipOrder.getUid());
+            }
             suStoreOrderService.bindOrder(uid, vipOrder);
         } else if (dyOrder != null) {
-            checkBinding(dyOrder.getBind(), uid, dyOrder.getUid());
+            if(checkBinding) {
+                checkBinding(dyOrder.getBind(), uid, dyOrder.getUid());
+            }
             suStoreOrderService.bindOrder(uid, dyOrder);
         } else if (!CollectionUtils.isEmpty(mtOrders)) {
             for(MailvorMtOrder mtOrder1: mtOrders) {
-                checkBinding(mtOrder1.getBind(), uid, mtOrder1.getUid());
+                if(checkBinding) {
+                    checkBinding(mtOrder1.getBind(), uid, mtOrder1.getUid());
+                }
                 suStoreOrderService.bindOrder(uid, mtOrder1);
             }
         }
