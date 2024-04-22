@@ -52,5 +52,5 @@ public interface TkOrderService<T> extends IService<T> {
     Double totalPrice(Integer type, List<Long> uid, Integer innerType);
     Double totalPrice(Integer type, List<Long> uid, Integer innerType, boolean skipInvalid);
 
-    Double totalHb(Integer type, boolean isVip);
+    Double totalHb(Integer type);
 }

@@ -374,31 +374,26 @@ public class MailvorMtOrderServiceImpl extends BaseServiceImpl<MailvorMtOrderMap
     }
 
     @Override
-    public Double totalHb(Integer type, boolean isVip){
+    public Double totalHb(Integer type){
         switch (type){
             case 1:
-                return orderMapper.sumHb(getHbWrapper(DateUtils.getToday(), null, isVip));
+                return orderMapper.sumHb(getHbWrapper(DateUtils.getToday(), null));
             case 2:
-                return orderMapper.sumHb(getHbWrapper(DateUtils.getProDay(), DateUtils.getToday(), isVip));
+                return orderMapper.sumHb(getHbWrapper(DateUtils.getProDay(), DateUtils.getToday()));
             case 3:
-                return orderMapper.sumHb(getHbWrapper(DateUtils.getMonth(), null, isVip));
+                return orderMapper.sumHb(getHbWrapper(DateUtils.getMonth(), null));
             case 4:
-                return orderMapper.sumHb(getHbWrapper(DateUtils.getProMonth(), DateUtils.getMonth(), isVip));
+                return orderMapper.sumHb(getHbWrapper(DateUtils.getProMonth(), DateUtils.getMonth()));
             case 5:
-                return orderMapper.sumHb(getHbWrapper(DateUtils.get30Day(), null, isVip));
+                return orderMapper.sumHb(getHbWrapper(DateUtils.get30Day(), null));
             case 6:
-                return orderMapper.sumHb(getHbWrapper(DateUtils.get7Day(), null, isVip));
+                return orderMapper.sumHb(getHbWrapper(DateUtils.get7Day(), null));
         }
         return 0.0;
     }
 
-    private LambdaQueryWrapper<MailvorMtOrder> getHbWrapper(Date start, Date end, boolean isVip) {
+    private LambdaQueryWrapper<MailvorMtOrder> getHbWrapper(Date start, Date end) {
         LambdaQueryWrapper<MailvorMtOrder> wrapper = new LambdaQueryWrapper<>();
-        if(isVip) {
-            wrapper.gt(MailvorMtOrder::getShopHb, 0);
-        } else {
-            wrapper.eq(MailvorMtOrder::getShopHb, 0);
-        }
 
         wrapper.eq(MailvorMtOrder::getInnerType, 0);
 
