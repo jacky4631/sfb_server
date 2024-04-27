@@ -282,25 +282,27 @@ public class DataokeController {
         if(goodQueryParam.getPageId() == 1 && LocalUser.getUser() != null) {
             Long uid = LocalUser.getUser().getUid();
             MwUserUnion userUnion = userUnionService.getOne(uid);
-            getUse(userUnion);
-            if(userUnion.getTljData() != null && !CollectionUtils.isEmpty(userUnion.getTljData().getData())){
-                for(JSONObject data : userUnion.getTljData().getData()) {
-                    JSONObject detail = data.getJSONObject("detail");
-                    //表明淘礼金已经发送，可能未领取 未使用
-                    detail.put("tljSend", true);
-                    boolean tljGet = data.getDoubleValue("get_rate")==100;
-                    detail.put("tljGet", tljGet);
-                    boolean used = data.getDoubleValue("use_rate")==100;
-                    detail.put("tljUse", used);
-                    detail.put("tljBind", data.getLongValue("orderId") != 0);
-                    //如果未使用 领取时间超过一天 显示过期
-                    if(tljGet && !used) {
-                        long betweenDay = DateUtil.betweenDay(DateUtil.parseDateTime(data.getString("getTljDate")), new Date(), false);
-                        detail.put("tljExpired", betweenDay >= 1);
+            if(userUnion != null) {
+                getUse(userUnion);
+                if(userUnion.getTljData() != null && !CollectionUtils.isEmpty(userUnion.getTljData().getData())){
+                    for(JSONObject data : userUnion.getTljData().getData()) {
+                        JSONObject detail = data.getJSONObject("detail");
+                        //表明淘礼金已经发送，可能未领取 未使用
+                        detail.put("tljSend", true);
+                        boolean tljGet = data.getDoubleValue("get_rate")==100;
+                        detail.put("tljGet", tljGet);
+                        boolean used = data.getDoubleValue("use_rate")==100;
+                        detail.put("tljUse", used);
+                        detail.put("tljBind", data.getLongValue("orderId") != 0);
+                        //如果未使用 领取时间超过一天 显示过期
+                        if(tljGet && !used) {
+                            long betweenDay = DateUtil.betweenDay(DateUtil.parseDateTime(data.getString("getTljDate")), new Date(), false);
+                            detail.put("tljExpired", betweenDay >= 1);
+                        }
+                        res.getJSONObject("data").getJSONArray("list").add(0, detail);
                     }
-                    res.getJSONObject("data").getJSONArray("list").add(0, detail);
-                }
 
+                }
             }
         }
         return res;
