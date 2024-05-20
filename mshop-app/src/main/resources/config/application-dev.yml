@@ -141,6 +141,8 @@ tb:
     excludes: 110957850490,147894334
     # todo 渠道pid
     channelPid: mm_52650383_39582271_114587650437
+    # todo 淘礼金pid 建议和渠道pid分开
+    tljPid: mm_52650383_3088500089_115682150104
 # todo 极光推送
 jpush:
   key: xxxxxxdeec4ebxxxxxx31551
