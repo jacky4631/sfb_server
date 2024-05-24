@@ -2,35 +2,13 @@
 
 
 #### 项目简介
-mshop基于当前流行技术组合的前后端分离商城系统： SpringBoot2+Jpa+MybatisPlus+SpringSecurity+jwt+redis+Vue的前后端分离的商城系统， 包含商城、拼团、砍价、商户管理、 秒杀、优惠券、积分、分销、会员、充值、到店核销等功能，更适合企业或个人二次开发；；
+mshop基于当前流行技术组合的前后端分离商城系统： SpringBoot2+MybatisPlus+SpringSecurity+jwt+redis+Vue的前后端分离的商城系统， 包含淘客系统、积分商城、会员、充值等功能，更适合企业或个人二次开发；
 
-#### 官网地址：https://www.mailvor.com
-
-
-## 商城功能
-
-* 一：商品模块：商品添加、规格设置，商品上下架等
-* 二：订单模块：下单、购物车、支付，发货、收货、评价、退款等
-* 三：营销模块：积分、优惠券、分销、砍价、拼团、秒杀(、到店核销等
-* 四：微信模块：自定义菜单、自动回复、微信授权、图文管理、模板消息推送
-* 五：配置模块：各种配置
-* 六：用户模块：登陆、注册、会员卡等
-* 七：其他等
-       
-
-####  已经完成功能
-- 可以具体查看演示地址查看当前版本已经完成的功能，不再絮叨啦
-
-####  重要通知
-关于log4j2漏洞说明
-- 方式一：拉最新的代码，重新打包运行应用
-- 方式二：不更新代码，直接加启动参数，如下：
-- java -Dlog4j2.formatMsgNoLookups=true -jar mshop-app-3.2.jar
-- java -Dlog4j2.formatMsgNoLookups=true -jar mshop-admin-3.2.jar
+#### 官网地址：https://www.mailvor.com 
 
 #### 项目结构
 mshop3.0项目采用分模块开发方式
-- mshop-app       移动端API模块（H5+uniapp端的API）
+- mshop-app       移动端API模块
 - mshop-admin     管理后台模块
 - mshop-weixin    微信相关模块
 - mshop-mall      商城公共模块
@@ -46,7 +24,7 @@ mshop3.0项目采用分模块开发方式
 ## 技术选型
 * 1 后端使用技术
     * 1.1 SpringBoot2
-    * 1.2 mybatis、MyBatis-Plus
+    * 1.2 MyBatis、MyBatis-Plus
     * 1.3 SpringSecurity
     * 1.5 Druid
     * 1.6 Slf4j
@@ -66,8 +44,6 @@ mshop3.0项目采用分模块开发方式
     * 2.1 Vue 全家桶
     * 2.2 Element
 	* 2.3 uniapp
-
-java -jar -Dspring.profiles.active=prod application.jar
 
 开发注意事项
   -系统工具-代码生成 生成增删改查
