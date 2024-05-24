@@ -102,7 +102,3 @@ jwt:
 smms:
   token: 1oOP3ykFDI0K6ifmtvU7c8Y1eTWZSlyl
 
-pay:
-  adapay:
-    payMode: "delay"
-

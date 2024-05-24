@@ -179,8 +179,6 @@ shop:
 
 #app多平台支持 一般不用设置
 pay:
-  adapay:
-    payMode: "delay"
   goods:
     title: "SufenbaoService"
     desc: "SufenbaoService"
