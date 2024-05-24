@@ -379,6 +379,7 @@ public class MwUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, MwUse
         LambdaQueryWrapper<MwUserBill> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(MwUserBill::getCategory, CATEGORY_1.getValue());
         wrapper.eq(MwUserBill::getUnlockStatus, IS_ORDER_STATUS_1.getValue());
+        wrapper.le(MwUserBill::getUnlockTime, new Date());
 
         wrapper.last("limit " + limit);
         return mwUserBillMapper.selectList(wrapper);
