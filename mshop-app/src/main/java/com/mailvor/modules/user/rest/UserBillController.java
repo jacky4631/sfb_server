@@ -114,10 +114,11 @@ public class UserBillController {
                                       @RequestParam(value = "limit",defaultValue = "10") int limit,
                                       @RequestParam(value = "category",defaultValue = "integral") String category,
                                       @RequestParam(value = "type") String type,
-                                      @RequestParam(value = "platform") String platform){
+                                      @RequestParam(value = "platform") String platform,
+                                      @RequestParam(value = "unlockStatus", required = false) Integer unlockStatus){
         Long uid = LocalUser.getUser().getUid();
         Map<String, Object> map = userBillService.userBillList(uid, category, type, platform
-                ,page, limit);
+                ,page, limit, unlockStatus);
         Long total = (Long) map.get("total");
         //todo 分页貌似没实现
         Long totalPage = (Long) map.get("totalPage");

@@ -296,7 +296,7 @@ public class MwUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, MwUse
      * @return List
      */
     @Override
-    public Map<String, Object> userBillList(Long uid,String category,String type, String platform, int page,int limit) {
+    public Map<String, Object> userBillList(Long uid,String category,String type, String platform, int page,int limit, Integer unlockStatus) {
        LambdaQueryWrapper<MwUserBill> wrapper = new LambdaQueryWrapper<>();
         wrapper
                 .eq(MwUserBill::getUid,uid)
@@ -307,6 +307,10 @@ public class MwUserBillServiceImpl extends BaseServiceImpl<UserBillMapper, MwUse
         }
         if(StringUtils.isNotBlank(platform)) {
             wrapper.eq(MwUserBill::getPlatform,platform);
+        }
+
+        if(unlockStatus != null) {
+            wrapper.eq(MwUserBill::getUnlockStatus,unlockStatus);
         }
         Page<MwUserBill> pageModel = new Page<>(page, limit);
         IPage<MwUserBill> pageList = mwUserBillMapper.selectPage(pageModel,wrapper);

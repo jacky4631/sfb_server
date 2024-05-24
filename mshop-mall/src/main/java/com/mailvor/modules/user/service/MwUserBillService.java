@@ -92,7 +92,7 @@ public interface MwUserBillService extends BaseService<MwUserBill>{
      * @param limit limit
      * @return List
      */
-    Map<String, Object> userBillList(Long uid,String category,String type, String platform, int page,int limit);
+    Map<String, Object> userBillList(Long uid,String category,String type, String platform, int page,int limit, Integer unlockStatus);
 
     /**
     * 查询数据分页
