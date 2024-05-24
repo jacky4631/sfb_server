@@ -80,7 +80,3 @@ pagehelper:
   reasonable: true
   supportMethodsArguments: true
   params: count=countSql
-
-pay:
-  adapay:
-    payMode: "delay"
