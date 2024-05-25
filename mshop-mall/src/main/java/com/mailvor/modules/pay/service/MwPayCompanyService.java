@@ -33,4 +33,10 @@ public interface MwPayCompanyService extends BaseService<MwPayCompany>{
     */
     List<MwPayCompany> queryAll(PayCompanyQueryCriteria criteria);
 
+    /**
+     * 校验公司是否存在
+     * @param id 公司id
+     * @return 是否存在
+     */
+    boolean checkCompany(Long id);
 }

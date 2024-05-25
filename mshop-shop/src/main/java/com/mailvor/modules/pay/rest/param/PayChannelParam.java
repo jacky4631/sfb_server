@@ -9,10 +9,7 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import javax.validation.constraints.DecimalMax;
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -57,7 +54,8 @@ public class PayChannelParam implements Serializable {
     @JsonFormat(pattern = "HH:mm:ss",timezone="GMT+8")
     private Date cycleTime;
     /** 主体id */
-    @NotNull(message = "主体不能为空")
+    @Min(value = 1, message = "主体id不能为空")
+    @NotNull(message = "主体id不能为空")
     private Long companyId;
 
     /**

@@ -11,9 +11,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mailvor.domain.BaseDomain;
+import com.mailvor.modules.pay.enums.PayChannelEnum;
 import lombok.*;
 
-import java.util.Comparator;
 import java.util.Date;
 
 /**
@@ -34,7 +34,7 @@ public class MwPayChannel extends BaseDomain implements Comparable {
 
     /** 通道名称,同主体设置为一样 */
     private String channelName;
-    /** 通道类型 参考 {PayPlatformEnum} */
+    /** 通道类型 参考 {@link PayChannelEnum} */
     private String channelKey;
 
     /**

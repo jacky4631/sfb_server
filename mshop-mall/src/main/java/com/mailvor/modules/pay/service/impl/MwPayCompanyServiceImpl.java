@@ -54,4 +54,9 @@ public class MwPayCompanyServiceImpl extends BaseServiceImpl<PayCompanyMapper, M
     public List<MwPayCompany> queryAll(PayCompanyQueryCriteria criteria){
         return baseMapper.selectList(QueryHelpPlus.getPredicate(MwPayChannel.class, criteria));
     }
+
+    @Override
+    public boolean checkCompany(Long id) {
+        return getById(id) != null;
+    }
 }

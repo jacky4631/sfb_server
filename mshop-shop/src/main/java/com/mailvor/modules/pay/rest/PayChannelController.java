@@ -4,6 +4,7 @@
  */
 package com.mailvor.modules.pay.rest;
 
+import com.mailvor.api.MshopException;
 import com.mailvor.constant.ShopConstants;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.modules.aop.ForbidSubmit;
@@ -14,6 +15,7 @@ import com.mailvor.modules.pay.rest.param.PayChannelEditParam;
 import com.mailvor.modules.pay.rest.param.PayChannelParam;
 import com.mailvor.modules.pay.rest.param.PayConfigParam;
 import com.mailvor.modules.pay.service.MwPayChannelService;
+import com.mailvor.modules.pay.service.MwPayCompanyService;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.shop.service.dto.PayConfigDto;
 import com.mailvor.utils.StringUtils;
@@ -42,6 +44,9 @@ public class PayChannelController {
     private MwPayChannelService payConfigService;
 
     @Resource
+    private MwPayCompanyService payCompanyService;
+
+    @Resource
     private IGenerator generator;
 
     @Resource
@@ -57,12 +62,16 @@ public class PayChannelController {
     }
 
     @ForbidSubmit
-    @Log("新增通道")
-    @ApiOperation(value = "新增通道")
+    @Log("新增支付通道")
+    @ApiOperation(value = "新增支付通道")
     @PostMapping(value = "/payset")
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY, allEntries = true)
     @PreAuthorize("hasAnyRole('admin','PAYSET_ALL','PAYSET_CREATE')")
     public ResponseEntity create(@Valid @RequestBody PayChannelParam param) {
+        boolean existCompany = payCompanyService.checkCompany(param.getCompanyId());
+        if(!existCompany) {
+            throw new MshopException("主体id不存在");
+        }
 
         MwPayChannel payChannel = generator.convert(param, MwPayChannel.class);
         if(StringUtils.isNotBlank(param.getCertProfileE())) {
@@ -73,13 +82,16 @@ public class PayChannelController {
     }
 
     @ForbidSubmit
-    @Log("修改数据配置")
-    @ApiOperation(value = "修改数据配置")
+    @Log("修改支付通道")
+    @ApiOperation(value = "修改支付通道")
     @PutMapping(value = "/payset")
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY, allEntries = true)
     @PreAuthorize("hasAnyRole('admin','PAYSET_ALL','PAYSET_EDIT')")
     public ResponseEntity update(@Valid @RequestBody PayChannelEditParam param) {
-
+        boolean existCompany = payCompanyService.checkCompany(param.getCompanyId());
+        if(!existCompany) {
+            throw new MshopException("主体id不存在");
+        }
         MwPayChannel payChannel = generator.convert(param, MwPayChannel.class);
         if(StringUtils.isNotBlank(param.getCertProfileE())) {
             payChannel.setCertProfileEnc(param.getCertProfileE().getBytes());
@@ -91,8 +103,8 @@ public class PayChannelController {
     }
 
     @ForbidSubmit
-    @Log("删除数据配置")
-    @ApiOperation(value = "删除数据配置")
+    @Log("删除支付通道")
+    @ApiOperation(value = "删除支付通道")
     @DeleteMapping(value = "/payset/{id}")
     @PreAuthorize("hasAnyRole('admin','PAYSET_ALL','PAYSET_DELETE')")
     public ResponseEntity delete(@PathVariable Long id) {
