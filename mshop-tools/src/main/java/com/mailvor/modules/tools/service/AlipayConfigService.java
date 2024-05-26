@@ -73,7 +73,7 @@ public interface AlipayConfigService  extends BaseService<AlipayConfig>{
      * @return the alipay fund trans uni transfer response
      * @throws AlipayApiException the alipay api exception
      */
-    AlipayFundTransUniTransferResponse fund(String userId, String amount) throws AlipayApiException;
+    AlipayFundTransUniTransferResponse fund(AlipayConfig config, String userId, String amount) throws AlipayApiException;
     /**
      * 查询配置
      * @return AlipayConfig

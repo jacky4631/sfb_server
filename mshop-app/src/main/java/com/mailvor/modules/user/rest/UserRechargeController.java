@@ -17,6 +17,7 @@ import com.mailvor.common.interceptor.AuthCheck;
 import com.mailvor.constant.ShopConstants;
 import com.mailvor.enums.AppFromEnum;
 import com.mailvor.enums.BillDetailEnum;
+import com.mailvor.modules.pay.alipay.AliPayService;
 import com.mailvor.modules.shop.domain.MwSystemGroupData;
 import com.mailvor.modules.shop.service.MwSystemGroupDataService;
 import com.mailvor.modules.shop.service.dto.MwSystemGroupDataQueryCriteria;
@@ -75,7 +76,8 @@ public class UserRechargeController {
     private final MwSystemGroupDataService systemGroupDataService;
     private final MwSystemUserLevelService systemUserLevelService;
 
-    private final AlipayConfigService alipayService;
+    private final AlipayConfigService alipayConfigService;
+    private final AliPayService aliPayService;
 
     private final RedisUtils redisUtil;
     /**
@@ -208,14 +210,14 @@ public class UserRechargeController {
     public ApiResult<String> aliPay(@Valid @RequestBody RechargeParam param) throws Exception{
         Map<String,String> map = recharge(param, PayTypeEnum.ALI.getValue());
 
-        AlipayConfig alipay = alipayService.find();
+        AlipayConfig alipay = aliPayService.getAlipayConfig();
         TradeVo trade = new TradeVo();
         trade.setTotalAmount(map.get("price"));
         trade.setOutTradeNo(map.get("orderSn"));
         trade.setSubject("加盟星选会员");
         trade.setBody("加盟星选会员");
         log.info("加盟星选会员{}", JSON.toJSONString(trade));
-        String payUrl = alipayService.toPayAsApp(alipay,trade);
+        String payUrl = alipayConfigService.toPayAsApp(alipay,trade);
         return ApiResult.ok(payUrl);
     }
 

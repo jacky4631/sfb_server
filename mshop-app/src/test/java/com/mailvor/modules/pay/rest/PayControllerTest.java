@@ -52,7 +52,7 @@ class PayControllerTest {
             MwPayChannel payChannel = MwPayChannel.builder()
                     .id(i+1)
                     .channelName("支付宝"+i)
-                    .channelKey(PayChannelEnum.adapay.getKey())
+                    .channelKey(PayChannelEnum.ADAPAY.getKey())
                     .notifyUrl("abc")
                     .maxAmount(100000d)
                     .amount(100000d)
@@ -65,7 +65,7 @@ class PayControllerTest {
         for(long i = 0; i < 5; i++) {
             MwPayChannel payChannel = MwPayChannel.builder()
                     .id(i+100)
-                    .channelKey(PayChannelEnum.adapay.getKey())
+                    .channelKey(PayChannelEnum.ADAPAY.getKey())
                     .channelName("微信"+i)
                     .notifyUrl("abc")
                     .maxAmount(100000d)

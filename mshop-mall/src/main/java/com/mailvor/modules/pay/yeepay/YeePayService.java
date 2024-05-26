@@ -3,9 +3,7 @@ package com.mailvor.modules.pay.yeepay;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.dozer.service.IGenerator;
-import com.mailvor.config.PayConfig;
 import com.mailvor.modules.pay.dto.PayChannelDto;
-import com.mailvor.modules.pay.service.MwPayChannelService;
 import com.mailvor.modules.pay.service.PayService;
 import com.mailvor.modules.pay.yeepay.dto.CardBinDto;
 import com.mailvor.modules.user.domain.MwUserCard;
@@ -37,25 +35,19 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
-public class YeePayService {
+public class YeePayService extends PayService{
 	private static final CashierClient api = CashierClientBuilder.builder().build();
 	private static final FrontcashierClient bindApi = FrontcashierClientBuilder.builder().build();
 	private static final AccountClient extractApi = AccountClientBuilder.builder().build();
 	@Resource
-	private PayService payService;
-
-	@Resource
-	private MwPayChannelService payChannelService;
-
-	@Resource
 	private IGenerator generator;
-
-	@Resource
-	private PayConfig payConfig;
 
 	@Resource
 	private MwUserCardService cardService;
@@ -128,12 +120,10 @@ public class YeePayService {
 			String status = res.getString("status");
 			if("SUCCESS".equals(status)) {
 				String orderId = res.getString("orderId");
-				MwUserRecharge recharge = payService.getRecharge(orderId);
-				PayChannelDto payChannel = payService.getChannel(recharge);
-				//减少通道剩余额度
-				payChannelService.decPrice(recharge.getPrice(), payChannel.getId());
-				//完成订单
-				payService.setUserLevel(orderId);
+				MwUserRecharge recharge = userRechargeService.getRecharge(orderId);
+				PayChannelDto payChannel = payChannelService.getChannel(recharge.getChannelId());
+
+				finishRecharge(orderId, recharge, payChannel);
 				return "SUCCESS";
 			}
 			//验签完毕进行业务处理

@@ -20,12 +20,12 @@ import com.mailvor.modules.pay.alipay.AliPayService;
 import com.mailvor.modules.pay.allinpay.syb.SybService;
 import com.mailvor.modules.pay.dto.OrderDto;
 import com.mailvor.modules.pay.dto.PayChannelDto;
+import com.mailvor.modules.pay.enums.PayChannelEnum;
 import com.mailvor.modules.pay.param.PayBankBindConfirmParam;
 import com.mailvor.modules.pay.param.PayBankBindParam;
 import com.mailvor.modules.pay.param.PayChannelParam;
 import com.mailvor.modules.pay.param.PayConfirmParam;
 import com.mailvor.modules.pay.service.MwPayChannelService;
-import com.mailvor.modules.pay.service.PayService;
 import com.mailvor.modules.pay.wechat.WechatPayService;
 import com.mailvor.modules.pay.yeepay.YeePayService;
 import com.mailvor.modules.pay.ysepay.YsePayConfig;
@@ -51,7 +51,6 @@ import com.yinsheng.command.scancode.FrontCodePayRespCommand;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,7 +64,6 @@ import java.util.Map;
 
 import static com.mailvor.config.PayConfig.PAY_NAME;
 import static com.mailvor.constant.SystemConfigConstants.PAY_CONFIG;
-import static com.mailvor.modules.utils.PayUtil.*;
 
 /**
  * <p>
@@ -79,9 +77,6 @@ import static com.mailvor.modules.utils.PayUtil.*;
 @RestController
 @Api(value = "用户充值", tags = "用户:用户充值")
 public class PayController {
-    @Resource
-    private PayService payService;
-
     @Resource
     private MwUserRechargeService userRechargeService;
     @Resource
@@ -114,17 +109,11 @@ public class PayController {
     @Resource
     private MwUserBankService bankService;
 
-    @Value("${rsa.private_key}")
-    private String privateKey;
-
     @Resource
     private RedisUtils redisUtil;
 
     @Resource
     private MwSystemConfigService systemConfigService;
-
-    @Resource
-    private MwUserExtraService userExtraService;
 
     /**
      *   通道选型算法
@@ -174,7 +163,7 @@ public class PayController {
                 }
             }
         }
-        PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), param.getPayType(), privateKey);
+        PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), param.getPayType());
 
         if(payChannel == null) {
             throw new MshopException("无支付通道可选择");
@@ -198,8 +187,8 @@ public class PayController {
             Map<String, Object> data = new HashMap<>();
             String orderId = orderDto.getOrderSn();
             String price = orderDto.getPrice();
-            switch (key) {
-                case CHANNEL_KEY_ADAPAY:
+            switch (PayChannelEnum.toKey(key)) {
+                case ADAPAY:
                     Map<String,Object> adaPayRes = adaPayService.alipay(request, payChannel, orderId, price);
                     log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(adaPayRes));
                     if("failed".equals(adaPayRes.get("status"))) {
@@ -209,38 +198,38 @@ public class PayController {
                                 + ((JSONObject)adaPayRes.get("expend")).get("pay_info").toString());
                     }
                     break;
-                case CHANNEL_KEY_ALLINPAY:
+                case ALLINPAY:
                     Map<String,String> res = sybService.alipay(payChannel, orderId, price);
                     log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(res));
                     data.put("payInfo", res.get("payinfo"));
                     break;
-                case CHANNEL_KEY_ALIPAY:
+                case ALIPAY:
                     Map<String,String> alipayRes = aliPayService.alipay(payChannel, orderId, price);
                     log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(alipayRes));
                     data.put("payInfo", alipayRes.get("payInfo"));
                     break;
-                case CHANNEL_KEY_ALIPAY_WEB:
+                case ALIPAY_WEB:
                     Map<String,String> alipayWebRes = aliPayService.alipayWeb(payChannel, orderId, price);
                     log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(alipayWebRes));
                     data.put("payInfo", alipayWebRes.get("payInfo"));
                     break;
-                case CHANNEL_KEY_WECHATPAY:
+                case WECHATPAY:
                     Map<String, Object> wechatPayRes = wechatPayService.pay(payChannel, orderId, price);
                     log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(wechatPayRes));
                     data = wechatPayRes;
                     break;
-                case CHANNEL_KEY_YEEPAY_BANK:
+                case YEEPAY_BANK:
                     MwUser payUser = userService.getById(loginUser.getUid());
                     Map<String, Object> yeeBankRes = yeePayService.bankPay(payChannel, orderId, price,payUser.getPhone(),cardQueryVo, param.getType());
                     log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(yeeBankRes));
                     data = yeeBankRes;
                     break;
-                case CHANNEL_KEY_ADAPAY_BANK:
+                case ADAPAY_BANK:
                     Map<String, Object> adaBankRes = adaPayService.bankPay(payChannel, orderId, price,loginUser.getUid());
                     log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(adaBankRes));
                     data = adaBankRes;
                     break;
-                case CHANNEL_KEY_YSEPAY_BANK_BIND:
+                case YSEPAY_BANK_BIND:
                     MwUserBank userBank = bankService.getById(param.getBankId());
                     if(userBank == null) {
                         throw new MshopException("银行卡不存在");
@@ -253,7 +242,7 @@ public class PayController {
                     bankService.setDefault(loginUser.getUid(), userBank.getId());
                     data = ysePayRes;
                     break;
-                case CHANNEL_KEY_YSEPAY:
+                case YSEPAY:
                     FrontCodePayRespCommand yseAliPay = ysePayService.alipay(payChannel, orderId, price);
                     log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(yseAliPay));
                     data.put("payInfo", "alipays://platformapi/startapp?saId=10000007&qrcode=" + yseAliPay.getQrCode());
@@ -276,13 +265,13 @@ public class PayController {
     @PostMapping(value = "/pay/confirm")
     public ApiResult<Map<String, Object>> payConfirm(@Valid @RequestBody PayConfirmParam param) {
         //只有银行卡绑卡支付需要验证码确认
-        MwUserRecharge recharge = payService.getRecharge(param.getOrderId());
-        PayChannelDto payChannel = payService.getChannel(recharge);
+        MwUserRecharge recharge = userRechargeService.getRecharge(param.getOrderId());
+        PayChannelDto payChannel = payChannelService.getChannel(recharge.getChannelId());
         //支付
         String key = payChannel.getChannelKey();
         Map<String, Object> data = new HashMap<>();
-        switch (key) {
-            case CHANNEL_KEY_YSEPAY_BANK_BIND:
+        switch (PayChannelEnum.toKey(key)) {
+            case YSEPAY_BANK_BIND:
                 boolean ysePayConfirm = ysePayService.fastPayMsgVerify(payChannel, param.getBizSn(), param.getCode());
                 log.info("payConfirm param: {}  res: {}", JSON.toJSONString(param), ysePayConfirm);
                 data.put("confirm", ysePayConfirm);
@@ -397,7 +386,7 @@ public class PayController {
         }
         MwUser loginUser = LocalUser.getUser();
 
-        PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), param.getPayType(), privateKey);
+        PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), param.getPayType());
 
         if(payChannel == null) {
             throw new MshopException("无支付通道可选择");
@@ -407,8 +396,8 @@ public class PayController {
         MwUserCardQueryVo userCard = cardService.getUserCardById(loginUser.getUid());
         String key = payChannel.getChannelKey();
         Map<String, Object> data = new HashMap<>();
-        switch (key) {
-            case CHANNEL_KEY_YSEPAY_BANK_BIND:
+        switch (PayChannelEnum.toKey(key)) {
+            case YSEPAY_BANK_BIND:
                 String requestNo = ysePayService.signProtocol(payChannel, param.getPhone(), userCard, param.getBankNo());
                 log.info("payBankBind param: {}  res: {}", JSON.toJSONString(param), requestNo);
                 data.put("requestNo", requestNo);
@@ -422,14 +411,14 @@ public class PayController {
     @ApiOperation(value = "银行卡绑定签约短信确认",notes = "银行卡绑定签约短信确认")
     public ApiResult payBankBindConfirm(@Valid @RequestBody PayBankBindConfirmParam param){
         MwUser loginUser = LocalUser.getUser();
-        PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), param.getPayType(), privateKey);
+        PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), param.getPayType());
 
         if(payChannel == null) {
             throw new MshopException("无支付通道可选择");
         }
         String key = payChannel.getChannelKey();
-        switch (key) {
-            case CHANNEL_KEY_YSEPAY_BANK_BIND:
+        switch (PayChannelEnum.toKey(key)) {
+            case YSEPAY_BANK_BIND:
                 ysePayService.signProtocolConfirm(payChannel, param.getRequestNo(), param.getCode());
                 log.info("payBankBind param: {}", JSON.toJSONString(param));
                 break;
@@ -452,14 +441,14 @@ public class PayController {
     @ApiOperation(value = "查询银行卡信息",notes = "查询银行卡信息")
     public ApiResult payBankInfo(@RequestParam String bankNo){
         MwUser loginUser = LocalUser.getUser();
-        PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), 4, privateKey);
+        PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), 4);
 
         if(payChannel == null) {
             throw new MshopException("无支付通道可选择");
         }
         String key = payChannel.getChannelKey();
-        switch (key) {
-            case CHANNEL_KEY_YSEPAY_BANK_BIND:
+        switch (PayChannelEnum.toKey(key)) {
+            case YSEPAY_BANK_BIND:
 
                 YsePayConfig yesConfig = JSON.parseObject(payChannel.getCertProfile(), YsePayConfig.class);
                 //查询银行卡
@@ -475,14 +464,14 @@ public class PayController {
     @ApiOperation(value = "查询支持的银行卡列表",notes = "查询支持的银行卡列表")
     public ApiResult payBankBindConfirm(){
         MwUser loginUser = LocalUser.getUser();
-        PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), 4, privateKey);
+        PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), 4);
 
         if(payChannel == null) {
             throw new MshopException("无支付通道可选择");
         }
         String key = payChannel.getChannelKey();
-        switch (key) {
-            case CHANNEL_KEY_YSEPAY_BANK_BIND:
+        switch (PayChannelEnum.toKey(key)) {
+            case YSEPAY_BANK_BIND:
 
                 YsePayConfig yesConfig = JSON.parseObject(payChannel.getCertProfile(), YsePayConfig.class);
                 //查询银行卡

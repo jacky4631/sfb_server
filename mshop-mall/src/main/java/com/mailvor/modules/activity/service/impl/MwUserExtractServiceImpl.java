@@ -182,20 +182,18 @@ public class MwUserExtractServiceImpl extends BaseServiceImpl<MwUserExtractMappe
             userExtract.setAlipayCode(userInfo.getAliProfile().getUserId());
             mark = "支付宝提现"+decMoney+"元";
         }else if(PayTypeEnum.WEIXIN.getValue().equals(param.getExtractType())){
-            if(decMoney > 200) {
-                throw new MshopException("微信提现最大支持200元");
-            }
             MwUserUnion userUnion = userUnionService.getOne(uid);
             if(userUnion == null || StrUtil.isEmpty(userUnion.getOpenId())){
                 throw new MshopException("请授权登录微信");
             }
+            String openId = userUnion.getWxProfile().getOpenid();
             count = extractMapper.selectCount(new LambdaQueryWrapper<MwUserExtract>()
                     .ge(MwUserExtract::getCreateTime, DateUtil.beginOfDay(new Date()))
-                    .eq(MwUserExtract::getWechat, userUnion.getOpenId()));
+                    .eq(MwUserExtract::getWechat, openId));
             if(count >= extractCount) {
                 throw new MshopException("该微信号超过每天最大提现次数");
             }
-            userExtract.setWechat(userUnion.getOpenId());
+            userExtract.setWechat(openId);
             mark = "微信提现"+decMoney+"元";
         }else if(PayTypeEnum.BANK.getValue().equals(param.getExtractType())){
             MwUserBank userBank = userBankService.getById(param.getBankId());
@@ -236,7 +234,7 @@ public class MwUserExtractServiceImpl extends BaseServiceImpl<MwUserExtractMappe
 
         //自动提现
         String extractAutoStr =  systemConfigService.getData(TkUtil.getMixedPlatformKey(SystemConfigConstants.USER_EXTRACT_AUTO));
-        if(StringUtils.isNotBlank(extractAutoStr) && !DateUtils.betweenHour(0, 8))  {
+        if(StringUtils.isNotBlank(extractAutoStr))  {
             Integer extractAuto = Integer.parseInt(extractAutoStr);
             //设置最大提现金额
             double extractMax = Double.parseDouble(systemConfigService.getData(TkUtil.getMixedPlatformKey(USER_EXTRACT_MAX)));
@@ -441,10 +439,10 @@ public class MwUserExtractServiceImpl extends BaseServiceImpl<MwUserExtractMappe
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void doExtract(MwUserExtract resources){
-        if(ShopCommonEnum.EXTRACT_1.getValue().equals(resources.getStatus())
-                && DateUtils.betweenHour(0, 8)) {
-            throw new BadRequestException("不在提现时间段");
-        }
+//        if(ShopCommonEnum.EXTRACT_1.getValue().equals(resources.getStatus())
+//                && DateUtils.betweenHour(0, 8)) {
+//            throw new BadRequestException("不在提现时间段");
+//        }
 
         if(resources.getStatus() == null){
             throw new BadRequestException("请选择审核状态");

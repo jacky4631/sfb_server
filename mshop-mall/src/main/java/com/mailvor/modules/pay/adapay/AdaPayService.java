@@ -9,9 +9,7 @@ import com.huifu.adapay.core.util.AdapaySign;
 import com.huifu.adapay.model.*;
 import com.mailvor.modules.activity.domain.MwUserExtract;
 import com.mailvor.modules.activity.service.MwUserExtractService;
-import com.mailvor.config.PayConfig;
 import com.mailvor.modules.pay.dto.PayChannelDto;
-import com.mailvor.modules.pay.service.MwPayChannelService;
 import com.mailvor.modules.pay.service.PayService;
 import com.mailvor.modules.user.domain.MwUserRecharge;
 import com.mailvor.modules.user.vo.MwUserCardQueryVo;
@@ -32,18 +30,10 @@ import java.util.*;
  */
 @Component
 @Slf4j
-public class AdaPayService{
-    @Resource
-    private PayService payService;
-
-    @Resource
-    private MwPayChannelService payChannelService;
-
+public class AdaPayService extends PayService{
     @Resource
     private MwUserExtractService extractService;
 
-    @Resource
-    private PayConfig payConfig;
     public Map<String, Object> alipay(HttpServletRequest request, PayChannelDto certProfile, String orderId, String price) throws Exception{
         String ip = IpUtil.getIpAddress(request);
         AdaPayConfig config = JSON.parseObject(certProfile.getCertProfile(), AdaPayConfig.class);
@@ -150,14 +140,11 @@ public class AdaPayService{
                 JSONObject dataObj = JSON.parseObject(data);
                 String orderId = dataObj.getString("order_no");
 
-                MwUserRecharge recharge = payService.getRecharge(orderId);
+                MwUserRecharge recharge = userRechargeService.getRecharge(orderId);
                 if(recharge != null) {
                     //充值回调
-                    PayChannelDto payChannel = payService.getChannel(recharge);
-                    //减少通道剩余额度
-                    payChannelService.decPrice(recharge.getPrice(), payChannel.getId());
-                    //完成订单
-                    payService.setUserLevel(orderId);
+                    PayChannelDto payChannel = payChannelService.getChannel(recharge.getChannelId());
+                    finishRecharge(orderId, recharge, payChannel);
                 } else {
                     //提现回调
                     MwUserExtract extract = extractService.getById(orderId);

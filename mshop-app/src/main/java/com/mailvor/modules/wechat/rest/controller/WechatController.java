@@ -8,37 +8,32 @@ import cn.binarywang.wx.miniapp.api.WxMaService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alipay.api.AlipayApiException;
-import com.alipay.api.internal.util.AlipaySignature;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse;
+import com.github.binarywang.wxpay.bean.notify.WxPayRefundNotifyResult;
+import com.github.binarywang.wxpay.exception.WxPayException;
+import com.github.binarywang.wxpay.service.WxPayService;
 import com.mailvor.annotation.AnonymousAccess;
 import com.mailvor.api.ApiResult;
 import com.mailvor.api.BusinessException;
 import com.mailvor.api.MshopException;
 import com.mailvor.constant.SystemConfigConstants;
-import com.mailvor.enums.*;
+import com.mailvor.enums.AfterSalesStatusEnum;
+import com.mailvor.enums.OrderInfoEnum;
+import com.mailvor.enums.PayMethodEnum;
+import com.mailvor.modules.mp.config.WxMaConfiguration;
+import com.mailvor.modules.mp.config.WxMpConfiguration;
+import com.mailvor.modules.mp.config.WxPayConfiguration;
 import com.mailvor.modules.order.domain.MwStoreOrder;
 import com.mailvor.modules.order.service.MwStoreOrderService;
 import com.mailvor.modules.order.vo.MwStoreOrderQueryVo;
-import com.mailvor.modules.pay.service.PayService;
 import com.mailvor.modules.sales.domain.StoreAfterSales;
 import com.mailvor.modules.sales.service.StoreAfterSalesService;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
-import com.mailvor.modules.tools.domain.AlipayConfig;
-import com.mailvor.modules.tools.service.AlipayConfigService;
 import com.mailvor.modules.user.domain.MwUserRecharge;
-import com.mailvor.modules.user.service.MwUserLevelService;
 import com.mailvor.modules.user.service.MwUserRechargeService;
-import com.mailvor.modules.mp.config.WxMpConfiguration;
-import com.mailvor.modules.mp.config.WxPayConfiguration;
-import com.mailvor.modules.mp.config.WxMaConfiguration;
 import com.mailvor.modules.user.service.MwUserService;
 import com.mailvor.utils.*;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse;
-import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
-import com.github.binarywang.wxpay.bean.notify.WxPayRefundNotifyResult;
-import com.github.binarywang.wxpay.exception.WxPayException;
-import com.github.binarywang.wxpay.service.WxPayService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -49,11 +44,7 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,7 +52,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @ClassName WechatController
@@ -79,14 +72,10 @@ public class WechatController {
     private final MwUserRechargeService userRechargeService;
     private final StoreAfterSalesService storeAfterSalesService;
 
-    private final MwUserLevelService userLevelService;
-
-    private final AlipayConfigService alipayService;
     private final RestTemplate restTemplate;
-    private final MwUserService userService;
 
-    private final PayService payService;
     private final RedisUtils redisUtils;
+    private final MwUserService userService;
     /**
      * 微信分享配置
      */
@@ -142,77 +131,6 @@ public class WechatController {
         return "false";
     }
 
-    /**
-     * 微信支付/充值回调
-     */
-    @AnonymousAccess
-    @PostMapping("/wechat/notify")
-    @ApiOperation(value = "微信支付充值回调",notes = "微信支付充值回调")
-    public String renotify(@RequestBody String xmlData) {
-        try {
-            log.info("微信充值回调信息:{}", xmlData);
-            WxPayService wxPayService = WxPayConfiguration.getPayService(PayMethodEnum.WECHAT);
-            if(wxPayService == null) {
-                wxPayService = WxPayConfiguration.getPayService(PayMethodEnum.WXAPP);
-            }
-            if(wxPayService == null) {
-                wxPayService = WxPayConfiguration.getPayService(PayMethodEnum.APP);
-            }
-            WxPayOrderNotifyResult notifyResult = wxPayService.parseOrderNotifyResult(xmlData);
-            String orderId = notifyResult.getOutTradeNo();
-            String attach = notifyResult.getAttach();
-            if(BillDetailEnum.TYPE_3.getValue().equals(attach)){
-                MwStoreOrderQueryVo orderInfo = orderService.getOrderInfo(orderId,null);
-                if(orderInfo == null) {
-                    return WxPayNotifyResponse.success("处理成功!");
-                }
-                orderService.paySuccess(orderInfo.getOrderId(),PayTypeEnum.WEIXIN.getValue());
-            }else if(BillDetailEnum.TYPE_1.getValue().equals(attach)){
-                payService.setUserLevel(orderId);
-            }
-
-            return WxPayNotifyResponse.success("处理成功!");
-        } catch (WxPayException e) {
-            log.error(e.getMessage());
-            return WxPayNotifyResponse.fail(e.getMessage());
-        }
-
-    }
-    /**
-     * 微信支付/充值回调
-     */
-    @AnonymousAccess
-    @PostMapping("/alipay/notify")
-    @ApiOperation(value = "支付宝支付充值回调",notes = "支付宝支付充值回调")
-    public String alipayNotify(HttpServletRequest request) throws AlipayApiException {
-        //获取支付宝POST过来反馈信息
-        Map<String,String> params = new HashMap<>();
-        Map requestParams = request.getParameterMap();
-        for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext ();) {
-            String name =  ( String )iter.next();
-            String[] values = (String[])requestParams.get(name);
-            String valueStr="";
-            for(int i = 0;i < values.length; i++){
-                valueStr = (i== values.length-1)?valueStr+values[i]:valueStr+values[i] + ",";
-            }
-            //乱码解决，这段代码在出现乱码时使用。
-            //valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
-            params.put(name,valueStr);
-            log.info("支付宝回调参数name:{} value:{}", name, valueStr);
-        }
-        //切记alipayPublicCertPath是支付宝公钥证书路径，请去open.alipay.com对应应用下载。
-        //boolean AlipaySignature.rsaCertCheckV1(Map<String, String> params, String publicKeyCertPath, String charset,String signType)
-        AlipayConfig alipay = alipayService.find();
-        boolean flag = AlipaySignature.rsaCertCheckV1(params,alipay.getAliPublicCert(),alipay.getCharset(),alipay.getSignType());
-        if(flag) {
-            String orderId = params.get("out_trade_no");
-            payService.setUserLevel(orderId);
-            return "处理成功!";
-        }
-        return "处理失败!";
-
-
-    }
     // 沙盒环境
     private static final String url_sandbox = "https://sandbox.itunes.apple.com/verifyReceipt";
     // 生产环境
@@ -301,7 +219,7 @@ public class WechatController {
                     log.info("订单参数: {}", o.toJSONString());
 
                     //将订单更改为已支付
-                    payService.setUserLevel(orderSn);
+                    userService.setUserLevel(orderSn);
                     return ApiResult.ok();
                 }
             }

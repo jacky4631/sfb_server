@@ -62,4 +62,6 @@ public interface MwUserRechargeService extends BaseService<MwUserRecharge>{
     MwUserRecharge getLatestPaidInfo(Long uid, String platform, Integer grade);
 
     Double totalRechargePrice(Integer type);
+
+    MwUserRecharge getRecharge(String orderId);
 }

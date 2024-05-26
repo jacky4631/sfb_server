@@ -22,24 +22,4 @@ public class PayUtil {
 
     public static final List<Integer> CHANNEL_TYPE_YUNSHANFU = Arrays.asList(15);
 
-    //这里的key如果没有后缀的都是支付宝支付
-    public static final String CHANNEL_KEY_ADAPAY = "adapay";
-
-    public static final String CHANNEL_KEY_ALLINPAY = "allinpay";
-
-    public static final String CHANNEL_KEY_ALIPAY = "alipay";
-    public static final String CHANNEL_KEY_ALIPAY_WEB = "alipayweb";
-    public static final String CHANNEL_KEY_WECHATPAY = "wechatpay";
-
-    public static final String CHANNEL_KEY_YEEPAY = "yeepay";
-
-
-    public static final String CHANNEL_KEY_YEEPAY_BANK = "yeepay_bank";
-
-    public static final String CHANNEL_KEY_ADAPAY_BANK = "adapay_bank";
-
-    public static final String CHANNEL_KEY_YSEPAY = "ysepay";
-
-    public static final String CHANNEL_KEY_YSEPAY_BANK_BIND = "ysepay_bank_bind";
-
 }

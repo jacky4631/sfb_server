@@ -28,7 +28,7 @@ public class PayChannelDto implements Serializable {
 
     /** 通道名称,同主体设置为一样 */
     private String channelName;
-    /** 通道类型 参考 {@link PayPlatformEnum} */
+    /** 通道类型 参考 {@link com.mailvor.modules.pay.enums.PayChannelEnum} */
     private String channelKey;
 
     private String name;

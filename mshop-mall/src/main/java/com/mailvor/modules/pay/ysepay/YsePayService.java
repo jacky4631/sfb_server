@@ -7,9 +7,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.api.MshopException;
 import com.mailvor.config.PayConfig;
-import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.modules.pay.dto.PayChannelDto;
-import com.mailvor.modules.pay.service.MwPayChannelService;
 import com.mailvor.modules.pay.service.PayService;
 import com.mailvor.modules.user.domain.MwUserBank;
 import com.mailvor.modules.user.domain.MwUserExtra;
@@ -42,7 +40,10 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import static com.mailvor.config.PayConfig.PAY_DESC;
 import static com.mailvor.config.PayConfig.PAY_TITLE;
@@ -50,22 +51,10 @@ import static com.yinsheng.utils.YsMpPayUtils.YS_VALIDY_SIGN_PUBLIC_CER;
 
 @Component
 @Slf4j
-public class YsePayService {
-
-	@Resource
-	private PayService payService;
-
-	@Resource
-	private MwPayChannelService payChannelService;
-
-	@Resource
-	private IGenerator generator;
+public class YsePayService extends PayService{
 
 	@Resource
 	private MwUserBankService bankService;
-
-	@Resource
-	private PayConfig payConfig;
 
 	@Resource
 	private MwUserExtraService userExtraService;
@@ -466,22 +455,20 @@ public class YsePayService {
 			return "fail";
 		}
 		String orderId = requestNo.substring(prefixLength, requestNo.length());
-		MwUserRecharge recharge = payService.getRecharge(orderId);
+		MwUserRecharge recharge = userRechargeService.getRecharge(orderId);
 		if(recharge == null) {
 			log.error("银盛回调订单不存在");
 			return "fail";
 		}
-		PayChannelDto payChannel = payService.getChannel(recharge);
+		PayChannelDto payChannel = payChannelService.getChannel(recharge.getChannelId());
 		if(payChannel == null) {
 			log.error("银盛回调通道不存在");
 			return "fail";
 		}
 		try {
 			if(resJson.getString("state").equals("SUCCESS")) {
-				//减少通道剩余额度
-				payChannelService.decPrice(recharge.getPrice(), payChannel.getId());
-				//完成订单
-				payService.setUserLevel(orderId);
+
+				finishRecharge(orderId, recharge, payChannel);
 				return "success";
 			}
 			//验签完毕进行业务处理

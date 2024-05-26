@@ -209,4 +209,6 @@ public interface MwUserService extends BaseService<MwUser>{
     void expiredUser();
 
     void spreadUserHb(MwUser parentUser, MwUser user);
+
+    void setUserLevel(String orderId);
 }

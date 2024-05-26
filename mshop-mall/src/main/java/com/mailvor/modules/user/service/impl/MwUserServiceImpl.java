@@ -146,6 +146,9 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
     @Resource
     private MwUserUnionService userUnionService;
 
+    @Resource
+    private MwUserRechargeService userRechargeService;
+
     /**
      * 返回用户累计充值金额与消费金额
      * @param uid uid
@@ -1860,4 +1863,28 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
         }
         saveOrUpdateBatch(users);
     }
+
+
+    @Override
+    public void setUserLevel(String orderId) {
+        //处理充值
+        MwUserRecharge userRecharge = userRechargeService.getInfoByOrderId(orderId);
+        if(userRecharge != null) {
+            if(!OrderInfoEnum.PAY_STATUS_1.getValue().equals(userRecharge.getPaid())){
+                //更新订单状态
+                userRechargeService.updateRecharge(userRecharge);
+                if(userRecharge.getType() == 2){
+                    //设置用户月卡级别
+                    userLevelService.setUserLevelMonth(userRecharge.getUid(), userRecharge.getGrade(), userRecharge.getPlatform());
+                } else {
+                    //设置用户级别
+                    userLevelService.setUserLevel(userRecharge.getUid(), userRecharge.getGrade(), userRecharge.getPlatform());
+                }
+                //会员一二级分销
+                gainParentMoney(userRecharge.getUid(), userRecharge.getPrice(),
+                        userRecharge.getOrderId(), userRecharge.getPayTime(), userRecharge.getPlatform(),userRecharge.getType());
+            }
+        }
+    }
+
 }

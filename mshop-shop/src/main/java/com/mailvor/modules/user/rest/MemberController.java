@@ -13,6 +13,7 @@ import com.mailvor.modules.aop.ForbidSubmit;
 import com.mailvor.modules.energy.service.UserEnergyService;
 import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.pay.dto.PayChannelDto;
+import com.mailvor.modules.pay.enums.PayChannelEnum;
 import com.mailvor.modules.pay.service.MwPayChannelService;
 import com.mailvor.modules.pay.ysepay.YsePayService;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
@@ -36,7 +37,6 @@ import com.yinsheng.command.wallet.BindCardRespCommand;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,8 +48,6 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.*;
-
-import static com.mailvor.modules.utils.PayUtil.CHANNEL_KEY_YSEPAY_BANK_BIND;
 
 /**
 * @author huangyu
@@ -80,10 +78,6 @@ public class MemberController {
     private YsePayService ysePayService;
     @Resource
     private MwUserCardService cardService;
-
-    @Value("${rsa.private_key}")
-    private String privateKey;
-
     @Resource
     private MwUserExtraService userExtraService;
 
@@ -300,7 +294,7 @@ public class MemberController {
             throw new MshopException("银行卡号和手机号不能为空");
         }
 
-        PayChannelDto payChannel = payChannelService.channelDto(uid, 4, privateKey);
+        PayChannelDto payChannel = payChannelService.channelDto(uid, 4);
 
         if(payChannel == null) {
             throw new MshopException("无支付通道可选择");
@@ -316,8 +310,8 @@ public class MemberController {
 
         String key = payChannel.getChannelKey();
         Map<String, Object> data = new HashMap<>();
-        switch (key) {
-            case CHANNEL_KEY_YSEPAY_BANK_BIND:
+        switch (PayChannelEnum.toKey(key)) {
+            case YSEPAY_BANK_BIND:
                 BindCardRespCommand resp = ysePayService.bindCard(payChannel, userExtra.getMerchantNo(), param.getBankNo(), param.getPhone());
                 log.info("extractBankBind param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(resp));
                 data.put("requestNo", resp.getRequestNo());
@@ -343,7 +337,7 @@ public class MemberController {
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public ApiResult extractBankBindConfirm(@PathVariable Long uid, @Valid @RequestBody BankBindConfirmParam param){
         checkOpePwd(param.getOpePwd());
-        PayChannelDto payChannel = payChannelService.channelDto(uid, 4, privateKey);
+        PayChannelDto payChannel = payChannelService.channelDto(uid, 4);
 
         if(payChannel == null) {
             throw new MshopException("无支付通道可选择");
@@ -354,8 +348,8 @@ public class MemberController {
         }
         String bankNo = (String)bankNoObj;
         String key = payChannel.getChannelKey();
-        switch (key) {
-            case CHANNEL_KEY_YSEPAY_BANK_BIND:
+        switch (PayChannelEnum.toKey(key)) {
+            case YSEPAY_BANK_BIND:
                 //绑卡确认
                 ConfirmVerifyRespCommand resp = ysePayService.confirmVerify(payChannel, param.getRequestNo(), param.getAuthSn(), param.getCode());
                 //保存绑卡标识
@@ -384,7 +378,7 @@ public class MemberController {
     public Map<String,Object> extract(@PathVariable Long uid, @Valid @RequestBody BankExtractParam param) {
         checkOpePwd(param.getOpePwd());
         Map<String,Object> extractRes = new HashMap<>();
-        PayChannelDto payChannel = payChannelService.getExtractChannel(privateKey);
+        PayChannelDto payChannel = payChannelService.getExtractChannel("bank");
         if(payChannel == null) {
             throw new MshopException("没有可选的通道");
         }
@@ -394,8 +388,8 @@ public class MemberController {
         }
         MwUserExtra userExtra = userExtraService.getById(uid);
         String key = payChannel.getChannelKey();
-        switch (key) {
-            case CHANNEL_KEY_YSEPAY_BANK_BIND:
+        switch (PayChannelEnum.toKey(key)) {
+            case YSEPAY_BANK_BIND:
                 ysePayService.extract(payChannel, IdUtil.objectId(), param.getPrice(), userExtra.getMerchantNo(), userBank.getLinkId());
         }
         return extractRes;

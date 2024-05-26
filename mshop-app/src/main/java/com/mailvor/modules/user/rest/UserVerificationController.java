@@ -12,6 +12,7 @@ import com.mailvor.api.MshopException;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.AuthCheck;
 import com.mailvor.modules.logging.aop.log.AppLog;
+import com.mailvor.modules.pay.alipay.AliPayService;
 import com.mailvor.modules.tools.domain.AlipayConfig;
 import com.mailvor.modules.tools.service.AliOssService;
 import com.mailvor.modules.tools.service.AlipayConfigService;
@@ -50,7 +51,8 @@ import java.util.Date;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Api(value = "用户认证", tags = "用户:用户认证")
 public class UserVerificationController {
-    private final AlipayConfigService alipayService;
+    private final AlipayConfigService alipayConfigService;
+    private final AliPayService aliPayService;
 
     private final AliOssService ossService;
     private final MwUserCardService carService;
@@ -82,9 +84,9 @@ public class UserVerificationController {
         card.setPhone(AesUtil.encrypt(phone));
         carService.updateById(card);
 
-        AlipayConfig alipay = alipayService.find();
+        AlipayConfig alipay = aliPayService.getAlipayConfig();
 
-        JSONObject payUrl = alipayService.faceVerification(alipay, cardName, cardNo, phone);
+        JSONObject payUrl = alipayConfigService.faceVerification(alipay, cardName, cardNo, phone);
         return ApiResult.ok(payUrl.getJSONObject("datadigital_fincloud_generalsaas_face_verification_initialize_response"));
     }
     @AppLog(value = "支付宝人脸认证结果查询", type = 1)
@@ -108,9 +110,9 @@ public class UserVerificationController {
         }
 
         Long uid = LocalUser.getUser().getUid();
-        AlipayConfig alipay = alipayService.find();
+        AlipayConfig alipay = aliPayService.getAlipayConfig();
 
-        JSONObject payUrl = alipayService.faceVerificationResult(alipay, param.getString("certifyId"));
+        JSONObject payUrl = alipayConfigService.faceVerificationResult(alipay, param.getString("certifyId"));
 
         //打印需要移除alive_phone字段 数据量太大
         String payUrlStr = payUrl.toJSONString();

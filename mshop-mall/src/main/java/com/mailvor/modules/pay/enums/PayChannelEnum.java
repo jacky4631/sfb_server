@@ -7,7 +7,7 @@ package com.mailvor.modules.pay.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import static com.mailvor.modules.utils.PayUtil.*;
+import java.util.stream.Stream;
 
 /**
  * @author huangyu
@@ -17,15 +17,25 @@ import static com.mailvor.modules.utils.PayUtil.*;
 @AllArgsConstructor
 public enum PayChannelEnum {
 
-	adapay(CHANNEL_KEY_ADAPAY,"汇付天下"),
-	allinpay(CHANNEL_KEY_ALLINPAY,"通联支付收银宝"),
-	alipay(CHANNEL_KEY_ALIPAY,"支付宝原生"),
-	alipayweb(CHANNEL_KEY_ALIPAY_WEB,"支付宝网页"),
-	wechatpay(CHANNEL_KEY_WECHATPAY,"微信原生"),
-	yeepay(CHANNEL_KEY_YEEPAY,"易宝支付");
+	//这里的key如果没有后缀的都是支付宝支付
+	ADAPAY("adapay","汇付天下"),
+	ALLINPAY("allinpay","通联支付收银宝"),
+	ALIPAY("alipay","支付宝原生"),
+	ALIPAY_WEB("alipayweb","支付宝网页"),
+	WECHATPAY("wechatpay","微信原生"),
+	yeepay("yeepay","易宝支付"),
+	YEEPAY_BANK("yeepay_bank","易宝快捷支付"),
+	ADAPAY_BANK("adapay_bank","易宝支付"),
+	YSEPAY("ysepay","银盛支付"),
+	YSEPAY_BANK_BIND("ysepay_bank_bind","银盛绑卡支付");
 
 	private String key;
 	private String name;
 
-
+	public static PayChannelEnum toKey(String key) {
+		return Stream.of(PayChannelEnum.values())
+				.filter(p -> p.key.equals(key))
+				.findAny()
+				.orElse(null);
+	}
 }

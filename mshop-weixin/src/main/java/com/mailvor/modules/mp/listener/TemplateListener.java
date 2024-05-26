@@ -5,11 +5,8 @@
 package com.mailvor.modules.mp.listener;
 
 
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
-import com.alipay.api.AlipayApiException;
-import com.alipay.api.response.AlipayFundTransUniTransferResponse;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.mailvor.constant.ShopConstants;
@@ -24,15 +21,11 @@ import com.mailvor.modules.customer.service.MwStoreCustomerService;
 import com.mailvor.modules.mp.service.WeiXinSubscribeService;
 import com.mailvor.modules.mp.service.WeixinPayService;
 import com.mailvor.modules.mp.service.WeixinTemplateService;
-import com.mailvor.modules.pay.service.PayService;
-import com.mailvor.modules.tools.service.AlipayConfigService;
+import com.mailvor.modules.pay.service.PayExtractService;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.domain.MwUserBill;
-import com.mailvor.modules.user.domain.MwUserUnion;
 import com.mailvor.modules.user.service.MwUserBillService;
 import com.mailvor.modules.user.service.MwUserService;
-import com.mailvor.modules.user.service.MwUserUnionService;
-import com.mailvor.modules.user.service.dto.AliUserDto;
 import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +39,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author huangyu
@@ -66,19 +58,12 @@ public class TemplateListener implements SmartApplicationListener {
     @Autowired
     private MwUserExtractService mwUserExtractService;
     @Autowired
-    private WeixinPayService payService;
-    @Autowired
     private MwStoreCustomerService mwStoreCustomerService;
-    @Autowired
-    private AlipayConfigService alipayConfigService;
-
     @Resource
-    private PayService otherPayService;
+    private PayExtractService payExtractService;
 
     @Resource
     private MwUserBillService userBillService;
-    @Resource
-    private MwUserUnionService userUnionService;
 
     @Override
     public boolean supportsEventType(Class<? extends ApplicationEvent> aClass) {
@@ -143,52 +128,20 @@ public class TemplateListener implements SmartApplicationListener {
                 String failMsg = "";
                 MwUser user = userService.getById(resources.getUid());
                 if (user != null) {
-                    if(PayTypeEnum.ALI.getValue().equals(resources.getExtractType())) {
-                        //支付宝提现
-                        AliUserDto aliUser = user.getAliProfile();
-
-                        try {
-                            AlipayFundTransUniTransferResponse res = alipayConfigService.fund(aliUser.getUserId(), resources.getExtractPrice().toString());
-                            log.info("用户{} 提现支付宝{} 金额{} 支付返回{}",user.getUid(), aliUser.getUserId(), resources.getExtractPrice().toString(), JSON.toJSONString(res));
-                            if("SUCCESS".equals(res.getStatus())) {
-                                log.info("用户{} 提现支付宝成功", user.getUid());
-                                success = true;
-                            }else {
-                                failMsg = res.getSubMsg();
-                                log.info("用户{} 提现支付宝失败 {}", user.getUid(), failMsg);
-                            }
-                        } catch (AlipayApiException e) {
-                            failMsg = e.getMessage();
-                            log.info("用户{} 提现支付宝失败 {}", user.getUid(), failMsg);
-                        }
-
-                    } else if(PayTypeEnum.WEIXIN.getValue().equals(resources.getExtractType())) {
-                        //微信提现
-                        MwUserUnion userUnion = userUnionService.getOne(resources.getUid());
-                        if (ObjectUtil.isNotNull(userUnion) && ObjectUtil.isNotNull(userUnion.getOpenId())) {
+                    //校验订单流水和订单创建的时间是否一致，金额是否一致 时间一致
+                    MwUserBill userBill = userBillService.getOne(new LambdaQueryWrapper<MwUserBill>()
+                            .eq(MwUserBill::getLinkId,resources.getId().toString()));
+                    if(userBill == null || !resources.getBalance().equals(userBill.getNumber())
+                            || !resources.getCreateTime().equals(userBill.getOrderCreateTime())) {
+                        failMsg = "没有找到提现流水bill";
+                    } else {
+                        if(PayTypeEnum.WEIXIN.getValue().equals(resources.getExtractType()) ||
+                                PayTypeEnum.ALI.getValue().equals(resources.getExtractType()) ||
+                                PayTypeEnum.BANK.getValue().equals(resources.getExtractType())) {
                             try {
-                                String nonce_str = UUID.randomUUID().toString().replace("-", "");
 
-                                payService.entPay(userUnion.getOpenId(), nonce_str,
-                                        resources.getRealName(),
-                                        resources.getExtractPrice().multiply(new BigDecimal(100)).intValue());
-
-                                success = true;
-                            } catch (WxPayException e) {
-                                log.error("退款失败,原因:{}", e.getMessage());
-                                failMsg = e.getMessage();
-                            }
-                        }
-                    } else if(PayTypeEnum.BANK.getValue().equals(resources.getExtractType())) {
-                        try {
-
-                            //校验订单流水和订单创建的时间是否一致，金额是否一致 时间一致
-                            MwUserBill userBill = userBillService.getOne(new LambdaQueryWrapper<MwUserBill>()
-                                    .eq(MwUserBill::getLinkId,resources.getId().toString()));
-                            if(userBill != null && resources.getBalance().equals(userBill.getNumber())
-                                    && resources.getCreateTime().equals(userBill.getOrderCreateTime())) {
                                 //银行卡提现
-                                Map<String,Object> map = otherPayService.extract(resources);
+                                Map<String,Object> map = payExtractService.extract(resources);
                                 if(map.get("errMsg") != null && StringUtils.isNotBlank((String)map.get("errMsg"))) {
                                     failMsg = (String)map.get("errMsg");
                                 } else if(map.get("error_code") != null){
@@ -197,17 +150,20 @@ public class TemplateListener implements SmartApplicationListener {
                                 } else {
                                     success = true;
                                 }
-                            } else {
-                                failMsg = "没有找到提现流水bill";
-                            }
 
-                        } catch (Exception e) {
-                            String message = e.getMessage();
-                            log.error("提现失败,原因:{}", message);
-                            if(message.length() > 255) {
-                                message = message.substring(0, 254);
+                            } catch (WxPayException e) {
+                                log.error("退款失败,原因:{}", e);
+                                failMsg = e.getErrCodeDes();
+                            } catch (Exception e) {
+                                String message = e.getMessage();
+                                log.error("提现失败,原因:{}", e);
+                                if(message.length() > 255) {
+                                    message = message.substring(0, 254);
+                                }
+                                failMsg = message;
                             }
-                            failMsg = message;
+                        } else {
+                            failMsg = "未找到提现通道";
                         }
                     }
 

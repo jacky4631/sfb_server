@@ -210,4 +210,17 @@ public class MwUserRechargeServiceImpl extends BaseServiceImpl<UserRechargeMappe
         return wrapperTwo;
     }
 
+    @Override
+    public MwUserRecharge getRecharge(String orderId) {
+        //处理充值
+        MwUserRecharge userRecharge = getInfoByOrderId(orderId);
+        if(userRecharge == null) {
+            throw new MshopException("订单不存在");
+        }
+        if(OrderInfoEnum.PAY_STATUS_1.getValue().equals(userRecharge.getPaid())) {
+            throw new MshopException("订单已支付");
+        }
+        return userRecharge;
+    }
+
 }

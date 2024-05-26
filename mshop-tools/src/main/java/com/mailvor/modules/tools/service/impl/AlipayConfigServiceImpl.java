@@ -159,9 +159,9 @@ public class AlipayConfigServiceImpl extends BaseServiceImpl<AlipayConfigMapper,
     }
 
     @Override
-    public AlipayFundTransUniTransferResponse fund(String userId, String amount) throws AlipayApiException {
-        AlipayConfig alipay = find();
-        AlipayClient alipayClient = initAlipayClient(alipay);
+    public AlipayFundTransUniTransferResponse fund(AlipayConfig config, String userId, String amount) throws AlipayApiException {
+
+        AlipayClient alipayClient = initAlipayClient(config);
         AlipayFundTransUniTransferRequest request = new AlipayFundTransUniTransferRequest();
         AlipayFundTransUniTransferModel model = new AlipayFundTransUniTransferModel();
         model.setOutBizNo(System.currentTimeMillis()+"");

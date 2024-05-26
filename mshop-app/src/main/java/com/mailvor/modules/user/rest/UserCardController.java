@@ -14,6 +14,7 @@ import com.mailvor.api.ApiResult;
 import com.mailvor.api.MshopException;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.AuthCheck;
+import com.mailvor.modules.pay.alipay.AliPayService;
 import com.mailvor.modules.pay.yeepay.YeePayService;
 import com.mailvor.modules.pay.yeepay.dto.CardBinDto;
 import com.mailvor.modules.tools.service.AliOssService;
@@ -66,13 +67,16 @@ public class UserCardController {
     private MwUserCardService cardService;
 
     @Resource
-    private AlipayConfigService aliService;
+    private AlipayConfigService alipayConfigService;
 
     @Resource
     private MwUserService userService;
 
     @Resource
     private YeePayService yeePayService;
+
+    @Resource
+    private AliPayService aliPayService;
 
     private static final String regEx="[\n`~!@#$%^&*()+=|{}';',\\[\\]<>?~！@#￥%……&*（）——+|{}【】‘；：”“’。， 、？]";
 
@@ -137,7 +141,7 @@ public class UserCardController {
         //识别用户身份信息
         filename = filename.replaceAll(regEx,"");
         filename = URLEncoder.encode(filename, "UTF-8");
-        JSONObject json = aliService.cardOCR(aliService.find(),ocrType, filename, bytes);
+        JSONObject json = alipayConfigService.cardOCR(aliPayService.getAlipayConfig(),ocrType, filename, bytes);
         JSONObject res = json.getJSONObject("datadigital_fincloud_generalsaas_ocr_server_detect_response");
         log.info("用户uid: {} {}身份识别结果: {}", user.getUid(), ocrType, res.toJSONString());
         String code = res.getString("code");

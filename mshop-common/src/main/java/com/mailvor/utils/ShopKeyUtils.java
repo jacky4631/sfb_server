@@ -127,9 +127,9 @@ public class ShopKeyUtils {
     /**
      * 微信支付app service
      */
-    public static  String getMshopWeiXinAppPayService(){
+    public static  String getMshopWeiXinAppPayService(String appName){
         String mshopWeiXinAppPayService= ShopConstants.MSHOP_WEIXIN_APP_PAY_SERVICE;
-        return  mshopWeiXinAppPayService+getExtendValue();
+        return  mshopWeiXinAppPayService+appName;
     }
     /**
      * 微信开放平台appId

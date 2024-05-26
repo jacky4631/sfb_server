@@ -41,11 +41,27 @@ public interface MwPayChannelService extends BaseService<MwPayChannel>{
 
     MwPayChannel decPrice(BigDecimal orderPrice, Long channelId);
 
+    /**
+     * Channel mw pay channel.
+     *
+     * @param uid     the uid
+     * @param payType 支付类型 1=支付宝 2=微信 3=银行卡 4=银行卡绑卡 其他未知
+     * @return the mw pay channel
+     */
     MwPayChannel channel(Long uid, Integer payType);
 
-    PayChannelDto channelDto(Long uid, Integer payType, String privateKey);
+    /**
+     * Channel dto pay channel dto.
+     *
+     * @param uid        the uid
+     * @param payType    支付类型 1=支付宝 2=微信 3=银行卡 4=银行卡绑卡 其他未知
+     * @return the pay channel dto
+     */
+    PayChannelDto channelDto(Long uid, Integer payType);
 
     int reset();
 
-    PayChannelDto getExtractChannel(String privateKey);
+    PayChannelDto getExtractChannel(String extractType);
+
+    PayChannelDto getChannel(Long channelId);
 }

@@ -3,15 +3,12 @@ package com.mailvor.modules.pay.allinpay.syb;
 import com.alibaba.fastjson.JSON;
 import com.mailvor.modules.pay.allinpay.syb.lib.SybPayService;
 import com.mailvor.modules.pay.allinpay.syb.lib.SybUtil;
-import com.mailvor.config.PayConfig;
 import com.mailvor.modules.pay.dto.PayChannelDto;
-import com.mailvor.modules.pay.service.MwPayChannelService;
 import com.mailvor.modules.pay.service.PayService;
 import com.mailvor.modules.user.domain.MwUserRecharge;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -20,15 +17,7 @@ import java.util.TreeMap;
 
 @Component
 @Slf4j
-public class SybService {
-	@Resource
-	private PayService payService;
-
-	@Resource
-	private MwPayChannelService payChannelService;
-
-	@Resource
-	private PayConfig payConfig;
+public class SybService extends PayService{
 	public Map<String, String> alipay(PayChannelDto certProfile, String orderId, String price) throws Exception{
 		SybConfig sybKey = JSON.parseObject(certProfile.getCertProfile(), SybConfig.class);
 		SybPayService service = new SybPayService(sybKey);
@@ -47,16 +36,14 @@ public class SybService {
 		try {
 
 			String orderId = params.get("chnltrxid");
-			MwUserRecharge recharge = payService.getRecharge(orderId);
-			PayChannelDto payChannel = payService.getChannel(recharge);
+			MwUserRecharge recharge = userRechargeService.getRecharge(orderId);
+			PayChannelDto payChannel = payChannelService.getChannel(recharge.getChannelId());
 			SybConfig sybKey = JSON.parseObject(payChannel.getCertProfile(), SybConfig.class);
 
 			boolean isSign = SybUtil.validSign(params, sybKey.getRsaTlPubKey(), params.get("signtype"));// 接受到推送通知,首先验签
 			if(isSign) {
-				//减少通道剩余额度
-				payChannelService.decPrice(recharge.getPrice(), payChannel.getId());
-				//完成订单
-				payService.setUserLevel(orderId);
+
+				finishRecharge(orderId, recharge, payChannel);
 			}
 			//验签完毕进行业务处理
 		} catch (Exception e) {//处理异常

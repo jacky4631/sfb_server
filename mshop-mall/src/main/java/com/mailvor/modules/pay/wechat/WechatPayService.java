@@ -3,6 +3,8 @@ package com.mailvor.modules.pay.wechat;
 import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson.JSON;
 import com.alipay.api.AlipayApiException;
+import com.github.binarywang.wxpay.bean.entpay.EntPayRequest;
+import com.github.binarywang.wxpay.bean.entpay.EntPayResult;
 import com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse;
 import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
 import com.github.binarywang.wxpay.bean.order.WxPayAppOrderResult;
@@ -12,36 +14,28 @@ import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
 import com.github.binarywang.wxpay.service.impl.WxPayServiceImpl;
 import com.mailvor.api.BusinessException;
-import com.mailvor.config.PayConfig;
 import com.mailvor.modules.pay.dto.PayChannelDto;
-import com.mailvor.modules.pay.service.MwPayChannelService;
 import com.mailvor.modules.pay.service.PayService;
 import com.mailvor.modules.user.domain.MwUserRecharge;
 import com.mailvor.utils.IpUtil;
+import com.mailvor.utils.ShopKeyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+
+import static com.mailvor.config.PayConfig.PAY_NAME;
 
 /**
  * @author jane.zhao
  */
 @Component
 @Slf4j
-public class WechatPayService {
+public class WechatPayService extends PayService {
 
-    @Resource
-    private MwPayChannelService payChannelService;
-    @Resource
-    private PayService payService;
-
-    private WxPayService wxPayService;
-
-    @Resource
-    private PayConfig payConfig;
     public Map<String, Object> pay(PayChannelDto channel, String orderId, String price) throws Exception{
         WxPayAppOrderResult wxPayAppOrderResult = (WxPayAppOrderResult)unifyPay(channel, orderId,price);
         Map<String,Object> jsConfig = new HashMap<>();
@@ -63,8 +57,7 @@ public class WechatPayService {
      */
     protected Object unifyPay(PayChannelDto channel, String orderId, String price) {
 
-        WechatPayConfig config = JSON.parseObject(channel.getCertProfile(), WechatPayConfig.class);
-        WxPayService wxPayService = getPayService(config);
+        WxPayService wxPayService = getWxPayService(channel);
 
         WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
         orderRequest.setOutTradeNo(orderId);
@@ -89,19 +82,19 @@ public class WechatPayService {
      * @return
      */
     protected WxPayService getPayService(WechatPayConfig config) {
-        if(wxPayService== null) {
-            wxPayService = new WxPayServiceImpl();
-        }
+
         WxPayConfig payConfig = new WxPayConfig();
         payConfig.setAppId(config.getAppId());
 
         payConfig.setMchId(config.getMchId());
         payConfig.setMchKey(config.getMchKey());
+        payConfig.setApiV3Key(config.getMchKey());
         payConfig.setKeyPath(config.getKeyPath());
         // 可以指定是否使用沙箱环境
         payConfig.setUseSandboxEnv(false);
+        WxPayService wxPayService = new WxPayServiceImpl();
         wxPayService.setConfig(payConfig);
-        //增加标识
+
         return wxPayService;
     }
 
@@ -109,14 +102,15 @@ public class WechatPayService {
         try {
             log.info("微信充值回调信息:{}", xmlData);
 
+            WxPayService wxPayService = getPayService();
+
             WxPayOrderNotifyResult notifyResult = wxPayService.parseOrderNotifyResult(xmlData);
             if(isOk(notifyResult)) {
                 String orderId = notifyResult.getOutTradeNo();
-                MwUserRecharge recharge = payService.getRecharge(orderId);
-                PayChannelDto payChannel = payService.getChannel(recharge);
-                payChannelService.decPrice(recharge.getPrice(), payChannel.getId());
-                //完成订单
-                payService.setUserLevel(orderId);
+                MwUserRecharge recharge = userRechargeService.getRecharge(orderId);
+                PayChannelDto payChannel = payChannelService.getChannel(recharge.getChannelId());
+
+                finishRecharge(orderId, recharge, payChannel);
 
                 return WxPayNotifyResponse.success("处理成功!");
             }
@@ -134,5 +128,34 @@ public class WechatPayService {
      */
     private boolean isOk(WxPayOrderNotifyResult wxPayOrderNotifyResult) {
         return "SUCCESS".equals(wxPayOrderNotifyResult.getResultCode());
+    }
+
+    public EntPayResult extract(PayChannelDto channelDto, String openid, String userName, Integer amount) throws WxPayException {
+        WxPayService wxPayService = getWxPayService(channelDto);
+        EntPayRequest entPayRequest = new EntPayRequest();
+        String nonceStr = UUID.randomUUID().toString().replace("-", "");
+        entPayRequest.setOpenid(openid);
+        entPayRequest.setPartnerTradeNo(nonceStr);
+        entPayRequest.setCheckName("FORCE_CHECK");
+        entPayRequest.setReUserName(userName);
+        entPayRequest.setAmount(amount);
+        entPayRequest.setDescription("提现成功");
+        entPayRequest.setSpbillCreateIp(IpUtil.getLocalIP());
+        return wxPayService.getEntPayService().entPay(entPayRequest);
+
+    }
+
+    public WxPayService getWxPayService(PayChannelDto channelDto) {
+        WechatPayConfig config = JSON.parseObject(channelDto.getCertProfile(), WechatPayConfig.class);
+        return getPayService(config);
+    }
+
+    protected WxPayService getPayService(){
+        String key = ShopKeyUtils.getMshopWeiXinAppPayService(PAY_NAME);
+        Object payServiceObj = redisUtil.get(key);
+        if(payServiceObj != null) {
+            return (WxPayService) payServiceObj;
+        }
+        return null;
     }
 }

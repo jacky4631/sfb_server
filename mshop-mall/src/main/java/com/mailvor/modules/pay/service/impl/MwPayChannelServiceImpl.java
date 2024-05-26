@@ -19,6 +19,7 @@ import com.mailvor.modules.pay.service.MwPayChannelService;
 import com.mailvor.modules.pay.service.mapper.PayChannelMapper;
 import com.mailvor.modules.utils.RsaUtil;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -30,6 +31,8 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static com.mailvor.config.PayConfig.PAY_NAME;
+import static com.mailvor.modules.config.RSAConfig.KEY_RSA_PRIVATE;
+import static com.mailvor.modules.pay.enums.PayChannelEnum.*;
 import static com.mailvor.modules.utils.PayUtil.*;
 import static java.util.stream.Collectors.toList;
 
@@ -212,23 +215,32 @@ public class MwPayChannelServiceImpl extends BaseServiceImpl<PayChannelMapper, M
     }
 
     @Override
-    public PayChannelDto channelDto(Long uid, Integer payType, String privateKey){
+    public PayChannelDto channelDto(Long uid, Integer payType){
         MwPayChannel payChannel = channel(uid, payType);
         if(payChannel == null) {
             return null;
         }
         PayChannelDto channelDto = generator.convert(payChannel, PayChannelDto.class);
-        channelDto.setCertProfile(RsaUtil.decrypt(new String(payChannel.getCertProfileEnc()), privateKey));
+        channelDto.setCertProfile(RsaUtil.decrypt(new String(payChannel.getCertProfileEnc()), KEY_RSA_PRIVATE));
         return channelDto;
     }
 
     @Override
-    public PayChannelDto getExtractChannel(String privateKey){
+    public PayChannelDto getExtractChannel(String extractType){
         LambdaQueryWrapper<MwPayChannel> wrapper = new LambdaQueryWrapper<MwPayChannel>()
                 .eq(MwPayChannel::getStatus, 8)
                 .eq(MwPayChannel::getExtract, 1)
                 .in(MwPayChannel::getName, Arrays.asList(PAY_NAME, ""))
                 .last("limit 1");
+        if(StringUtils.isNotBlank(extractType)) {
+            if("alipay".equals(extractType)) {
+                wrapper.eq(MwPayChannel::getChannelKey, ALIPAY.getKey());
+            } else if ("weixin".equals(extractType)) {
+                wrapper.eq(MwPayChannel::getChannelKey, WECHATPAY.getKey());
+            }  else if ("bank".equals(extractType)) {
+                wrapper.eq(MwPayChannel::getChannelKey, YSEPAY_BANK_BIND.getKey());
+            }
+        }
         MwPayChannel channel = this.getOne(wrapper);
 
         if(channel == null) {
@@ -236,7 +248,7 @@ public class MwPayChannelServiceImpl extends BaseServiceImpl<PayChannelMapper, M
         }
 
         PayChannelDto channelDto = generator.convert(channel, PayChannelDto.class);
-        channelDto.setCertProfile(RsaUtil.decrypt(new String(channel.getCertProfileEnc()), privateKey));
+        channelDto.setCertProfile(RsaUtil.decrypt(new String(channel.getCertProfileEnc()), KEY_RSA_PRIVATE));
         return channelDto;
     }
     @Override
@@ -244,4 +256,22 @@ public class MwPayChannelServiceImpl extends BaseServiceImpl<PayChannelMapper, M
         mapper.resetClosed();
         return mapper.reset();
     }
+
+
+    @Override
+    public PayChannelDto getChannel(Long channelId) {
+
+        MwPayChannel payChannel = getById(channelId);
+        if(payChannel == null) {
+            throw new MshopException("通道不存在");
+        }
+        if(payChannel.getCertProfileEnc() ==null) {
+            throw new MshopException("证书信息不存在");
+        }
+        PayChannelDto channelDto = generator.convert(payChannel, PayChannelDto.class);
+        channelDto.setCertProfile(RsaUtil.decrypt(new String(payChannel.getCertProfileEnc()), KEY_RSA_PRIVATE));
+
+        return channelDto;
+    }
+
 }

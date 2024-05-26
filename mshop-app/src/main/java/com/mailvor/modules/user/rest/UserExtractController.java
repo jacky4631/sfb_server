@@ -19,6 +19,7 @@ import com.mailvor.modules.activity.service.dto.MwExtractConfigDto;
 import com.mailvor.modules.activity.service.dto.MwUserExtractQueryCriteria;
 import com.mailvor.modules.logging.aop.log.AppLog;
 import com.mailvor.modules.pay.dto.PayChannelDto;
+import com.mailvor.modules.pay.enums.PayChannelEnum;
 import com.mailvor.modules.pay.param.ExtractBankBindConfirmParam;
 import com.mailvor.modules.pay.param.ExtractBankBindParam;
 import com.mailvor.modules.pay.service.MwPayChannelService;
@@ -38,7 +39,6 @@ import com.yinsheng.command.wallet.BindCardRespCommand;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,7 +52,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.mailvor.modules.utils.PayUtil.CHANNEL_KEY_YSEPAY_BANK_BIND;
 
 /**
  * <p>
@@ -81,10 +80,6 @@ public class UserExtractController {
     private YsePayService ysePayService;
     @Resource
     private MwUserCardService cardService;
-
-    @Value("${rsa.private_key}")
-    private String privateKey;
-
     @Resource
     private MwUserExtraService userExtraService;
 
@@ -192,7 +187,7 @@ public class UserExtractController {
             }
         }
 
-        PayChannelDto payChannel = payChannelService.channelDto(uid, 4, privateKey);
+        PayChannelDto payChannel = payChannelService.channelDto(uid, 4);
 
         if(payChannel == null) {
             throw new MshopException("无支付通道可选择");
@@ -208,8 +203,8 @@ public class UserExtractController {
 
         String key = payChannel.getChannelKey();
         Map<String, Object> data = new HashMap<>();
-        switch (key) {
-            case CHANNEL_KEY_YSEPAY_BANK_BIND:
+        switch (PayChannelEnum.toKey(key)) {
+            case YSEPAY_BANK_BIND:
                 BindCardRespCommand resp = ysePayService.bindCard(payChannel, userExtra.getMerchantNo(), param.getBankNo(), param.getPhone());
                 log.info("extractBankBind param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(resp));
                 data.put("requestNo", resp.getRequestNo());
@@ -235,7 +230,7 @@ public class UserExtractController {
     @ApiOperation(value = "提现绑卡短信确认",notes = "提现绑卡短信确认")
     public ApiResult extractBankBindConfirm(@Valid @RequestBody ExtractBankBindConfirmParam param){
         MwUser loginUser = LocalUser.getUser();
-        PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), 4, privateKey);
+        PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), 4);
 
         if(payChannel == null) {
             throw new MshopException("无支付通道可选择");
@@ -246,8 +241,8 @@ public class UserExtractController {
         }
         String bankNo = (String)bankNoObj;
         String key = payChannel.getChannelKey();
-        switch (key) {
-            case CHANNEL_KEY_YSEPAY_BANK_BIND:
+        switch (PayChannelEnum.toKey(key)) {
+            case YSEPAY_BANK_BIND:
                 //绑卡确认
                 ConfirmVerifyRespCommand resp = ysePayService.confirmVerify(payChannel, param.getRequestNo(), param.getAuthSn(), param.getCode());
                 //保存绑卡标识

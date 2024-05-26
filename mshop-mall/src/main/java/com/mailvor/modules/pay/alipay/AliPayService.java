@@ -3,16 +3,15 @@ package com.mailvor.modules.pay.alipay;
 import com.alibaba.fastjson.JSON;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
+import com.alipay.api.response.AlipayFundTransUniTransferResponse;
+import com.mailvor.api.MshopException;
 import com.mailvor.config.PayConfig;
 import com.mailvor.modules.pay.dto.PayChannelDto;
-import com.mailvor.modules.pay.service.MwPayChannelService;
 import com.mailvor.modules.pay.service.PayService;
 import com.mailvor.modules.tools.domain.AlipayConfig;
 import com.mailvor.modules.tools.domain.vo.TradeVo;
 import com.mailvor.modules.tools.service.AlipayConfigService;
 import com.mailvor.modules.user.domain.MwUserRecharge;
-import com.mailvor.utils.OrderUtil;
-import com.mailvor.utils.RedisUtils;
 import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -29,23 +28,15 @@ import java.util.Map;
  */
 @Component
 @Slf4j
-public class AliPayService {
+public class AliPayService extends PayService{
     @Resource
     private AlipayConfigService alipayConfigService;
 
     @Resource
-    private MwPayChannelService payChannelService;
-    @Resource
-    private PayService payService;
-
-    @Resource
-    private RedisUtils redisUtil;
-
-    @Resource
     private PayConfig payConfig;
-    public Map<String, String> alipay(PayChannelDto certProfile, String orderId, String price) throws Exception{
+    public Map<String, String> alipay(PayChannelDto payChannelDto, String orderId, String price) throws Exception{
 
-        AlipayConfig alipay = JSON.parseObject(certProfile.getCertProfile(), AlipayConfig.class);
+        AlipayConfig alipay = parseAliPayConfig(payChannelDto);
         TradeVo trade = new TradeVo();
         trade.setTotalAmount(price);
         trade.setOutTradeNo(orderId);
@@ -60,10 +51,10 @@ public class AliPayService {
 
     }
 
-    public Map<String, String> alipayWeb(PayChannelDto certProfile, String orderId, String price) throws Exception{
+    public Map<String, String> alipayWeb(PayChannelDto payChannelDto, String orderId, String price) throws Exception{
 
-        AlipayConfig alipay = JSON.parseObject(certProfile.getCertProfile(), AlipayConfig.class);
-        alipay.setNotifyUrl(certProfile.getNotifyUrl());
+        AlipayConfig alipay = parseAliPayConfig(payChannelDto);;
+        alipay.setNotifyUrl(payChannelDto.getNotifyUrl());
         TradeVo trade = new TradeVo();
         trade.setTotalAmount(price);
         trade.setOutTradeNo(orderId);
@@ -103,15 +94,15 @@ public class AliPayService {
         if(!"TRADE_SUCCESS".equals(tradeStatus)) {
             return "success";
         }
-        MwUserRecharge recharge = payService.getRecharge(orderId);
+        MwUserRecharge recharge = userRechargeService.getRecharge(orderId);
         if(recharge == null) {
             return "fail";
         }
-        PayChannelDto payChannel = payService.getChannel(recharge);
+        PayChannelDto payChannel = payChannelService.getChannel(recharge.getChannelId());
         if(payChannel == null) {
             return "fail";
         }
-        AlipayConfig alipay = JSON.parseObject(payChannel.getCertProfile(), AlipayConfig.class);
+        AlipayConfig alipay = parseAliPayConfig(payChannel);
         boolean flag = false;
         if(alipay.getAliPublicCert()!=null){
             flag = AlipaySignature.rsaCertCheckV1(params,
@@ -123,16 +114,31 @@ public class AliPayService {
                     alipay.getCharset(),alipay.getSignType());
         }
         if(flag) {
-            //减少通道剩余额度
-            payChannelService.decPrice(recharge.getPrice(), payChannel.getId());
-            //完成订单
-            payService.setUserLevel(orderId);
-            //清空优惠信息
-            String couponKey = OrderUtil.getCouponKey(recharge.getPlatform(), recharge.getUid());
-            log.info("删除优惠券key：" + couponKey);
-            redisUtil.del(couponKey);
+
+            finishRecharge(orderId, recharge, payChannel);
+
             return "success";
         }
         return "fail";
+    }
+
+
+    public AlipayFundTransUniTransferResponse fund(PayChannelDto channelDto, String userId, String amount) throws AlipayApiException {
+        AlipayConfig alipay = parseAliPayConfig(channelDto);
+
+        return alipayConfigService.fund(alipay, userId, amount);
+    }
+
+    protected AlipayConfig parseAliPayConfig(PayChannelDto channelDto) {
+        return JSON.parseObject(channelDto.getCertProfile(), AlipayConfig.class);
+
+    }
+
+    public AlipayConfig getAlipayConfig() {
+        PayChannelDto channelDto = payChannelService.getExtractChannel("alipay");
+        if(channelDto == null) {
+            throw new MshopException("授权失败");
+        }
+        return parseAliPayConfig(channelDto);
     }
 }

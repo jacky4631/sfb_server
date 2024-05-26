@@ -22,6 +22,8 @@ import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.enums.ShopCommonEnum;
 import com.mailvor.modules.auth.param.*;
 import com.mailvor.modules.logging.aop.log.AppLog;
+import com.mailvor.modules.pay.alipay.AliPayService;
+import com.mailvor.modules.pay.service.MwPayChannelService;
 import com.mailvor.modules.services.AuthService;
 import com.mailvor.modules.shanyan.ShanyanMobileUtil;
 import com.mailvor.modules.shanyan.config.ShanyanConfig;
@@ -71,7 +73,7 @@ public class AuthController {
     private final MwUserService userService;
     private final RedisUtils redisUtil;
     private final AuthService authService;
-    private final AlipayConfigService alipayService;
+    private final AlipayConfigService alipayConfigService;
 
     private final MwSystemConfigService systemConfigService;
     @Value("${single.login}")
@@ -92,6 +94,9 @@ public class AuthController {
 
     @Resource
     private MwUserCardService cardService;
+
+    @Resource
+    private AliPayService aliPayService;
     /**
      * 根据手机号查询用户状态
      */
@@ -391,8 +396,9 @@ public class AuthController {
         if(mwUser != null && mwUser.getAliProfile() != null) {
             throw new MshopException("支付宝已授权");
         }
-        AlipayConfig alipayConfig = alipayService.find();
-        AlipayUserInfoShareResponse userInfoShareResponse = alipayService.auth(alipayConfig, code);
+        AlipayConfig alipayConfig = aliPayService.getAlipayConfig();
+
+        AlipayUserInfoShareResponse userInfoShareResponse = alipayConfigService.auth(alipayConfig, code);
 
         MwUser user = authService.alipayAppLogin(uid, userInfoShareResponse, spread);
         log.info("用户uid{}支付宝授权", uid);
@@ -409,8 +415,8 @@ public class AuthController {
     })
     @ApiOperation(value = "app授权", notes = "app授权")
     public ApiResult<String> alipayAppAuthCode() throws Exception {
-        AlipayConfig alipayConfig = alipayService.find();
-        String loginStr = alipayService.code(alipayConfig);
+        AlipayConfig alipayConfig = aliPayService.getAlipayConfig();
+        String loginStr = alipayConfigService.code(alipayConfig);
 
         return ApiResult.ok(loginStr);
 
