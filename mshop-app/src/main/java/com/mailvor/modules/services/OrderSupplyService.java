@@ -48,8 +48,6 @@ import java.util.Map;
 public class OrderSupplyService {
 
     private final MwStoreOrderService storeOrderService;
-    private final MwStoreBargainUserService storeBargainUserService;
-    private final MwStorePinkService storePinkService;
     private final MwStoreOrderCartInfoService orderCartInfoService;
     private final WeixinPayService weixinPayService;
 

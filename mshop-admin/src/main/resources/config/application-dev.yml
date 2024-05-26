@@ -194,11 +194,6 @@ wx:
   app:
     appId: "wx13xxxxxxbbxxxxxx0"
     secret: "0xxxxxx8b50623cxxxxxx1f3f737af48"
-  #todo 微信支付
-  pay:
-    mchId: "14xxxxxx72"
-    mchKey: "VIgxxxxxxJZbnW7b0EYnEQMcp9vJStjR"
-    mchCertPath: "/www/wwwroot/mshop/apiclient_cert.p12"
 quartz:
   #todo 当部署多个管理端时，只有一个设置为true
   main: true

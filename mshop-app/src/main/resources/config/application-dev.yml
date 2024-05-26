@@ -188,11 +188,6 @@ wx:
   app:
     appId: "wx13xxxxxxbbxxxxxx0"
     secret: "0xxxxxx8b50623cxxxxxx1f3f737af48"
-  #todo 微信支付
-  pay:
-    mchId: "14xxxxxx72"
-    mchKey: "VIgxxxxxxJZbnW7b0EYnEQMcp9vJStjR"
-    mchCertPath: "/www/wwwroot/mshop/apiclient_cert.p12"
 # todo 饿了么key
 ele:
   api: https://eco.taobao.com/router/rest

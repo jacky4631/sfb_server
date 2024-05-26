@@ -3,34 +3,32 @@
  * All rights reserved, Designed By www.mailvor.com
  */
 package com.mailvor.modules.mp.service;
+
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.github.binarywang.wxpay.bean.request.WxPayRefundRequest;
+import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest;
+import com.github.binarywang.wxpay.exception.WxPayException;
+import com.github.binarywang.wxpay.service.WxPayService;
 import com.mailvor.api.BusinessException;
 import com.mailvor.api.MshopException;
 import com.mailvor.enums.AppFromEnum;
 import com.mailvor.enums.BillDetailEnum;
 import com.mailvor.enums.OrderInfoEnum;
-import com.mailvor.enums.PayMethodEnum;
 import com.mailvor.modules.order.service.MwStoreOrderService;
 import com.mailvor.modules.order.vo.MwStoreOrderQueryVo;
+import com.mailvor.modules.pay.wechat.WechatPayService;
 import com.mailvor.modules.user.domain.MwUserRecharge;
 import com.mailvor.modules.user.domain.MwUserUnion;
 import com.mailvor.modules.user.service.MwUserRechargeService;
-import com.mailvor.modules.user.service.MwUserService;
 import com.mailvor.modules.user.service.MwUserUnionService;
 import com.mailvor.modules.user.service.dto.WechatUserDto;
-import com.mailvor.modules.mp.config.WxPayConfiguration;
 import com.mailvor.utils.IpUtil;
 import com.mailvor.utils.RedisUtils;
 import com.mailvor.utils.ShopKeyUtils;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.github.binarywang.wxpay.bean.entpay.EntPayRequest;
-import com.github.binarywang.wxpay.bean.request.WxPayRefundRequest;
-import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest;
-import com.github.binarywang.wxpay.exception.WxPayException;
-import com.github.binarywang.wxpay.service.WxPayService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,14 +49,14 @@ public class WeixinPayService {
     private RedisUtils redisUtils;
 
     @Autowired
-    private MwUserService userService;
-    @Autowired
     private MwStoreOrderService storeOrderService;
     @Autowired
     private MwUserRechargeService userRechargeService;
 
     @Resource
     private MwUserUnionService userUnionService;
+    @Resource
+    private WechatPayService wechatPayService;
     /**
      * 统一支付入口
      * @param orderId 单号
@@ -108,14 +106,8 @@ public class WeixinPayService {
 
         WechatUserDto wechatUserDto = userUnion.getWxProfile();
 
-        WxPayService wxPayService = null;
-        if(AppFromEnum.ROUNTINE.getValue().equals(from)){
-            wxPayService = WxPayConfiguration.getPayService(PayMethodEnum.WXAPP);
-        }else if(AppFromEnum.APP.getValue().equals(from) || AppFromEnum.PC.getValue().equals(from)){
-            wxPayService = WxPayConfiguration.getPayService(PayMethodEnum.APP);
-        }else{
-            wxPayService = WxPayConfiguration.getPayService(PayMethodEnum.WECHAT);
-        }
+        WxPayService wxPayService = wechatPayService.getAppWxPayService();
+
         WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
         orderRequest.setOutTradeNo(orderId);
         orderRequest.setTotalFee(payPrice);
@@ -157,7 +149,7 @@ public class WeixinPayService {
     public void refundOrder(String orderId, Integer refundFee) {
 
         MwStoreOrderQueryVo orderInfo = storeOrderService.getOrderInfo(orderId,null);
-        WxPayService wxPayService = WxPayConfiguration.getPayService(PayMethodEnum.WECHAT);
+        WxPayService wxPayService = wechatPayService.getAppWxPayService();
         WxPayRefundRequest wxPayRefundRequest = new WxPayRefundRequest();
         BigDecimal bigDecimal = new BigDecimal("100");
         int totalFee = bigDecimal.multiply(orderInfo.getPayIntegral()).intValue();
@@ -178,29 +170,6 @@ public class WeixinPayService {
         }
     }
 
-
-    /**
-     * 企业打款
-     * @param openid 微信openid
-     * @param no 单号
-     * @param userName 用户姓名
-     * @param amount 金额
-     * @throws WxPayException
-     */
-    public void entPay(String openid,String no,String userName,Integer amount) throws WxPayException {
-        WxPayService wxPayService = WxPayConfiguration.getPayService(PayMethodEnum.APP);
-        EntPayRequest entPayRequest = new EntPayRequest();
-
-        entPayRequest.setOpenid(openid);
-        entPayRequest.setPartnerTradeNo(no);
-        entPayRequest.setCheckName("FORCE_CHECK");
-        entPayRequest.setReUserName(userName);
-        entPayRequest.setAmount(amount);
-        entPayRequest.setDescription("提现成功");
-        entPayRequest.setSpbillCreateIp(IpUtil.getLocalIP());
-        wxPayService.getEntPayService().entPay(entPayRequest);
-
-    }
     /**
      * 返回H5 url
      * @return url

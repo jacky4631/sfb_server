@@ -8,32 +8,22 @@ import cn.binarywang.wx.miniapp.api.WxMaService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse;
-import com.github.binarywang.wxpay.bean.notify.WxPayRefundNotifyResult;
-import com.github.binarywang.wxpay.exception.WxPayException;
-import com.github.binarywang.wxpay.service.WxPayService;
 import com.mailvor.annotation.AnonymousAccess;
 import com.mailvor.api.ApiResult;
 import com.mailvor.api.BusinessException;
 import com.mailvor.api.MshopException;
 import com.mailvor.constant.SystemConfigConstants;
-import com.mailvor.enums.AfterSalesStatusEnum;
 import com.mailvor.enums.OrderInfoEnum;
-import com.mailvor.enums.PayMethodEnum;
 import com.mailvor.modules.mp.config.WxMaConfiguration;
 import com.mailvor.modules.mp.config.WxMpConfiguration;
-import com.mailvor.modules.mp.config.WxPayConfiguration;
-import com.mailvor.modules.order.domain.MwStoreOrder;
-import com.mailvor.modules.order.service.MwStoreOrderService;
-import com.mailvor.modules.order.vo.MwStoreOrderQueryVo;
-import com.mailvor.modules.sales.domain.StoreAfterSales;
-import com.mailvor.modules.sales.service.StoreAfterSalesService;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.user.domain.MwUserRecharge;
 import com.mailvor.modules.user.service.MwUserRechargeService;
 import com.mailvor.modules.user.service.MwUserService;
-import com.mailvor.utils.*;
+import com.mailvor.utils.OrderUtil;
+import com.mailvor.utils.RedisUtils;
+import com.mailvor.utils.ShopKeyUtils;
+import com.mailvor.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -51,10 +41,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @ClassName WechatController
@@ -67,10 +55,8 @@ import java.util.Objects;
 @Api(value = "微信模块", tags = "微信:微信模块")
 public class WechatController {
 
-    private final MwStoreOrderService orderService;
     private final MwSystemConfigService systemConfigService;
     private final MwUserRechargeService userRechargeService;
-    private final StoreAfterSalesService storeAfterSalesService;
 
     private final RestTemplate restTemplate;
 
@@ -230,43 +216,6 @@ public class WechatController {
 
     }
 
-    /**
-     * 微信退款回调
-     */
-    @ApiOperation(value = "退款回调通知处理",notes = "退款回调通知处理")
-    @PostMapping("/notify/refund")
-    public String parseRefundNotifyResult(@RequestBody String xmlData) {
-        try {
-            WxPayService wxPayService = WxPayConfiguration.getPayService(PayMethodEnum.WECHAT);
-            if(wxPayService == null) {
-                wxPayService = WxPayConfiguration.getPayService(PayMethodEnum.WXAPP);
-            }
-            if(wxPayService == null) {
-                wxPayService = WxPayConfiguration.getPayService(PayMethodEnum.APP);
-            }
-            WxPayRefundNotifyResult result = wxPayService.parseRefundNotifyResult(xmlData);
-            String orderId = result.getReqInfo().getOutTradeNo();
-            BigDecimal refundFee = BigNum.div(result.getReqInfo().getRefundFee(), 100);
-            MwStoreOrderQueryVo orderInfo = orderService.getOrderInfo(orderId,null);
-            MwStoreOrder storeOrder = new MwStoreOrder();
-            //修改状态
-            storeOrder.setId(orderInfo.getId());
-            orderService.updateById(storeOrder);
-            orderService.retrunStock(orderId);
-            //售后状态修改
-            LambdaQueryWrapper<StoreAfterSales> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(StoreAfterSales::getOrderCode, orderId);
-            StoreAfterSales storeAfterSales = storeAfterSalesService.getOne(wrapper);
-            if (Objects.nonNull(storeAfterSales)) {
-                storeAfterSales.setState(AfterSalesStatusEnum.STATUS_3.getValue());
-                storeAfterSalesService.updateById(storeAfterSales);
-            }
-            return WxPayNotifyResponse.success("处理成功!");
-        } catch (WxPayException | IllegalAccessException e) {
-            log.error(e.getMessage());
-            return WxPayNotifyResponse.fail(e.getMessage());
-        }
-    }
     /**
      * 微信验证消息
      */

@@ -5,9 +5,11 @@
 package com.mailvor.modules.pay.service;
 
 import com.mailvor.common.service.BaseService;
+import com.mailvor.enums.PayTypeEnum;
 import com.mailvor.modules.pay.domain.MwPayChannel;
 import com.mailvor.modules.pay.dto.PayChannelDto;
 import com.mailvor.modules.pay.dto.PayChannelQueryCriteria;
+import com.mailvor.modules.pay.enums.PayChannelEnum;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
@@ -64,4 +66,13 @@ public interface MwPayChannelService extends BaseService<MwPayChannel>{
     PayChannelDto getExtractChannel(String extractType);
 
     PayChannelDto getChannel(Long channelId);
+
+    /**
+     * Gets pay channel.
+     *
+     * @param channelEnum the channel enum
+     * @param typeEnum    the type enum
+     * @return the pay channel
+     */
+    PayChannelDto getPayChannel(PayChannelEnum channelEnum, PayTypeEnum typeEnum);
 }

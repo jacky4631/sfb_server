@@ -8,14 +8,8 @@ import com.mailvor.api.ApiResult;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.AuthCheck;
 import com.mailvor.modules.logging.aop.log.AppLog;
-import com.mailvor.modules.mp.service.WeixinPayService;
-import com.mailvor.modules.mp.service.MwWechatTemplateService;
 import com.mailvor.modules.order.param.ConfirmIntegralParam;
 import com.mailvor.modules.order.service.SuStoreOrderService;
-import com.mailvor.modules.order.service.MwStoreOrderCartInfoService;
-import com.mailvor.modules.order.service.MwStoreOrderStatusService;
-import com.mailvor.modules.services.CreatShareProductService;
-import com.mailvor.modules.services.OrderSupplyService;
 import com.mailvor.modules.user.domain.MwUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -43,13 +37,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class PointsOrderController {
 
     private final SuStoreOrderService suStoreOrderService;
-    private final OrderSupplyService orderSupplyService;
-    private final CreatShareProductService creatShareProductService;
-    private final MwWechatTemplateService mwWechatTemplateService;
-    private final MwStoreOrderStatusService orderStatusService;
-
-    private final MwStoreOrderCartInfoService storeOrderCartInfoService;
-    private final WeixinPayService weixinPayService;
 
     @Value("${file.path}")
     private String path;

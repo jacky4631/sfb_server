@@ -14,11 +14,14 @@ import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
 import com.github.binarywang.wxpay.service.impl.WxPayServiceImpl;
 import com.mailvor.api.BusinessException;
+import com.mailvor.api.MshopException;
+import com.mailvor.enums.AppFromEnum;
+import com.mailvor.enums.PayTypeEnum;
 import com.mailvor.modules.pay.dto.PayChannelDto;
+import com.mailvor.modules.pay.enums.PayChannelEnum;
 import com.mailvor.modules.pay.service.PayService;
 import com.mailvor.modules.user.domain.MwUserRecharge;
 import com.mailvor.utils.IpUtil;
-import com.mailvor.utils.ShopKeyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +30,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.mailvor.config.PayConfig.PAY_NAME;
 
 /**
  * @author jane.zhao
@@ -98,11 +100,20 @@ public class WechatPayService extends PayService {
         return wxPayService;
     }
 
-    public String notify(String xmlData) throws IOException, AlipayApiException {
+    public String notify(AppFromEnum from, String xmlData) throws IOException, AlipayApiException {
         try {
             log.info("微信充值回调信息:{}", xmlData);
+            WxPayService wxPayService= null;
+            if(AppFromEnum.APP == from) {
+                wxPayService = getAppWxPayService();
+            } else {
 
-            WxPayService wxPayService = getPayService();
+                //todo 其他支付回调
+            }
+
+            if(wxPayService == null) {
+                throw new RuntimeException("解析微信充值回调错误：未找到有效支付通道");
+            }
 
             WxPayOrderNotifyResult notifyResult = wxPayService.parseOrderNotifyResult(xmlData);
             if(isOk(notifyResult)) {
@@ -115,7 +126,7 @@ public class WechatPayService extends PayService {
                 return WxPayNotifyResponse.success("处理成功!");
             }
         } catch (WxPayException e) {
-            log.error(e.getMessage());
+            log.error("微信支付回调异常: {}", e);
         }
         return WxPayNotifyResponse.fail("处理失败");
     }
@@ -150,12 +161,12 @@ public class WechatPayService extends PayService {
         return getPayService(config);
     }
 
-    protected WxPayService getPayService(){
-        String key = ShopKeyUtils.getMshopWeiXinAppPayService(PAY_NAME);
-        Object payServiceObj = redisUtil.get(key);
-        if(payServiceObj != null) {
-            return (WxPayService) payServiceObj;
+    public WxPayService getAppWxPayService() {
+        PayChannelDto payChannelDto = payChannelService.getPayChannel(PayChannelEnum.WECHATPAY, PayTypeEnum.WEIXIN);
+        if(payChannelDto == null) {
+            throw new MshopException("APP支付通道不存在");
         }
-        return null;
+        return getWxPayService(payChannelDto);
     }
+
 }

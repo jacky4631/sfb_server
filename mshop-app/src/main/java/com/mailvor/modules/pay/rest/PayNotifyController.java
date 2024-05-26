@@ -6,6 +6,7 @@ package com.mailvor.modules.pay.rest;
 
 import com.alipay.api.AlipayApiException;
 import com.mailvor.annotation.AnonymousAccess;
+import com.mailvor.enums.AppFromEnum;
 import com.mailvor.modules.pay.adapay.AdaPayService;
 import com.mailvor.modules.pay.alipay.AliPayService;
 import com.mailvor.modules.pay.allinpay.syb.SybService;
@@ -86,9 +87,9 @@ public class PayNotifyController {
      */
     @AnonymousAccess
     @PostMapping("/pay/notify/wechat")
-    @ApiOperation(value = "微信支付充值回调",notes = "微信支付充值回调")
+    @ApiOperation(value = "微信APP支付回调",notes = "微信APP支付回调")
     public String wechatNotify(@RequestBody String xmlData) throws AlipayApiException, IOException {
-        return wechatPayService.notify(xmlData);
+        return wechatPayService.notify(AppFromEnum.APP, xmlData);
 
     }
 

@@ -10,10 +10,12 @@ import com.mailvor.api.MshopException;
 import com.mailvor.common.service.impl.BaseServiceImpl;
 import com.mailvor.common.utils.QueryHelpPlus;
 import com.mailvor.dozer.service.IGenerator;
+import com.mailvor.enums.PayTypeEnum;
 import com.mailvor.modules.pay.domain.MwPayBind;
 import com.mailvor.modules.pay.domain.MwPayChannel;
 import com.mailvor.modules.pay.dto.PayChannelDto;
 import com.mailvor.modules.pay.dto.PayChannelQueryCriteria;
+import com.mailvor.modules.pay.enums.PayChannelEnum;
 import com.mailvor.modules.pay.service.MwPayBindService;
 import com.mailvor.modules.pay.service.MwPayChannelService;
 import com.mailvor.modules.pay.service.mapper.PayChannelMapper;
@@ -274,4 +276,21 @@ public class MwPayChannelServiceImpl extends BaseServiceImpl<PayChannelMapper, M
         return channelDto;
     }
 
+
+    @Override
+    public PayChannelDto getPayChannel(PayChannelEnum channelEnum, PayTypeEnum typeEnum){
+        LambdaQueryWrapper<MwPayChannel> wrapper = new LambdaQueryWrapper<MwPayChannel>()
+                .eq(MwPayChannel::getStatus, 8)
+                .eq(MwPayChannel::getChannelKey, channelEnum.getKey())
+                .eq(MwPayChannel::getType, typeEnum.getType())
+                .in(MwPayChannel::getName, Arrays.asList(PAY_NAME, ""))
+                .last("limit 1");
+        MwPayChannel channel = this.getOne(wrapper);
+        if(channel == null) {
+            return null;
+        }
+        PayChannelDto channelDto = generator.convert(channel, PayChannelDto.class);
+        channelDto.setCertProfile(RsaUtil.decrypt(new String(channel.getCertProfileEnc()), KEY_RSA_PRIVATE));
+        return channelDto;
+    }
 }

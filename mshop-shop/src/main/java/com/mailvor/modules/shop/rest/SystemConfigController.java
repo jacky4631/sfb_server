@@ -13,7 +13,6 @@ import com.mailvor.modules.shop.domain.MwSystemConfig;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.shop.service.dto.MwSystemConfigQueryCriteria;
 import com.mailvor.modules.mp.config.WxMpConfiguration;
-import com.mailvor.modules.mp.config.WxPayConfiguration;
 import com.mailvor.modules.mp.config.WxMaConfiguration;
 import com.mailvor.utils.RedisUtil;
 import com.alibaba.fastjson.JSON;
@@ -73,12 +72,9 @@ public class SystemConfigController {
                     //重新配置微信相关
                     if(SystemConfigConstants.WECHAT_APPID.equals(key)){
                         WxMpConfiguration.removeWxMpService();
-                        WxPayConfiguration.removeWxPayService();
                         WxMaConfiguration.removeWxMaService();
                     }
-                    if(SystemConfigConstants.WXPAY_MCHID.equals(key) || SystemConfigConstants.WXAPP_APPID.equals(key)){
-                        WxPayConfiguration.removeWxPayService();
-                    }
+
                     if(SystemConfigConstants.EXP_APPID.equals(key)){
                         RedisUtil.del(ShopConstants.MSHOP_EXPRESS_SERVICE);
                     }
