@@ -247,6 +247,9 @@ public class PayController {
                     log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(yseAliPay));
                     data.put("payInfo", "alipays://platformapi/startapp?saId=10000007&qrcode=" + yseAliPay.getQrCode());
                     break;
+                case iOSPAY:
+                    data.put("localOrderId", orderId);
+                    break;
             }
 
             data.put("localOrderId", orderId);
