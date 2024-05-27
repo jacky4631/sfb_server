@@ -162,12 +162,14 @@ public class MeituanService {
         String sign = MeituanUtil.generateSignature(signMap, meituanConfig.getAppKey());
         params.put("sign", sign);
 
-//        ResponseEntity<MtResVo> response = restTemplate
-//                .postForEntity(MeituanUtil.concatUrl(url, params), body, MtResVo.class);
-//        return response.getBody();
-        ResponseEntity<String> response = restTemplate
-                .postForEntity(MeituanUtil.concatUrl(url, params), body, String.class);
-        return JSON.parseObject(response.getBody(), MtResVo.class);
+        try {
+            ResponseEntity<String> response = restTemplate
+                    .postForEntity(MeituanUtil.concatUrl(url, params), body, String.class);
+            return JSON.parseObject(response.getBody(), MtResVo.class);
+        }catch (Exception e) {
+            log.error("采集美团订单错误：{}", e);
+            return null;
+        }
     }
     public MtResVo orderCPS(JSONObject body){
         return order(MT_URL_ORDER_CPS, body);
