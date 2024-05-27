@@ -3,20 +3,6 @@ server:
   servlet:
     context-path: /api
 
-spring:
-  main:
-    allow-circular-references: true
-  freemarker:
-    check-template-location: false
-  profiles:
-    active: dev
-  jackson:
-    time-zone: GMT+8
-  data:
-    redis:
-      repositories:
-        enabled: false
-
 task:
   pool:
     # 核心线程池大小
@@ -80,3 +66,16 @@ pagehelper:
   reasonable: true
   supportMethodsArguments: true
   params: count=countSql
+spring:
+  main:
+    allow-circular-references: true
+  freemarker:
+    check-template-location: false
+  profiles:
+    active: dev
+  jackson:
+    time-zone: GMT+8
+  data:
+    redis:
+      repositories:
+        enabled: false
