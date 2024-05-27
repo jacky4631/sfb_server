@@ -124,6 +124,20 @@ public class UserExtractController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @DeleteMapping(value = "/extract/ban/{uid}")
+    @Log("删除禁止提现用户")
+    @ApiOperation("删除禁止提现用户")
+    @PreAuthorize("@el.check('admin','MWUSEREXTRACT_ALL','MWUSEREXTRACT_DELETE')")
+    public ResponseEntity<Object> delInvalidExtract(@PathVariable Long uid){
+
+        MwUser user = userService.getById(uid);
+        if(user == null) {
+            throw new MshopException("用户不存在");
+        }
+        extractConfigService.removeById(uid);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 
     @PostMapping(value = "/extract/config")
     @Log("修改提现配置")
