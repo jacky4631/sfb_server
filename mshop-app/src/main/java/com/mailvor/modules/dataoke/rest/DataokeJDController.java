@@ -4,16 +4,17 @@ import com.alibaba.fastjson.JSONObject;
 import com.mailvor.api.ApiResult;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.UserCheck;
+import com.mailvor.modules.tk.param.GoodsJdWordParam;
 import com.mailvor.modules.tk.param.GoodsListJDParam;
 import com.mailvor.modules.tk.service.DataokeService;
 import com.mailvor.modules.user.domain.MwUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 /**
  *
@@ -45,27 +46,21 @@ public class DataokeJDController {
 //        return service.getCommentList(param);
 //    }
 //
-    @GetMapping(value = "/goods/word")
-    public JSONObject goodsWord(String itemUrl) {
-        return service.goodsWordJD(itemUrl, null);
-
-    }
 
     @UserCheck
-    @GetMapping(value = "/goods/parse")
-    public ApiResult<String> goodsWordJd(String itemUrl, String couponLink, @RequestParam(required = false) Long uid) {
-        String positionId = null;
-        if(uid != null && uid > 0) {
-            positionId = uid.toString();
+    @GetMapping(value = "/goods/word")
+    public ApiResult<String> goodsWord(@Valid GoodsJdWordParam param) {
+        String positionId;
+
+        MwUser user = LocalUser.getUser();
+        if(user != null) {
+            positionId = user.getUid().toString();
         } else {
-            MwUser user = LocalUser.getUser();
-            if(user != null) {
-                positionId = user.getUid().toString();
-            }
+            positionId = "0";
         }
 
         log.debug("jd parse positionId {}", positionId);
-        JSONObject daRes = service.goodsWordJD(itemUrl, positionId);
+        JSONObject daRes = service.goodsWordJD(param.getGoodsId(), param.getCouponLink(), positionId);
 
         String url = "";
         if(daRes != null) {
@@ -76,6 +71,7 @@ public class DataokeJDController {
             }
         }
         return ApiResult.ok(url);
+
     }
 
     @GetMapping(value = "/brand/list")

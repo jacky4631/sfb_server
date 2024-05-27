@@ -270,10 +270,13 @@ public class DataokeService {
         return null;
     }
 
-    public JSONObject goodsWordJD(String itemUrl, String pid) {
+    public JSONObject goodsWordJD(String itemUrl, String couponUrl, String pid) {
 
         TreeMap<String, String> paraMap = new TreeMap<>();
         paraMap.put("materialId", itemUrl);
+        if(StringUtils.isNotBlank(couponUrl)) {
+            paraMap.put("couponUrl", couponUrl);
+        }
         if(pid != null) {
             paraMap.put("positionId", pid);
         }
@@ -281,6 +284,7 @@ public class DataokeService {
         String data = getData(DataokeApi.JD_GOODS_WORD.getUrl(), DataokeApi.JD_GOODS_WORD.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
+
     public JSONObject parseUrlJD(String itemUrl) {
 
         TreeMap<String, String> paraMap = new TreeMap<>();
