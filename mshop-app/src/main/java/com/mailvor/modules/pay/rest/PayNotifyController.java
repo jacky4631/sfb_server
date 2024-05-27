@@ -206,7 +206,13 @@ public class PayNotifyController {
                  *
                  */
                 if (!in_app.isEmpty()) {
-                    String productId = OrderUtil.getIosProductId(userRecharge.getPlatform(), userRecharge.getGrade());
+                    String productId;
+                    //todo 月会员00003 暂时写死 后期优化
+                    if(userRecharge.getType() == 2) {
+                        productId = "00003";
+                    } else {
+                        productId = OrderUtil.getIosProductId(userRecharge.getPlatform(), userRecharge.getGrade());
+                    }
                     Object findProduct = in_app.stream().filter(inAppObj-> productId.equals(((JSONObject)inAppObj).getString("product_id"))).findFirst().orElse(null);
 
                     //判断product_id，看返回的product_id与实际的充值金额是不是一致，防止骗单
