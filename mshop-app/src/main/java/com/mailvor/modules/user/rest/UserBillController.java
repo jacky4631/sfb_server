@@ -7,6 +7,7 @@ package com.mailvor.modules.user.rest;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Maps;
 import com.mailvor.api.ApiResult;
 import com.mailvor.api.MshopException;
@@ -20,17 +21,16 @@ import com.mailvor.modules.order.service.SuStoreOrderService;
 import com.mailvor.modules.services.CreatShareProductService;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.tk.domain.MailvorJdOrder;
+import com.mailvor.modules.tk.domain.MailvorMtOrder;
 import com.mailvor.modules.tk.domain.TkOrder;
 import com.mailvor.modules.tk.service.*;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.param.MwUserBillQueryParam;
 import com.mailvor.modules.user.param.PromParam;
-import com.mailvor.modules.user.param.SpreadUpParam;
 import com.mailvor.modules.user.service.MwSystemUserLevelService;
 import com.mailvor.modules.user.service.MwUserBillService;
 import com.mailvor.modules.user.service.MwUserService;
 import com.mailvor.modules.user.service.dto.PromUserDto;
-import com.mailvor.modules.user.vo.MwSystemUserLevelQueryVo;
 import com.mailvor.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -292,7 +292,10 @@ public class UserBillController {
         }else if("dy".equals(type)) {
             tkOrder = dyOrderService.getById(orderId);
         }else if("mt".equals(type)) {
-            tkOrder = mtOrderService.getById(orderId);
+            //这里有可能会查到多条美团订单，后续优化
+            tkOrder = mtOrderService.getOne(Wrappers.<MailvorMtOrder>lambdaQuery()
+                    .eq(MailvorMtOrder::getOrderId,orderId)
+                    .last("limit 1"));
         }
         Date unlockTime = suStoreOrderService.checkOrder(tkOrder, uid);
         Map map = suStoreOrderService.incMoneyAndBindOrder(uid, tkOrder, unlockTime);
