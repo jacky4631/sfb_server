@@ -208,7 +208,13 @@ public class OrderTask {
 
 
     protected Integer saveDyKu(QueryDyKuParam param) {
-        DyKuResVo res = kuService.dyLifeOrder(param);
+        DyKuResVo res = null;
+        try {
+            res = kuService.dyLifeOrder(param);
+        }catch (Exception e) {
+            log.error("保存抖音库本地生活订单报错：{}", e);
+            return 0;
+        }
         if(res != null && res.getCode() == 200 && !CollectionUtils.isEmpty(res.getData())) {
             ArrayList<MailvorDyKuOrder> kuOrders = res.getData();
             List<MailvorDyOrder> orders = kuOrders.stream().map(dyKuOrder-> dyKuOrder.convert()).collect(Collectors.toList());
