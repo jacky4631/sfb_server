@@ -41,9 +41,9 @@ public class TbOrderCollectionTask extends OrderTask{
         }
         saveTbOrder(param);
 
-        //再次采集一遍渠道订单
-        param.setOrderScene(2);
-        saveTbOrder(param);
+//        //再次采集一遍渠道订单
+//        param.setOrderScene(2);
+//        saveTbOrder(param);
     }
 
     protected void saveTbOrder(QueryTBParam param) {
