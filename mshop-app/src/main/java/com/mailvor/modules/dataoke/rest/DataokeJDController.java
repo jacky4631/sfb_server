@@ -60,7 +60,7 @@ public class DataokeJDController {
         }
 
         log.debug("jd parse positionId {}", positionId);
-        JSONObject daRes = service.goodsWordJD(param.getGoodsId(), param.getCouponLink(), positionId);
+        JSONObject daRes = service.goodsWordJD(param.getMaterialUrl(), null, positionId);
 
         String url = "";
         if(daRes != null) {

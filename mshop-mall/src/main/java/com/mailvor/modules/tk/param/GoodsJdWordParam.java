@@ -23,4 +23,6 @@ public class GoodsJdWordParam extends GoodsDetailParam {
     @Schema(description = "优惠券链接")
     private String couponLink;
 
+    @Schema(description = "优惠券链接")
+    private String materialUrl;
 }
