@@ -412,9 +412,9 @@ sku维度的有效码（-1：未知,2.无效-拆单,3.无效-取消,4.无效-京
         wrapper.gt(MailvorJdOrder::getEstimateCosPrice, 0);
         wrapper.in(MailvorJdOrder::getValidCode, JD_VALID_ORDER_STATUS);
 
-//        LocalDateTime now = LocalDateTime.now().minusDays(day);
-//        //查找day之前的订单
-//        wrapper.lt(MailvorJdOrder::getOrderTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
+        LocalDateTime now = LocalDateTime.now().minusDays(2);
+        //查找2天之前的订单
+        wrapper.lt(MailvorJdOrder::getOrderTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
         wrapper.last("limit " + limit);
         return orderMapper.selectList(wrapper);
     }

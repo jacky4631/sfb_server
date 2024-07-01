@@ -378,8 +378,8 @@ public class MailvorDyOrderServiceImpl extends BaseServiceImpl<MailvorDyOrderMap
         wrapper.eq(MailvorDyOrder::getInnerType, 0);
         wrapper.ne(MailvorDyOrder::getFlowPoint, DY_NOT_VALID_ORDER_STATUS);
 
-//        LocalDateTime now = LocalDateTime.now().minusDays(day);
-//        wrapper.lt(MailvorDyOrder::getPaySuccessTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
+        LocalDateTime now = LocalDateTime.now().minusDays(2);
+        wrapper.lt(MailvorDyOrder::getPaySuccessTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
         wrapper.last("limit " + limit);
         return orderMapper.selectList(wrapper);
     }

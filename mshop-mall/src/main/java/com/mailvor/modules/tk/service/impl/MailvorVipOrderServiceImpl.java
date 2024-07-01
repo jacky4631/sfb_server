@@ -396,8 +396,8 @@ public class MailvorVipOrderServiceImpl extends BaseServiceImpl<MailvorVipOrderM
 
         wrapper.ne(MailvorVipOrder::getOrderSubStatusName, VIP_NOT_VALID_ORDER_STATUS);
 
-//        LocalDateTime now = LocalDateTime.now().minusDays(day);
-//        wrapper.le(MailvorVipOrder::getOrderTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
+        LocalDateTime now = LocalDateTime.now().minusDays(2);
+        wrapper.le(MailvorVipOrder::getOrderTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
         wrapper.last("limit " + limit);
         return orderMapper.selectList(wrapper);
     }

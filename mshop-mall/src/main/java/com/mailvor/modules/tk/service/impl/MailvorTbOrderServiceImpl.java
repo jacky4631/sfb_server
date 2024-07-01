@@ -408,9 +408,9 @@ public class MailvorTbOrderServiceImpl extends BaseServiceImpl<MailvorTbOrderMap
         wrapper.eq(MailvorTbOrder::getRefundTag, 0);
         wrapper.gt(MailvorTbOrder::getAlipayTotalPrice, 0);
 
-//        LocalDateTime now = LocalDateTime.now().minusDays(day);
-        //查找day之前的订单
-//        wrapper.lt(MailvorTbOrder::getTkCreateTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
+        LocalDateTime now = LocalDateTime.now().minusDays(2);
+        //查找2天之前的订单
+        wrapper.lt(MailvorTbOrder::getTkCreateTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
         wrapper.last("limit " + limit);
         return orderMapper.selectList(wrapper);
     }

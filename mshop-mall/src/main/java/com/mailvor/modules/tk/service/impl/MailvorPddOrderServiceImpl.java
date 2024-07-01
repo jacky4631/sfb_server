@@ -436,8 +436,8 @@ public class MailvorPddOrderServiceImpl extends BaseServiceImpl<MailvorPddOrderM
         wrapper.in(MailvorPddOrder::getOrderStatus, PDD_VALID_ORDER_STATUS);
         wrapper.eq(MailvorPddOrder::getPriceCompareStatus, 0);
 
-//        LocalDateTime now = LocalDateTime.now().minusDays(day);
-//        wrapper.lt(MailvorPddOrder::getOrderCreateTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
+        LocalDateTime now = LocalDateTime.now().minusDays(2);
+        wrapper.lt(MailvorPddOrder::getOrderCreateTime, Date.from(now.atZone( ZoneId.systemDefault()).toInstant()));
         wrapper.last("limit " + limit);
         return orderMapper.selectList(wrapper);
     }
