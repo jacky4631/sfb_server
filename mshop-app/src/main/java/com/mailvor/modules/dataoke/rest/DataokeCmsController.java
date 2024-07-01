@@ -186,7 +186,7 @@ public class DataokeCmsController {
         return restTemplate
                 .getForObject(String.format(
                         "%s/delanys/brand/get-goods-list?version=v1.0.0&pageId=%s&pageSize=%s&brandId=%s&appKey=%s",
-                        API_PREFIX, pageId, pageSize, brandId, config.getKey()), JSONObject.class);
+                        API_PREFIX, pageId, pageSize, brandId, "612bcfe884763"), JSONObject.class);
     }
     @GetMapping(value = "/nine/cate")
     public JSONObject nineCate() {
