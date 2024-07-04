@@ -86,6 +86,10 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/../lib/taobao-sdk-ele.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>com.sankuai.shepherd</groupId>
+            <artifactId>meituan-union-java</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

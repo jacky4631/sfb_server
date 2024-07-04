@@ -6,6 +6,7 @@ import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.modules.dataoke.dto.OrderListGetResponseOrderListDTO;
 import com.mailvor.modules.meituan.MeituanService;
 import com.mailvor.modules.meituan.config.MeituanConfig;
+import com.mailvor.modules.meituan.param.MeituanOrderParam;
 import com.mailvor.modules.meituan.utils.MeituanUtil;
 import com.mailvor.modules.tk.config.JdConfig;
 import com.mailvor.modules.tk.domain.*;
@@ -27,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -329,20 +332,29 @@ public class OrderTask {
 
 
 
-    private JSONObject initParam(QueryMtParam param) {
-        JSONObject objParam = new JSONObject();
-        objParam.put("page", param.getPage());
-        objParam.put("size", param.getSize());
-        if(param.getQueryType() != null) {
-            objParam.put("queryType", param.getQueryType());
+    private MeituanOrderParam initParam(QueryMtParam param) {
+        MeituanOrderParam objParam = new MeituanOrderParam();
+        objParam.setScrollId(param.getScrollId());
+        if(param.getSize() != null) {
+            objParam.setLimit(param.getSize());
         }
+//        if(param.getQueryType() != null) {
+//            objParam.put("queryType", param.getQueryType());
+//        }
         if(param.getStartTime() != null) {
-            objParam.put("startTime", param.getStartTime());
+            objParam.setStartTime(param.getStartTime().atZone(ZoneId.systemDefault()).toEpochSecond());
         }
 
         if(param.getEndTime() != null) {
-            objParam.put("endTime", param.getEndTime());
+            objParam.setEndTime(param.getEndTime().atZone(ZoneId.systemDefault()).toEpochSecond());
         }
+        if(param.getPlatform() != null) {
+            objParam.setPlatform(param.getPlatform());
+        }
+        if(!CollectionUtils.isEmpty(param.getBusinessLine())) {
+            objParam.setBusinessLine(param.getBusinessLine());
+        }
+        objParam.setScrollId(param.getScrollId());
         return objParam;
     }
 
@@ -397,44 +409,12 @@ public class OrderTask {
         }
         return null;
     }
-    protected String saveMtCPA(QueryMtParam param) {
-        JSONObject objParam = initParam(param);
-        MtResVo res = meituanService.orderCPA(objParam);
-        return saveMtOrder(res);
-    }
-
 
     protected String saveMtCPS(QueryMtParam param) {
-        JSONObject objParam = initParam(param);
-        MtResVo res = meituanService.orderCPS(objParam);
+        MeituanOrderParam objParam = initParam(param);
+        //todo convert
+        MtResVo res = meituanService.order(objParam);
         return saveMtOrder(res);
-    }
-
-    protected String saveMtRefund(QueryMtRefundParam param) {
-        JSONObject objParam = new JSONObject();
-        objParam.put("page", param.getPage());
-        objParam.put("size", param.getSize());
-        objParam.put("queryType", param.getQueryType());
-        if(param.getStartTime() != null) {
-            objParam.put("startTime", param.getStartTime());
-        }
-        if(param.getEndTime() != null) {
-            objParam.put("endTime", param.getEndTime());
-        }
-
-        MtResVo res = meituanService.orderRefund(objParam);
-        if(res != null && res.getCode() != null && res.getCode()==200
-                && res.getMsg() != null
-                && !CollectionUtils.isEmpty(res.getMsg().getRecords())) {
-            MtDataVo dataVo = res.getMsg();
-            ArrayList<MailvorMtOrder> orders = dataVo.getRecords();
-            boolean saved = mtOrderService.saveOrUpdateBatch(orders);
-            log.warn(saved? "美团订单保存成功": "美团订单保存失败");
-            if(dataVo.getRecordCount() > dataVo.getPage()*dataVo.getPageSize()) {
-                return "还有更多";
-            }
-        }
-        return null;
     }
 
 

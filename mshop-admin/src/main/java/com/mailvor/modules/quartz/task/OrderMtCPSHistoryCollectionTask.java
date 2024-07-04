@@ -34,12 +34,12 @@ public class OrderMtCPSHistoryCollectionTask extends OrderTask{
             LocalDateTime start = end.minusMinutes(minutes);
             log.warn("美团CPS历史订单采集 total {} i:{} start:{} end:{}", count,  i,
                     start.format(FF), end.format(FF));
-            param.setStartTime(start.format(FF));
-            param.setEndTime(end.format(FF));
+            param.setStartTime(start);
+            param.setEndTime(end);
             //保存订单
             saveMtOrder(param);
 
-            param.setPage(1);
+//            param.setScrollId(1);
             //结束时间变成之前的开始时间
             end = start;
 
@@ -47,14 +47,14 @@ public class OrderMtCPSHistoryCollectionTask extends OrderTask{
         }
     }
     protected void saveMtOrder(QueryMtParam param) {
-        log.warn("美团CPS订单采集 page:{} size: {} start:{} end:{}", param.getPage(), param.getSize(),
+        log.warn("美团CPS订单采集 page:{} size: {} start:{} end:{}", param.getScrollId(), param.getSize(),
                 param.getStartTime(), param.getEndTime());
 
         String lastOrderId = saveMtCPS(param);
 
         //如果还有更多，不做时间更新，继续查询下一页，订单少时无须测试
-        if(lastOrderId != null && !"end".equals(lastOrderId)) {
-            param.setPage(param.getPage()+1);
+        if(StringUtils.isNotBlank(lastOrderId)) {
+            param.setScrollId(lastOrderId);
             saveMtOrder(param);
         }
     }

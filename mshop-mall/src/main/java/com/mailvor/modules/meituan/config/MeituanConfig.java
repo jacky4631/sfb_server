@@ -7,13 +7,9 @@ import org.springframework.stereotype.Component;
 @Component
 @Data
 public class MeituanConfig {
-    @Value(("${meituan.utmSource}"))
-    private String utmSource;
     @Value(("${meituan.appKey}"))
     private String appKey;
 
-
-    @Value(("${meituan.promotionId}"))
-    private String promotionId;
-
+    @Value(("${meituan.appSecret}"))
+    private String appSecret;
 }

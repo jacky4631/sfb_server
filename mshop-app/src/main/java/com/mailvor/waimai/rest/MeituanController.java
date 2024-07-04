@@ -7,11 +7,15 @@ package com.mailvor.waimai.rest;
 
 import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.TimedCache;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.api.ApiResult;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.UserCheck;
 import com.mailvor.modules.meituan.MeituanService;
+import com.mailvor.modules.meituan.param.MeituanGoodsParam;
+import com.mailvor.modules.meituan.param.MeituanLinkParam;
+import com.mailvor.modules.meituan.param.MeituanOrderParam;
 import com.mailvor.modules.shop.service.MwSystemGroupDataService;
 import com.mailvor.modules.shop.service.dto.MwSystemGroupDataQueryCriteria;
 import com.mailvor.modules.user.domain.MwUser;
@@ -24,6 +28,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.mailvor.modules.meituan.constants.MeituanConstants.*;
 
@@ -45,84 +55,57 @@ public class MeituanController {
     private final MeituanService meituanService;
     private final MwSystemGroupDataService mwSystemGroupDataService;
 
-    @GetMapping("/mt/provinces")
-    @ApiOperation(value = "获取省份",notes = "获取省份")
-    public ApiResult<Object> provinces(@RequestParam(required = false) String platformId) {
-        String provinceKey = MT_URL_PROVINCE_ALL + "_" + platformId;
-        Object provinces = timedCache.get(provinceKey);
-        if(provinces == null) {
-            provinces = meituanService.getProvinces(platformId);
-            timedCache.put(provinceKey, provinces);
-        }
-        return ApiResult.ok(provinces);
-    }
-
-    @GetMapping("/mt/cities")
-    @ApiOperation(value = "获取城市",notes = "获取城市")
-    public ApiResult<Object> cities(@RequestParam(required = false) String platformId, @RequestParam String provinceId) {
-        String cityKey = MT_URL_CITY_ALL + "_" + platformId + "_" + provinceId;
-        Object provinces = timedCache.get(cityKey);
-        if(provinces == null) {
-            provinces = meituanService.getCities(platformId, provinceId);
-            timedCache.put(cityKey, provinces);
-        }
-        return ApiResult.ok(provinces);
-    }
-
-    @GetMapping("/mt/categories")
-    @ApiOperation(value = "获取类目",notes = "获取类目")
-    public ApiResult<Object> cities(@RequestParam(required = false) String platformId,
-                                    @RequestParam String cityId,
-                                    @RequestParam(required = false) String cat0Id) {
-        return ApiResult.ok(meituanService.getCategories(platformId, cityId, cat0Id));
-    }
-
     @PostMapping("/mt/goods")
     @ApiOperation(value = "获取商品",notes = "获取商品")
-    public ApiResult<Object> cities(@RequestBody JSONObject body) {
+    public ApiResult<Object> cities(@RequestBody MeituanGoodsParam body) {
         return ApiResult.ok(meituanService.goodsList(body));
     }
 
     @PostMapping("/mt/order/cps")
     @ApiOperation(value = "获取cps订单",notes = "获取cps订单")
-    public ApiResult<Object> orderCPS(@RequestBody JSONObject body) {
-        return ApiResult.ok(meituanService.orderCPS(body));
-    }
-
-    @PostMapping("/mt/order/cpa")
-    @ApiOperation(value = "获取cpa订单",notes = "获取cpa订单")
-    public ApiResult<Object> orderCPA(@RequestBody JSONObject body) {
-        return ApiResult.ok(meituanService.orderCPA(body));
-    }
-
-    @PostMapping("/mt/order/refund")
-    @ApiOperation(value = "获取refund订单",notes = "获取refund订单")
-    public ApiResult<Object> orderRefund(@RequestBody JSONObject body) {
-        return ApiResult.ok(meituanService.orderRefund(body));
+    public ApiResult<Object> orderCPS(@RequestBody MeituanOrderParam body) {
+        return ApiResult.ok(meituanService.order(body));
     }
 
     @UserCheck
     @GetMapping("/mt/activity/code")
     @ApiOperation(value = "会场转链",notes = "会场转链")
-    public ApiResult<Object> activityCode(@RequestParam String activityId) {
+    public ApiResult<Object> activityCode(@RequestParam String activityId, @RequestParam(required = false,defaultValue = "4") Integer linkType) throws Exception {
         MwUser mwUser = LocalUser.getUser();
         Long uid = 0L;
         if(mwUser != null) {
             uid = mwUser.getUid();
         }
-        return ApiResult.ok(meituanService.getCode(activityId, uid));
+        MeituanLinkParam param = new MeituanLinkParam();
+        param.setActId(activityId);
+        param.setLinkType(linkType);
+        JSONObject res = meituanService.getCode(param, uid);
+        res.put("miniProgramPath",  res.getString("data"));
+        return ApiResult.ok(res);
     }
 
     @ApiOperation(value = "查询美团活动列表")
     @GetMapping(value = "/mt/activity/list")
     public ApiResult<Object> getActivityList(@RequestParam(value = "page",defaultValue = "1") int page,
-                                                @RequestParam(value = "limit",defaultValue = "10") int limit) {
+                                                @RequestParam(value = "limit",defaultValue = "100") int limit) {
         MwSystemGroupDataQueryCriteria criteria = new MwSystemGroupDataQueryCriteria();
         criteria.setGroupName(MT_GROUP_NAME_ACTIVITY_LIST);
         criteria.setStatus(1);
         Sort sort = Sort.by(Sort.Direction.ASC, "sort");
         Pageable pageableT = PageRequest.of(page-1, limit, sort);
-        return ApiResult.ok(mwSystemGroupDataService.list(criteria, pageableT));
+        Map<String, Object> map = mwSystemGroupDataService.list(criteria, pageableT);
+        List<JSONObject> list = (ArrayList)map.get("content");
+        List<JSONObject> filterList = new ArrayList<>();
+        LocalDateTime now = LocalDateTimeUtil.now();
+        for(JSONObject obj : list) {
+            String endTimeStr = obj.getString("endTime");
+            LocalDateTime endTime = LocalDateTimeUtil.parse(endTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            if(now.isBefore(endTime)){
+                filterList.add(obj);
+            }
+        }
+        map.put("content", filterList);
+        return ApiResult.ok(map);
     }
 }
 

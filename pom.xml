@@ -90,6 +90,12 @@
                 <version>2.9.1</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.sankuai.shepherd</groupId>
+                <artifactId>meituan-union-java</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+
         </dependencies>
 
     </dependencyManagement>
@@ -290,7 +296,6 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>

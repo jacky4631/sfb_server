@@ -196,6 +196,5 @@ ele:
   pid: alsc_xxxx1_20xxx16_53xxx95
 #todo 美团外卖联盟key
 meituan:
-  appKey: VZdxxxxxxn1wxMXn
-  utmSource: 12xx66
-  promotionId: 26xx24
+  appKey: b61cc69046xxxxxx43a336fa5836
+  appSecret: ef8e7cd7xxxxxx50e0a4c36dcaf
