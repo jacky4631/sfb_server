@@ -727,7 +727,7 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         Double hb = CashUtils.getHb(commission, (curRate.doubleValue()-10)/100, curRate.doubleValue()/100);
 
         //红包最小0.1
-        hb = NumberUtil.round(hb+0.1, 2).doubleValue();
+//        hb = NumberUtil.round(hb+0.1, 2).doubleValue();
 
         //防止佣金过大
         if(hb > commission*4) {

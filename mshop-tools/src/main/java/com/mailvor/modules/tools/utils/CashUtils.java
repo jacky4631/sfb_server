@@ -21,7 +21,7 @@ public class CashUtils {
 
     public static double getHb(double commission, double min, double max) {
         //红包加上0.1 防止出现小数 取整后 太小
-        return NumberUtil.round(NumberUtil.add(openHb(commission, min, max), 0.1), 2).doubleValue();
+        return NumberUtil.round(openHb(commission, min, max), 2).doubleValue();
     }
     /**
      *
