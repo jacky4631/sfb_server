@@ -1,14 +1,19 @@
 package com.mailvor.modules.meituan;
 
 
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.modules.meituan.config.MeituanConfig;
 import com.mailvor.modules.meituan.param.MeituanBaseParam;
 import com.mailvor.modules.meituan.param.MeituanGoodsParam;
 import com.mailvor.modules.meituan.param.MeituanLinkParam;
 import com.mailvor.modules.meituan.param.MeituanOrderParam;
+import com.mailvor.modules.tk.domain.MailvorMtOrder;
+import com.mailvor.modules.tk.vo.MtDataVo;
 import com.mailvor.modules.tk.vo.MtResVo;
+import com.mailvor.utils.StringUtils;
 import com.sankuai.api.gateway.Client;
 import com.sankuai.api.gateway.Request;
 import com.sankuai.api.gateway.Response;
@@ -23,10 +28,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 import static com.mailvor.modules.meituan.constants.MeituanConstants.MT_MEDIUM_PREFIX;
 
@@ -63,8 +66,63 @@ public class MeituanService {
         String path = "/cps_open/common/api/v1/query_order";
         try {
             JSONObject res = requestMeituan(param, path);
-            //todo convert to MtResVO
-            return new MtResVo();
+            if(res.getInteger("code") == 0) {
+                JSONObject data = res.getJSONObject("data");
+                if(data.getInteger("code") == 0) {
+                    JSONArray dataList = data.getJSONArray("dataList");
+                    if(!dataList.isEmpty()) {
+                        MtResVo resVo = new MtResVo();
+                        resVo.setCode(200);
+                        MtDataVo dataVo = new MtDataVo();
+                        resVo.setMsg(dataVo);
+                        dataVo.setPositionIndex(data.getString("scrollId"));
+                        ArrayList<MailvorMtOrder> records = new ArrayList<>(dataList.size());
+                        for(Object obj : dataList) {
+                            JSONObject dataObj = (JSONObject) obj;
+                            Long refundTime = dataObj.getLong("refundTime");
+                            Long payTime = dataObj.getLong("payTime");
+                            Long updateTime = dataObj.getLong("updateTime");
+                            MailvorMtOrder order = MailvorMtOrder.builder()
+                                    .uniqueItemId(dataObj.getLong("orderId"))
+                                    .orderId(dataObj.getLong("orderId"))
+                                    //300等于3%
+                                    .balanceCommissionRatio(dataObj.getDouble("commissionRate")/10000)
+                                    .orderPayTime(payTime != null ? new Date(payTime*1000) : null)
+                                    .shopName(dataObj.getString("productName"))
+                                    .actualOrderAmount(dataObj.getDouble("payPrice"))
+                                    .actualItemAmount(dataObj.getDouble("payPrice"))
+                                    .shopUuid("")
+                                    .balanceAmount(dataObj.getDouble("profit"))
+                                    .modifyTime(updateTime != null ? new Date(updateTime*1000) : null)
+                                    .refundDate(refundTime != null ? new Date(refundTime*1000) : null)
+                                    .build();
+                            Integer status = dataObj.getInteger("status");
+                            if(status == 2){
+                                order.setItemStatus(0);
+                                order.setItemBizStatus(1);
+                            } else if(status == 3){
+                                order.setItemStatus(1);
+                                order.setItemBizStatus(2);
+                            } else if(status == 4 || status == 5){
+                                order.setItemStatus(3);
+                                order.setItemBizStatus(99);
+                            } else if(status == 6){
+                                order.setItemStatus(1);
+                                order.setItemBizStatus(3);
+                            }
+                            String sid = dataObj.getString("sid");
+                            if(StringUtils.isNotBlank(sid)) {
+                                order.setUid(Long.parseLong(sid.substring(4)));
+                            }
+                            records.add(order);
+                        }
+                        dataVo.setRecords(records);
+                        return resVo;
+                    }
+
+                }
+            }
+            return null;
         } catch (Exception e) {
             log.error("采集美团订单错误：{}", e);
             return null;
@@ -116,5 +174,17 @@ public class MeituanService {
         Response response = Client.execute(request);
 
         return JSON.parseObject(response.getBody());
+    }
+
+    public static void main(String[] args) {
+        MeituanService service = new MeituanService();
+        service.meituanConfig = new MeituanConfig();
+        service.meituanConfig.setAppKey("69046b24b3c87d643a336fa5836");
+        service.meituanConfig.setAppSecret("cd71f10457398c50e0a4c36dcaf");
+        MeituanOrderParam param = new MeituanOrderParam();
+//        param.setScrollId("[1720663736, \"1\", \"1\", \"3101155483703593602\"]");
+        param.setStartTime(DateUtil.beginOfDay(new Date()).getTime()/1000);
+        param.setEndTime(DateUtil.endOfDay(new Date()).getTime()/1000);
+        service.order(param);
     }
 }

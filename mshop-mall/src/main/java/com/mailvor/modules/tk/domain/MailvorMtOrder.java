@@ -80,6 +80,18 @@ public class MailvorMtOrder extends TkOrder {
      * 5	已消费退款：到店核销后，发生退款行为
      * */
     private Integer itemStatus;
+
+
+    /**
+     * 订单结算状态(聚合)
+     * 1	支付成功,表示订单已经完成支付
+     * 2	核销成功，表示订单已经到店核验
+     * 3	结算成功，标识订单已经完成结算，会有佣金
+     * 99	无效订单：标识订单无需结算，会有结算失败理由
+     * 999	未知状态：异常订单，正常情况下不会出现该状态
+     *
+     * */
+    private Integer itemBizStatus;
     private String settlementType;
     private String couponSource;
     private String orderPlatform;
@@ -90,16 +102,6 @@ public class MailvorMtOrder extends TkOrder {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date modifyTime;
 
-
-    /**
-     * 订单结算状态(聚合)
-     * 1	支付成功,表示订单已经完成支付
-     * 2	核销成功，表示订单已经到店核验
-     * 3	结算成功，标识订单已经完成结算，会有佣金
-     * 99	无效订单：标识订单无需结算，会有结算失败理由
-     * 999	未知状态：异常订单，正常情况下不会出现该状态
-     * */
-    private Integer itemBizStatus;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date settleTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")

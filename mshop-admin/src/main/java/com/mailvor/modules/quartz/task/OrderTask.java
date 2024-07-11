@@ -412,9 +412,9 @@ public class OrderTask {
 
     protected String saveMtCPS(QueryMtParam param) {
         MeituanOrderParam objParam = initParam(param);
-        //todo convert
         MtResVo res = meituanService.order(objParam);
-        return saveMtOrder(res);
+        saveMtOrder(res);
+        return res != null ? res.getMsg().getPositionIndex() : null;
     }
 
 
