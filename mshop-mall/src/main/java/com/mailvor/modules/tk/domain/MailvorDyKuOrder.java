@@ -5,6 +5,7 @@
 package com.mailvor.modules.tk.domain;
 
 import cn.hutool.core.util.NumberUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -83,7 +84,7 @@ public class MailvorDyKuOrder{
 
     public MailvorDyOrder convert() {
         return MailvorDyOrder.builder()
-                .settleTime(earningTime > 0 ? new Date(earningTime*1000) : null)
+                .settleTime((earningTime != null && earningTime > 0) ? new Date(earningTime*1000) : null)
                 .productName(itemTitle)
                 .totalPayAmount(payPrice)
                 .productImg(itemImg)
@@ -91,7 +92,7 @@ public class MailvorDyKuOrder{
                 .shopName(shopName)
                 .flowPoint(covertOrderStatus(orderStatus))
                 .paySuccessTime(new Date(paidTime*1000))
-                .refundTime(refundTime > 0 ? new Date(refundTime*1000) : null)
+                .refundTime((refundTime != null && refundTime > 0) ? new Date(refundTime*1000) : null)
                 .productId(productId)
                 .estimatedTotalCommission(predictMoney)
                 .realCommission(actualMoney)
@@ -113,4 +114,10 @@ public class MailvorDyKuOrder{
         }
     }
 
+    public static void main(String[] args) {
+        String json = "{\"earning_time\":\"0\",\"order_status\":1,\"shop_name\":\"\",\"item_title\":\"【甜蜜一夏】珍珠奶茶\",\"item_img\":\"https://p3-sign.douyinpic.com/tos-cn-i-hf2m9xxmck/00d05c8e7626446387c75667f7643f4c~tplv-shrink:750:0.image?x-expires=1814241600&x-signature=VF%2Bx2p%2BzjSCUiDC5mKy32g273OI%3D&from=3158402634\",\"paid_time\":\"1719138887\",\"trade_id\":\"800008633904836173013291515\",\"trade_parent_id\":\"1061485716822741515\",\"create_time\":\"1719138887\",\"settled_status\":\"0\",\"pay_price\":\"5.58\",\"predict_money\":\"0.06\",\"actual_money\":\"0.00\",\"channel_code\":\"6\",\"update_time\":\"1719138892\",\"is_receipt\":0,\"refund_time\":\"\",\"shop_id\":\"\",\"item_num\":\"\",\"product_id\":\"\"}";
+        MailvorDyKuOrder kuOrder = JSON.parseObject(json, MailvorDyKuOrder.class);
+        MailvorDyOrder dyOrder = kuOrder.convert();
+        System.out.println(dyOrder);
+    }
 }
