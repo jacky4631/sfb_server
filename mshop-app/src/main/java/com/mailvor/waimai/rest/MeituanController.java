@@ -50,8 +50,6 @@ import static com.mailvor.modules.meituan.constants.MeituanConstants.*;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Api(value = "用户中心", tags = "用户:用户中心")
 public class MeituanController {
-    private static TimedCache<String, Object> timedCache = CacheUtil.newTimedCache(30*60*1000);
-
     private final MeituanService meituanService;
     private final MwSystemGroupDataService mwSystemGroupDataService;
 
