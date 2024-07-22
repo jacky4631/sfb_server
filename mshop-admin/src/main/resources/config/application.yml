@@ -1,7 +1,7 @@
 server:
   port: 8001
   servlet:
-    context-path: /api
+    context-path: /admin
 
 task:
   pool:
