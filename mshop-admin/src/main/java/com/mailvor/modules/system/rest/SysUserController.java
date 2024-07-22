@@ -136,6 +136,8 @@ public class SysUserController {
     public ResponseEntity<Object> create(@Validated @RequestBody User resources){
         checkOpePwd(resources.getOpePwd());
         checkLevel(resources);
+        //清除前端传过来的id
+        resources.setId(null);
         // 默认密码 123456
         resources.setPassword(passwordEncoder.encode(ShopConstants.MSHOP_DEFAULT_PWD));
         return new ResponseEntity<>(userService.create(resources),HttpStatus.CREATED);
