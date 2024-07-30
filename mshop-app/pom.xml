@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>com.mailvor</groupId>
-            <artifactId>mshop-weixin</artifactId>
+            <artifactId>mshop-mp</artifactId>
             <version>3.3</version>
             <exclusions>
                 <exclusion>

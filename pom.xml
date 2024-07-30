@@ -16,7 +16,7 @@
         <module>mshop-tools</module>
         <module>mshop-generator</module>
         <module>mshop-app</module>
-        <module>mshop-weixin</module>
+        <module>mshop-mp</module>
         <module>mshop-shop</module>
         <module>mshop-db</module>
         <module>mshop-mall</module>
