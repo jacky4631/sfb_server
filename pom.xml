@@ -20,7 +20,7 @@
         <module>mshop-shop</module>
         <module>mshop-mproot</module>
         <module>mshop-mall</module>
-        <module>mshop-message</module>
+        <module>mshop-redis</module>
     </modules>
 
     <name>MSHOP商城管理系统</name>

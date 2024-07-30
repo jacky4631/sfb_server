@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>mshop-message</artifactId>
+    <artifactId>mshop-redis</artifactId>
     <name>消息队列模块</name>
 
     <dependencies>

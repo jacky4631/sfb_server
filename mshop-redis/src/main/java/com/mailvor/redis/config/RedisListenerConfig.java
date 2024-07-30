@@ -2,11 +2,11 @@
  * Copyright (C) 2018-2024
  * All rights reserved, Designed By www.mailvor.com
  */
-package com.mailvor.message.redis.config;
+package com.mailvor.redis.config;
 
 
 import cn.hutool.core.util.StrUtil;
-import com.mailvor.message.redis.listener.RedisKeyExpirationListener;
+import com.mailvor.redis.listener.RedisKeyExpirationListener;
 import com.mailvor.modules.activity.service.MwStorePinkService;
 import com.mailvor.modules.order.service.MwStoreOrderService;
 import lombok.AllArgsConstructor;

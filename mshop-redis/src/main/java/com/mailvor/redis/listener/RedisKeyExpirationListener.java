@@ -2,13 +2,13 @@
  * Copyright (C) 2018-2024
  * All rights reserved, Designed By www.mailvor.com
  */
-package com.mailvor.message.redis.listener;
+package com.mailvor.redis.listener;
 
 
 import cn.hutool.core.util.StrUtil;
 import com.mailvor.constant.ShopConstants;
 import com.mailvor.enums.OrderInfoEnum;
-import com.mailvor.message.redis.config.RedisConfigProperties;
+import com.mailvor.redis.config.RedisConfigProperties;
 import com.mailvor.modules.activity.domain.MwStorePink;
 import com.mailvor.modules.activity.service.MwStorePinkService;
 import com.mailvor.modules.order.domain.MwStoreOrder;

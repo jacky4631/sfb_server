@@ -1,4 +1,4 @@
-package com.mailvor.message.redis.listener;
+package com.mailvor.redis.listener;
 
 import java.awt.Font;
 import java.awt.Shape;

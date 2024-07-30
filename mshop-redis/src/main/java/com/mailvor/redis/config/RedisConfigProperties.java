@@ -2,7 +2,7 @@
  * Copyright (C) 2018-2024
  * All rights reserved, Designed By www.mailvor.com
  */
-package com.mailvor.message.redis.config;
+package com.mailvor.redis.config;
 
 
 import lombok.Data;

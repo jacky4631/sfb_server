@@ -32,7 +32,7 @@
 
         <dependency>
             <groupId>com.mailvor</groupId>
-            <artifactId>mshop-message</artifactId>
+            <artifactId>mshop-redis</artifactId>
             <version>3.3</version>
             <exclusions>
                 <exclusion>
