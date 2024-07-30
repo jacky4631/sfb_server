@@ -20,7 +20,7 @@
         </dependency>
         <dependency>
             <groupId>com.mailvor</groupId>
-            <artifactId>mshop-mproot</artifactId>
+            <artifactId>mshop-db</artifactId>
             <version>3.3</version>
             <scope>compile</scope>
         </dependency>
