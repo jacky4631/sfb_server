@@ -20,12 +20,12 @@
         <!--    代码生成模块    -->
         <dependency>
             <groupId>com.mailvor</groupId>
-            <artifactId>mshop-generator</artifactId>
+            <artifactId>mshop-gen</artifactId>
             <version>3.3</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.mailvor</groupId>
-                    <artifactId>mshop-common</artifactId>
+                    <artifactId>mshop-system</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

@@ -9,22 +9,22 @@ mshop基于当前流行技术组合的前后端分离商城系统： SpringBoot2
 #### 项目结构
 mshop3.0项目采用分模块开发方式
 - mshop-app       移动端API模块
-- mshop-admin     管理后台模块
-- mshop-weixin    微信相关模块
-- mshop-mall      商城公共模块
-- mshop-shop      后台商城模块
-- mshop-message   消息队列模块
-- mshop-common    公共模块
-- mshop-logging   日志模块
-- mshop-tools     第三方工具模块
-- mshop-generator 代码生成模块
-- mshop-mproot    mybatisPlus配置模块
+- mshop-admin     管理后台API模块
+- mshop-mp        微信模块
+- mshop-store     商城通用模块
+- mshop-shop      商城管理后台模块
+- mshop-redis     消息模块
+- mshop-system    系统公共模块
+- mshop-log       日志模块
+- mshop-tool      工具模块
+- mshop-gen       代码生成模块
+- mshop-db        mybatisPlus配置模块
 
 
 ## 技术选型
 * 1 后端使用技术
     * 1.1 SpringBoot2
-    * 1.2 MyBatis、MyBatis-Plus
+    * 1.2 MyBatis-Plus
     * 1.3 SpringSecurity
     * 1.5 Druid
     * 1.6 Slf4j
@@ -33,34 +33,20 @@ mshop3.0项目采用分模块开发方式
     * 1.9 Redis
     * 1.10 Quartz
     * 1.11 Mysql
-    * 1.12 swagger
+    * 1.12 Swagger
     * 1.13 WxJava
     * 1.14 Lombok
     * 1.15 Hutool
     * 1.16 Mapstruct
-	* 1.17 Redisson
         
 * 前端使用技术
     * 2.1 Vue 全家桶
     * 2.2 Element
-	* 2.3 uniapp
-
-开发注意事项
-  -系统工具-代码生成 生成增删改查
-  -关联查询看MwStoreProductRelationMapper
-  -修改表格字段 ALTER TABLE mw_user ADD `ali_profile` json NULL COMMENT '阿里用户json信息' AFTER wx_profile
-  -确认提现：TemplateListener
-  -environment variables --spring.profiles.active=test --spring.config.location=conf/application.yml
-  -关联查询参照UserBillMapper
-  -如果提交订单自动更新了订单创建时间
-   - alter table tableName change filedName fieldName timestamp not null default current_timestamp;
-   - alter table user change updateTime updateTime timestamp not null default '2022-02-04 13:36:00';
-   或者navicat 右键设计表 选中列，取消勾选 根据当前时间戳更新
+	* 2.3 Flutter
 
 部署注意事项：
-  - 阿里支付证书 没有存到数据库，需要部署到/usr/alipay目录，每台服务器都需要
   - mysql一定需要5.7含以上，需要支持json
-  - 部署完成后一定要保存一次 分销管理->分销配置
+  - 部署完成后保存一次 分销管理->分销配置
 
 # 本地安装
 ### 基本环境（必备）
@@ -70,7 +56,7 @@ mshop3.0项目采用分模块开发方式
 - 4、MYSQL 5.7+
 - 5、Node v12+
 ### 开发工具
-Idea、webstorm、vscode
+Idea、Webstorm、vscode
 
 ### 后台系统工程（JAVA端） sfb_server
 
@@ -120,60 +106,21 @@ npm config get registry
 
 1、mvn install 或者直接idea打成jar包
 
-2、配置nginx 反向代理如下：
-```
-server{ 
- listen 443 ssl;
- server_name app.xxx.com;
-        #listen [::]:81 default_server ipv6only=on;
- #ssl on;
- ssl_certificate httpssl/app.xxx.com.pem;
- ssl_certificate_key httpssl/app.xxx.com.key;
- ssl_session_timeout 5m;
- ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
- ssl_prefer_server_ciphers on;
- 
-
- #error_page   404   /404.html;
- #include enable-php.conf;
-   
- location /api {
-  proxy_pass http://127.0.0.1:8000;
-  proxy_set_header X-Forwarded-Proto $scheme;
-         proxy_set_header X-Forwarded-Port $server_port;
-         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-         proxy_set_header Upgrade $http_upgrade;
-         proxy_set_header Connection "upgrade";
- }
- 
-      
- access_log  /home/wwwlogs/api.log;
- 
-}
-```
-
-我配置的了ssl证书，如果不需要证书配置如下即可：
+2、配置nginx 如下即可：
 
 ```
 server{ 
- listen 80;
- server_name app.xxx.com;
-        #listen [::]:81 default_server ipv6only=on;
+    listen 80;
+    server_name app.xxx.com;
 
- #error_page   404   /404.html;
- #include enable-php.conf;
-   
- location /api {
-  proxy_pass http://127.0.0.1:8008;
-  proxy_set_header X-Forwarded-Proto $scheme;
-         proxy_set_header X-Forwarded-Port $server_port;
-         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-         proxy_set_header Upgrade $http_upgrade;
-         proxy_set_header Connection "upgrade";
- }
-  
- access_log  /home/wwwlogs/api.log;
+    location /api {
+        proxy_pass http://127.0.0.1:8008;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Port $server_port;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+   }
  
 }
 ```
@@ -181,7 +128,7 @@ server{
 
 
 ### 后台前端工程（VUE端） sfb_server_qd
-1、根目录新建文件.env.production
+1、根目录新建文件.env.production，加入如下内容
 ```
 ENV = 'production'
 
@@ -197,44 +144,18 @@ VUE_APP_WS_API = 'ws://admin.xxx.com/admin'
 ```
 server
 {
- listen 443 ssl;
- #listen [::]:81 default_server ipv6only=on;
- server_name admin.xxx.com;
- #ssl on;
- ssl_certificate httpssl/admin.xxx.com.pem;
- ssl_certificate_key httpssl/admin.xxx.com.key;
- ssl_session_timeout 5m;
- ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-    ssl_prefer_server_ciphers on;
-    index index.html;
-    root /home/wwwroot/system/mshop;
+    listen 80;
+    server_name admin.xxx.com;
 
-
- location / {
+    location / {
         try_files $uri $uri/ @router;
         index index.html;
- }
- location @router {
-  rewrite ^.*$ /index.html last;
- } 
+    }
+    location @router {
+        rewrite ^.*$ /index.html last;
+    } 
 
-
- location ~* \.(eot|ttf|woff)$ {
-              #  add_header Access-Control-Allow-Origin *;
-        }
-
-        location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$
-        {
-            expires      30d;
-        }
-
-        location ~ .*\.(js|css)?$
-        {
-            expires      12h;
-        }
- 
- location /admin {
+    location /admin {
         proxy_pass http://127.0.0.1:8001;
         proxy_set_header Host $Host:$server_port;
         proxy_set_header X-Real-IP $remote_addr;
@@ -249,12 +170,8 @@ server
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
-    }
-      
- access_log  /home/wwwlogs/mshop.log;
- 
+   }
+   
 }
 
 ```
-
-不需要证书如上面Java端配置一样去掉相关证书配置 改监听端口80即可

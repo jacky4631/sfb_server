@@ -22,7 +22,7 @@
         <!-- 同时需要common模块和logging模块只需要引入logging模块即可 -->
         <dependency>
             <groupId>com.mailvor</groupId>
-            <artifactId>mshop-logging</artifactId>
+            <artifactId>mshop-log</artifactId>
             <version>3.3</version>
         </dependency>
 

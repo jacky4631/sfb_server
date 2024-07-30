@@ -37,7 +37,7 @@
             <exclusions>
                 <exclusion>
                     <groupId>com.mailvor</groupId>
-                    <artifactId>mshop-mall</artifactId>
+                    <artifactId>mshop-store</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

@@ -20,7 +20,7 @@
         </dependency>
         <dependency>
             <groupId>com.mailvor</groupId>
-            <artifactId>mshop-mall</artifactId>
+            <artifactId>mshop-store</artifactId>
             <version>3.3</version>
         </dependency>
     </dependencies>

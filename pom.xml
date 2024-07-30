@@ -10,16 +10,16 @@
     <version>3.3</version>
 
     <modules>
-        <module>mshop-common</module>
-        <module>mshop-logging</module>
+        <module>mshop-system</module>
+        <module>mshop-log</module>
         <module>mshop-admin</module>
         <module>mshop-tool</module>
-        <module>mshop-generator</module>
+        <module>mshop-gen</module>
         <module>mshop-app</module>
         <module>mshop-mp</module>
         <module>mshop-shop</module>
         <module>mshop-db</module>
-        <module>mshop-mall</module>
+        <module>mshop-store</module>
         <module>mshop-redis</module>
     </modules>
 
