@@ -6,10 +6,8 @@ package com.mailvor.config;
 
 /**
  * @author ：LionCity
- * @date ：Created in 2020-04-10 15:47
+ * @date ：2020-04-10
  * @description：自动注入时间处理
- * @modified By：
- * @version:
  */
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;

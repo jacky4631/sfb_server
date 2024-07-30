@@ -29,7 +29,7 @@ public class PrintUtil4 {
     static PrintUtil4 p = new PrintUtil4();
     public static final String URL = "http://api.feieyun.cn/Api/Open/";//不需要修改
 
-    public static final String USER = "18948217680@163.com";//*必填*：账号名
+    public static final String USER = "121659050@QQ.com";//*必填*：账号名
     public static final String UKEY = "Fg4Nb6sykhK6wJDj";//*必填*: 飞鹅云后台注册账号后生成的UKEY 【备注：这不是填打印机的KEY】
     public static final String SN = "918502791";//*必填*：打印机编号，必须要在管理后台里添加打印机或调用API接口添加之后，才能调用API
 

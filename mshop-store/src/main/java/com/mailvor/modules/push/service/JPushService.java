@@ -1,3 +1,7 @@
+/**
+ * Copyright (C) 2018-2024
+ * All rights reserved, Designed By www.mailvor.com
+ */
 package com.mailvor.modules.push.service;
 
 import com.alibaba.fastjson.JSONObject;
@@ -18,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- * @projectName:openapi
  * @author:
  * @createTime: 2019/04/24 14:55
  * @description:

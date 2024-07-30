@@ -1,3 +1,7 @@
+/**
+ * Copyright (C) 2018-2024
+ * All rights reserved, Designed By www.mailvor.com
+ */
 package com.mailvor.modules.activity.param;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -7,7 +11,6 @@ import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
- * @ClassName UserExtParam
  * @author huangyu
  * @Date 2019/11/13
  **/

@@ -50,14 +50,6 @@ public class GenUtil {
      */
     private static List<String> getAdminTemplateNames() {
         List<String> templateNames = new ArrayList<>();
-        /*templateNames.add("Entity");
-        templateNames.add("Dto");
-        templateNames.add("Mapper");
-        templateNames.add("Controller");
-        templateNames.add("QueryCriteria");
-        templateNames.add("Service");
-        templateNames.add("ServiceImpl");
-        templateNames.add("Repository");*/
         templateNames.add("EntityP");
         templateNames.add("DtoP");
         templateNames.add("MapperP");

@@ -7,7 +7,6 @@ import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
- * @ClassName RechargeParam
  * @author huangyu
  * @Date 2024/3/4
  **/

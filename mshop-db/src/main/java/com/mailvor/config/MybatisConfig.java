@@ -6,10 +6,8 @@ package com.mailvor.config;
 
 /**
  * @author ：LionCity
- * @date ：Created in 2020-04-10 15:11
+ * @date ：2020-04-10
  * @description：MybatisConfig
- * @modified By：
- * @version:
  */
 
 import com.github.pagehelper.PageHelper;

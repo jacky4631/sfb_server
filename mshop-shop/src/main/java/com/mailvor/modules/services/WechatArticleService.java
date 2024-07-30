@@ -1,3 +1,7 @@
+/**
+ * Copyright (C) 2018-2024
+ * All rights reserved, Designed By www.mailvor.com
+ */
 package com.mailvor.modules.services;
 
 import cn.hutool.core.util.ReUtil;
@@ -26,7 +30,6 @@ import java.io.File;
 import java.util.List;
 
 /**
- * @ClassName WechatArticleService
  * @author huangyu
  * @Date 2020/7/2
  **/
