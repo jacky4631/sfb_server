@@ -1,3 +1,7 @@
+/**
+ * Copyright (C) 2018-2023
+ * All rights reserved, Designed By www.mailvor.com
+ */
 package com.github.xiaoymin.knife4j.spring.util;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.RefProperty;

@@ -1,3 +1,7 @@
+/**
+ * Copyright (C) 2018-2024
+ * All rights reserved, Designed By www.mailvor.com
+ */
 package com.github.xiaoymin.knife4j.spring.util;
 
 import io.swagger.models.Model;
