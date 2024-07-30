@@ -13,7 +13,7 @@
         <module>mshop-common</module>
         <module>mshop-logging</module>
         <module>mshop-admin</module>
-        <module>mshop-tools</module>
+        <module>mshop-tool</module>
         <module>mshop-generator</module>
         <module>mshop-app</module>
         <module>mshop-mp</module>
