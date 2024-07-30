@@ -24,7 +24,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@TableName(value = "mailvor_tb_order", autoResultMap = true)
+@TableName(value = "mw_tb_order", autoResultMap = true)
 public class MailvorTbOrder extends TkOrder {
     @TableId
     /** 订单编号 */
