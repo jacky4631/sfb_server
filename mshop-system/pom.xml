@@ -5,7 +5,7 @@
     <parent>
         <artifactId>mshop</artifactId>
         <groupId>com.mailvor</groupId>
-        <version>3.3</version>
+        <version>5.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -55,7 +55,7 @@
         <dependency>
             <groupId>com.mailvor</groupId>
             <artifactId>mshop-db</artifactId>
-            <version>3.3</version>
+            <version>5.1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/net.coobird/thumbnailator -->
         <dependency>

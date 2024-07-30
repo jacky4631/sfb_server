@@ -7,7 +7,7 @@
     <groupId>com.mailvor</groupId>
     <artifactId>mshop</artifactId>
     <packaging>pom</packaging>
-    <version>3.3</version>
+    <version>5.1</version>
 
     <modules>
         <module>mshop-system</module>

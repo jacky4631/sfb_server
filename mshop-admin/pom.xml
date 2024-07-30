@@ -5,7 +5,7 @@
     <parent>
         <artifactId>mshop</artifactId>
         <groupId>com.mailvor</groupId>
-        <version>3.3</version>
+        <version>5.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.mailvor</groupId>
             <artifactId>mshop-gen</artifactId>
-            <version>3.3</version>
+            <version>5.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.mailvor</groupId>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.mailvor</groupId>
             <artifactId>mshop-shop</artifactId>
-            <version>3.3</version>
+            <version>5.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -71,7 +71,7 @@
         <dependency>
             <groupId>com.mailvor</groupId>
             <artifactId>mshop-mp</artifactId>
-            <version>3.3</version>
+            <version>5.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
