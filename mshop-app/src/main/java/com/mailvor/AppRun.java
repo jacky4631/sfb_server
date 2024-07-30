@@ -20,10 +20,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableCaching
 @MapperScan(basePackages ={"com.mailvor.modules.*.service.mapper", "com.mailvor.config"})
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class , WxMaAutoConfiguration.class})
-public class ApiRun {
+public class AppRun {
 
     public static void main(String[] args) {
-        SpringApplication.run(ApiRun.class, args);
+        SpringApplication.run(AppRun.class, args);
 
         System.out.println(
                         "                     **                              \n" +
