@@ -25,8 +25,6 @@ import java.util.Map;
 /**
  *
  * @author LionCitys
- * @modified By：
- * @version: 1.0
  * @date 2020/01/07
  */
 public class SwaggerUtil {

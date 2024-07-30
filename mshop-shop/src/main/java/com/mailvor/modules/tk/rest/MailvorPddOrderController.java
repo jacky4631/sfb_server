@@ -29,7 +29,7 @@ import java.util.Arrays;
 * @date 2022-09-06
 */
 @AllArgsConstructor
-@Api(tags = "pddOrder管理")
+@Api(tags = "商城:拼多多订单管理")
 @RestController
 @RequestMapping("/api/mailvorPddOrder")
 public class MailvorPddOrderController {

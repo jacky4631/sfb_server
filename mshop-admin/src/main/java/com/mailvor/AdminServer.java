@@ -27,10 +27,10 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication(exclude = {WxMaAutoConfiguration.class})
 @EnableTransactionManagement
 @MapperScan(basePackages ={"com.mailvor.modules.*.service.mapper", "com.mailvor.config"})
-public class AdminRun {
+public class AdminServer {
 
     public static void main(String[] args) {
-        SpringApplication.run(AdminRun.class, args);
+        SpringApplication.run(AdminServer.class, args);
         System.out.println(
                         "                     **                              \n" +
                         "                     **                              \n" +

@@ -10,10 +10,8 @@ import io.swagger.models.refs.RefType;
 
 /**
  * @author ：LionCity
- * @date ：Created in 2019/9/24 17:17
+ * @date ：2019/9/24
  * @description： 同时拥有ArrayProperty和RefProperty的特性
- * @modified By：
- * @version:
  */
 public class ArrayRefProperty extends ArrayProperty {
     private GenericRef genericRef;
