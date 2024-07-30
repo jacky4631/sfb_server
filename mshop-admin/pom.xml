@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mshop-admin</artifactId>
-    <name>后台管理模块</name>
+    <name>管理后台API模块</name>
 
     <properties>
         <jjwt.version>0.10.6</jjwt.version>

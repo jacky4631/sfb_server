@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mshop-redis</artifactId>
-    <name>消息队列模块</name>
+    <name>消息模块</name>
 
     <dependencies>
         <dependency>

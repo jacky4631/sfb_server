@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mshop-system</artifactId>
-    <name>公共模块</name>
+    <name>系统公共模块</name>
     <properties>
         <weixin-java.version>4.3.0</weixin-java.version>
     </properties>

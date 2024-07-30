@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mshop-app</artifactId>
-    <name>移动端模块</name>
+    <name>移动端API模块</name>
 
     <properties>
         <jjwt.version>0.10.6</jjwt.version>
