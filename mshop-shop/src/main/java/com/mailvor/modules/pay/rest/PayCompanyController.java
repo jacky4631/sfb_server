@@ -29,7 +29,7 @@ import javax.validation.Valid;
  * @author huangyu
  * @date 2023-04-11
  */
-@Api(tags = "商城:数据配置管理")
+@Api(tags = "商城：数据配置管理")
 @RestController
 @RequestMapping("api")
 public class PayCompanyController {

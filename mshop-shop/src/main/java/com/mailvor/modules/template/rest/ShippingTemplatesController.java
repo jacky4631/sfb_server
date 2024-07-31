@@ -45,7 +45,7 @@ import java.util.List;
 * @date 2020-06-29
 */
 @AllArgsConstructor
-@Api(tags = "运费模板管理")
+@Api(tags = "商城：运费模板管理")
 @RestController
 @RequestMapping("/api/mwShippingTemplates")
 public class ShippingTemplatesController {

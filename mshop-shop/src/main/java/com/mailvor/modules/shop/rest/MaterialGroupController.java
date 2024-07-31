@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 * @author huangyu
 * @date 2020-01-09
 */
-@Api(tags = "商城:素材分组管理")
+@Api(tags = "商城：素材分组管理")
 @RestController
 @RequestMapping("/api/materialgroup")
 public class MaterialGroupController {

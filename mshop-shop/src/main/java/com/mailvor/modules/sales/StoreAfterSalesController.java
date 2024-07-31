@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * @author : gzlv 2021/6/29 3:48
  */
-@Api(tags = "商城:售后管理")
+@Api(tags = "商城：售后管理")
 @RestController
 @RequestMapping("/api/mwStoreAfterSales")
 @Slf4j

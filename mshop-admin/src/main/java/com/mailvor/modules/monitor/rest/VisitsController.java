@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/visits")
-@Api(tags = "系统:访问记录管理")
+@Api(tags = "系统：访问记录管理")
 public class VisitsController {
 
     private final VisitsService visitsService;

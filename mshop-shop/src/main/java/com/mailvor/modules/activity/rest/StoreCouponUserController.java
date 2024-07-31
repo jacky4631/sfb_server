@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 * @author huangyu
 * @date 2019-11-10
 */
-@Api(tags = "商城:优惠券发放记录管理")
+@Api(tags = "商城：优惠券发放记录管理")
 @RestController
 @RequestMapping("api")
 public class StoreCouponUserController {

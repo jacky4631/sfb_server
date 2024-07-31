@@ -32,7 +32,7 @@ import javax.annotation.Resource;
 * @author mazhongjun
 * @date 2019-12-04
 */
-@Api(tags = "商城:用户任务管理")
+@Api(tags = "商城：用户任务管理")
 @RestController
 @RequestMapping("api")
 public class SystemUserTaskController {

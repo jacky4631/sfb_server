@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 * @author mazhongjun
 * @date 2019-12-04
 */
-@Api(tags = "商城:用户等级管理")
+@Api(tags = "商城：用户等级管理")
 @RestController
 @RequestMapping("api")
 public class SystemUserLevelController {

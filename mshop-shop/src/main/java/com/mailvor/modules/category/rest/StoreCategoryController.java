@@ -40,7 +40,7 @@ import java.util.List;
 * @author huangyu
 * @date 2019-10-03
 */
-@Api(tags = "商城:商品分类管理")
+@Api(tags = "商城：商品分类管理")
 @RestController
 @RequestMapping("api")
 public class StoreCategoryController {

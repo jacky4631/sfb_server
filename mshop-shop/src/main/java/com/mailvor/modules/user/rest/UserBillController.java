@@ -23,7 +23,7 @@ import javax.annotation.Resource;
 * @author huangyu
 * @date 2019-11-06
 */
-@Api(tags = "商城:用户账单管理")
+@Api(tags = "商城：用户账单管理")
 @RestController
 @RequestMapping("api")
 public class UserBillController {

@@ -34,7 +34,7 @@ import java.net.URLEncoder;
  * @date 2020-03-21
  */
 @Slf4j
-@Api(tags = "微信")
+@Api(tags = "微信：基础信息")
 @Controller
 @RequestMapping("/api/wxmp")
 @AllArgsConstructor

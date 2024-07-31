@@ -46,7 +46,7 @@ import java.util.Arrays;
  */
 @Slf4j
 @RestController
-@Api(tags = "系统:定时任务管理")
+@Api(tags = "系统：定时任务管理")
 @RequestMapping("/api/jobs")
 public class QuartzJobController {
 

@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
 * @author huangyu
 * @date 2019-11-18
 */
-@Api(tags = "商城:拼团管理")
+@Api(tags = "商城：拼团管理")
 @RestController
 @RequestMapping("api")
 public class StoreCombinationController {

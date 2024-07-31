@@ -29,7 +29,7 @@ import com.mailvor.domain.PageResult;
 * @date 2020-12-10
 */
 @AllArgsConstructor
-@Api(tags = "customer管理")
+@Api(tags = "微信:粉丝管理")
 @RestController
 @RequestMapping("/api/mwStoreCustomer")
 public class MwStoreCustomerController {

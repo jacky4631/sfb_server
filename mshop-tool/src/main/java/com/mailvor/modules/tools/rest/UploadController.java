@@ -34,7 +34,7 @@ import java.util.Map;
  * @author huangyu
  * @date 2020-01-09
  */
-@Api(tags = "上传统一管理")
+@Api(tags = "工具：上传文件管理")
 @RestController
 @RequestMapping("/api/upload")
 @Slf4j

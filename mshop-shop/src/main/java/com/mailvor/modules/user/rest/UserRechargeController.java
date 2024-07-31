@@ -31,7 +31,7 @@ import java.util.Arrays;
 * @author huangyu
 * @date 2020-03-02
 */
-@Api(tags = "充值管理管理")
+@Api(tags = "商城：充值管理")
 @RestController
 @RequestMapping("/api/mwUserRecharge")
 public class UserRechargeController {

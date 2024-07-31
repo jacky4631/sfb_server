@@ -36,7 +36,7 @@ import java.util.Arrays;
 * @date 2020-06-28
 */
 @AllArgsConstructor
-@Api(tags = "sku规则管理")
+@Api(tags = "商城：sku规则管理")
 @RestController
 @RequestMapping("/api/mwStoreProductRule")
 public class StoreProductRuleController {

@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "订单模块", tags = "商城:订单模块")
+@Api(value = "订单模块", tags = "商城：订单模块")
 public class PointsOrderController {
 
     private final SuStoreOrderService suStoreOrderService;

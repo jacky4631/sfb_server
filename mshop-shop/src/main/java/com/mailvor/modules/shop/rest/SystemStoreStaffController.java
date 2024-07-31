@@ -38,7 +38,7 @@ import java.util.Arrays;
 * @author huangyu
 * @date 2020-03-22
 */
-@Api(tags = "门店店员管理")
+@Api(tags = "商城：门店店员管理")
 @RestController
 @RequestMapping("/api/mwSystemStoreStaff")
 public class SystemStoreStaffController {

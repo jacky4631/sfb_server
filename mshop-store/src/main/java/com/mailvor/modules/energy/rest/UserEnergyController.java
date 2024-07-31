@@ -40,7 +40,7 @@ import java.util.Arrays;
 * @author huangyu
 * @date 2019-10-10
 */
-@Api(tags = "商城:热度管理")
+@Api(tags = "商城：热度管理")
 @RestController
 @RequestMapping("api/energy")
 public class UserEnergyController {

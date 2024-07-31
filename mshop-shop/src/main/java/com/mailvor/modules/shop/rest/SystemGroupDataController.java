@@ -38,7 +38,7 @@ import static com.mailvor.constant.ShopConstants.MSHOP_SECKILL_TIME;
  * @author huangyu
  * @date 2019-10-18
  */
-@Api(tags = "商城:数据配置管理")
+@Api(tags = "商城：数据配置管理")
 @RestController
 @RequestMapping("api")
 public class SystemGroupDataController {

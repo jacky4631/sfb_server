@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 * @author huangyu
 * @date 2019-11-09
 */
-@Api(tags = "商城:优惠券发布管理")
+@Api(tags = "商城：优惠券发布管理")
 @RestController
 @RequestMapping("api")
 public class StoreCouponIssueController {

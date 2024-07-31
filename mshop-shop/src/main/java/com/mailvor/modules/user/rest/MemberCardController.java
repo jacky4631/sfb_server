@@ -22,7 +22,7 @@ import javax.annotation.Resource;
 * @author huangyu
 * @date 2023-04-06
 */
-@Api(tags = "商城:会员开店管理")
+@Api(tags = "商城：会员开店管理")
 @RestController
 @RequestMapping("api")
 public class MemberCardController {

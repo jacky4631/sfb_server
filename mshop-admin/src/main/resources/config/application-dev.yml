@@ -86,7 +86,7 @@ swagger:
   enabled: true
   title: mshop商城管理后台API
   serverUrl:
-  version: 3.3
+  version: 5.1.0
 
 # 文件存储路径
 file:

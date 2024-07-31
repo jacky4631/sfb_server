@@ -31,7 +31,7 @@ import java.util.Arrays;
 * @date 2022-08-29
 */
 @AllArgsConstructor
-@Api(tags = "商城:淘宝订单管理")
+@Api(tags = "商城：淘宝订单管理")
 @RestController
 @RequestMapping("/api/mailvorTbOrder")
 public class MailvorTbOrderController {

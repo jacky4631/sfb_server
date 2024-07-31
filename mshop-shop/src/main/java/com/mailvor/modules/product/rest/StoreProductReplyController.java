@@ -31,7 +31,7 @@ import java.util.Date;
 * @author huangyu
 * @date 2019-11-03
 */
-@Api(tags = "商城:评论管理")
+@Api(tags = "商城：评论管理")
 @RestController
 @RequestMapping("api")
 public class StoreProductReplyController {

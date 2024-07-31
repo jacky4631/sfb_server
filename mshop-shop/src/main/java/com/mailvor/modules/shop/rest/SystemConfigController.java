@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 * @author huangyu
 * @date 2019-10-10
 */
-@Api(tags = "商城:配置管理")
+@Api(tags = "商城：配置管理")
 @RestController
 @RequestMapping("api")
 public class SystemConfigController {

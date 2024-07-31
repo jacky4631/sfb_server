@@ -38,7 +38,7 @@ import static com.mailvor.constant.SystemConfigConstants.UPDATE_CONFIG;
 * @date 2020-12-09
 */
 @AllArgsConstructor
-@Api(tags = "app版本控制管理")
+@Api(tags = "商城：app版本管理")
 @RestController
 @RequestMapping("/api/mwAppVersion")
 public class MwAppVersionController {

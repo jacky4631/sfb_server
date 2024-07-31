@@ -38,7 +38,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@Api(value = "购物车", tags = "商城:购物车")
+@Api(value = "购物车", tags = "商城：购物车")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StoreCartController {
 

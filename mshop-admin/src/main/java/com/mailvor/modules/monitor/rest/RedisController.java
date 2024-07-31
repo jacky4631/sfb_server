@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Zheng Jie
  * @date 2018-12-10
  */
-@Api(tags = "redis缓存管理")
+@Api(tags = "商城：redis缓存管理")
 @RestController
 @RequestMapping("api")
 public class RedisController {

@@ -73,7 +73,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @RestController
-@Api(value = "产品模块", tags = "商城:产品模块")
+@Api(value = "产品模块", tags = "商城：产品模块")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StoreProductController {
 

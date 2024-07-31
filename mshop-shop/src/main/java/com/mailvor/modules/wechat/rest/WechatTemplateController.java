@@ -34,7 +34,7 @@ import java.io.IOException;
 * @author huangyu
 * @date 2019-12-10
 */
-@Api(tags = "商城:微信模板管理")
+@Api(tags = "微信：微信模板管理")
 @RestController
 @RequestMapping("/api/mwWechatTemplate")
 @AllArgsConstructor

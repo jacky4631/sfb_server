@@ -54,7 +54,7 @@ import java.util.*;
 * @date 2019-10-06
 */
 @Slf4j
-@Api(tags = "商城:会员管理")
+@Api(tags = "商城：会员管理")
 @RestController
 @RequestMapping("api")
 public class MemberController {

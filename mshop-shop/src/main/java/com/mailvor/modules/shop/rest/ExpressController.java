@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 * @author huangyu
 * @date 2019-12-12
 */
-@Api(tags = "商城:快递管理")
+@Api(tags = "商城：快递管理")
 @RestController
 @RequestMapping("api")
 public class ExpressController {

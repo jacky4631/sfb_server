@@ -32,7 +32,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @RequestMapping("/article")
-@Api(value = "文章模块", tags = "商城:文章模块")
+@Api(value = "文章模块", tags = "商城：文章模块")
 public class ArticleController {
 
     private final MwArticleService articleService;

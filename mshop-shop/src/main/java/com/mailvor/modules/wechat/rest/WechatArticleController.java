@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 * @author huangyu
 * @date 2019-10-07
 */
-@Api(tags = "商城:微信图文管理")
+@Api(tags = "微信：微信图文管理")
 @RestController
 @RequestMapping("api")
 public class WechatArticleController {

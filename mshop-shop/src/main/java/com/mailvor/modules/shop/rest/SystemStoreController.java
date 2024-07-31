@@ -40,7 +40,7 @@ import java.util.Arrays;
 * @author huangyu
 * @date 2020-03-03
 */
-@Api(tags = "门店管理")
+@Api(tags = "商城：门店管理")
 @RestController
 @RequestMapping("/api/mwSystemStore")
 public class SystemStoreController {

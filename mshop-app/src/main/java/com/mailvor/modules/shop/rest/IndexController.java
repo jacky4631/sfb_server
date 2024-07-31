@@ -54,7 +54,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "首页模块", tags = "商城:首页模块")
+@Api(value = "首页模块", tags = "商城：首页模块")
 public class IndexController {
     private final MwAppVersionService appVersionService;
     private final MwSystemGroupDataService systemGroupDataService;

@@ -23,7 +23,7 @@ import javax.annotation.Resource;
 @Slf4j
 @RestController
 @RequestMapping("/api/alioss")
-@Api(tags = "阿里OSS存储管理")
+@Api(tags = "工具：阿里OSS存储管理")
 public class AliOssController {
 
     @Resource

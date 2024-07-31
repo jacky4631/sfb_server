@@ -28,7 +28,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@Api(value = "商品分类", tags = "商城:商品分类")
+@Api(value = "商品分类", tags = "商城：商品分类")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StoreCategoryController {
 

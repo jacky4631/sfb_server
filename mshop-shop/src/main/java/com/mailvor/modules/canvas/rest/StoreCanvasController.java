@@ -33,7 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 * @date 2021-02-01
 */
 @AllArgsConstructor
-@Api(tags = "画布管理")
+@Api(tags = "商城：画布管理")
 @RestController
 @RequestMapping("/api/canvas")
 public class StoreCanvasController {

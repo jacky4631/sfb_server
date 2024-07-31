@@ -36,7 +36,7 @@ import java.util.Arrays;
 * @date 2020-05-13
 */
 @AllArgsConstructor
-@Api(tags = "文件管理")
+@Api(tags = "工具：文件管理")
 @RestController
 @RequestMapping("/api/localStorage")
 public class LocalStorageController {

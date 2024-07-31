@@ -48,7 +48,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "商家管理", tags = "商城:商家管理")
+@Api(value = "商家管理", tags = "商城：商家管理")
 public class ShoperController {
 
     private final MwStoreOrderService storeOrderService;

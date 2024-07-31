@@ -27,7 +27,7 @@ import javax.annotation.Resource;
  * @author huangyu
  * @date 2022-07-06
  */
-@Api(tags = "商城:额外支出管理")
+@Api(tags = "商城：额外支出管理")
 @RestController
 @RequestMapping("api")
 public class ExpendController {

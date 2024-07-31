@@ -36,7 +36,7 @@ import java.util.Arrays;
 * @date 2020-08-11
 */
 @AllArgsConstructor
-@Api(tags = "mwWechatLiveGoods管理")
+@Api(tags = "微信：直播间商品管理")
 @RestController
 @RequestMapping("/api/mwWechatLiveGoods")
 public class MwWechatLiveGoodsController {

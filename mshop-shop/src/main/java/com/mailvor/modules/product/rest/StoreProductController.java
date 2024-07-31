@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  * @author huangyu
  * @date 2019-10-04
  */
-@Api(tags = "商城:商品管理")
+@Api(tags = "商城：商品管理")
 @RestController
 @RequestMapping("api")
 public class StoreProductController {

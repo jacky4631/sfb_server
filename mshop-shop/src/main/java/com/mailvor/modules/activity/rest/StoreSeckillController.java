@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  * @author huangyu
  * @date 2019-12-14
  */
-@Api(tags = "商城:秒杀管理")
+@Api(tags = "商城：秒杀管理")
 @RestController
 @RequestMapping("api")
 public class StoreSeckillController {

@@ -32,7 +32,7 @@ import javax.annotation.Resource;
 * @author huangyu
 * @date 2019-11-14
 */
-@Api(tags = "商城:提现管理")
+@Api(tags = "商城：提现管理")
 @RestController
 @RequestMapping("api")
 public class UserExtractController {

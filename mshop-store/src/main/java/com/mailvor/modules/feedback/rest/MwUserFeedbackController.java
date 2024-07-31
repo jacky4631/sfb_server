@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 * @date 2024-05-27
 */
 @AllArgsConstructor
-@Api(tags = "userFeedback管理")
+@Api(tags = "商城：用户反馈管理")
 @RestController
 @RequestMapping("/api/mwUserFeedback")
 public class MwUserFeedbackController {

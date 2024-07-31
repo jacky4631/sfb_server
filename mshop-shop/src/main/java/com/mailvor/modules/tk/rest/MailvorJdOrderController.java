@@ -29,7 +29,7 @@ import java.util.Arrays;
 * @date 2022-09-05
 */
 @AllArgsConstructor
-@Api(tags = "商城:京东订单管理")
+@Api(tags = "商城：京东订单管理")
 @RestController
 @RequestMapping("/api/mailvorJdOrder")
 public class MailvorJdOrderController {

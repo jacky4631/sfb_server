@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  * @author mazhongjun
  * @date 2019-10-14
  */
-@Api(tags = "商城:订单管理")
+@Api(tags = "商城：订单管理")
 @RestController
 @RequestMapping("api")
 @Slf4j

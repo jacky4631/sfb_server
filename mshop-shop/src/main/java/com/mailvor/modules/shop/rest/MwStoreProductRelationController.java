@@ -27,7 +27,7 @@ import com.mailvor.domain.PageResult;
  * @date 2020-09-03
  */
 @AllArgsConstructor
-@Api(tags = "ProductRelation管理")
+@Api(tags = "商城：商品记录管理")
 @RestController
 @RequestMapping("/api/mwStoreProductRelation")
 public class MwStoreProductRelationController {

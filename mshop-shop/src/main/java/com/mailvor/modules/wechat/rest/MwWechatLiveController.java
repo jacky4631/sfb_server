@@ -39,7 +39,7 @@ import java.util.Arrays;
 * @date 2020-08-10
 */
 @AllArgsConstructor
-@Api(tags = "wxlive管理")
+@Api(tags = "微信：直播间管理")
 @RestController
 @RequestMapping("/api/mwWechatLive")
 public class MwWechatLiveController {
