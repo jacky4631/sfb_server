@@ -36,9 +36,9 @@ public class MwSystemUserTask extends BaseDomain {
     private String taskType;
 
     /** 奖励类型 0=金额 1=积分*/
-    private Integer rewardType;
+//    private Integer rewardType;
     /** 奖励数值 */
-    private Double reward;
+//    private Double reward;
 
     /** 限定数 */
     private Integer number;
