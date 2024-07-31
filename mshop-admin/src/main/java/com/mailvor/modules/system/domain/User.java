@@ -24,7 +24,7 @@ import java.util.Set;
 */
 @Getter
 @Setter
-@TableName("user")
+@TableName("system_user")
 public class User extends BaseDomain {
 
     /** 系统用户ID */

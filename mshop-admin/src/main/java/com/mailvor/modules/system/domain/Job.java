@@ -21,7 +21,7 @@ import javax.validation.constraints.NotBlank;
 */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("job")
+@TableName("system_job")
 public class Job extends BaseDomain {
 
     /** 岗位ID */

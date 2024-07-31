@@ -40,7 +40,7 @@ smms:
 
 mshop:
   # 配置
-  version: 3.3
+  version: 5.1
   apiUrl: http://127.0.0.1:8009/api
 
 logging:

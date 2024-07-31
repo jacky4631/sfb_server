@@ -17,7 +17,7 @@ import lombok.Data;
 */
 
 @Data
-@TableName("quartz_log")
+@TableName("system_quartz_log")
 public class QuartzLog extends BaseDomain {
 
     /** 任务日志ID */

@@ -28,11 +28,11 @@ public interface MenuMapper extends CoreMapper<Menu> {
      * @param pid /
      * @return /
      */
-    @Select("SELECT * from menu m where m.pid = #{pid} and m.is_del = 0 ")
+    @Select("SELECT * from system_menu m where m.pid = #{pid} and m.is_del = 0 ")
     List<Menu> findByPid(@Param("pid") long pid);
 
-    @Select("select m.* from menu m LEFT JOIN roles_menus t on m.id= t.menu_id LEFT JOIN role r on r.id = t.role_id where r.id = #{roleId} and m.is_del=0")
+    @Select("select m.* from system_menu m LEFT JOIN system_roles_menus t on m.id= t.menu_id LEFT JOIN system_role r on r.id = t.role_id where r.id = #{roleId} and m.is_del=0")
     Set<Menu> findMenuByRoleId(@Param("roleId") Long roleId);
-    @Select("<script>select m.* from menu m LEFT OUTER JOIN roles_menus t on m.id= t.menu_id LEFT OUTER JOIN role r on r.id = t.role_id where m.is_del=0 and m.type!=2 and  r.id in <foreach collection=\"roleIds\" index=\"index\" item=\"item\" open=\"(\" separator=\",\" close=\")\">#{item}</foreach> order by m.sort asc</script>")
+    @Select("<script>select m.* from system_menu m LEFT OUTER JOIN system_roles_menus t on m.id= t.menu_id LEFT OUTER JOIN system_role r on r.id = t.role_id where m.is_del=0 and m.type!=2 and  r.id in <foreach collection=\"roleIds\" index=\"index\" item=\"item\" open=\"(\" separator=\",\" close=\")\">#{item}</foreach> order by m.sort asc</script>")
     List<Menu> selectListByRoles(@Param("roleIds") List<Long> roleIds);
 }

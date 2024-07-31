@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("quartz_job")
+@TableName("system_quartz_job")
 public class QuartzJob extends BaseDomain {
 
     public static final String JOB_KEY = "JOB_KEY";

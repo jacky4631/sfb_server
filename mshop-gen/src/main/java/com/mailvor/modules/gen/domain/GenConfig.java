@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-@TableName("gen_config")
+@TableName("system_gen_config")
 public class GenConfig {
 
     public GenConfig(String tableName) {

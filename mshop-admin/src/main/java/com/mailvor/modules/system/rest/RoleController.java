@@ -55,7 +55,7 @@ public class RoleController {
     private final UserService userService;
     private final IGenerator generator;
 
-    private static final String ENTITY_NAME = "role";
+    private static final String ENTITY_NAME = "system_role";
 
     public RoleController(RoleService roleService, UserService userService, IGenerator generator) {
         this.roleService = roleService;

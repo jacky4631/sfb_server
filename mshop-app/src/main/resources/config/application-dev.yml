@@ -63,7 +63,7 @@ spring:
     type: redis
 
 mshop:
-  version: 3.3
+  version: 5.1
   security:
     jwt-key: mshopmini
     #在线30天

@@ -23,7 +23,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-@TableName("local_storage")
+@TableName("system_local_storage")
 public class LocalStorage implements Serializable {
 
     @TableId

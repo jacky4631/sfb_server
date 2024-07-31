@@ -20,6 +20,6 @@ import org.springframework.stereotype.Repository;
 public interface QiniuConfigMapper extends CoreMapper<QiniuConfig> {
 
 
-    @Update("update qiniu_config set type = #{type} ")
+    @Update("update system_qiniu_config set type = #{type} ")
     void updateType(@Param("type") String type);
 }

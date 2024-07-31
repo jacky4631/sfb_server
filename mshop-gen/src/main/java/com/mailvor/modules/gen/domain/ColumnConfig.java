@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-@TableName("column_config")
+@TableName("system_column_config")
 public class ColumnConfig {
 
     @TableId

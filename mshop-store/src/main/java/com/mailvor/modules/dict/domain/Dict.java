@@ -20,7 +20,7 @@ import javax.validation.constraints.NotBlank;
 */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("dict")
+@TableName("system_dict")
 public class Dict extends BaseDomain {
 
     /** 字典ID */

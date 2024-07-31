@@ -18,7 +18,7 @@ import java.io.Serializable;
 */
 
 @Data
-@TableName("qiniu_config")
+@TableName("system_qiniu_config")
 public class QiniuConfig implements Serializable {
 
     /** ID */

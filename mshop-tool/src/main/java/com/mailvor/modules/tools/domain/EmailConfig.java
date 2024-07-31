@@ -18,7 +18,7 @@ import java.io.Serializable;
 */
 
 @Data
-@TableName("email_config")
+@TableName("system_email_config")
 public class EmailConfig implements Serializable {
 
     /** ID */

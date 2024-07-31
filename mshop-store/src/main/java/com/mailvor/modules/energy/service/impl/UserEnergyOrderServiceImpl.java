@@ -111,6 +111,11 @@ public class UserEnergyOrderServiceImpl extends BaseServiceImpl<UserEnergyOrderM
         PageInfo<UserEnergyOrder> page = new PageInfo<>(queryAll(criteria));
         Map<String, Object> map = new LinkedHashMap<>(2);
         List<UserEnergyOrder> orders = page.getList();
+        if(orders.isEmpty()) {
+            map.put("content", new ArrayList<>(0));
+            map.put("totalElements", page.getTotal());
+            return map;
+        }
         List<Long> logIds = orders.stream().map(energyOrder -> energyOrder.getLogId()).distinct().collect(toList());
         Map<Long, UserEnergyOrderLog> logMap = orderLogService.listByIds(logIds)
                 .stream().collect(Collectors.toMap(UserEnergyOrderLog::getId, Function.identity()));

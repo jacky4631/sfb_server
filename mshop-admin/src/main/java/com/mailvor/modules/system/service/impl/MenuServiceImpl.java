@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
 */
 @Service
 @AllArgsConstructor
-@CacheConfig(cacheNames = "menu")
+@CacheConfig(cacheNames = "system_menu")
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class MenuServiceImpl extends BaseServiceImpl<MenuMapper, Menu> implements MenuService {
 
