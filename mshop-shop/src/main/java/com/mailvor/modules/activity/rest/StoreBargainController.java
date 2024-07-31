@@ -75,7 +75,7 @@ public class StoreBargainController {
     @ApiOperation(value = "删除砍价")
     @DeleteMapping(value = "/mwStoreBargain/{id}")
     @PreAuthorize("hasAnyRole('admin','MWSTOREBARGAIN_ALL','MWSTOREBARGAIN_DELETE')")
-    public ResponseEntity delete(@PathVariable Integer id){
+    public ResponseEntity delete(@PathVariable Long id){
         mwStoreBargainService.removeById(id);
         return new ResponseEntity(HttpStatus.OK);
     }

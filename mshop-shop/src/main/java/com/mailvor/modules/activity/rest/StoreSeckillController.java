@@ -97,7 +97,7 @@ public class StoreSeckillController {
     @ApiOperation(value = "删除")
     @DeleteMapping(value = "/mwStoreSeckill/{id}")
     @PreAuthorize("hasAnyRole('admin','MWSTORESECKILL_ALL','MWSTORESECKILL_DELETE')")
-    public ResponseEntity delete(@PathVariable Integer id) {
+    public ResponseEntity delete(@PathVariable Long id) {
         mwStoreSeckillService.removeById(id);
         return new ResponseEntity(HttpStatus.OK);
     }
