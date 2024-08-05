@@ -374,13 +374,6 @@ public class TkService {
         return daObj;
     }
 
-    /**
-     * 计算某个用户所有订单表的订单数量
-     * */
-    public Long orderCount(Long uid, Integer innerType) {
-        return orderMapper.orderCount(uid, innerType);
-    }
-
     public JSONObject createTlj(String goodsId, Double tljMoney) throws ApiException {
         // create Client
         TaobaoClient client = new DefaultTaobaoClient(tbConfig.getUrl(), tbConfig.getAppKey(), tbConfig.getAppSecret());

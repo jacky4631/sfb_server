@@ -16,21 +16,4 @@ import org.springframework.stereotype.Repository;
 */
 @Repository
 public interface TkOrderMapper extends CoreMapper<TkOrder> {
-
-    /**
-     * 计算某个用户所有订单表的订单数量
-     * */
-    @Select("SELECT SUM(orderCount) FROM (" +
-            "SELECT COUNT(1) AS orderCount FROM mw_tb_order WHERE uid = ${uid} AND inner_type=${innerType} AND bind=1 " +
-            " UNION ALL " +
-            "SELECT COUNT(1) AS orderCount FROM mw_jd_order WHERE uid = ${uid} AND inner_type=${innerType} AND bind=1 " +
-            "UNION ALL " +
-            "SELECT COUNT(1) AS orderCount FROM mw_pdd_order WHERE uid = ${uid} AND inner_type=${innerType} AND bind=1 " +
-            "UNION ALL " +
-            "SELECT COUNT(1) AS orderCount FROM mw_dy_order WHERE uid = ${uid} AND inner_type=${innerType} AND bind=1 " +
-            "UNION ALL " +
-            "SELECT COUNT(1) AS orderCount FROM mw_vip_order WHERE uid = ${uid} AND inner_type=${innerType} AND bind=1" +
-            ") AS tk_order")
-    Long orderCount(@Param("uid") Long uid,@Param("innerType") Integer innerType);
-
 }

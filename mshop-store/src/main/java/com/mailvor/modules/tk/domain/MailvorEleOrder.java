@@ -20,7 +20,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@TableName(value="mw_ele_order", autoResultMap = true)
+@TableName(value="mw_order_ele", autoResultMap = true)
 public class MailvorEleOrder extends TkOrder {
     /** 子订单号 */
     private String tradeId;

@@ -28,78 +28,78 @@ import java.util.Set;
 public interface MailvorDyOrderMapper extends CoreMapper<MailvorDyOrder> {
 
     @Override
-    @Select("SELECT * FROM mw_dy_order ${ew.customSqlSegment}")
+    @Select("SELECT * FROM mw_order_dy ${ew.customSqlSegment}")
     <E extends IPage<MailvorDyOrder>> E selectPage(E page, @Param(Constants.WRAPPER) Wrapper<MailvorDyOrder> queryWrapper);
 
-    @Update("update mw_dy_order set uid = ${uid} where order_id = #{id}")
+    @Update("update mw_order_dy set uid = ${uid} where order_id = #{id}")
     void bindUser(@Param("uid")Long uid, @Param("id") String orderId);
-    @Update("update mw_dy_order set bind = 2 where order_id = #{id}")
+    @Update("update mw_order_dy set bind = 2 where order_id = #{id}")
     void refundOrder(@Param("id") String orderId);
 
 
-    @Select("select IFNULL(sum(integral),0) from mw_dy_order " +
+    @Select("select IFNULL(sum(integral),0) from mw_order_dy " +
             "where uid=#{uid} and pay_success_time <= #{time} and bind=1 and cash=0")
     double totalCash(@Param("uid") Long uid, @Param("time") Date time);
 
-    @Select("select order_id from mw_dy_order where uid=#{uid} and pay_success_time <= #{time} and cash=0")
+    @Select("select order_id from mw_order_dy where uid=#{uid} and pay_success_time <= #{time} and cash=0")
     Set<MailvorDyOrder> selectCashOrderId(@Param("uid") Long uid, @Param("time") Date time);
 
 
-    @Update("update mw_dy_order set cash = 1 where uid=#{uid} and pay_success_time <= #{time} and cash=0")
+    @Update("update mw_order_dy set cash = 1 where uid=#{uid} and pay_success_time <= #{time} and cash=0")
     void updateCash(@Param("uid") Long uid, @Param("time") Date time);
 
-    @Select( "select IFNULL(sum(total_pay_amount),0)  from mw_dy_order " +
+    @Select( "select IFNULL(sum(total_pay_amount),0)  from mw_order_dy " +
             "where is_del=0")
     Double sumTotalPrice();
 
-    @Select( "select IFNULL(sum(estimated_total_commission),0)  from mw_dy_order " +
+    @Select( "select IFNULL(sum(estimated_total_commission),0)  from mw_order_dy " +
             "where is_del=0")
     Double sumTotalFee();
 
     @Select("SELECT IFNULL(sum(total_pay_amount),0) " +
-            " FROM mw_dy_order ${ew.customSqlSegment}")
+            " FROM mw_order_dy ${ew.customSqlSegment}")
     Double sumPrice(@Param(Constants.WRAPPER) Wrapper<MailvorDyOrder> wrapper);
 
     @Select("SELECT IFNULL(sum(estimated_total_commission),0) " +
-            " FROM mw_dy_order ${ew.customSqlSegment}")
+            " FROM mw_order_dy ${ew.customSqlSegment}")
     Double sumFee(@Param(Constants.WRAPPER) Wrapper<MailvorDyOrder> wrapper);
 
     @Select("SELECT IFNULL(sum(total_pay_amount),0) as num," +
             "DATE_FORMAT(pay_success_time, '%m-%d') as time " +
-            " FROM mw_dy_order where is_del=0 and inner_type=0 and pay_success_time >= #{time}" +
+            " FROM mw_order_dy where is_del=0 and inner_type=0 and pay_success_time >= #{time}" +
             " GROUP BY DATE_FORMAT(pay_success_time,'%Y-%m-%d') " +
             " ORDER BY pay_success_time ASC")
     List<ChartDataDto> chartList(@Param("time") Date time);
     @Select("SELECT count(order_id) as num," +
             "DATE_FORMAT(pay_success_time, '%m-%d') as time " +
-            " FROM mw_dy_order where is_del=0 and inner_type=0 and pay_success_time >= #{time}" +
+            " FROM mw_order_dy where is_del=0 and inner_type=0 and pay_success_time >= #{time}" +
             " GROUP BY DATE_FORMAT(pay_success_time,'%Y-%m-%d') " +
             " ORDER BY pay_success_time ASC")
     List<ChartDataDto> chartListT(@Param("time") Date time);
     @Select("SELECT IFNULL(sum(estimated_total_commission),0) as num," +
             "DATE_FORMAT(pay_success_time, '%m-%d') as time " +
-            " FROM mw_dy_order where is_del=0 and inner_type=0 and pay_success_time >= #{time}" +
+            " FROM mw_order_dy where is_del=0 and inner_type=0 and pay_success_time >= #{time}" +
             " GROUP BY DATE_FORMAT(pay_success_time,'%Y-%m-%d') " +
             " ORDER BY pay_success_time ASC")
     List<ChartDataDto> chartListFee(@Param("time") Date time);
 
-//    @Update("update mw_dy_order set flow_point = 'REFUND'" +
+//    @Update("update mw_order_dy set flow_point = 'REFUND'" +
 //            " where order_id in" +
 //            " <foreach item='id' index='index' collection='ids' " +
 //            " open='(' separator=',' close=')'>" +
 //            " #{id}" +
 //            " </foreach>")
 //    void invalidRefundOrders(@Param("ids") List<String> ids);
-    @Update("update mw_dy_order set flow_point = 'REFUND',bind=3,hb=0.0" +
+    @Update("update mw_order_dy set flow_point = 'REFUND',bind=3,hb=0.0" +
             " where order_id = #{id}")
     void invalidRefundOrders(@Param("id") String id);
 
     @Select("SELECT IFNULL(sum(hb),0) " +
-            " FROM mw_dy_order ${ew.customSqlSegment}")
+            " FROM mw_order_dy ${ew.customSqlSegment}")
     Double sumHb(@Param(Constants.WRAPPER) Wrapper<MailvorDyOrder> wrapper);
 
     @Select("SELECT uid,count(*) as orderCount " +
-            " FROM mw_dy_order ${ew.customSqlSegment}")
+            " FROM mw_order_dy ${ew.customSqlSegment}")
     List<OrderCheckDTO> checkCount(@Param(Constants.WRAPPER) Wrapper<MailvorDyOrder> wrapper);
 
 }
