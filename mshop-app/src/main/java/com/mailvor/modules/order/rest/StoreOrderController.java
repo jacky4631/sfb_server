@@ -454,9 +454,11 @@ public class StoreOrderController {
         AppDataConfig config = systemConfigService.getAppDataConfig();
         tabs.add(new OrderTabFirstDto("热度订单", false, 0, 2));
 
-        tabs.add(new OrderTabFirstDto("金客", false, 1, 0));
         if(config.getSpreadLevel() == null || config.getSpreadLevel() == 3) {
+            tabs.add(new OrderTabFirstDto("金客", false, 1, 0));
             tabs.add(new OrderTabFirstDto("银客", false, 2, 0));
+        } else {
+            tabs.add(new OrderTabFirstDto("用户", false, 1, 0));
         }
         tabs.add(new OrderTabFirstDto("积分订单", false, 0, null));
         return ApiResult.ok(tabs);
