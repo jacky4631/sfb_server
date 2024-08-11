@@ -37,10 +37,12 @@ import com.mailvor.modules.product.service.MwStoreProductService;
 import com.mailvor.modules.product.vo.MwStoreProductQueryVo;
 import com.mailvor.modules.services.CreatShareProductService;
 import com.mailvor.modules.services.OrderSupplyService;
+import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.tk.service.*;
 import com.mailvor.modules.tools.express.ExpressService;
 import com.mailvor.modules.tools.express.config.ExpressAutoConfiguration;
 import com.mailvor.modules.tools.express.dao.ExpressInfo;
+import com.mailvor.modules.user.config.AppDataConfig;
 import com.mailvor.modules.user.domain.MwUser;
 import com.vdurmont.emoji.EmojiParser;
 import io.swagger.annotations.Api;
@@ -109,6 +111,8 @@ public class StoreOrderController {
     @Resource
     private TkService tkService;
 
+    @Resource
+    private MwSystemConfigService systemConfigService;
     /**
      * 订单确认
      */
@@ -444,17 +448,16 @@ public class StoreOrderController {
     @GetMapping("/order/tab/first")
     @ApiOperation(value = "订单中心tab", notes = "订单中心tab")
     public ApiResult<List<OrderTabFirstDto>> getOrderTabFirst() {
-        Long uid = LocalUser.getUser().getUid();
         List<OrderTabFirstDto> tabs = new ArrayList<>();
 
         tabs.add(new OrderTabFirstDto("自购", false, 0, 0));
-        if("tsq".equals(PAY_NAME)) {
-            tabs.add(new OrderTabFirstDto("店铺订单", false, 0, 2));
-        } else {
-            tabs.add(new OrderTabFirstDto("热度订单", false, 0, 2));
-        }
+        AppDataConfig config = systemConfigService.getAppDataConfig();
+        tabs.add(new OrderTabFirstDto("热度订单", false, 0, 2));
+
         tabs.add(new OrderTabFirstDto("金客", false, 1, 0));
-        tabs.add(new OrderTabFirstDto("银客", false, 2, 0));
+        if(config.getSpreadLevel() == null || config.getSpreadLevel() == 3) {
+            tabs.add(new OrderTabFirstDto("银客", false, 2, 0));
+        }
         tabs.add(new OrderTabFirstDto("积分订单", false, 0, null));
         return ApiResult.ok(tabs);
     }

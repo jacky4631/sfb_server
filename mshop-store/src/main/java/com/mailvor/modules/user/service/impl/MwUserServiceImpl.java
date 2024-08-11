@@ -39,6 +39,7 @@ import com.mailvor.modules.push.service.JPushService;
 import com.mailvor.modules.shop.domain.MwSystemUserLevel;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.tk.service.*;
+import com.mailvor.modules.user.config.AppDataConfig;
 import com.mailvor.modules.user.domain.*;
 import com.mailvor.modules.user.service.*;
 import com.mailvor.modules.user.service.dto.*;
@@ -1145,8 +1146,12 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
         }
         //发送通知
         jPushService.push(mark, userInfo.getUid());
-        //计算二级返佣
-        gainLevelTwoMoney(uid, userInfo, price, orderId, orderCreateTime, platform, childUser, type);
+
+        AppDataConfig config = systemConfigService.getAppDataConfig();
+        if(config.getSpreadLevel() == null || config.getSpreadLevel() == 3) {
+            //计算二级返佣
+            gainLevelTwoMoney(uid, userInfo, price, orderId, orderCreateTime, platform, childUser, type);
+        }
     }
 
     protected void gainLevelTwoMoney(Long origUid, MwUser userInfo, BigDecimal price,

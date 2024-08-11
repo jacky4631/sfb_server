@@ -33,6 +33,7 @@ import com.mailvor.modules.tk.config.TbConfig;
 import com.mailvor.modules.tk.domain.*;
 import com.mailvor.modules.tk.service.*;
 import com.mailvor.modules.tools.utils.CashUtils;
+import com.mailvor.modules.user.config.AppDataConfig;
 import com.mailvor.modules.user.config.HbUnlockConfig;
 import com.mailvor.modules.user.domain.*;
 import com.mailvor.modules.user.service.*;
@@ -362,10 +363,12 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         RedisUtil.setFeeUid(levelOneUser.getUid());
         //发送通知
         jPushService.push(mark, levelOneUser.getUid());
-
-        //计算二级返佣
-        gainLevelTwoMoney(origUser.getUid(), levelOneUser, hb, orderId, orderCreateTime, platformEnum, orderHb, origUser, unlockTime);
-    }
+        AppDataConfig config = systemConfigService.getAppDataConfig();
+        if(config.getSpreadLevel() == null || config.getSpreadLevel() == 3) {
+            //计算二级返佣
+            gainLevelTwoMoney(origUser.getUid(), levelOneUser, hb, orderId, orderCreateTime, platformEnum, orderHb, origUser, unlockTime);
+        }
+      }
 
     protected void gainLevelTwoMoney(Long origUid, MwUser userInfo, BigDecimal hb, String orderId, Date orderCreateTime,
                                      PlatformEnum platformEnum,
