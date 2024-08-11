@@ -58,6 +58,10 @@ public class AppDataConfig implements Serializable {
      * */
     private String skipCode = "1";
 
+    /**
+     * 分销级别 2级或者3级
+     * */
+    private Integer spreadLevel = 3;
 
     /**
      * 当开启易宝银行卡支付时，记录订单支付状态
