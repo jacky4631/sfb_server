@@ -1,7 +1,6 @@
 package com.mailvor.modules.meituan;
 
 
-import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -174,17 +173,5 @@ public class MeituanService {
         Response response = Client.execute(request);
 
         return JSON.parseObject(response.getBody());
-    }
-
-    public static void main(String[] args) {
-        MeituanService service = new MeituanService();
-        service.meituanConfig = new MeituanConfig();
-        service.meituanConfig.setAppKey("69046b24b3c87d643a336fa5836");
-        service.meituanConfig.setAppSecret("cd71f10457398c50e0a4c36dcaf");
-        MeituanOrderParam param = new MeituanOrderParam();
-//        param.setScrollId("[1720663736, \"1\", \"1\", \"3101155483703593602\"]");
-        param.setStartTime(DateUtil.beginOfDay(new Date()).getTime()/1000);
-        param.setEndTime(DateUtil.endOfDay(new Date()).getTime()/1000);
-        service.order(param);
     }
 }
