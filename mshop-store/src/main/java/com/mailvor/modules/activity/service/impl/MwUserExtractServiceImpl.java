@@ -42,8 +42,8 @@ import com.mailvor.modules.user.domain.MwUserBank;
 import com.mailvor.modules.user.domain.MwUserUnion;
 import com.mailvor.modules.user.service.MwUserBankService;
 import com.mailvor.modules.user.service.MwUserBillService;
-import com.mailvor.modules.user.service.MwUserService;
 import com.mailvor.modules.user.service.MwUserUnionService;
+import com.mailvor.modules.user.service.mapper.UserMapper;
 import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.DateUtils;
 import com.mailvor.utils.FileUtil;
@@ -81,7 +81,7 @@ public class MwUserExtractServiceImpl extends BaseServiceImpl<MwUserExtractMappe
 
     private final IGenerator generator;
     private final MwUserExtractMapper extractMapper;
-    private final MwUserService userService;
+    private final UserMapper userMapper;
     private final MwUserBillService billService;
     private final ApplicationEventPublisher publisher;
     @Resource
@@ -129,7 +129,7 @@ public class MwUserExtractServiceImpl extends BaseServiceImpl<MwUserExtractMappe
         if(userInfo.getSpreadUid() == 0) {
             throw new MshopException("推广用户不存在");
         }
-        MwUser user = userService.getById(uid);
+        MwUser user = userMapper.selectById(uid);
         double extractPrice = user.getNowMoney().doubleValue();
 
         if(extractPrice <= 0) {
@@ -211,7 +211,7 @@ public class MwUserExtractServiceImpl extends BaseServiceImpl<MwUserExtractMappe
         extractMapper.insert(userExtract);
         BigDecimal newMoney = NumberUtil.sub(user.getNowMoney(), decMoney);
         user.setNowMoney(newMoney);
-        userService.updateById(user);
+        userMapper.updateById(user);
 
         mark += " 扣除余额" + decMoney;
 
@@ -464,8 +464,8 @@ public class MwUserExtractServiceImpl extends BaseServiceImpl<MwUserExtractMappe
             }
             //防止无限添加佣金
             if (ObjectUtil.isNull(userExtract.getFailTime())) {
-                String mark = "提现失败,退回佣金"+userExtract.getExtractPrice()+"元";
-                MwUser mwUser = userService.getById(userExtract.getUid());
+//                String mark = "提现失败,退回佣金"+userExtract.getExtractPrice()+"元";
+//                MwUser mwUser = userService.getById(userExtract.getUid());
 //
 //                double balance = NumberUtil.add(mwUser.getBrokeragePrice(),resources.getExtractPrice()).doubleValue();
 //                //插入流水
