@@ -19,7 +19,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("demand_sensitive_word")
+@TableName("system_demand_sensitive_word")
 public class SensitiveWord implements Serializable {
 
     @TableId
