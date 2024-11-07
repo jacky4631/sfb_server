@@ -110,7 +110,7 @@ aliyun:
     encryptKey: xxxxxxj4JO8lTQKc3eiQlA==
   oss:
     file:
-      #todo 阿里oss
+      #todo 阿里云oss
       endpoint: oss-cn-shanghai.aliyuncs.com
       keyid: xxxxxxGXis7oxxxxxxr2D9uF
       keysecret: xxxxxxfDuuuxxxxxxzA4D1rGywARr8
