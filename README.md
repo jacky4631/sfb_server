@@ -54,7 +54,7 @@ mshop3.0项目采用分模块开发方式
 - 2、Redis 3.0+
 - 3、Maven 3.0+
 - 4、MYSQL 5.7+
-- 5、Node v12+
+- 5、Node v18.20.4
 ### 开发工具
 Idea、Webstorm、vscode
 
