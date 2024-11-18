@@ -12,7 +12,7 @@ import com.mailvor.modules.pay.allinpay.syb.SybService;
 import com.mailvor.modules.pay.dto.PayChannelDto;
 import com.mailvor.modules.pay.enums.PayChannelEnum;
 import com.mailvor.modules.pay.wechat.WechatPayService;
-import com.mailvor.modules.pay.yeepay.YeePayService;
+//import com.mailvor.modules.pay.yeepay.YeePayService;
 import com.mailvor.modules.pay.ysepay.YsePayService;
 import com.mailvor.modules.user.domain.MwUserBank;
 import com.mailvor.modules.user.domain.MwUserExtra;
@@ -43,8 +43,8 @@ public class PayExtractService {
     private AliPayService aliPayService;
     @Resource
     private WechatPayService wechatPayService;
-    @Resource
-    private YeePayService yeePayService;
+//    @Resource
+//    private YeePayService yeePayService;
 
     @Resource
     private YsePayService ysePayService;
@@ -91,13 +91,13 @@ public class PayExtractService {
                 }
                 break;
             case YEEPAY_BANK:
-                PayOrderResponse yeePayRes = yeePayService
-                        .extract(payChannel,userExtract.getId().toString(),userExtract.getExtractPrice());
-                log.info("易宝提现 param: {}  res: {}", JSON.toJSONString(userExtract), JSON.toJSONString(yeePayRes));
-                String returnCode = yeePayRes.getResult().getReturnCode();
-                if(!"UA00000".equals(returnCode)) {
-                    extractRes.put("errMsg", yeePayRes.getResult().getReturnMsg());
-                }
+//                PayOrderResponse yeePayRes = yeePayService
+//                        .extract(payChannel,userExtract.getId().toString(),userExtract.getExtractPrice());
+//                log.info("易宝提现 param: {}  res: {}", JSON.toJSONString(userExtract), JSON.toJSONString(yeePayRes));
+//                String returnCode = yeePayRes.getResult().getReturnCode();
+//                if(!"UA00000".equals(returnCode)) {
+//                    extractRes.put("errMsg", yeePayRes.getResult().getReturnMsg());
+//                }
                 break;
             case YSEPAY_BANK_BIND:
                 MwUserBank userBank = userBankService.findOne(userExtract.getUid(), userExtract.getBankCode());

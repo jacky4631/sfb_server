@@ -27,7 +27,7 @@ import com.mailvor.modules.pay.param.PayChannelParam;
 import com.mailvor.modules.pay.param.PayConfirmParam;
 import com.mailvor.modules.pay.service.MwPayChannelService;
 import com.mailvor.modules.pay.wechat.WechatPayService;
-import com.mailvor.modules.pay.yeepay.YeePayService;
+//import com.mailvor.modules.pay.yeepay.YeePayService;
 import com.mailvor.modules.pay.ysepay.YsePayConfig;
 import com.mailvor.modules.pay.ysepay.YsePayService;
 import com.mailvor.modules.shop.domain.MwSystemGroupData;
@@ -98,8 +98,8 @@ public class PayController {
     @Resource
     private WechatPayService wechatPayService;
 
-    @Resource
-    private YeePayService yeePayService;
+//    @Resource
+//    private YeePayService yeePayService;
 
     @Resource
     private YsePayService ysePayService;
@@ -219,10 +219,10 @@ public class PayController {
                     data = wechatPayRes;
                     break;
                 case YEEPAY_BANK:
-                    MwUser payUser = userService.getById(loginUser.getUid());
-                    Map<String, Object> yeeBankRes = yeePayService.bankPay(payChannel, orderId, price,payUser.getPhone(),cardQueryVo, param.getType());
-                    log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(yeeBankRes));
-                    data = yeeBankRes;
+//                    MwUser payUser = userService.getById(loginUser.getUid());
+//                    Map<String, Object> yeeBankRes = yeePayService.bankPay(payChannel, orderId, price,payUser.getPhone(),cardQueryVo, param.getType());
+//                    log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(yeeBankRes));
+//                    data = yeeBankRes;
                     break;
                 case ADAPAY_BANK:
                     Map<String, Object> adaBankRes = adaPayService.bankPay(payChannel, orderId, price,loginUser.getUid());

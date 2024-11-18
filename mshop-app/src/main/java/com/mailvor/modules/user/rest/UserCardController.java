@@ -15,7 +15,7 @@ import com.mailvor.api.MshopException;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.AuthCheck;
 import com.mailvor.modules.pay.alipay.AliPayService;
-import com.mailvor.modules.pay.yeepay.YeePayService;
+//import com.mailvor.modules.pay.yeepay.YeePayService;
 import com.mailvor.modules.pay.yeepay.dto.CardBinDto;
 import com.mailvor.modules.tools.service.AliOssService;
 import com.mailvor.modules.tools.service.AlipayConfigService;
@@ -72,8 +72,8 @@ public class UserCardController {
     @Resource
     private MwUserService userService;
 
-    @Resource
-    private YeePayService yeePayService;
+//    @Resource
+//    private YeePayService yeePayService;
 
     @Resource
     private AliPayService aliPayService;
@@ -238,37 +238,37 @@ public class UserCardController {
         return ApiResult.ok(cardService.getUserCardById(checkUid));
     }
 
-    @AuthCheck
-    @GetMapping("/card/bin")
-    @ApiOperation(value = "银行卡识别",notes = "银行卡识别",response = CardBinDto.class)
-    public ApiResult<CardBinDto> cardBin(@RequestParam String card){
-        return ApiResult.ok(yeePayService.getCardBin(card));
-    }
+//    @AuthCheck
+//    @GetMapping("/card/bin")
+//    @ApiOperation(value = "银行卡识别",notes = "银行卡识别",response = CardBinDto.class)
+//    public ApiResult<CardBinDto> cardBin(@RequestParam String card){
+//        return ApiResult.ok(yeePayService.getCardBin(card));
+//    }
 
-    @AuthCheck
-    @GetMapping("/card/list")
-    @ApiOperation(value = "银行卡列表",notes = "银行卡列表",response = UserCardDto.class)
-    public ApiResult<List> cardList(){
-        MwUserCard userCard = cardService.getById(LocalUser.getUser().getUid());
-
-        if(userCard == null) {
-            return ApiResult.ok(Collections.EMPTY_LIST);
-        }
-        if(userCard.getCards() != null) {
-            return ApiResult.ok(userCard.getCards().getCards());
-        }
-        MwUserCardQueryVo cardQueryVo = cardService.getUserCardById(LocalUser.getUser().getUid());
-        if(StringUtils.isBlank(cardQueryVo.getBankNo())) {
-            return ApiResult.ok(Collections.EMPTY_LIST);
-        }
-        CardBinDto binDto = yeePayService.getCardBin(cardQueryVo.getBankNo());
-        //如果卡不支持返回
-        if(binDto.getCode() != 1) {
-            return ApiResult.ok(Collections.EMPTY_LIST);
-        }
-        CardDto cardDto = CardDto.builder().no(cardQueryVo.getBankNo()).name(binDto.getBankName()).build();
-        return ApiResult.ok(Arrays.asList(cardDto));
-    }
+//    @AuthCheck
+//    @GetMapping("/card/list")
+//    @ApiOperation(value = "银行卡列表",notes = "银行卡列表",response = UserCardDto.class)
+//    public ApiResult<List> cardList(){
+//        MwUserCard userCard = cardService.getById(LocalUser.getUser().getUid());
+//
+//        if(userCard == null) {
+//            return ApiResult.ok(Collections.EMPTY_LIST);
+//        }
+//        if(userCard.getCards() != null) {
+//            return ApiResult.ok(userCard.getCards().getCards());
+//        }
+//        MwUserCardQueryVo cardQueryVo = cardService.getUserCardById(LocalUser.getUser().getUid());
+//        if(StringUtils.isBlank(cardQueryVo.getBankNo())) {
+//            return ApiResult.ok(Collections.EMPTY_LIST);
+//        }
+//        CardBinDto binDto = yeePayService.getCardBin(cardQueryVo.getBankNo());
+//        //如果卡不支持返回
+//        if(binDto.getCode() != 1) {
+//            return ApiResult.ok(Collections.EMPTY_LIST);
+//        }
+//        CardDto cardDto = CardDto.builder().no(cardQueryVo.getBankNo()).name(binDto.getBankName()).build();
+//        return ApiResult.ok(Arrays.asList(cardDto));
+//    }
 
     @AuthCheck
     @PostMapping("/card/bind")

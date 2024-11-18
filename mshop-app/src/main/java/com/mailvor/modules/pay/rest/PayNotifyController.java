@@ -18,7 +18,7 @@ import com.mailvor.modules.pay.adapay.AdaPayService;
 import com.mailvor.modules.pay.alipay.AliPayService;
 import com.mailvor.modules.pay.allinpay.syb.SybService;
 import com.mailvor.modules.pay.wechat.WechatPayService;
-import com.mailvor.modules.pay.yeepay.YeePayService;
+//import com.mailvor.modules.pay.yeepay.YeePayService;
 import com.mailvor.modules.pay.ysepay.YsePayService;
 import com.mailvor.modules.user.domain.MwUserRecharge;
 import com.mailvor.modules.user.service.MwUserRechargeService;
@@ -70,8 +70,8 @@ public class PayNotifyController {
     @Resource
     private WechatPayService wechatPayService;
 
-    @Resource
-    private YeePayService yeePayService;
+//    @Resource
+//    private YeePayService yeePayService;
 
     @Resource
     private YsePayService ysePayService;
@@ -121,12 +121,12 @@ public class PayNotifyController {
 
     }
 
-    @AnonymousAccess
-    @PostMapping("/pay/notify/yee")
-    @ApiOperation(value = "易宝充值回调",notes = "易宝充值回调")
-    public String yeePayNotify(HttpServletRequest request) throws IOException {
-        return yeePayService.notify(request);
-    }
+//    @AnonymousAccess
+//    @PostMapping("/pay/notify/yee")
+//    @ApiOperation(value = "易宝充值回调",notes = "易宝充值回调")
+//    public String yeePayNotify(HttpServletRequest request) throws IOException {
+//        return yeePayService.notify(request);
+//    }
 
     @AnonymousAccess
     @PostMapping("/pay/notify/yse")

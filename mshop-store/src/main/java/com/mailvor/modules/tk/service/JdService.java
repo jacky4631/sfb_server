@@ -67,18 +67,4 @@ public class JdService {
         request.setVersion("1.0");
         return client.execute(request);
     }
-
-//    public static void main(String[] args) throws Exception {
-//
-//        String clientId = "64d7e6e0e3b94b52bad28e721b4e9c0f";
-//        String clientSecret = "0caeffa8e131687f1aac5af2821528ba99c92639";
-//        PopClient client = new PopHttpClient(clientId, clientSecret);
-//
-//        PddDdkOrderListRangeGetRequest request = new PddDdkOrderListRangeGetRequest();
-//        request.setEndTime("2022-06-23 23:00:00");
-//        request.setPageSize(300);
-//        request.setStartTime("2022-06-23 00:00:00");
-//        PddDdkOrderListRangeGetResponse response = client.syncInvoke(request);
-//        System.out.println(JsonUtil.transferToJson(response));
-//    }
 }
