@@ -6,7 +6,6 @@ package com.mailvor.modules.activity.domain;
 
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.List;
@@ -23,6 +22,4 @@ public class MwUserExtracts implements Serializable {
     @NotEmpty
     List<MwUserExtract> extracts;
 
-    @NotBlank
-    private String opePwd;
 }

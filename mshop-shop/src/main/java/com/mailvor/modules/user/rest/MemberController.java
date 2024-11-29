@@ -119,7 +119,6 @@ public class MemberController {
     @PutMapping(value = "/mwUser")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public ResponseEntity update(@Validated @RequestBody MwUserParam param){
-        checkOpePwd2(param.getOpePwd());
         MwUser user = mwUserService.getById(param.getUid());
         if(user == null) {
             throw new MshopException("用户不存在");
@@ -151,7 +150,6 @@ public class MemberController {
     @DeleteMapping(value = "/mwUser/wechat/{uid}")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public ResponseEntity deleteWechat(@Validated @RequestBody MwUserParam param){
-        checkOpePwd2(param.getOpePwd());
         MwUser user = mwUserService.getById(param.getUid());
         if(user == null) {
             throw new MshopException("用户不存在");
@@ -171,7 +169,6 @@ public class MemberController {
     @DeleteMapping(value = "/mwUser/ali/{uid}")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public ResponseEntity deleteAli(@Validated @RequestBody MwUserParam param){
-        checkOpePwd2(param.getOpePwd());
         MwUser user = mwUserService.getById(param.getUid());
         if(user == null) {
             throw new MshopException("用户不存在");
@@ -186,7 +183,6 @@ public class MemberController {
     @PostMapping(value = "/mwUser/reset/refund/{uid}")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public ResponseEntity resetRefund(@PathVariable Long uid, @Validated @RequestBody MwUserParam param){
-        checkOpePwd2(param.getOpePwd());
         MwUser user = mwUserService.getById(uid);
         if(user == null) {
             throw new MshopException("用户不存在");
@@ -226,7 +222,6 @@ public class MemberController {
         if(param.getMoney() <= 0) {
             throw new MshopException("金额不能为0");
         }
-        checkOpePwd(param.getOpePwd());
         mwUserService.updateMoney(param);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -237,7 +232,6 @@ public class MemberController {
         if(param.getEnergy() <= 0) {
             throw new MshopException("热度不能为0");
         }
-        checkOpePwd(param.getOpePwd());
         if(param.getPtype() == 1){
             energyService.addEnergy(param.getUid(), param.getUid(), param.getPlatform(),
                     BigDecimal.valueOf(param.getEnergy()), param.getType());
@@ -254,38 +248,15 @@ public class MemberController {
         if(param.getIntegral() <= 0) {
             throw new MshopException("积分不能为0");
         }
-        checkOpePwd(param.getOpePwd());
         mwUserService.updateIntegral(param);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
-
-    protected void checkOpePwd(String pwd) {
-        String adminPwd = redisUtils.getY("auth:code:ope111");
-        if(StringUtils.isBlank(adminPwd)) {
-            throw new MshopException("操作密码未设置，无法更改");
-        }
-        if(!pwd.toUpperCase().equals((adminPwd).toUpperCase())) {
-            throw new MshopException("操作密码不正确");
-        }
-    }
-
-    protected void checkOpePwd2(String pwd) {
-        String adminPwd = redisUtils.getY("auth:code:ope222");
-        if(StringUtils.isBlank(adminPwd)) {
-            throw new MshopException("操作密码未设置，无法更改");
-        }
-        if(!pwd.toUpperCase().equals((adminPwd).toUpperCase())) {
-            throw new MshopException("操作密码不正确");
-        }
-    }
-
 
     @Log("后台提现绑卡")
     @ApiOperation(value = "后台提现绑卡")
     @PostMapping("/mwUser/bank/bind/{uid}")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public ApiResult extractBankBind(@PathVariable Long uid, @Valid @RequestBody BankBindParam param) {
-        checkOpePwd(param.getOpePwd());
         if(!StringUtils.isPhone(param.getPhone())) {
             throw new MshopException("不是正确的手机号");
         }
@@ -336,7 +307,6 @@ public class MemberController {
     @PostMapping("/mwUser/bank/bind/confirm/{uid}")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public ApiResult extractBankBindConfirm(@PathVariable Long uid, @Valid @RequestBody BankBindConfirmParam param){
-        checkOpePwd(param.getOpePwd());
         PayChannelDto payChannel = payChannelService.channelDto(uid, 4);
 
         if(payChannel == null) {
@@ -376,7 +346,6 @@ public class MemberController {
     @PostMapping("/mwUser/extract/{uid}")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public Map<String,Object> extract(@PathVariable Long uid, @Valid @RequestBody BankExtractParam param) {
-        checkOpePwd(param.getOpePwd());
         Map<String,Object> extractRes = new HashMap<>();
         PayChannelDto payChannel = payChannelService.getExtractChannel("bank");
         if(payChannel == null) {

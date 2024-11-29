@@ -21,7 +21,6 @@ import com.mailvor.modules.user.domain.MwUserHbScale;
 import com.mailvor.modules.user.service.MwUserHbScaleService;
 import com.mailvor.modules.user.service.MwUserService;
 import com.mailvor.utils.RedisUtils;
-import com.mailvor.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
@@ -100,7 +99,6 @@ public class UserEnergyController {
     @ApiOperation("修改热度订单")
     @PreAuthorize("@el.check('admin','ENERGY_ALL','ENERGY_EDIT')")
     public ResponseEntity<Object> update(@Validated @RequestBody UserEnergyParam param){
-        checkOpePwd2(param.getOpePwd());
         if(param.getReleaseMoney().compareTo(BigDecimal.valueOf(100)) == 1) {
             throw new MshopException("金额太大");
         }
@@ -150,20 +148,6 @@ public class UserEnergyController {
         return new ResponseEntity<>(userEnergyService.queryAll(criteria,pageable),HttpStatus.OK);
     }
 
-
-    protected void checkOpePwd2(String pwd) {
-        String adminPwd = redisUtils.getY("auth:code:ope222");
-        if(StringUtils.isBlank(adminPwd)) {
-            throw new MshopException("操作密码未设置，无法更改");
-        }
-        if(!pwd.toUpperCase().equals((adminPwd).toUpperCase())) {
-            throw new MshopException("操作密码不正确");
-        }
-    }
-
-
-
-
     @Log("查询热度订单翻倍记录")
     @ApiOperation(value = "查询热度订单翻倍记录")
     @GetMapping(value = "/orderScale")
@@ -177,7 +161,6 @@ public class UserEnergyController {
     @ApiOperation("修改热度订单翻倍记录")
     @PreAuthorize("@el.check('admin','ENERGY_ALL','ENERGY_EDIT')")
     public ResponseEntity<Object> addScale(@Validated @RequestBody UserEnergyScaleParam param){
-        checkOpePwd2(param.getOpePwd());
         MwUser user = userService.getById(param.getUid());
         if(user == null) {
             throw new MshopException("用户不存在");
@@ -200,8 +183,6 @@ public class UserEnergyController {
     @ApiOperation("修改热度订单翻倍记录")
     @PreAuthorize("@el.check('admin','ENERGY_ALL','ENERGY_EDIT')")
     public ResponseEntity<Object> updateScale(@Validated @RequestBody UserEnergyScaleParam param){
-        checkOpePwd2(param.getOpePwd());
-
         MwUserHbScale scale = scaleService.getById(param.getUid());
         if(scale == null) {
             throw new MshopException("记录不存在");

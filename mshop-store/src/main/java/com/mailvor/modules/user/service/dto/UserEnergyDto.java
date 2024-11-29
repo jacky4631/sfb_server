@@ -30,6 +30,4 @@ public class UserEnergyDto implements Serializable {
     private String platform;
     @NotNull
     private Integer type;
-    @NotBlank
-    private String opePwd;
 }

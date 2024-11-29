@@ -15,8 +15,6 @@ import com.mailvor.modules.activity.service.dto.MwUserExtractQueryCriteria;
 import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.service.MwUserService;
-import com.mailvor.utils.RedisUtils;
-import com.mailvor.utils.StringUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
@@ -41,9 +39,6 @@ public class UserExtractController {
     private MwUserExtractService mwUserExtractService;
 
     @Resource
-    private RedisUtils redisUtils;
-
-    @Resource
     private MwUserExtractConfigService extractConfigService;
 
     @Resource
@@ -64,7 +59,6 @@ public class UserExtractController {
     @PutMapping(value = "/mwUserExtract")
     @PreAuthorize("hasAnyRole('admin','MWUSEREXTRACT_ALL','MWUSEREXTRACT_EDIT')")
     public ResponseEntity update(@Validated @RequestBody MwUserExtract resources){
-        checkOpePwd(resources.getOpePwd());
         mwUserExtractService.doExtract(resources);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -75,23 +69,9 @@ public class UserExtractController {
     @PutMapping(value = "/mwUserExtracts")
     @PreAuthorize("hasAnyRole('admin','MWUSEREXTRACT_ALL','MWUSEREXTRACT_EDIT')")
     public ResponseEntity extracts(@Validated @RequestBody MwUserExtracts body){
-        checkOpePwd(body.getOpePwd());
         mwUserExtractService.doExtracts(body.getExtracts());
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
-    protected void checkOpePwd(String pwd) {
-        String adminPwd = redisUtils.getY("auth:code:ope111");
-        if(StringUtils.isBlank(adminPwd)) {
-            throw new MshopException("操作密码未设置，无法更改");
-        }
-        if(!pwd.toUpperCase().equals((adminPwd).toUpperCase())) {
-            throw new MshopException("操作密码不正确");
-        }
-    }
-
-
-
-
 
     @Log("查询禁止提现用户")
     @ApiOperation(value = "查询禁止提现用户")
