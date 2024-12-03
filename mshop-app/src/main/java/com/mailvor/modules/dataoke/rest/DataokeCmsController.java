@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -88,9 +89,16 @@ public class DataokeCmsController {
     public Object everyoneBuy() {
         Object dataObj = redisUtils.get(HOME_DATA_EVERY);
         if(dataObj == null) {
-            String url = API_PREFIX + "/goods/search?version=v1.0.0&appKey=612bcfe884763&choice=1&brand=1&activityGroup=1,3,4,6,11&sign=448080add3799cb87538ad6116786763&pageId=1&pageSize=10";
-            JSONObject data = restTemplate.getForObject(url, JSONObject.class);
+//            String url = API_PREFIX + "/goods/search?version=v1.0.0&appKey=612bcfe884763&choice=1&brand=1&activityGroup=1,3,4,6,11&sign=448080add3799cb87538ad6116786763&pageId=1&pageSize=10";
+//            JSONObject data = restTemplate.getForObject(url, JSONObject.class);
+            //todo 大淘客接口有变化，暂时返回空数据
+            JSONObject data = new JSONObject();
+            JSONObject list =  new JSONObject();
+            data.put("data", list);
+            data.put("success", false);
 
+            list.put("list", new ArrayList<>(0));
+            list.put("totalNum", "0");
             //接口数据缓存6个小时
             redisUtils.set(HOME_DATA_EVERY, data, HOME_DATA_EXPIRED/4);
             return data;
