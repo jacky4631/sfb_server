@@ -7,7 +7,6 @@ package com.mailvor.modules.user.service.dto;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -24,7 +23,4 @@ public class UserIntegralDto implements Serializable {
    //@NotNull(message = "金额必填")
     @Min(message = "最低金额为0",value = 0)
     private Double integral;
-
-    @NotBlank
-    private String opePwd;
 }

@@ -16,7 +16,6 @@ import com.mailvor.modules.user.service.dto.OrderExtractDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -89,9 +88,6 @@ public class MwUserExtract extends BaseDomain {
     private String wechat;
 
 
-    @TableField(exist = false)
-    @NotBlank
-    private String opePwd;
     /** 订单json array信息 */
     @TableField(typeHandler = FastjsonTypeHandler.class)
     private ArrayList<OrderExtractDto> orderList;

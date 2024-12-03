@@ -62,10 +62,6 @@ public class User extends BaseDomain {
     /** 密码 */
     private String password;
 
-    @TableField(exist = false)
-    private String opePwd;
-
-
     /** 用户名 */
     @NotBlank(message = "请填写用户名称")
     private String username;

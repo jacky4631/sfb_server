@@ -5,7 +5,6 @@ import com.mailvor.domain.BaseDomain;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
@@ -30,8 +29,5 @@ public class UserEnergyParam extends BaseDomain {
     @NotNull
     @ApiModelProperty(value = "拆红包金额")
     private BigDecimal releaseMoney;
-
-    @NotBlank
-    private String opePwd;
 
 }

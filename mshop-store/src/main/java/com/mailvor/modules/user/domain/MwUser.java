@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mailvor.domain.BaseDomain;
 import com.mailvor.modules.user.service.dto.AliUserDto;
-import com.mailvor.modules.user.service.dto.WechatUserDto;
 import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +19,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -144,10 +142,6 @@ public class MwUser extends BaseDomain {
 
     /**公众号用户openId*/
     private String wechatOpenId;
-
-    @TableField(exist = false)
-    @NotBlank
-    private String opePwd;
 
     public void copy(MwUser source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

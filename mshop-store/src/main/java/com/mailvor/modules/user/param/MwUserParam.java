@@ -12,7 +12,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
@@ -78,9 +77,6 @@ public class MwUserParam {
     private Date expiredDy;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date expiredVip;
-
-    @NotBlank
-    private String opePwd;
 
     public void copy(MwUserParam source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

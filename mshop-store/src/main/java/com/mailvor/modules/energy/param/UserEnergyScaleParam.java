@@ -4,7 +4,6 @@ package com.mailvor.modules.energy.param;
 import com.mailvor.domain.BaseDomain;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
@@ -31,7 +30,4 @@ public class UserEnergyScaleParam extends BaseDomain {
     /** 月卡翻倍失效天数，相比create_time */
     @NotNull
     private Integer monthInvalidDay;
-    @NotBlank
-    private String opePwd;
-
 }

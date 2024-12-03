@@ -6,7 +6,6 @@ package com.mailvor.modules.system.rest;
 
 import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
-import com.mailvor.api.MshopException;
 import com.mailvor.config.DataScope;
 import com.mailvor.constant.ShopConstants;
 import com.mailvor.dozer.service.IGenerator;
@@ -134,7 +133,6 @@ public class SysUserController {
     @PostMapping
     @PreAuthorize("@el.check('admin','user:add')")
     public ResponseEntity<Object> create(@Validated @RequestBody User resources){
-        checkOpePwd(resources.getOpePwd());
         checkLevel(resources);
         //清除前端传过来的id
         resources.setId(null);
@@ -149,7 +147,6 @@ public class SysUserController {
     @PutMapping
     @PreAuthorize("@el.check('admin','user:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody User resources){
-        checkOpePwd(resources.getOpePwd());
         checkLevel(resources);
         userService.update(resources);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -160,25 +157,12 @@ public class SysUserController {
     @ApiOperation("修改用户：个人中心")
     @PutMapping(value = "center")
     public ResponseEntity<Object> center(@Validated(User.Update.class) @RequestBody User resources){
-        checkOpePwd(resources.getOpePwd());
         UserDto userDto = userService.findByName(SecurityUtils.getUsername());
         if(!resources.getId().equals(userDto.getId())){
             throw new BadRequestException("不能修改他人资料");
         }
         userService.saveOrUpdate(resources);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-    protected void checkOpePwd(String pwd) {
-        if(StringUtils.isBlank(pwd)) {
-            throw new MshopException("操作密码不能为空");
-        }
-        String adminPwd = redisUtils.getY("auth:code:ope222");
-        if(StringUtils.isBlank(adminPwd)) {
-            throw new MshopException("操作密码未设置，无法更改");
-        }
-        if(!pwd.toUpperCase().equals((adminPwd).toUpperCase())) {
-            throw new MshopException("操作密码不正确");
-        }
     }
     @ForbidSubmit
     @Log("删除用户")
@@ -202,7 +186,6 @@ public class SysUserController {
     @ApiOperation("修改密码")
     @PostMapping(value = "/updatePass")
     public ResponseEntity<Object> updatePass(@RequestBody UserPassVo passVo){
-        checkOpePwd(passVo.getOpePwd());
         // 密码解密
         RSA rsa = new RSA(privateKey, null);
         String oldPass = new String(rsa.decrypt(passVo.getOldPass(), KeyType.PrivateKey));

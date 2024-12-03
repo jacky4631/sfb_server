@@ -13,8 +13,6 @@ import java.io.Serializable;
  **/
 @Data
 public class BankBindConfirmParam implements Serializable {
-    @NotBlank
-    private String opePwd;
     @NotBlank(message = "业务请求号不能为空")
     @ApiModelProperty(value = "业务请求号")
     private String requestNo;
