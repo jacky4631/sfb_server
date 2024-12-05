@@ -13,7 +13,7 @@ import com.mailvor.modules.tk.param.DyListParam;
 import com.mailvor.modules.tk.param.GoodsListDyParam;
 import com.mailvor.modules.tk.param.KuCustomParam;
 import com.mailvor.modules.tk.service.KuService;
-import com.mailvor.modules.tk.vo.HotWordsVo;
+import com.mailvor.modules.tk.vo.*;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.RedisUtil;
@@ -282,30 +282,30 @@ public class HaodankuController {
     }
 
     @GetMapping(value = "/dy/product/cate")
-    public JSONObject dyProductCate() {
+    public DyCateDataVO dyProductCate() {
         String key = TkUtil.getMixedPlatformKey(DY_CATE);
         Object obj = redisUtils.get(key);
         if(obj != null) {
-            return (JSONObject) obj;
+            return (DyCateDataVO) obj;
         }
 
-        JSONObject cateList = kuService.dyProductCateList();
+        DyCateDataVO cateList = kuService.dyProductCateList();
         redisUtils.set(key, cateList, 7*24*3600);
         return cateList;
     }
     @GetMapping(value = "/dy/product/list")
-    public JSONObject dyProductList(GoodsListDyParam param) {
+    public DySearchListVO dyProductList(GoodsListDyParam param) {
         return kuService.dyProductList(param);
     }
 
     @GetMapping(value = "/dy/product/detail")
-    public JSONObject dyProductDetail(@RequestParam String itemId) {
+    public DyGoodsDetailDataVo dyProductDetail(@RequestParam String itemId) {
         return kuService.dyProductDetail(itemId);
     }
 
     @UserCheck
     @GetMapping(value = "/dy/product/word")
-    public JSONObject dyProductWord(@RequestParam String itemId) {
+    public DyWordGoodsDataVO dyProductWord(@RequestParam String itemId) {
         String channel;
         MwUser mwUser = LocalUser.getUser();
         if(mwUser != null) {

@@ -3,6 +3,7 @@ package com.mailvor.modules.tk.service;
 
 import cn.hutool.http.HttpRequest;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.tk.constants.TkConstants;
@@ -13,8 +14,7 @@ import com.mailvor.modules.tk.param.QueryEleKuParam;
 import com.mailvor.modules.tk.service.dto.DyLifeCityDto;
 import com.mailvor.modules.tk.util.HttpUtils;
 import com.mailvor.modules.tk.util.SignMD5Util;
-import com.mailvor.modules.tk.vo.DyKuResVo;
-import com.mailvor.modules.tk.vo.EleKuResVo;
+import com.mailvor.modules.tk.vo.*;
 import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,10 +28,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -475,86 +472,164 @@ public class KuService {
         return JSON.parseObject(re.getBody(), DyKuResVo.class);
     }
 
-    public JSONObject dyProductList(GoodsListDyParam param) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(KU_API_BASE);
-        sb.append("/dy_item_list?");
-        sb.append("apikey=");
-        sb.append(key);
-        sb.append("&min_id=");
-        sb.append(param.getPageId());
-        sb.append("&back=");
-        sb.append(param.getPageSize());
-        if(StringUtils.isNotBlank(param.getKeyword())) {
-            sb.append("&keyword=");
-            sb.append(param.getKeyword());
-        }
-
-        if(param.getSort() != null) {
-            sb.append("&sort=");
-            sb.append(param.getSort());
-        }
-        if(param.getCateId() != null) {
-            sb.append("&cate_id=");
-            sb.append(param.getCateId());
-        }
-
-        if(param.getPriceMin() != null) {
-            sb.append("&price_min=");
-            sb.append(param.getPriceMin());
-        }
-        if(param.getPriceMax() != null) {
-            sb.append("&price_max=");
-            sb.append(param.getPriceMax());
-        }
-        if(param.getSalesMin() != null) {
-            sb.append("&sales_min=");
-            sb.append(param.getSalesMin());
-        }
-        if(param.getSalesMax() != null) {
-            sb.append("&sales_max=");
-            sb.append(param.getSalesMax());
-        }
-        ResponseEntity<JSONObject> re = restTemplate.getForEntity(
-                sb.toString(),
-                JSONObject.class);
-        return re.getBody();
+    public DySearchListVO dyProductList(GoodsListDyParam param) {
+        String url = String.format("https://api.cmspro.haodanku.com/douyin/item/getListsByDy?cate_id=%s&min_id=%s&back=%s&cid=%s",
+                param.getCateId(), param.getPageId(), param.getPageSize(), getKuCid());
+        ResponseEntity<String> re = restTemplate.getForEntity(url, String.class);
+        DyCmsListVO cmsListVO = JSON.parseObject(re.getBody(), DyCmsListVO.class);
+        DySearchListVO searchListVO = new DySearchListVO();
+        searchListVO.setCode(cmsListVO.getCode());
+        searchListVO.setMsg(cmsListVO.getMsg());
+        searchListVO.setMinId(cmsListVO.getData().getMinId());
+        searchListVO.setData(cmsListVO.getData().getProducts());
+        return searchListVO;
+//        StringBuilder sb = new StringBuilder();
+//        sb.append(KU_API_BASE);
+//        sb.append("/dy_item_list?");
+//        sb.append("apikey=");
+//        sb.append(config.getConfig().getHaodankuKey());
+//        sb.append("&min_id=");
+//        sb.append(param.getPageId());
+//        sb.append("&back=");
+//        sb.append(param.getPageSize());
+//        if(StringUtils.isNotBlank(param.getKeyword())) {
+//            sb.append("&keyword=");
+//            sb.append(param.getKeyword());
+//        }
+//
+//        if(param.getSort() != null) {
+//            sb.append("&sort=");
+//            sb.append(param.getSort());
+//        }
+//        if(param.getCateId() != null) {
+//            sb.append("&cate_id=");
+//            sb.append(param.getCateId());
+//        }
+//
+//        if(param.getPriceMin() != null) {
+//            sb.append("&price_min=");
+//            sb.append(param.getPriceMin());
+//        }
+//        if(param.getPriceMax() != null) {
+//            sb.append("&price_max=");
+//            sb.append(param.getPriceMax());
+//        }
+//        if(param.getSalesMin() != null) {
+//            sb.append("&sales_min=");
+//            sb.append(param.getSalesMin());
+//        }
+//        if(param.getSalesMax() != null) {
+//            sb.append("&sales_max=");
+//            sb.append(param.getSalesMax());
+//        }
+//        ResponseEntity<String> re = restTemplate.getForEntity(
+//                sb.toString(),
+//                String.class);
+//        return JSON.parseObject(re.getBody(), DySearchListVO.class);
     }
 
-    public JSONObject dyProductDetail(String itemId) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(KU_API_BASE);
-        sb.append("/dy_detail?");
-        sb.append("apikey=");
-        sb.append(key);
-        sb.append("&itemid=");
-        sb.append(itemId);
-        ResponseEntity<JSONObject> re = restTemplate.getForEntity(
-                sb.toString(),
-                JSONObject.class);
-        return re.getBody();
+    public DyGoodsDetailDataVo dyProductDetail(String itemId) {
+
+        String url = String.format("https://api.cmspro.haodanku.com/douyin/item/detail?product_ids=%s&cid=%s",
+                itemId, getKuCid());
+        ResponseEntity<String> re = restTemplate.getForEntity(url, String.class);
+
+        DyCmsGoodsDetailDataVo dataVo = JSON.parseObject(re.getBody(), DyCmsGoodsDetailDataVo.class);
+        DyGoodsDetailDataVo res = new DyGoodsDetailDataVo();
+        res.setCode(dataVo.getCode());
+        res.setDetail(dataVo.getData());
+        res.setMsg(dataVo.getMsg());
+        return res;
+
+//        StringBuilder sb = new StringBuilder();
+//        sb.append(KU_API_BASE);
+//        sb.append("/dy_detail?");
+//        sb.append("apikey=");
+//        sb.append(config.getConfig().getHaodankuKey());
+//        sb.append("&itemid=");
+//        sb.append(itemId);
+//        ResponseEntity<String> re = restTemplate.getForEntity(
+//                sb.toString(),
+//                String.class);
+//        DyGoodsDetailDataVo dataVo = JSON.parseObject(re.getBody(), DyGoodsDetailDataVo.class);
+//        if(CollectionUtils.isNotEmpty(dataVo.getData())) {
+//            DyGoodsDetailVO detailVO = dataVo.getData().get(0);
+//            detailVO.setDetails(detailVO.getBanners());
+//            JSONObject totalScore = detailVO.getShopTotalScore();
+//            if(totalScore != null) {
+//                JSONObject shipScore = totalScore.getJSONObject("logistics_score");
+//                if(shipScore != null) {
+//                    detailVO.setShipScore(shipScore.getString("score"));
+//                }
+//                JSONObject serviceScore = totalScore.getJSONObject("service_score");
+//                if(serviceScore != null) {
+//                    detailVO.setServiceScore(serviceScore.getString("score"));
+//                }
+//                JSONObject productScore = totalScore.getJSONObject("product_score");
+//                if(productScore != null) {
+//                    detailVO.setDescScore(productScore.getString("score"));
+//                }
+//                detailVO.setShopTotalScore(null);
+//            }
+//            dataVo.setData(null);
+//            dataVo.setDetail(detailVO);
+//        }
+//        return dataVo;
     }
 
-    public JSONObject dyProductWord(String itemId, String channel) {
+    public DyWordGoodsDataVO dyProductWord(String itemId, String channel) {
         StringBuilder sb = new StringBuilder();
-        sb.append("apikey=");
-        sb.append(key);
-        sb.append("&itemid=");
-        sb.append(itemId);
-        sb.append("&channel=");
-        sb.append(channel);
+        sb.append("domain=jkj.mailvor.com");
+        sb.append("&type=1");
+        sb.append("&product_id="+itemId);
+        sb.append("&use_coupon=true");
+        sb.append("&need_share_link=true");
+        sb.append("&cid=" + getKuCid());
         HttpHeaders headers = new HttpHeaders();
         // 以表单的方式提交
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         HttpEntity<String> requestParam = new HttpEntity<>(sb.toString(),headers);
-        ResponseEntity<JSONObject> re = restTemplate.postForEntity(
-                KU_API_BASE+"/get_dyitem_link",
+        ResponseEntity<String> re = restTemplate.postForEntity(
+                "https://api.cmspro.haodanku.com/douyin/douyin/getItemsLink",
                 requestParam,
-                JSONObject.class);
-        return re.getBody();
+                String.class);
+        return JSON.parseObject(re.getBody(), DyWordGoodsDataVO.class);
+
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("apikey=");
+//        sb.append(config.getConfig().getHaodankuKey());
+//        sb.append("&itemid=");
+//        sb.append(itemId);
+//        sb.append("&channel=");
+//        sb.append(channel);
+//        HttpHeaders headers = new HttpHeaders();
+//        // 以表单的方式提交
+//        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+//        HttpEntity<String> requestParam = new HttpEntity<>(sb.toString(),headers);
+//        ResponseEntity<String> re = restTemplate.postForEntity(
+//                KU_API_BASE+"/get_dyitem_link",
+//                requestParam,
+//                String.class);
+//        return JSON.parseObject(re.getBody(), DyWordGoodsDataVO.class);
     }
-    public JSONObject dyProductCateList() {
-        return getCateList(4, null);
+    public DyCateDataVO dyProductCateList() {
+        ResponseEntity<JSONObject> re = restTemplate.getForEntity(
+                "https://api.cmspro.haodanku.com/duohaodan/index/category?type=9&cid=" + getKuCid(), JSONObject.class);
+        JSONArray cates = re.getBody().getJSONObject("data").getJSONArray("category");
+        List<DyCateVO> data = new ArrayList<>(cates.size());
+        for(Object obj : cates) {
+            Map cate = (Map)obj;
+            DyCateVO cateVO = new DyCateVO();
+            cateVO.setCid((Integer) cate.get("id"));
+            cateVO.setTitle((String)cate.get("name"));
+            data.add(cateVO);
+        }
+        DyCateDataVO dataVO = new DyCateDataVO();
+        dataVO.setCode(0);
+        dataVO.setData(data);
+        return dataVO;
+        //原抖音接口暂时注释
+//        return getCateList(4, null);
     }
 
 
