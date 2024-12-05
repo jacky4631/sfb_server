@@ -243,10 +243,15 @@ public class DataokeService {
         return null;
 
     }
-    public JSONObject goodsDetailJD(String goodsId) {
+    public JSONObject goodsDetailJD(String goodsId, String itemId) {
 
         TreeMap<String, String> paraMap = new TreeMap<>();
-        paraMap.put("skuIds", goodsId);
+        if(StringUtils.isNotBlank(goodsId) && !"0".equals(goodsId) && !goodsId.equals(itemId)) {
+            paraMap.put("skuIds", goodsId);
+        }
+        if(StringUtils.isNotBlank(itemId)) {
+            paraMap.put("itemIds", itemId);
+        }
         String data = getData(DataokeApi.JD_GOODS_DETAIL.getUrl(), DataokeApi.JD_GOODS_DETAIL.getVersion(), paraMap);
         return JSON.parseObject(data);
     }

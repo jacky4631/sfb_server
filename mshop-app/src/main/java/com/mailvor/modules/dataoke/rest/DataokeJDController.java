@@ -11,6 +11,7 @@ import com.mailvor.modules.user.domain.MwUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -35,9 +36,10 @@ public class DataokeJDController {
     }
 
     @GetMapping(value = "/goods/detail")
-    public JSONObject getGoodsDetail(String goodsId) {
+    public JSONObject getGoodsDetail(@RequestParam(required = false) String goodsId,
+                                     @RequestParam(required = false) String itemId) {
 
-        return service.goodsDetailJD(goodsId);
+        return service.goodsDetailJD(goodsId, itemId);
     }
 //
 //    @GetMapping(value = "/goods/comment/list")
