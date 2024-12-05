@@ -5,8 +5,6 @@
 package com.mailvor.modules.order.service;
 
 import com.mailvor.common.service.BaseService;
-import com.mailvor.modules.energy.domain.UserEnergyOrder;
-import com.mailvor.modules.energy.domain.UserEnergyOrderLog;
 import com.mailvor.modules.order.domain.MwStoreOrder;
 import com.mailvor.modules.order.service.dto.UserRefundDto;
 import com.mailvor.modules.shop.domain.MwSystemUserLevel;
@@ -53,7 +51,6 @@ public interface SuStoreOrderService extends BaseService<MwStoreOrder>{
     void decHbAndRefundOrder(Long uid, MailvorMtOrder order);
     Map<String, Double> incMoneyAndBindOrder(Long uid, TkOrder order, Date unlockTime);
 
-    double incEnergyMoneyAndBindOrder(Long uid, TkOrder order, UserEnergyOrder energyOrder, UserEnergyOrderLog log);
     Date checkOrder(TkOrder tkOrder, Long uid);
 
     Date checkSelfOrder(TkOrder tkOrder, UserRefundDto user, HbUnlockConfig unlockConfig);

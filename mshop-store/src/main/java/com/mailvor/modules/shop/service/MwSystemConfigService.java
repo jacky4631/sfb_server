@@ -6,7 +6,7 @@ package com.mailvor.modules.shop.service;
 
 import com.mailvor.common.service.BaseService;
 import com.mailvor.modules.activity.service.dto.MwExtractConfigDto;
-import com.mailvor.modules.energy.dto.*;
+import com.mailvor.modules.order.service.dto.OrderCheckConfigDto;
 import com.mailvor.modules.shop.domain.MwSystemConfig;
 import com.mailvor.modules.shop.service.dto.MwSystemConfigDto;
 import com.mailvor.modules.shop.service.dto.MwSystemConfigQueryCriteria;
@@ -57,13 +57,6 @@ public interface MwSystemConfigService extends BaseService<MwSystemConfig>{
     void download(List<MwSystemConfigDto> all, HttpServletResponse response) throws IOException;
 
     MwSystemConfig findByKey(String store_brokerage_statu);
-
-    EnergyConfigDto getEnergyConfig();
-    void setEnergyConfig(EnergyConfigDto param);
-
-    MonthCardConfigDto getMonthCardConfig();
-
-    RecoverScaleConfigDto getRecoverScaleConfig();
 
     Long getSpreadHbCount();
 

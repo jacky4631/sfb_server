@@ -5,8 +5,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.api.MshopException;
 import com.mailvor.enums.PlatformEnum;
-import com.mailvor.modules.energy.config.EnergyOrderConfig;
-import com.mailvor.modules.energy.dto.EnergyConfigDto;
 import com.mailvor.modules.shop.domain.MwSystemUserLevel;
 import com.mailvor.modules.tk.domain.*;
 import com.mailvor.modules.user.config.HbUnlockConfig;
@@ -258,30 +256,6 @@ public class TkUtil {
         return nickname;
     }
 
-    public static String getEnergyOrderBillMark(String platformDesc,
-                                                String orderId,
-                                                double orderHb,
-                                                int scale,
-                                                double hb) {
-        //level 0=自己 1=上级 2=上上级
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("用户拆开");
-        sb.append(platformDesc);
-        sb.append("订单");
-        appendOther(sb, orderId, orderHb, scale, hb);
-
-        return sb.toString();
-
-    }
-    public static String getEnergyOrderBillTitle(String platformDesc) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("用户拆开");
-        sb.append(platformDesc);
-        sb.append("订单获得红包");
-        return sb.toString();
-
-    }
     protected static void appendOther(StringBuilder sb,
                                       String orderId,
                                       double orderHb,
@@ -393,39 +367,6 @@ public class TkUtil {
         }
         //转换成分计算，生成随机分红
         return DateUtils.random(count, end);
-    }
-
-    public static EnergyOrderConfig getOrderConfig(BigDecimal energy, List<EnergyOrderConfig> orderConfigs) {
-        if(orderConfigs.isEmpty()) {
-            throw new MshopException("不存在热度订单配置");
-        }
-        for(EnergyOrderConfig orderConfig: orderConfigs) {
-            if(energy.doubleValue() > orderConfig.getMin() && energy.doubleValue() <= orderConfig.getMax()) {
-                return orderConfig;
-            }
-        }
-        return orderConfigs.get(0);
-    }
-
-    public static EnergyOrderConfig getOrderTuiConfig(Long count, String platform, EnergyConfigDto configDto) {
-        List<EnergyOrderConfig> orderConfigs = getEnergyOrderConfig(platform, configDto);
-
-        return getOrderConfig(BigDecimal.valueOf(count), orderConfigs);
-    }
-
-    public static List<EnergyOrderConfig> getEnergyOrderConfig(String platform, EnergyConfigDto configDto) {
-        switch (platform) {
-            case "jd":
-                return configDto.getOrderJdConfigs();
-            case "pdd":
-                return configDto.getOrderPddConfigs();
-            case "dy":
-                return configDto.getOrderDyConfigs();
-            case "vip":
-                return configDto.getOrderVipConfigs();
-            default:
-                return configDto.getOrderTbConfigs();
-        }
     }
 
     public static JSONObject getVipGenRequest(String openId, String adCode) {

@@ -21,9 +21,6 @@ import com.mailvor.common.util.PhoneUtil;
 import com.mailvor.constant.ShopConstants;
 import com.mailvor.constant.SystemConfigConstants;
 import com.mailvor.enums.BillInfoEnum;
-import com.mailvor.modules.energy.dto.EnergyConfigDto;
-import com.mailvor.modules.energy.dto.UserEnergyDto;
-import com.mailvor.modules.energy.service.UserEnergyService;
 import com.mailvor.modules.logging.aop.log.AppLog;
 import com.mailvor.modules.order.service.MwStoreOrderService;
 import com.mailvor.modules.order.vo.UserOrderCountVo;
@@ -95,8 +92,6 @@ public class UserController {
     private final TbConfig tbConfig;
 
     private final RedisUtils redisUtil;
-
-    private final UserEnergyService userEnergyService;
 
     private final MwUserUnionService userUnionService;
 
@@ -557,41 +552,8 @@ public class UserController {
 //    }
 
     @AuthCheck
-    @GetMapping("/user/energy")
-    @ApiOperation(value = "获取用户热度",notes = "获取用户热度",response = UserEnergyDto.class)
-    public ApiResult<UserEnergyDto> userEnergy(){
-
-        return ApiResult.ok(userEnergyService.getEnergy(LocalUser.getUser().getUid(), false));
-    }
-    @AuthCheck
-    @GetMapping("/user/energy/detail")
-    @ApiOperation(value = "获取用户热度",notes = "获取用户热度",response = UserEnergyDto.class)
-    public ApiResult<UserEnergyDto> userEnergyDetail(){
-
-        return ApiResult.ok(userEnergyService.getEnergy(LocalUser.getUser().getUid(), true));
-    }
-    @AuthCheck
-    @PostMapping("/user/energy")
-    @ApiOperation(value = "修改用户热度",notes = "修改用户热度",response = UserEnergyDto.class)
-    public ApiResult<UserEnergyDto> userEnergy(@RequestBody UserEnergyParam param){
-
-        EnergyConfigDto energyConfigDto = systemConfigService.getEnergyConfig();
-        Double dayTuiEnergy = energyConfigDto.getDayTuiEnergy();
-        if(param.getDayEnergy() < dayTuiEnergy) {
-            throw new MshopException("每日消耗热度不能小于" + dayTuiEnergy);
-        }
-        if(param.getDayEnergy() > energyConfigDto.getDayTuiEnergyMax()) {
-            throw new MshopException("每日消耗热度不能大于" + energyConfigDto.getDayTuiEnergyMax());
-        }
-        Long uid = LocalUser.getUser().getUid();
-        UserEnergyDto energyDto = userEnergyService.setEnergy(uid, param.getPlatform(), BigDecimal.valueOf(param.getDayEnergy()));
-
-        return ApiResult.ok(energyDto);
-
-    }
-    @AuthCheck
     @GetMapping("/user/share")
-    @ApiOperation(value = "获取用户分享图",notes = "获取用户分享图",response = UserEnergyDto.class)
+    @ApiOperation(value = "获取用户分享图",notes = "获取用户分享图")
     public ApiResult<List> userShare(){
 
         return ApiResult.ok(systemConfigService.getAppShareConfig());

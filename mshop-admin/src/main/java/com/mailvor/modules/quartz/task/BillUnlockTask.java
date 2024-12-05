@@ -3,7 +3,6 @@ package com.mailvor.modules.quartz.task;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.enums.PlatformEnum;
-import com.mailvor.modules.energy.service.UserEnergyService;
 import com.mailvor.modules.user.domain.MwUserBill;
 import com.mailvor.modules.user.service.MwUserBillService;
 import com.mailvor.modules.user.service.MwUserService;
@@ -26,8 +25,6 @@ public class BillUnlockTask {
 
     @Resource
     private MwUserService userService;
-    @Resource
-    private UserEnergyService energyService;
 
     protected void run(String paramStr) {
         //淘宝 京东 拼多多 抖音 唯品会都需执行
@@ -40,16 +37,12 @@ public class BillUnlockTask {
             limit = 20;
         }
         List<MwUserBill> userBills = userBillService.getUnlockList(limit);
-        //更新余额 更新热度
+        //更新余额
         for(MwUserBill userBill : userBills) {
             //设置为
             userBill.setUnlockStatus(0);
             userBillService.saveOrUpdate(userBill);
             userService.incMoney(userBill.getUid(), userBill.getNumber());
-            if(!PlatformEnum.MT.getValue().equals(userBill.getPlatform())) {
-                energyService.addEnergy(userBill.getUid(), userBill.getOrigUid(), userBill.getPlatform(),
-                        userBill.getNumber(), 1);
-            }
         }
 
     }

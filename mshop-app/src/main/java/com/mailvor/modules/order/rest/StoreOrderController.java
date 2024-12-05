@@ -452,8 +452,6 @@ public class StoreOrderController {
 
         tabs.add(new OrderTabFirstDto("自购", false, 0, 0));
         AppDataConfig config = systemConfigService.getAppDataConfig();
-        tabs.add(new OrderTabFirstDto("热度订单", false, 0, 2));
-
         if(config.getSpreadLevel() == null || config.getSpreadLevel() == 3) {
             tabs.add(new OrderTabFirstDto("金客", false, 1, 0));
             tabs.add(new OrderTabFirstDto("银客", false, 2, 0));
@@ -480,10 +478,8 @@ public class StoreOrderController {
             tabs.add(new OrderTabDto("拼多多", pddOrderService.hasUnlockOrder(uid, innerType)));
             tabs.add(new OrderTabDto("抖音", dyOrderService.hasUnlockOrder(uid, innerType)));
             tabs.add(new OrderTabDto("唯品会", vipOrderService.hasUnlockOrder(uid, innerType)));
-            //美团不加入热度订单
-            if(innerType != 2) {
-                tabs.add(new OrderTabDto("美团", mtOrderService.hasUnlockOrder(uid, innerType)));
-            }
+            tabs.add(new OrderTabDto("美团", mtOrderService.hasUnlockOrder(uid, innerType)));
+
         } else {
 
             tabs.add(new OrderTabDto("淘宝", false));

@@ -1,4 +1,4 @@
-package com.mailvor.modules.energy.dto;
+package com.mailvor.modules.order.service.dto;
 
 import lombok.Data;
 

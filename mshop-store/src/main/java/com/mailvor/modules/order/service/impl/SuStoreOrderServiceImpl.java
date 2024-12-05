@@ -4,22 +4,17 @@
  */
 package com.mailvor.modules.order.service.impl;
 
-import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mailvor.api.MshopException;
 import com.mailvor.common.service.impl.BaseServiceImpl;
 import com.mailvor.constant.SystemConfigConstants;
 import com.mailvor.enums.BillDetailEnum;
 import com.mailvor.enums.PlatformEnum;
 import com.mailvor.enums.ShopCommonEnum;
-import com.mailvor.modules.energy.domain.UserEnergyOrder;
-import com.mailvor.modules.energy.domain.UserEnergyOrderLog;
-import com.mailvor.modules.energy.service.UserEnergyService;
 import com.mailvor.modules.order.domain.MwStoreOrder;
 import com.mailvor.modules.order.service.SuStoreOrderService;
 import com.mailvor.modules.order.service.dto.UserRefundDto;
@@ -105,15 +100,6 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
     private MwUserPoolService poolService;
 
     @Resource
-    private UserEnergyService energyService;
-
-    @Resource
-    private MwUserHbScaleService userHbScaleService;
-
-    @Resource
-    private MwUserRechargeService userRechargeService;
-
-    @Resource
     private TbConfig tbConfig;
 
     @Resource
@@ -190,9 +176,6 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
             user.setNowMoney(newHb);
             userService.updateById(user);
 
-            //订单退款扣除热度
-            energyService.decEnergy(uid, platformEnum.getValue(), hb, 1);
-
             //增加流水
             billService.expend(user.getUid(), user.getUid(), platformEnum.getDesc() +"订单退款扣除红包", BillDetailEnum.CATEGORY_1.getValue(),
                     BillDetailEnum.TYPE_8.getValue(),
@@ -238,8 +221,6 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         }
         userInfo.setNowMoney(newMoney);
         userService.updateById(userInfo);
-        //订单退款扣除热度
-        energyService.decEnergy(spreadUid, platformEnum.getValue(), feeOne, 1);
 
         //增加流水
         billService.expend(spreadUid,childUser.getUid(),  "顾客‘" + childUser.getNickname() + "’订单退款扣除红包",
@@ -275,9 +256,6 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         preUser.setNowMoney(preNewMoney);
         userService.updateById(preUser);
 
-        //订单退款扣除热度
-        energyService.decEnergy(preUid, platformEnum.getValue(), feeTwo, 1);
-
         //增加流水
         billService.expend(preUid,childUser.getUid(),  "用户‘" + userInfo.getNickname() + "’的用户订单退款扣除红包",
                 BillDetailEnum.CATEGORY_1.getValue(),
@@ -311,7 +289,7 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
     }
     /**
      * 订单分销一二级返佣
-     * innerType 1=虚拟订单 2=热度订单 0=默认
+     *  0=默认
      */
     public void gainParentMoney(MwUser origUser, BigDecimal hb, String orderId, Date orderCreateTime, Integer innerType,
                                 PlatformEnum platformEnum,
@@ -347,8 +325,6 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         BigDecimal feeOne = OrderUtil.getRoundFee(NumberUtil.div(NumberUtil.mul(hb, discountOne), 100));
 //        levelOneUser.setNowMoney(NumberUtil.add(levelOneUser.getNowMoney(), feeOne));
 //        userService.updateById(levelOneUser);
-        //抽多少红包 增加多少热度
-//        energyService.addEnergy(spreadUid, origUser.getUid(), platformEnum.getValue(), feeOne, 1);
         //增加流水
         String mark = TkUtil.getOrderBillMark(origUser.getNickname(), platformEnum.getDesc(), orderId, orderHb, discountOne.intValue(),
                 feeOne.doubleValue(), 1);
@@ -396,8 +372,6 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         BigDecimal feeTwo = OrderUtil.getRoundFee(NumberUtil.div(NumberUtil.mul(hb, discountTwo), 100));
         preUser.setNowMoney(NumberUtil.add(preUser.getNowMoney(), feeTwo));
         userService.updateById(preUser);
-        //抽多少红包 增加多少热度
-        energyService.addEnergy(preUid, origUid, platformEnum.getValue(), feeTwo, 1);
 
         //增加流水
         String mark = TkUtil.getOrderBillMark(baseUser.getNickname(),
@@ -626,12 +600,6 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
             if(user == null) {
                 return;
             }
-            //抽多少红包 增加多少热度 只有前五大平台才增加热度
-//            if(platformEnum == PlatformEnum.TB || platformEnum == PlatformEnum.JD ||
-//                    platformEnum == PlatformEnum.PDD || platformEnum == PlatformEnum.DY ||
-//                    platformEnum == PlatformEnum.VIP) {
-//                energyService.addEnergy(uid, uid, platformEnum.getValue(), incMoney, 1);
-//            }
             String mark = TkUtil.getSelfOrderBillMark(platformEnum.getDesc(),
                         orderId, incMoney.doubleValue());
             String title = TkUtil.getOrderBillTitle(null, platformEnum.getDesc(), 0);
@@ -665,37 +633,6 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         }
     }
 
-    public void incEnergyUserMoney(Long uid, String orderId, Date orderCreateTime,
-                                   BigDecimal incMoney,
-                                   double orderHb,
-                                   PlatformEnum platformEnum,
-                                   BigDecimal discountOne) {
-        if (incMoney.compareTo(BigDecimal.ZERO) > 0) {
-//            userService.incMoney(uid, incMoney);
-            MwUser user = userService.getById(uid);
-            if(user == null) {
-                return;
-            }
-            Long origUid = 0L;
-                //热度订单特殊
-            String mark = TkUtil.getEnergyOrderBillMark(
-                        platformEnum.getDesc(), orderId,
-                        orderHb,
-                        discountOne.intValue(),
-                        incMoney.doubleValue());
-            String title = TkUtil.getEnergyOrderBillTitle(platformEnum.getDesc());
-            jPushService.push(mark, uid);
-            Integer curLevel = TkUtil.getLevel(platformEnum.getValue(), user);
-            Date unlockTime = getUnlockTime(uid, orderCreateTime, curLevel);
-
-            //增加流水
-            incomeOrderBill(uid, origUid, title,
-                    platformEnum.getValue(),
-                    incMoney.doubleValue(),
-                    user.getNowMoney().doubleValue(),
-                    mark, orderId, orderCreateTime, unlockTime);
-        }
-    }
     public void incomeOrderBill(Long uid,Long origUid,String title, String platform, double number,
                                 double balance,String mark,String linkid, Date orderCreateTime, Date unlockTime) {
         //增加流水
@@ -795,73 +732,6 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         Map map = new HashMap();
         map.put("hb", hb);
         return map;
-    }
-
-    @Override
-    public double incEnergyMoneyAndBindOrder(Long uid, TkOrder order, UserEnergyOrder energyOrder, UserEnergyOrderLog orderLog) {
-        TkOrderFee orderFee = TkUtil.getOrderFee(order);
-        String orderId = orderFee.getOrderId();
-        Date createTime = orderFee.getCreateTime();
-        PlatformEnum platform = orderFee.getPlatform();
-        BigDecimal discountOne;
-
-        MwUser user = userService.getById(uid);
-        MwSystemUserLevel selfUserLevel = systemUserLevelService.getUserLevel(user, platform.getValue());
-
-        //因为会员等级一级分佣比例为40%，订单展示需要除以40%，如果会员一级分佣修改，这里需要同步修改
-        if(selfUserLevel != null) {
-            discountOne = selfUserLevel.getDiscountOne();
-        } else {
-            discountOne = BigDecimal.valueOf(20);
-        }
-
-
-        if(discountOne.doubleValue() <= 0) {
-            log.info("用户{}所在平台{} 当前一级佣金{},订单{}无法获得热度佣金", uid, platform, discountOne, orderId);
-            return 0;
-        }
-
-        //计算红包
-        double hb = energyOrder.getReleaseMoney().doubleValue();
-
-        //翻倍
-        hb = scaleHb(hb, uid, order.getInnerType(), platform.getValue(), orderLog);
-
-        BigDecimal newHb = OrderUtil.getRoundFee(NumberUtil.mul(NumberUtil.div(hb, discountOne), 100));
-        order.setHb(newHb.doubleValue());
-        order.setBind(1);
-        //更新订单
-        updateOrder(order);
-        //更新用户余额
-        incEnergyUserMoney(uid, orderId.toString(), createTime, new BigDecimal(hb), order.getHb(), platform, discountOne);
-        return hb;
-    }
-    protected double scaleHb(double hb, Long uid, Integer innerType, String platform, UserEnergyOrderLog orderLog) {
-        if(orderLog == null) {
-            //说明是推广热度的订单，不翻倍，直接返回
-            return hb;
-        }
-        MwUserHbScale userHbScale = userHbScaleService.getById(uid);
-        //同时翻倍创建时间在两个月内,超过两个月不翻倍
-        if(userHbScale != null) {
-            //找到用户充值记录是月卡还是年卡，年卡不翻倍
-            BigDecimal scale = BigDecimal.valueOf(1);
-
-            long betweenDay = DateUtil.between(userHbScale.getCreateTime(), new Date(), DateUnit.DAY);
-            if(innerType == 2 && betweenDay < userHbScale.getMonthInvalidDay()) {
-                //热度订单 需要校验是否是月卡
-                MwUserRecharge userRecharge = userRechargeService.getOne(new LambdaQueryWrapper<MwUserRecharge>()
-                        .eq(MwUserRecharge::getUid, uid)
-                        .eq(MwUserRecharge::getPaid, 1)
-                        .eq(MwUserRecharge::getPlatform, platform).orderByDesc(MwUserRecharge::getCreateTime).last("limit 1"));
-                if(userRecharge != null && userRecharge.getType() == 2) {
-                    scale = userHbScale.getMonthScale();
-                }
-            }
-            hb = NumberUtil.mul(hb, scale).doubleValue();
-        }
-
-        return hb;
     }
 
     public void updateOrder(TkOrder order) {

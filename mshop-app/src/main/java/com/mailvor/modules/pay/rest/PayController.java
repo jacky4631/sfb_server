@@ -13,7 +13,6 @@ import com.mailvor.api.MshopException;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.AuthCheck;
 import com.mailvor.enums.PayTypeEnum;
-import com.mailvor.modules.energy.dto.MonthCardConfigDto;
 import com.mailvor.modules.logging.aop.log.AppLog;
 import com.mailvor.modules.pay.adapay.AdaPayService;
 import com.mailvor.modules.pay.alipay.AliPayService;
@@ -333,10 +332,6 @@ public class PayController {
                     (payType == 4 && "1".equals(obj.getBbc()))) {
                 priceB = NumberUtil.sub(Double.parseDouble(price), coupon);
             }
-        } else if (type == 2) {
-            //月卡
-            MonthCardConfigDto monthCardConfig = systemConfigService.getMonthCardConfig();
-            priceB = monthCardConfig.getPrice();
         }
 
         String payTypeValue = getPayType(param.getPayType());

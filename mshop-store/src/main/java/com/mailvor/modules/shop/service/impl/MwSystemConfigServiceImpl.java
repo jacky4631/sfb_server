@@ -4,7 +4,6 @@
  */
 package com.mailvor.modules.shop.service.impl;
 
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -13,10 +12,7 @@ import com.mailvor.common.service.impl.BaseServiceImpl;
 import com.mailvor.common.utils.QueryHelpPlus;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.modules.activity.service.dto.MwExtractConfigDto;
-import com.mailvor.modules.energy.dto.EnergyConfigDto;
-import com.mailvor.modules.energy.dto.MonthCardConfigDto;
-import com.mailvor.modules.energy.dto.OrderCheckConfigDto;
-import com.mailvor.modules.energy.dto.RecoverScaleConfigDto;
+import com.mailvor.modules.order.service.dto.OrderCheckConfigDto;
 import com.mailvor.modules.shop.domain.MwSystemConfig;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.shop.service.dto.MwSystemConfigDto;
@@ -115,76 +111,6 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
     public MwSystemConfig findByKey(String key) {
         return this.getOne(new LambdaQueryWrapper<MwSystemConfig>()
                 .eq(MwSystemConfig::getMenuName,key));
-    }
-
-    @Override
-    public EnergyConfigDto getEnergyConfig() {
-        String key = TkUtil.getMixedPlatformKey(ENERGY_CONFIG);
-        Object result = redisUtils.get(key);
-        if (ObjectUtil.isNotNull(result)) {
-            return (EnergyConfigDto)result;
-        }
-        MwSystemConfig config = getOne(new LambdaQueryWrapper<MwSystemConfig>()
-                .eq(MwSystemConfig::getMenuName,key));
-        EnergyConfigDto res;
-        if(config == null) {
-            res = new EnergyConfigDto();
-            res.init();
-        } else {
-            res = JSON.parseObject(config.getValue(), EnergyConfigDto.class);
-        }
-        redisUtils.set(key,res);
-        return res;
-    }
-
-    public void setEnergyConfig(EnergyConfigDto param) {
-        String key = TkUtil.getMixedPlatformKey(ENERGY_CONFIG);
-        MwSystemConfig systemConfig = getOne(new LambdaQueryWrapper<MwSystemConfig>()
-                .eq(MwSystemConfig::getMenuName,key));
-
-        MwSystemConfig mwSystemConfigModel = new MwSystemConfig();
-        mwSystemConfigModel.setMenuName(key);
-        mwSystemConfigModel.setValue(JSON.toJSONString(param));
-
-        redisUtils.set(key,param);
-        if(ObjectUtil.isNull(systemConfig)){
-            save(mwSystemConfigModel);
-        }else{
-            mwSystemConfigModel.setId(systemConfig.getId());
-            saveOrUpdate(mwSystemConfigModel);
-        }
-
-    }
-
-    @Override
-    public MonthCardConfigDto getMonthCardConfig() {
-        String result = redisUtils.getY(MONTH_CARD_CONFIG);
-        if (StrUtil.isNotBlank(result)) {
-            return JSON.parseObject(result, MonthCardConfigDto.class);
-        }
-        MwSystemConfig config = getOne(new LambdaQueryWrapper<MwSystemConfig>()
-                .eq(MwSystemConfig::getMenuName,MONTH_CARD_CONFIG));
-        if(config == null) {
-            return new MonthCardConfigDto();
-        }
-        redisUtils.set(MONTH_CARD_CONFIG, config.getValue());
-        return JSON.parseObject(config.getValue(), MonthCardConfigDto.class);
-    }
-
-
-    @Override
-    public RecoverScaleConfigDto getRecoverScaleConfig() {
-        String result = redisUtils.getY(RECOVER_SCALE_CONFIG);
-        if (StrUtil.isNotBlank(result)) {
-            return JSON.parseObject(result, RecoverScaleConfigDto.class);
-        }
-        MwSystemConfig config = getOne(new LambdaQueryWrapper<MwSystemConfig>()
-                .eq(MwSystemConfig::getMenuName,RECOVER_SCALE_CONFIG));
-        if(config == null) {
-            return new RecoverScaleConfigDto();
-        }
-        redisUtils.set(RECOVER_SCALE_CONFIG, config.getValue());
-        return JSON.parseObject(config.getValue(), RecoverScaleConfigDto.class);
     }
 
     @Override

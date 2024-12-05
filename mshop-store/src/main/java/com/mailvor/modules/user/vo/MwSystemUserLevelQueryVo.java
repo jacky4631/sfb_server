@@ -33,12 +33,6 @@ public class MwSystemUserLevelQueryVo implements Serializable {
     @ApiModelProperty(value = "有效时间")
     private Integer validDate;
 
-    @ApiModelProperty(value = "月卡购买金额")
-    private BigDecimal monthMoney;
-
-    @ApiModelProperty(value = "月卡有效时间")
-    private Integer monthValidDate;
-
     @ApiModelProperty(value = "会员等级")
     private Integer grade;
 

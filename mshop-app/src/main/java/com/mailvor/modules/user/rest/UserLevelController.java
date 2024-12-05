@@ -15,7 +15,6 @@ import com.mailvor.common.interceptor.AuthCheck;
 import com.mailvor.constant.ShopConstants;
 import com.mailvor.enums.PlatformEnum;
 import com.mailvor.enums.ShopCommonEnum;
-import com.mailvor.modules.energy.dto.MonthCardConfigDto;
 import com.mailvor.modules.shop.domain.MwSystemGroupData;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.shop.service.MwSystemGroupDataService;
@@ -98,7 +97,6 @@ public class UserLevelController {
         Map<Integer, String> rechargeMap = mwSystemGroupDataList.stream()
                 .map(mwSystemGroupData -> JSON.parseObject(mwSystemGroupData.getValue(), UserRechargeDTO.class))
                 .collect(Collectors.toMap(UserRechargeDTO::getId, UserRechargeDTO::getPrice));
-        MonthCardConfigDto monthCardConfigDto = systemConfigService.getMonthCardConfig();
 
         UserLevelDto userLevelDto = systemUserLevelService.getLevelInfo(null);
         List<MwSystemUserLevelQueryVo> list = new ArrayList<>(5);
@@ -108,8 +106,6 @@ public class UserLevelController {
         List<MwSystemUserLevelQueryVo> vipList = new ArrayList<>(5);
 
         userLevelDto.getList().stream().forEach(levelDto->{
-            levelDto.setMonthMoney(monthCardConfigDto.getPrice());
-            levelDto.setMonthValidDate(monthCardConfigDto.getExpired());
             String priceStr = rechargeMap.get(Integer.parseInt(levelDto.getRechargeId()));
             if(priceStr == null) {
                 levelDto.setMoney(BigDecimal.ZERO);

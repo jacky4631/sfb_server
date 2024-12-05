@@ -10,7 +10,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.mailvor.api.ApiResult;
 import com.mailvor.api.MshopException;
 import com.mailvor.modules.aop.ForbidSubmit;
-import com.mailvor.modules.energy.service.UserEnergyService;
 import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.pay.dto.PayChannelDto;
 import com.mailvor.modules.pay.enums.PayChannelEnum;
@@ -26,7 +25,6 @@ import com.mailvor.modules.user.rest.param.BankBindParam;
 import com.mailvor.modules.user.rest.param.BankExtractParam;
 import com.mailvor.modules.user.service.*;
 import com.mailvor.modules.user.service.dto.MwUserQueryCriteria;
-import com.mailvor.modules.user.service.dto.UserEnergyDto;
 import com.mailvor.modules.user.service.dto.UserIntegralDto;
 import com.mailvor.modules.user.service.dto.UserMoneyDto;
 import com.mailvor.modules.user.vo.MwUserCardQueryVo;
@@ -64,9 +62,6 @@ public class MemberController {
 
     @Resource
     private MwUserUnionService userUnionService;
-
-    @Resource
-    private UserEnergyService energyService;
     @Resource
     private RedisUtils redisUtils;
 
@@ -225,22 +220,7 @@ public class MemberController {
         mwUserService.updateMoney(param);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
-    @ApiOperation(value = "修改热度")
-    @PostMapping(value = "/mwUser/energy")
-    @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
-    public ResponseEntity updateEnergy(@Validated @RequestBody UserEnergyDto param){
-        if(param.getEnergy() <= 0) {
-            throw new MshopException("热度不能为0");
-        }
-        if(param.getPtype() == 1){
-            energyService.addEnergy(param.getUid(), param.getUid(), param.getPlatform(),
-                    BigDecimal.valueOf(param.getEnergy()), param.getType());
-        }else{
-            energyService.decEnergy(param.getUid(), param.getPlatform(),
-                    BigDecimal.valueOf(param.getEnergy()), param.getType());
-        }
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
-    }
+
     @ApiOperation(value = "修改积分")
     @PostMapping(value = "/mwUser/integral")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")

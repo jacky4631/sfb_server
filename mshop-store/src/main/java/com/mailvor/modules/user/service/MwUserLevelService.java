@@ -37,5 +37,4 @@ public interface MwUserLevelService extends BaseService<MwUserLevel> {
 
     void setUserLevel(Long uid, int levelId, String platform);
 
-    void setUserLevelMonth(Long uid, int levelId, String platform);
 }

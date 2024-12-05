@@ -27,7 +27,7 @@ public class TkOrder extends BaseDomain {
     /** 拆红包奖励金额 */
     private Double hb;
 
-    /** 内部类型 0=默认 2=热度*/
+    /** 内部类型 0=默认*/
     private Integer innerType;
 
     /** 拆红包时间 */

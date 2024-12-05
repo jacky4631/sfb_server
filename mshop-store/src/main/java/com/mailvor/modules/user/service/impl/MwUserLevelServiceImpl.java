@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mailvor.common.service.impl.BaseServiceImpl;
 import com.mailvor.enums.ShopCommonEnum;
 import com.mailvor.enums.VipEnum;
-import com.mailvor.modules.energy.dto.MonthCardConfigDto;
 import com.mailvor.modules.shop.domain.MwSystemUserLevel;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.user.domain.MwUser;
@@ -183,67 +182,6 @@ public class MwUserLevelServiceImpl extends BaseServiceImpl<MwUserLevelMapper, M
 
     }
 
-    /**
-     * 设置月卡等级
-     * @param uid 用户id
-     * @param levelId 等级id
-     */
-    @Override
-    public void setUserLevelMonth(Long uid, int levelId, String platform){
-        MonthCardConfigDto monthCardConfigDto = systemConfigService.getMonthCardConfig();
-
-        int validTime = monthCardConfigDto.getExpired() * 86400;
-
-        MwUserLevel mwUserLevel = new MwUserLevel();
-        mwUserLevel.setIsForever(0);
-        mwUserLevel.setStatus(ShopCommonEnum.IS_STATUS_1.getValue());
-        mwUserLevel.setGrade(VipEnum.VIP.getLevel());
-        mwUserLevel.setUid(uid);
-        mwUserLevel.setLevelId(levelId);
-        mwUserLevel.setDiscount(20);
-        mwUserLevel.setPlatform(platform);
-
-        mwUserLevel.setValidTime(validTime+OrderUtil.getSecondTimestampTwo());
-
-        mwUserLevel.setMark("恭喜你加盟月卡");
-        mwUserLevelMapper.insert(mwUserLevel);
-
-        MwUser user = userService.getById(uid);
-        //更新用户等级
-        if("tb".equals(platform)) {
-            user.setLevel(levelId);
-            Date date = getBaseDate(user.getExpired());
-            date = incOneMonth(date);
-            //设置会员过期时间
-            user.setExpired(date);
-        } else if("jd".equals(platform)) {
-            user.setLevelJd(levelId);
-            Date date = getBaseDate(user.getExpiredJd());
-            date = incOneMonth(date);
-            //设置会员过期时间
-            user.setExpiredJd(date);
-        } else if("pdd".equals(platform)) {
-            user.setLevelPdd(levelId);
-            Date date = getBaseDate(user.getExpiredPdd());
-            date = incOneMonth(date);
-            //设置会员过期时间
-            user.setExpiredPdd(date);
-        } else if("dy".equals(platform)) {
-            user.setLevelDy(levelId);
-            Date date = getBaseDate(user.getExpiredDy());
-            date = incOneMonth(date);
-            //设置会员过期时间
-            user.setExpiredDy(date);
-        } else if("vip".equals(platform)) {
-            user.setLevelVip(levelId);
-            Date date = getBaseDate(user.getExpiredVip());
-            date = incOneMonth(date);
-            //设置会员过期时间
-            user.setExpiredVip(date);
-        }
-        userService.updateById(user);
-
-    }
     protected Date incOneYear(Date date) {
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(date);

@@ -15,7 +15,6 @@ import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.AuthCheck;
 import com.mailvor.constant.SystemConfigConstants;
 import com.mailvor.modules.activity.service.MwUserExtractService;
-import com.mailvor.modules.energy.service.UserEnergyLogService;
 import com.mailvor.modules.logging.aop.log.AppLog;
 import com.mailvor.modules.order.service.SuStoreOrderService;
 import com.mailvor.modules.services.CreatShareProductService;
@@ -72,7 +71,6 @@ public class UserBillController {
     private final MailvorMtOrderService mtOrderService;
     private final SuStoreOrderService suStoreOrderService;
 
-    private final UserEnergyLogService userEnergyLogService;
     @Value("${file.path}")
     private String path;
 
@@ -123,23 +121,6 @@ public class UserBillController {
         //todo 分页貌似没实现
         Long totalPage = (Long) map.get("totalPage");
         return ApiResult.resultPage(total, totalPage.intValue(), map.get("list"));
-    }
-    /**
-     * 积分记录
-     */
-    @AppLog(value = "查看热度记录", type = 1)
-    @AuthCheck
-    @GetMapping("/energy/list")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "页码,默认为1", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "limit", value = "页大小,默认为10", paramType = "query", dataType = "int")
-    })
-    @ApiOperation(value = "热度记录",notes = "热度记录")
-    public ApiResult<Object> energyList(@RequestParam(value = "page",defaultValue = "1") int page,
-                                      @RequestParam(value = "limit",defaultValue = "10") int limit){
-        Long uid = LocalUser.getUser().getUid();
-        Map<String, Object> map = userEnergyLogService.logList(uid, page, limit);
-        return ApiResult.ok(map);
     }
 
     /**

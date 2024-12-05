@@ -1,6 +1,6 @@
 package com.mailvor.modules.quartz.task;
 
-import com.mailvor.modules.energy.dto.OrderCheckConfigDto;
+import com.mailvor.modules.order.service.dto.OrderCheckConfigDto;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.tk.service.*;
 import com.mailvor.modules.tk.service.dto.OrderCheckDTO;
