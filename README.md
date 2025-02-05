@@ -10,11 +10,14 @@
 
 
 ---
-### 🐶 新手必读
+### 🐶 源码仓库
 
 * APP端【Flutter】：[github（查看）](https://github.com/jacky4631/sfb) [gitee（查看）](https://gitee.com/jacky4631/sfb)
 * 服务端【Java + SpringBoot)】：[github（查看）](https://github.com/jacky4631/sfb_server) [gitee（查看）](https://gitee.com/jacky4631/sfb_server)
 * 管理端【Vue2 + element-ui】：[github（查看）](https://github.com/jacky4631/sfb_server_admin) [gitee（查看）](https://gitee.com/jacky4631/sfb_server_admin)
+
+### 🎬 系统演示
+[演示后台（查看）](https://docs-sfb.mailvor.com/docs/demo/demo.html)
 
 ---
 ### 💟 UI界面
@@ -96,11 +99,6 @@
 5.运行条件 Java 17 Mysql5.7
 6.移动端调试环境 AndroidStudio Flutter3.24.4 Dart3.5.4
 ~~~
----
-
-### 🎬 系统演示
-[演示后台（查看）](https://docs-sfb.mailvor.com/docs/demo/demo.html)
-
 ---
 
 ### 🔧 Java项目框架 和 WEB PC 项目运行环境
