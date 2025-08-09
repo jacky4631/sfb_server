@@ -38,7 +38,7 @@ public class VipOrderCollectionTask extends OrderTask{
     }
 
     protected void saveVipOrder(QueryVipParam param) {
-        log.warn("唯品会订单采集 start:{} end:{} page:{}", param.getOrderTimeStart(), param.getOrderTimeEnd(), param.getPage());
+        log.debug("唯品会订单采集 start:{} end:{} page:{}", param.getOrderTimeStart(), param.getOrderTimeEnd(), param.getPage());
         boolean hasMore = saveVip(param);
 
         //如果还有更多，不做时间更新，继续查询下一页，订单少时无须测试

@@ -126,7 +126,7 @@ public class OrderTask {
 
                 boolean saved = orderService.saveOrUpdateBatch(orders);
 
-                log.warn(saved? "淘宝订单保存成功": "淘宝订单保存失败");
+                log.debug(saved? "淘宝订单保存成功": "淘宝订单保存失败");
                 return res.getData().getPosition_index();
             }catch (Exception e) {
                 e.printStackTrace();
@@ -176,7 +176,7 @@ public class OrderTask {
             try {
                 //某些情况
                 boolean saved = jdOrderService.saveOrUpdateBatch(filterOrders);
-                log.warn(saved? "京东订单保存成功": "京东订单保存失败");
+                log.debug(saved? "京东订单保存成功": "京东订单保存失败");
             }catch (Exception e) {
                 log.error("京东订单保存失败 {}", e);
             }
@@ -202,7 +202,7 @@ public class OrderTask {
             });
             boolean saved = dyOrderService.saveOrUpdateBatch(orders);
 
-            log.warn(saved? "抖音订单保存成功": "抖音订单保存失败");
+            log.debug(saved? "抖音订单保存成功": "抖音订单保存失败");
             return res.getData().getTotal() > param.getPage()*param.getSize();
         }
 
@@ -232,7 +232,7 @@ public class OrderTask {
             });
             boolean saved = dyOrderService.saveOrUpdateBatch(orders);
 
-            log.warn(saved? "抖音库订单保存成功": "抖音库订单保存失败");
+            log.debug(saved? "抖音库订单保存成功": "抖音库订单保存失败");
             return res.getMinId();
         }
 
@@ -294,7 +294,7 @@ public class OrderTask {
                 }
             });
             boolean saved = pddOrderService.saveOrUpdateBatch(pddOrders);
-            log.warn(saved? "拼多多订单保存成功": "拼多多订单保存失败");
+            log.debug(saved? "拼多多订单保存成功": "拼多多订单保存失败");
             return res.getOrderListGetResponse().getLastOrderId();
 
         }
@@ -322,7 +322,7 @@ public class OrderTask {
                 }
             });
             boolean saved = vipOrderService.saveOrUpdateBatch(orders);
-            log.warn(saved? "唯品会订单保存成功": "唯品会订单保存失败");
+            log.debug(saved? "唯品会订单保存成功": "唯品会订单保存失败");
             return data.getTotal() > data.getPageSize() * data.getPage();
 
         }
@@ -403,7 +403,7 @@ public class OrderTask {
                 }
             });
             boolean saved = mtOrderService.saveOrUpdateBatch(orders);
-            log.warn(saved? "美团订单保存成功": "美团订单保存失败");
+            log.debug(saved? "美团订单保存成功": "美团订单保存失败");
             return res.getMsg().getPositionIndex();
 
         }
@@ -440,7 +440,7 @@ public class OrderTask {
             });
             boolean saved = eleOrderService.saveOrUpdateBatch(orders);
 
-            log.warn(saved? "饿了么库订单保存成功": "饿了么库订单保存失败");
+            log.debug(saved? "饿了么库订单保存成功": "饿了么库订单保存失败");
             return res.getMinId();
         }
 

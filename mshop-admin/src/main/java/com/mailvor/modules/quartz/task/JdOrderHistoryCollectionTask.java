@@ -34,7 +34,7 @@ public class JdOrderHistoryCollectionTask extends OrderTask{
             LocalDateTime start = end.minusMinutes(minutes);
             param.setStartTime(start.format(FF));
             param.setEndTime(end.format(FF));
-            log.warn("京东历史订单采集 total {} i:{} start:{} end:{} pageNo:{}", count,  i,
+            log.debug("京东历史订单采集 total {} i:{} start:{} end:{} pageNo:{}", count,  i,
                     param.getStartTime(), param.getEndTime(), param.getPageNo());
             Integer hasMore = saveJd(param);
 

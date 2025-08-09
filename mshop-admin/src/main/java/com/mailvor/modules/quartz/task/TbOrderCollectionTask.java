@@ -47,7 +47,7 @@ public class TbOrderCollectionTask extends OrderTask{
     }
 
     protected void saveTbOrder(QueryTBParam param) {
-        log.warn("淘宝订单采集 start:{} end:{} positionIndex:{}", param.getStartTime(), param.getEndTime(), param.getPositionIndex());
+        log.debug("淘宝订单采集 start:{} end:{} positionIndex:{}", param.getStartTime(), param.getEndTime(), param.getPositionIndex());
         String position = saveTb(param);
         if(StringUtils.isNotBlank(position)) {
             param.setPositionIndex(position);

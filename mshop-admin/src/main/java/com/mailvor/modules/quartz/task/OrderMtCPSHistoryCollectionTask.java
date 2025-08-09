@@ -32,7 +32,7 @@ public class OrderMtCPSHistoryCollectionTask extends OrderTask{
         for(int i = 0; i < count; i++) {
             //开始时间为结束时间加上间隔
             LocalDateTime start = end.minusMinutes(minutes);
-            log.warn("美团CPS历史订单采集 total {} i:{} start:{} end:{}", count,  i,
+            log.debug("美团CPS历史订单采集 total {} i:{} start:{} end:{}", count,  i,
                     start.format(FF), end.format(FF));
             param.setStartTime(start);
             param.setEndTime(end);
@@ -47,7 +47,7 @@ public class OrderMtCPSHistoryCollectionTask extends OrderTask{
         }
     }
     protected void saveMtOrder(QueryMtParam param) {
-        log.warn("美团CPS订单采集 page:{} size: {} start:{} end:{}", param.getScrollId(), param.getSize(),
+        log.debug("美团CPS订单采集 page:{} size: {} start:{} end:{}", param.getScrollId(), param.getSize(),
                 param.getStartTime(), param.getEndTime());
 
         String lastOrderId = saveMtCPS(param);

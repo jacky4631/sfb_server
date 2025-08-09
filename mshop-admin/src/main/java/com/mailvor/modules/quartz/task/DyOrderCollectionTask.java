@@ -43,7 +43,7 @@ public class DyOrderCollectionTask extends OrderTask{
     }
 
     protected void saveDyOrder(QueryDyParam param) {
-        log.warn("抖音订单采集 start:{} end:{} page:{}", param.getStart_time(), param.getEnd_time(), param.getPage());
+        log.debug("抖音订单采集 start:{} end:{} page:{}", param.getStart_time(), param.getEnd_time(), param.getPage());
         boolean hasMore = saveDy(param);
 
         //如果还有更多，不做时间更新，继续查询下一页，订单少时无须测试

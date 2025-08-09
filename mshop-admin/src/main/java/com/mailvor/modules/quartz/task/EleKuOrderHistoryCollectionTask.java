@@ -36,7 +36,7 @@ public class EleKuOrderHistoryCollectionTask extends OrderTask{
             Date start = DateUtil.offsetMinute(end, -minutes);
             param.setStart(start);
             param.setEnd(end);
-            log.warn("饿了么库历史订单采集 total {} i:{} start:{} end:{} page:{}", count,  i, param.getStart(), param.getEnd(),
+            log.debug("饿了么库历史订单采集 total {} i:{} start:{} end:{} page:{}", count,  i, param.getStart(), param.getEnd(),
                     param.getPage());
             Integer minId = saveEleKu(param);
 

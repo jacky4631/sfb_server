@@ -32,7 +32,7 @@ public class PddOrderHistoryCollectionTask extends OrderTask{
         for(int i = 0; i < count; i++) {
             //开始时间为结束时间加上间隔
             LocalDateTime start = end.minusMinutes(minutes);
-            log.warn("拼多多历史订单采集 total {} i:{} start:{} end:{} lastOrderId:{}", count,  i,
+            log.debug("拼多多历史订单采集 total {} i:{} start:{} end:{} lastOrderId:{}", count,  i,
                     start.format(FF), end.format(FF), param.getLastOrderId());
             param.setStartTime(start.format(FF));
             param.setEndTime(end.format(FF));

@@ -33,7 +33,7 @@ public class VipOrderHistoryCollectionTask extends OrderTask{
             long start = end - minutes*60*1000;
             param.setOrderTimeStart(start+"");
             param.setOrderTimeEnd(end+"");
-            log.warn("唯品会历史订单采集 total {} i:{} start:{} end:{} page:{}", count,  i,
+            log.debug("唯品会历史订单采集 total {} i:{} start:{} end:{} page:{}", count,  i,
                     DateUtil.date(start).toString("yyyy-MM-dd HH:mm:ss"),
                     DateUtil.date(end).toString("yyyy-MM-dd HH:mm:ss"), param.getPage());
             boolean hasMore = saveVip(param);

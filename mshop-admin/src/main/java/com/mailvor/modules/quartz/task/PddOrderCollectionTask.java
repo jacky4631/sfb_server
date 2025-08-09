@@ -41,7 +41,7 @@ public class PddOrderCollectionTask extends OrderTask{
     }
 
     protected void savePddOrder(QueryPddParam param) {
-        log.warn("拼多多订单采集 start:{} end:{} lastOrderId:{}", param.getStartTime(), param.getEndTime(), param.getLastOrderId());
+        log.debug("拼多多订单采集 start:{} end:{} lastOrderId:{}", param.getStartTime(), param.getEndTime(), param.getLastOrderId());
 
         String lastOrderId = savePdd(param);
 

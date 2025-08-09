@@ -34,7 +34,7 @@ public class TbOrderHistoryCollectionTask extends OrderTask{
             LocalDateTime start = end.minusMinutes(minutes);
             param.setStartTime(start.format(FF));
             param.setEndTime(end.format(FF));
-            log.warn("淘宝历史订单采集 total {} i:{} start:{} end:{} positionIndex:{}", count,  i, start, end, param.getPositionIndex());
+            log.debug("淘宝历史订单采集 total {} i:{} start:{} end:{} positionIndex:{}", count,  i, start, end, param.getPositionIndex());
             String position = saveTb(param);
             if(position != null) {
                 param.setPositionIndex(position);

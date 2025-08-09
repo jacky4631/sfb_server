@@ -43,7 +43,7 @@ public class JdOrderCollectionTask extends OrderTask{
     }
 
     protected void saveJdOrder(QueryJdParam param) {
-        log.warn("京东订单采集 start:{} end:{} page:{}", param.getStartTime(), param.getEndTime(), param.getPageNo());
+        log.debug("京东订单采集 start:{} end:{} page:{}", param.getStartTime(), param.getEndTime(), param.getPageNo());
         Integer hasMore = saveJd(param);
 
         //如果还有更多，不做时间更新，继续查询下一页，订单少时无须测试

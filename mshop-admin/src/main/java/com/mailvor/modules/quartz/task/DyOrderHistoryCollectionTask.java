@@ -34,7 +34,7 @@ public class DyOrderHistoryCollectionTask extends OrderTask{
             LocalDateTime start = end.minusMinutes(minutes);
             param.setStart_time(start.format(FF));
             param.setEnd_time(end.format(FF));
-            log.warn("抖音历史订单采集 total {} i:{} start:{} end:{} page:{}", count,  i, param.getStart_time(), param.getEnd_time(),
+            log.debug("抖音历史订单采集 total {} i:{} start:{} end:{} page:{}", count,  i, param.getStart_time(), param.getEnd_time(),
                     param.getPage());
             boolean hasMore = saveDy(param);
 

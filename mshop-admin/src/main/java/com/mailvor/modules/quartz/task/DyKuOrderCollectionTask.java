@@ -44,7 +44,7 @@ public class DyKuOrderCollectionTask extends OrderTask{
     }
 
     protected void saveDyKuOrder(QueryDyKuParam param) {
-        log.warn("抖音库订单采集 start:{} end:{} page:{}", param.getStart(), param.getEnd(), param.getPage());
+        log.debug("抖音库订单采集 start:{} end:{} page:{}", param.getStart(), param.getEnd(), param.getPage());
         Integer minId = saveDyKu(param);
 
         //如果还有更多，不做时间更新，继续查询下一页，订单少时无须测试

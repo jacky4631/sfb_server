@@ -41,7 +41,7 @@ public class OrderMtCPSCollectionTask extends OrderTask{
     }
 
     protected void saveMtOrder(QueryMtParam param) {
-        log.warn("美团CPS订单采集 page:{} size: {} start:{} end:{}", param.getScrollId(), param.getSize(),
+        log.debug("美团CPS订单采集 page:{} size: {} start:{} end:{}", param.getScrollId(), param.getSize(),
                 param.getStartTime(), param.getEndTime());
 
         String lastOrderId = saveMtCPS(param);

@@ -44,7 +44,7 @@ public class EleKuOrderCollectionTask extends OrderTask{
     }
 
     protected void saveEleKuOrder(QueryEleKuParam param) {
-        log.warn("饿了么库订单采集 start:{} end:{} page:{}", param.getStart(), param.getEnd(), param.getPage());
+        log.debug("饿了么库订单采集 start:{} end:{} page:{}", param.getStart(), param.getEnd(), param.getPage());
         Integer minId = saveEleKu(param);
 
         //如果还有更多，不做时间更新，继续查询下一页，订单少时无须测试
