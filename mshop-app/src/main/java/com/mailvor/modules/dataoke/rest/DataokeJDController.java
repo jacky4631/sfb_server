@@ -41,13 +41,6 @@ public class DataokeJDController {
 
         return service.goodsDetailJD(goodsId, itemId);
     }
-//
-//    @GetMapping(value = "/goods/comment/list")
-//    public JSONObject getCommentList(GoodsCommentParam param) {
-//
-//        return service.getCommentList(param);
-//    }
-//
 
     @UserCheck
     @GetMapping(value = "/goods/word")
@@ -76,19 +69,4 @@ public class DataokeJDController {
 
     }
 
-    @GetMapping(value = "/brand/list")
-    public JSONObject getBrandList(GoodsListJDParam param) {
-
-        return service.brandListJD(param);
-    }
-    @GetMapping(value = "/nines/list")
-    public JSONObject getNinesList(GoodsListJDParam param) {
-
-        return service.ninesListJD(param);
-    }
-    @GetMapping(value = "/rank/list")
-    public JSONObject getRankList(GoodsListJDParam param) {
-
-        return service.rankListJD(param);
-    }
 }

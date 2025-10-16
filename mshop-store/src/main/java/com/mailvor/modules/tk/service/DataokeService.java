@@ -219,30 +219,7 @@ public class DataokeService {
         String data = getData(DataokeApi.JD_GOODS_LIST.getUrl(), DataokeApi.JD_GOODS_LIST.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
-    public JSONObject ninesListJD(GoodsListJDParam param) {
 
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.JD_NINES_LIST.getUrl(), DataokeApi.JD_NINES_LIST.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-    public JSONObject brandListJD(GoodsListJDParam param) {
-
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.JD_BRAND_LIST.getUrl(), DataokeApi.JD_BRAND_LIST.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-    public JSONObject rankListJD(GoodsListJDParam param) {
-
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.JD_RANK_LIST.getUrl(), DataokeApi.JD_RANK_LIST.getVersion(), paraMap);
-        try {
-            return JSON.parseObject(data);
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-
-    }
     public JSONObject goodsDetailJD(String goodsId, String itemId) {
 
         TreeMap<String, String> paraMap = new TreeMap<>();

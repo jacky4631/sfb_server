@@ -53,9 +53,6 @@ public enum DataokeApi {
     JD_GOODS_DETAIL("https://openapi.dataoke.com/api/dels/jd/goods/get-details", "v1.0.0","京东商品详情"),
     JD_GOODS_WORD("https://openapi.dataoke.com/api/dels/jd/kit/promotion-union-convert","v1.0.0","京东商品转链"),
     JD_PARSE_URL("https://openapi.dataoke.com/api/dels/jd/kit/parseUrl","v1.0.0","京东链接解析"),
-    JD_BRAND_LIST("https://openapi.dataoke.com/api/dels/jd/column/list-discount-brand", "v1.0.0","京东大牌折扣"),
-    JD_NINES_LIST("https://openapi.dataoke.com/api/dels/jd/column/list-nines", "v1.0.0","京东9.9包邮"),
-    JD_RANK_LIST("https://openapi.dataoke.com/api/dels/jd/column/list-real-ranks", "v1.0.0","京东实时榜单"),
 
     PDD_GOODS_SEARCH("https://openapi.dataoke.com/api/dels/pdd/goods/search", "v2.0.0","拼多多联盟搜索"),
     PDD_GOODS_DETAIL("https://openapi.dataoke.com/api/dels/pdd/goods/detail", "v2.0.0","拼多多"),
