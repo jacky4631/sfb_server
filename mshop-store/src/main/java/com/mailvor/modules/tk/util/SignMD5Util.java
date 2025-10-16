@@ -2,8 +2,8 @@ package com.mailvor.modules.tk.util;
 
 import java.security.MessageDigest;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 /**
  * @Title: SignMD5Util
@@ -18,7 +18,7 @@ public class SignMD5Util {
      * @param secretKey 密钥
      * @return
      */
-    public static String getSignStr(TreeMap<String,String> map, String secretKey){
+    public static String getSignStr(Map<String,Object> map, String secretKey){
 
         if (map.size() == 0 ){
             return "";
@@ -42,7 +42,7 @@ public class SignMD5Util {
      * @param secretKey 密钥
      * @return
      */
-    public static String getSignStrNew(TreeMap<String,String> map, String secretKey){
+    public static String getSignStrNew(Map<String,Object> map, String secretKey){
 
         if (map.size() == 0 ){
             return "";

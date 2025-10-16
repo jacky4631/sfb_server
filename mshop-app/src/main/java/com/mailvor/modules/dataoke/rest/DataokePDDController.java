@@ -8,6 +8,7 @@ import com.mailvor.common.interceptor.UserCheck;
 import com.mailvor.modules.tk.param.GoodsListPddParam;
 import com.mailvor.modules.tk.service.DataokeService;
 import com.mailvor.modules.tk.service.PddService;
+import com.mailvor.modules.tk.vo.pdd.PddSearchListVO;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.utils.RedisUtils;
 import com.pdd.pop.sdk.http.api.pop.response.PddDdkRpPromUrlGenerateResponse;
@@ -35,7 +36,7 @@ public class DataokePDDController {
     @Resource
     private RedisUtils redisUtils;
     @GetMapping(value = "/goods/list")
-    public JSONObject getGoodList(GoodsListPddParam goodQueryParam) {
+    public PddSearchListVO getGoodList(GoodsListPddParam goodQueryParam) {
 
         return service.goodsListPdd(goodQueryParam);
     }

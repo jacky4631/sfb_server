@@ -6,6 +6,7 @@ package com.mailvor.modules.tk.service;
 
 
 import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -117,13 +118,36 @@ public class KuService {
     }
 
 
+    /**
+     * 搜索京东商品
+     *
+     * @param param the param
+     * @return the jd ku goods detail data vo
+     */
+    public JdKuSearchListVO searchJD(GoodsListJDParam param) {
+        String sortName = param.getSortName();
+        String sort = param.getSort();
+        Integer sortKu = null;
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(sortName) && org.apache.commons.lang3.StringUtils.isNotBlank(sort)) {
+            if("inOrderCount30Days".equals(sortName)) {
+                sortKu = 2;
+            } else if ("price".equals(sortName) && "asc".equals(sort)) {
+                sortKu = 4;
+            } else if ("price".equals(sortName) && "asc".equals(sort)) {
+                sortKu = 5;
+            }
+        }
+        JdKuSearchListVO listVO = searchBaseJD(param, sortKu);
+        return listVO;
+    }
 
-    public JSONObject clipboard(ParseContentParam daParam) {
+    public TkParseCodeVO clipboard(ParseContentParam daParam) {
         /**
          * 获取时间
          */
         Date currentDate = new Date();
         String date = formatter.format(currentDate);
+
         /**
          * 生成签名
          */
@@ -133,16 +157,6 @@ public class KuService {
         map.put("date", date);
         map.put("method", "analyze.clipboard");
         map.put("content", daParam.getContent());
-//        try {
-//            map.put("pdd_custom_parameters", URLEncoder.encode(daParam.getCustomerParameters(),"UTF-8"));
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        }
-//        map.put("pdd_pid", daParam.getPddPid());
-//        map.put("tb_pid",daParam.getTbPid());
-//        map.put("tb_rid", daParam.getTbChannelId());
-//        map.put("jd_pid",daParam.getJdPid());
-//        map.put("jd_union",daParam.getJdUnionId());
 
         for (Map.Entry<String, String> entry : map.entrySet()) {
             key.append(entry.getKey()).append(entry.getValue());
@@ -157,11 +171,18 @@ public class KuService {
         }
         String jsonStr = jsonObject.toJSONString();
         log.info("提交的JSOn字符串:"+jsonStr);
-
-        return JSON.parseObject(convertUnicodeToCh(HttpUtils.doPost(KU_API_V3, jsonStr.toString())));
+        TkParseCodeVO codeVO = JSON.parseObject(convertUnicodeToCh(HttpUtil.post(KU_API_V3, jsonStr.toString())), TkParseCodeVO.class);
+        if(codeVO.getCode() == 200) {
+            codeVO.setCode(0);
+            //京东goodsId为空，需要使用skuId替换
+            TkParseVO parseVO = codeVO.getData();
+            if(parseVO != null && parseVO.getPlatType() == 2 && org.apache.commons.lang3.StringUtils.isBlank(parseVO.getGoodsId())) {
+                parseVO.setGoodsId(parseVO.getSkuId());
+            }
+        }
+        return codeVO;
 
     }
-
 
     public JSONObject shortLink(String link) throws UnsupportedEncodingException {
         /**

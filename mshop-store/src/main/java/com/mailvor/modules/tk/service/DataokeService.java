@@ -15,14 +15,22 @@ import com.mailvor.modules.tk.param.*;
 import com.mailvor.modules.tk.util.DataokeApi;
 import com.mailvor.modules.tk.util.DataokeApiClient;
 import com.mailvor.modules.tk.vo.*;
+import com.mailvor.modules.tk.vo.pdd.PddSearchDataVO;
+import com.mailvor.modules.tk.vo.pdd.PddSearchListVO;
+import com.mailvor.modules.tk.vo.vip.VipGoodsDetailDataVo;
+import com.mailvor.modules.tk.vo.vip.VipGoodsDetailVO;
+import com.mailvor.modules.tk.vo.vip.VipSearchListVO;
+import com.mailvor.modules.tk.vo.vip.VipWordCodeVO;
 import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -46,7 +54,7 @@ public class DataokeService {
     private static TypeReference<DataokeResVo<GoodsDetailVo>> goodsDetailTypeRef = new TypeReference<DataokeResVo<GoodsDetailVo>>(GoodsDetailVo.class){};
     private static TypeReference<DataokeResVo<GoodsWordVo>> goodsWordTypeRef = new TypeReference<DataokeResVo<GoodsWordVo>>(GoodsWordVo.class){};
     private static TypeReference<DataokeResVo<GoodsParseVo>> goodsParseTypeRef = new TypeReference<DataokeResVo<GoodsParseVo>>(GoodsParseVo.class){};
-    private static TypeReference<TreeMap<String, String>> mapTypeReference = new TypeReference<TreeMap<String, String>>() {};
+    private static TypeReference<TreeMap<String, Object>> mapTypeReference = new TypeReference<TreeMap<String, Object>>() {};
     private static TypeReference<DataokeResVo<ParseContentVo>> parseContentTypeRef = new TypeReference<DataokeResVo<ParseContentVo>>(ParseContentVo.class){};
 
     private String regStr = "((http|https)://)([\\w-]+\\.)+[\\w$]+(\\/[\\w-?=&./]*)?";
@@ -67,7 +75,7 @@ public class DataokeService {
 
     public JSONObject goodsList(GoodsListParam param) {
 
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(DataokeApi.GOODS_LIST.getUrl(), DataokeApi.GOODS_LIST.getVersion(), paraMap);
         JSONObject jsonObject = JSON.parseObject(data);
         JSONArray resData = jsonObject.getJSONObject("data").getJSONArray("list");
@@ -84,7 +92,7 @@ public class DataokeService {
     }
     public DataokeResVo<GoodsListVo> goodsVOS(GoodsListParam param) {
 
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(GOODS_LIST.getUrl(), GOODS_LIST.getVersion(), paraMap);
         try{
             return JSON.parseObject(data, goodsListTypeRef);
@@ -101,13 +109,13 @@ public class DataokeService {
             res.put("data", new JSONArray());
             return res;
         }
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(DataokeApi.TB_SEARCH.getUrl(), DataokeApi.TB_SEARCH.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
     public JSONObject goodsDetail(String goodsId) {
 
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("goodsId", goodsId);
         String data = getData(DataokeApi.GOODS_DETAIL.getUrl(), DataokeApi.GOODS_DETAIL.getVersion(), paraMap);
         return JSON.parseObject(data);
@@ -115,7 +123,7 @@ public class DataokeService {
 
     public JSONObject goodsWord(String goodsId, String pid, String channelId) {
 
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("goodsId", goodsId);
         if(StringUtils.isNotBlank(pid)) {
             paraMap.put("pid", pid);
@@ -126,42 +134,49 @@ public class DataokeService {
         String data = getData(DataokeApi.GOODS_WORD.getUrl(), DataokeApi.GOODS_WORD.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
-    public DataokeResVo<GoodsParseVo> goodsParse(String content) {
+    public DataokeResVo<GoodsParseVo> goodsParse(String content, String pid, String channelId) {
 
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("content", content);
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(pid)) {
+            paraMap.put("pid", pid);
+        }
+//         大淘客接口问题 这里传渠道id就无法解析
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(channelId)) {
+            paraMap.put("channelId", channelId);
+        }
         String data = getData(DataokeApi.GOODS_PARSE.getUrl(), DataokeApi.GOODS_PARSE.getVersion(), paraMap);
         return JSON.parseObject(data, goodsParseTypeRef);
     }
     public JSONObject getCategory() {
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         String data = getData(DataokeApi.GOODS_CATEGORY.getUrl(), DataokeApi.GOODS_CATEGORY.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
     public JSONObject getCommentList(GoodsCommentParam param) {
 
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(DataokeApi.GOODS_COMMENT.getUrl(), DataokeApi.GOODS_COMMENT.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
     public JSONObject getTopic() {
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         String data = getData(DataokeApi.TOPIC_LIST2.getUrl(), DataokeApi.TOPIC_LIST2.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
 
     public JSONObject getBanner() {
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         String data = getData(DataokeApi.BANNER.getUrl(), DataokeApi.BANNER.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
     public JSONObject getTbActivityList(TbActivityListParam param) {
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(DataokeApi.TB_ACTIVITY_LIST.getUrl(), DataokeApi.TB_ACTIVITY_LIST.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
     public JSONObject parseTbActivity(TbActivityParseParam param) {
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(DataokeApi.TB_ACTIVITY_PARSE.getUrl(), DataokeApi.TB_ACTIVITY_PARSE.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
@@ -175,7 +190,7 @@ public class DataokeService {
                 e.printStackTrace();
             }
         }
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(DataokeApi.GOODS_PARSE_ALL.getUrl(), DataokeApi.GOODS_PARSE_ALL.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
@@ -198,7 +213,7 @@ public class DataokeService {
         System.out.println(content);
     }
 
-    protected String getData(String url, String version, TreeMap<String, String> paraMap) {
+    protected String getData(String url, String version, TreeMap<String, Object> paraMap) {
         return DataokeApiClient.sendReq(
                 url,
                 config.getKey(),
@@ -209,7 +224,7 @@ public class DataokeService {
 
     public JSONObject goodsDetailJD(String goodsId, String itemId) {
 
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         if(StringUtils.isNotBlank(goodsId) && !"0".equals(goodsId) && !goodsId.equals(itemId)) {
             paraMap.put("skuIds", goodsId);
         }
@@ -219,9 +234,9 @@ public class DataokeService {
         String data = getData(DataokeApi.JD_GOODS_DETAIL.getUrl(), DataokeApi.JD_GOODS_DETAIL.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
-    public JSONObject goodsDetailVIP(String goodsId,String openId) {
+    public VipGoodsDetailDataVo goodsDetailVIP(String goodsId, String openId) {
 
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("goodsIdList", "[\"" + goodsId + "\"]");
         JSONObject request = new JSONObject();
 
@@ -231,17 +246,20 @@ public class DataokeService {
 //        paraMap.put("chanTag", "default_pid");
 
         String data = getData(DataokeApi.VIP_GOODS_DETAIL.getUrl(), DataokeApi.VIP_GOODS_DETAIL.getVersion(), paraMap);
-        try {
-            return JSON.parseObject(data);
-        }catch (Exception e) {
-            e.printStackTrace();
+        VipGoodsDetailDataVo dataVo = JSON.parseObject(data, VipGoodsDetailDataVo.class);
+        if(CollectionUtils.isNotEmpty(dataVo.getData())) {
+            VipGoodsDetailVO detailVO = dataVo.getData().get(0);
+            detailVO.setShopName(detailVO.getStoreName());
+            dataVo.setGoods(detailVO);
+            dataVo.setData(null);
         }
-        return null;
+
+        return dataVo;
     }
 
     public JSONObject goodsWordJD(String itemUrl, String couponUrl, String pid) {
 
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("materialId", itemUrl);
         if(StringUtils.isNotBlank(couponUrl)) {
             paraMap.put("couponUrl", couponUrl);
@@ -256,7 +274,7 @@ public class DataokeService {
 
     public JSONObject parseUrlJD(String itemUrl) {
 
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("url", itemUrl);
         paraMap.put("unionId", jdConfig.getUnionId());
         String data = getData(DataokeApi.JD_PARSE_URL.getUrl(), DataokeApi.JD_PARSE_URL.getVersion(), paraMap);
@@ -264,14 +282,14 @@ public class DataokeService {
     }
     public JSONObject goodsDetailPDD(String goodsSign) {
 
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("goodsSign", goodsSign);
         String data = getData(DataokeApi.PDD_GOODS_DETAIL.getUrl(), DataokeApi.PDD_GOODS_DETAIL.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
     public JSONObject goodsWordPDD(String goodsSign,Long uid) {
 
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("pid", pddConfig.getPid());
         paraMap.put("goodsSign", goodsSign);
         if(uid != null) {
@@ -285,7 +303,7 @@ public class DataokeService {
     }
 
     public JSONObject goodsSimilarList(String id, String size) {
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("id", id);
         paraMap.put("size", size);
         String data = getData(DataokeApi.GOODS_SIMILAR.getUrl(), DataokeApi.GOODS_SIMILAR.getVersion(), paraMap);
@@ -293,7 +311,7 @@ public class DataokeService {
     }
 
     public JSONObject ddq(String roundTime) {
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         if(StringUtils.isNotBlank(roundTime)) {
             paraMap.put("roundTime", roundTime);
         }
@@ -302,7 +320,7 @@ public class DataokeService {
     }
 
     public JSONObject rankingList(RankingListParam param) {
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(DataokeApi.TB_RANK_LIST.getUrl(), DataokeApi.TB_RANK_LIST.getVersion(), paraMap);
         JSONObject jsonObject = JSON.parseObject(data);
         JSONArray resData = jsonObject.getJSONArray("data");
@@ -331,13 +349,13 @@ public class DataokeService {
         }
         param.setAppkey(config.getKey());
 
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(DataokeApi.DY_GOODS_SEARCH.getUrl(), DataokeApi.DY_GOODS_SEARCH.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
     public JSONObject dyGoodsDetail(String goodsId) {
 
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("productIds", goodsId);
         paraMap.put("appkey", config.getKey());
         String data = getData(DataokeApi.DY_GOODS_DETAIL.getUrl(), DataokeApi.DY_GOODS_DETAIL.getVersion(), paraMap);
@@ -362,7 +380,7 @@ public class DataokeService {
         if(splitIndex > 0) {
             productUrl = productUrl.substring(0, splitIndex);
         }
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("productUrl", productUrl);
         paraMap.put("externalInfo", externalInfo);
         String data = getData(DataokeApi.DY_WORD.getUrl(), DataokeApi.DY_WORD.getVersion(), paraMap);
@@ -370,7 +388,7 @@ public class DataokeService {
     }
 
     public JSONObject shopConvert(String shopId, String shopName, String pid, String channelId) {
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("sellerId", shopId);
         paraMap.put("shopName", shopName);
         paraMap.put("appkey", config.getKey());
@@ -385,7 +403,7 @@ public class DataokeService {
     }
 
     public JSONObject getBrandList(Integer cid, Integer pageId) {
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("cid", cid.toString());
         paraMap.put("pageId", pageId.toString());
         paraMap.put("pageSize", "10");
@@ -394,7 +412,7 @@ public class DataokeService {
         return JSON.parseObject(data);
     }
     public JSONObject getBrandGoodsList(String brandId, Integer pageId, Integer pageSize) {
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("brandId", brandId);
         paraMap.put("pageId", pageId.toString());
         paraMap.put("pageSize", pageSize.toString());
@@ -402,51 +420,55 @@ public class DataokeService {
         String data = getData(DataokeApi.TB_BRAND_GOODS_LIST.getUrl(), DataokeApi.TB_BRAND_GOODS_LIST.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
-    public JSONObject goodsListVip(GoodsListVipParam param) {
-
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+    public VipSearchListVO goodsListVip(GoodsListVipParam param) {
+        //唯品会结构和统一结构相同，无需转换
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(DataokeApi.VIP_GOODS_LIST.getUrl(), DataokeApi.VIP_GOODS_LIST.getVersion(), paraMap);
-        return JSON.parseObject(data);
+        return JSON.parseObject(data,VipSearchListVO.class);
     }
 
-    public JSONObject goodsWordVIP(String itemUrl, String statParam, JSONObject urlGenRequest) {
 
-        TreeMap<String, String> paraMap = new TreeMap<>();
+    public VipWordCodeVO goodsWordVIP(String itemUrl, String statParam, JSONObject urlGenRequest) {
+
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("urlList", "[\"" + itemUrl + "\"]");
-        if(StringUtils.isNotBlank(statParam)) {
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(statParam)) {
             paraMap.put("statParam", statParam);
         }
         paraMap.put("urlGenRequest", urlGenRequest.toJSONString());
         String data = getData(DataokeApi.VIP_GOODS_WORD.getUrl(), DataokeApi.VIP_GOODS_WORD.getVersion(), paraMap);
-        return JSON.parseObject(data);
+        VipWordCodeVO codeVO = JSON.parseObject(data, VipWordCodeVO.class);
+        if(codeVO != null &&codeVO.getData() != null && CollectionUtils.isNotEmpty(codeVO.getData().getList())) {
+            codeVO.setWord(codeVO.getData().getList().get(0));
+            codeVO.getData().setList(null);
+        }
+        return codeVO;
     }
 
-    public JSONObject goodsListPdd(GoodsListPddParam param) {
-        if(StringUtils.isNotBlank(param.getKeyword())) {
+
+    public PddSearchListVO goodsListPdd(GoodsListPddParam param) {
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(param.getKeyword())) {
             String keyWord = param.getKeyword().toLowerCase();
-            if(TkUtil.hasWord(keyWord) || EXCLUDE_KEY_WROD_LIST.contains(keyWord)){
-                JSONObject res = new JSONObject();
-                JSONObject data = new JSONObject();
-                data.put("goodsList", new JSONArray());
-                data.put("totalCount", 0);
-                res.put("data", data);
+            if(hasWord(keyWord) || EXCLUDE_KEY_WROD_LIST.contains(keyWord)){
+                PddSearchListVO res = new PddSearchListVO();
+                PddSearchDataVO data = new PddSearchDataVO();
+                data.setList(new ArrayList<>(0));
+                data.setTotal(0);
+                res.setCode(0);
+                res.setMsg("成功");
+                res.setData(data);
                 return res;
             }
         }
 
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(DataokeApi.PDD_GOODS_SEARCH.getUrl(), DataokeApi.PDD_GOODS_SEARCH.getVersion(), paraMap);
-        try {
-            return JSON.parseObject(data);
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        return JSON.parseObject(data, PddSearchListVO.class);
 
     }
     public JSONObject goodsCatePdd(Integer parentId) {
 
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("parentId", parentId.toString());
         String data = getData(DataokeApi.PDD_GOODS_CATE.getUrl(), DataokeApi.PDD_GOODS_CATE.getVersion(), paraMap);
         return JSON.parseObject(data);
@@ -463,13 +485,13 @@ public class DataokeService {
                 return res;
             }
         }
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(DataokeApi.VIP_GOODS_SEARCH.getUrl(), DataokeApi.VIP_GOODS_SEARCH.getVersion(), paraMap);
         return JSON.parseObject(data);
     }
 
     public TBResVo queryTBList(QueryTBParam param) {
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(TB_QUERY_ORDER.getUrl(), TB_QUERY_ORDER.getVersion(), paraMap);
         log.warn("*淘宝订单："+ data);
         try{
@@ -482,7 +504,7 @@ public class DataokeService {
     }
 
     public JdResVo queryJdList(QueryJdParam param) {
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(JD_QUERY_ORDER.getUrl(), JD_QUERY_ORDER.getVersion(), paraMap);
         log.warn("*京东订单："+ data);
         if(StringUtils.isBlank(data)){
@@ -496,7 +518,7 @@ public class DataokeService {
         return null;
     }
     public VipResVo queryVipList(QueryVipParam param) {
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(VIP_QUERY_ORDER.getUrl(), VIP_QUERY_ORDER.getVersion(), paraMap);
         log.warn("*唯品会订单："+ data);
         if(StringUtils.isBlank(data)){
@@ -524,7 +546,7 @@ public class DataokeService {
 //        } catch (UnsupportedEncodingException e) {
 //            e.printStackTrace();
 //        }
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(DY_QUERY_ORDER.getUrl(), DY_QUERY_ORDER.getVersion(), paraMap);
         log.warn("*抖音订单："+ data);
         try{
@@ -542,7 +564,7 @@ public class DataokeService {
      * @return the pdd res vo
      */
     public PddResVo queryPddList(QueryPddParam param) {
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
         String data = getData(PDD_QUERY_ORDER.getUrl(), PDD_QUERY_ORDER.getVersion(), paraMap);
         log.warn("拼多多订单："+ data);
         return JSON.parseObject(data, PddResVo.class);

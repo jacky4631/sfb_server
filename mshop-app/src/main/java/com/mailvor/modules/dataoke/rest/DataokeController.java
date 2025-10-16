@@ -15,6 +15,7 @@ import com.mailvor.modules.tk.service.DataokeService;
 import com.mailvor.modules.tk.service.TkService;
 import com.mailvor.modules.tk.vo.DataokeResVo;
 import com.mailvor.modules.tk.vo.GoodsParseVo;
+import com.mailvor.modules.tk.vo.TkParseCodeVO;
 import com.mailvor.modules.user.config.AppDataConfig;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.domain.MwUserUnion;
@@ -27,10 +28,7 @@ import com.mailvor.utils.StringUtils;
 import com.taobao.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -154,7 +152,7 @@ public class DataokeController {
     @GetMapping(value = "/goods/parse")
     public DataokeResVo<GoodsParseVo> goodsParse(String content) {
 
-        return service.goodsParse(content);
+        return service.goodsParse(content, null, null);
     }
 
     @GetMapping(value = "/goods/category")
@@ -205,15 +203,10 @@ public class DataokeController {
     }
 
     @UserCheck
-    @GetMapping(value = "/parse/content")
-    public Object parseContent(ParseContentParam param) throws UnsupportedEncodingException {
+    @PostMapping(value = "/parse/content")
+    public TkParseCodeVO parseContentPost(@RequestBody ParseContentParam param) {
         MwUser mwUser = LocalUser.getUser();
         return tkService.mixParse(param, mwUser);
-    }
-
-    @GetMapping(value = "/parse/content2")
-    public JSONObject parseContent2(ParseContentParam param) {
-        return tkService.mixParse2(param, LocalUser.getUser());
     }
 
     @GetMapping(value = "/goods/similar/list")

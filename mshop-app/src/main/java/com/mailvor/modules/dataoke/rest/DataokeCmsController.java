@@ -1,11 +1,11 @@
 package com.mailvor.modules.dataoke.rest;
 
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.modules.tk.config.DataokeConfig;
 import com.mailvor.modules.tk.param.RankingListParam;
 import com.mailvor.modules.tk.service.DataokeService;
-import com.mailvor.modules.tk.util.HttpUtil;
 import com.mailvor.modules.tk.util.SignMD5Util;
 import com.mailvor.utils.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -89,7 +89,7 @@ public class DataokeCmsController {
     public Object everyoneBuy() throws URISyntaxException {
         Object dataObj = redisUtils.get(HOME_DATA_EVERY);
         if(dataObj == null) {
-            TreeMap<String, String> paraMap = new TreeMap<>();
+            TreeMap<String, Object> paraMap = new TreeMap<>();
             paraMap.put("version", "v1.0.0");
             paraMap.put("appKey", config.getKey());
             paraMap.put("pageId", "1");
@@ -98,7 +98,7 @@ public class DataokeCmsController {
             paraMap.put("brand", "1");
             paraMap.put("activityGroup", "1,3,4,6,11");
             paraMap.put("sign", SignMD5Util.getSignStr(paraMap, config.getSecret()));
-            String res = HttpUtil.httpGetRequest(API_PREFIX + "/goods/search", paraMap);
+            String res = HttpUtil.get(API_PREFIX + "/goods/search", paraMap);
             JSONObject data = JSON.parseObject(res);
 
             //接口数据缓存6个小时
@@ -136,7 +136,7 @@ public class DataokeCmsController {
                                @RequestParam String params) {
         String url = String.format("%s/goods/search",
                 API_PREFIX, pageId, pageSize, config.getKey());
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
 //        paraMap.put("version", "v1.0");
         paraMap.put("appKey", config.getKey());
         String[] keys = params.split("\\?&amp;")[1].split("&amp;");
@@ -164,12 +164,7 @@ public class DataokeCmsController {
         String sign = SignMD5Util.getSignStr(paraMap, config.getSecret());
         paraMap.put("sign", sign);
 
-        String data = "";
-        try {
-            data = HttpUtil.httpGetRequest(url, paraMap);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        String data = HttpUtil.get(url, paraMap);
         return JSON.parseObject(data);
     }
 

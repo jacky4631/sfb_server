@@ -1,6 +1,10 @@
 package com.mailvor.modules.tk.util;
 
-import java.net.URISyntaxException;
+import cn.hutool.http.HttpUtil;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -10,7 +14,7 @@ import java.util.TreeMap;
  */
 public class DataokeApiClient {
 
-    public static String sendReqNew(String url, String secret, TreeMap<String, String> paraMap){
+    public static String sendReqNew(String url, String secret, Map<String, Object> paraMap){
         if(null == url || "".equals(url)){
             return "请求地址不能为空";
         }
@@ -25,17 +29,12 @@ public class DataokeApiClient {
         paraMap.put("timer", timer);
         paraMap.put("nonce", "110505");
         paraMap.put("signRan", SignMD5Util.getSignStrNew(paraMap, secret));
-        String data = "";
-        try {
-            data = HttpUtil.httpGetRequest(url, paraMap);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        String data = HttpUtil.get(url, paraMap);
 
         return data;
     }
 
-    public static String sendReq(String url, String secret, TreeMap<String, String> paraMap){
+    public static String sendReq(String url, String secret, Map<String, Object> paraMap){
         if(null == url || "".equals(url)){
             return "请求地址不能为空";
         }
@@ -47,17 +46,19 @@ public class DataokeApiClient {
         }
 
         paraMap.put("sign", SignMD5Util.getSignStr(paraMap, secret));
-        String data = "";
-        try {
-            data = HttpUtil.httpGetRequest(url, paraMap);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+        if(paraMap.containsKey("keyWords")) {
+            try {
+                paraMap.put("keyWords", URLEncoder.encode((String)paraMap.get("keyWords"), "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
         }
+        String data = HttpUtil.get(url, paraMap);
 
         return data;
     }
 
-    public static String sendReq(String url, String key, String secret, String version, TreeMap<String, String> paraMap) {
+    public static String sendReq(String url, String key, String secret, String version, Map<String, Object> paraMap) {
         paraMap.put("version", version);
         paraMap.put("appKey", key);
         return DataokeApiClient.sendReq(url, secret, paraMap);
@@ -70,7 +71,7 @@ public class DataokeApiClient {
 
         String appKey = "5d8d8ceb094a5";
         String appSecret = "f4ff27cee4a4b9579561ec0722cbd734";
-        TreeMap<String, String> paraMap = new TreeMap<>();
+        TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("version", "v1.3.0");
         paraMap.put("appKey", appKey);
         paraMap.put("pageId", "1");
