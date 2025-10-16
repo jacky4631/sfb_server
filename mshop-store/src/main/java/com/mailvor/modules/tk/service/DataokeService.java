@@ -1,3 +1,7 @@
+/**
+ * Copyright (C) 2018-2025
+ * All rights reserved, Designed By www.mailvor.com
+ */
 package com.mailvor.modules.tk.service;
 
 import com.alibaba.fastjson.JSON;
@@ -201,23 +205,6 @@ public class DataokeService {
                 config.getSecret(),
                 version,
                 paraMap);
-    }
-
-    public JSONObject goodsListJD(GoodsListJDParam param) {
-        if(StringUtils.isNotBlank(param.getKeyword())) {
-            String keyWord = param.getKeyword().toLowerCase();
-            if(TkUtil.hasWord(keyWord) || EXCLUDE_KEY_WROD_LIST.contains(keyWord)){
-                JSONObject res = new JSONObject();
-                JSONObject data = new JSONObject();
-                data.put("list", new JSONArray());
-                data.put("totalNum", 0);
-                res.put("data", data);
-                return res;
-            }
-        }
-        TreeMap<String, String> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.JD_GOODS_LIST.getUrl(), DataokeApi.JD_GOODS_LIST.getVersion(), paraMap);
-        return JSON.parseObject(data);
     }
 
     public JSONObject goodsDetailJD(String goodsId, String itemId) {

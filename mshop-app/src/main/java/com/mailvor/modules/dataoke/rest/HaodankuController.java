@@ -12,8 +12,10 @@ import com.mailvor.modules.tk.config.PddConfig;
 import com.mailvor.modules.tk.param.DyListParam;
 import com.mailvor.modules.tk.param.GoodsListDyParam;
 import com.mailvor.modules.tk.param.KuCustomParam;
+import com.mailvor.modules.tk.param.jd.GoodsListJDParam;
 import com.mailvor.modules.tk.service.KuService;
 import com.mailvor.modules.tk.vo.*;
+import com.mailvor.modules.tk.vo.jd.JdKuCommonGoodsDetailDataVo;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.RedisUtil;
@@ -353,4 +355,14 @@ public class HaodankuController {
 
         return ApiResult.ok(kuService.coudanList(page, size, null));
     }
+
+    @GetMapping(value = "/jd/goods/detail")
+    public JdKuCommonGoodsDetailDataVo getGoodsDetail(@RequestParam String goodsId) {
+        GoodsListJDParam param = new GoodsListJDParam();
+        param.setKeyword(goodsId);
+        param.setPageId(1);
+        param.setPageSize(1);
+        return kuService.detailJD(param);
+    }
+
 }

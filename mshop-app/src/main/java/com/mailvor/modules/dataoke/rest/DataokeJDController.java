@@ -5,8 +5,11 @@ import com.mailvor.api.ApiResult;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.UserCheck;
 import com.mailvor.modules.tk.param.GoodsJdWordParam;
-import com.mailvor.modules.tk.param.GoodsListJDParam;
+import com.mailvor.modules.tk.param.jd.GoodsListJDParam;
 import com.mailvor.modules.tk.service.DataokeService;
+import com.mailvor.modules.tk.service.JdService;
+import com.mailvor.modules.tk.vo.jd.JdUnionCommonGoodsListVO;
+import com.mailvor.modules.tk.vo.jd.JdUnionCommonGoodsWordVO;
 import com.mailvor.modules.user.domain.MwUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,11 +32,8 @@ public class DataokeJDController {
     @Resource
     private DataokeService service;
 
-    @GetMapping(value = "/goods/list")
-    public JSONObject getGoodList(GoodsListJDParam param) {
-
-        return service.goodsListJD(param);
-    }
+    @Resource
+    private JdService jdService;
 
     @GetMapping(value = "/goods/detail")
     public JSONObject getGoodsDetail(@RequestParam(required = false) String goodsId,
@@ -44,7 +44,7 @@ public class DataokeJDController {
 
     @UserCheck
     @GetMapping(value = "/goods/word")
-    public ApiResult<String> goodsWord(@Valid GoodsJdWordParam param) {
+    public ApiResult<JdUnionCommonGoodsWordVO> goodsWord2(@Valid GoodsJdWordParam param) {
         String positionId;
 
         MwUser user = LocalUser.getUser();
@@ -53,20 +53,13 @@ public class DataokeJDController {
         } else {
             positionId = "0";
         }
+        JdUnionCommonGoodsWordVO daRes = jdService.goodsWord(param.getGoodsId(), param.getCouponLink(), positionId);
 
-        log.debug("jd parse positionId {}", positionId);
-        JSONObject daRes = service.goodsWordJD(param.getMaterialUrl(), null, positionId);
-
-        String url = "";
-        if(daRes != null) {
-            try {
-                url = daRes.getJSONObject("data").getString("shortUrl");
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return ApiResult.ok(url);
+        return ApiResult.ok(daRes);
 
     }
-
+    @GetMapping(value = "/rank/list")
+    public JdUnionCommonGoodsListVO getRankList(GoodsListJDParam param) throws Exception {
+        return jdService.listRank(param);
+    }
 }

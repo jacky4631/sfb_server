@@ -1,3 +1,7 @@
+/**
+ * Copyright (C) 2018-2025
+ * All rights reserved, Designed By www.mailvor.com
+ */
 package com.mailvor.modules.tk.service;
 
 
@@ -11,12 +15,17 @@ import com.mailvor.modules.tk.param.GoodsListDyParam;
 import com.mailvor.modules.tk.param.ParseContentParam;
 import com.mailvor.modules.tk.param.QueryDyKuParam;
 import com.mailvor.modules.tk.param.QueryEleKuParam;
+import com.mailvor.modules.tk.param.jd.GoodsListJDParam;
 import com.mailvor.modules.tk.service.dto.DyLifeCityDto;
 import com.mailvor.modules.tk.util.HttpUtils;
 import com.mailvor.modules.tk.util.SignMD5Util;
 import com.mailvor.modules.tk.vo.*;
+import com.mailvor.modules.tk.vo.jd.JdKuCommonGoodsDetailDataVo;
+import com.mailvor.modules.tk.vo.jd.JdKuCommonGoodsDetailVO;
+import com.mailvor.modules.tk.vo.jd.JdKuSearchListVO;
 import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -680,4 +689,54 @@ public class KuService {
                 JSONObject.class);
         return re.getBody();
     }
+
+
+    /**
+     * 京东详情页使用搜索接口搜索加密id得到
+     *
+     * @param param the param
+     * @return the jd ku goods detail data vo
+     */
+    public JdKuCommonGoodsDetailDataVo detailJD(GoodsListJDParam param) {
+        JdKuSearchListVO listVO = searchBaseJD(param, null);
+        JdKuCommonGoodsDetailDataVo commonSearchListVO = new JdKuCommonGoodsDetailDataVo();
+        if(CollectionUtils.isNotEmpty(listVO.getData())) {
+            commonSearchListVO.setData(JdKuCommonGoodsDetailVO.convert(listVO.getData().get(0)));
+        }
+        commonSearchListVO.setCode(listVO.getCode());
+        commonSearchListVO.setMsg(listVO.getMsg());
+        return commonSearchListVO;
+    }
+    /**
+     * 搜索京东商品
+     *
+     * @param param the param
+     * @return the jd ku goods detail data vo
+     */
+    private JdKuSearchListVO searchBaseJD(GoodsListJDParam param, Integer sortKu) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("apikey=");
+        sb.append(key);
+        sb.append("&min_id=");
+        sb.append(param.getPageId());
+        if(param.getPageSize() != null) {
+            sb.append("&back=");
+            sb.append(param.getPageSize());
+        }
+        //这里可以传京东商品加密id
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(param.getKeyword())) {
+            sb.append("&keyword=");
+            sb.append(param.getKeyword());
+        }
+        if(sortKu != null) {
+            sb.append("&sort=");
+            sb.append(sortKu);
+        }
+        ResponseEntity<String> re = restTemplate.getForEntity("http://v2.api.haodanku.com/jd_goods_search?" + sb, String.class);
+
+        JdKuSearchListVO listVO = JSON.parseObject(re.getBody(), JdKuSearchListVO.class);
+        return listVO;
+    }
+
+
 }
