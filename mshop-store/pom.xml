@@ -37,7 +37,7 @@
             <artifactId>open-api-sdk</artifactId>
             <version>2.0</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/open-api-sdk-2.0-2022-10-21.jar</systemPath>
+            <systemPath>${project.basedir}/../lib/jd-api-sdk-java-20250925.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.yinsheng</groupId>

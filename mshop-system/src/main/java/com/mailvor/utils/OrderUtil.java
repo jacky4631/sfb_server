@@ -332,11 +332,12 @@ public class OrderUtil {
 
     }
 
-    public static Long getJdOrderUser(Long param) {
-        if(param != null) {
-            return param;
+    public static Long getJdOrderUser(String subUnionId) {
+        try {
+            return Long.parseLong(subUnionId);
+        } catch (Exception e) {
+            return 0L;
         }
-        return 0L;
     }
 
     public static Long getPddOrderUser(String param) {

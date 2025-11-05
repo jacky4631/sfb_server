@@ -1,7 +1,12 @@
+/**
+ * Copyright (C) 2018-2025
+ * All rights reserved, Designed By www.mailvor.com
+ */
 package com.mailvor.modules.tk.service;
 
 
 import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -11,12 +16,17 @@ import com.mailvor.modules.tk.param.GoodsListDyParam;
 import com.mailvor.modules.tk.param.ParseContentParam;
 import com.mailvor.modules.tk.param.QueryDyKuParam;
 import com.mailvor.modules.tk.param.QueryEleKuParam;
+import com.mailvor.modules.tk.param.jd.GoodsListJDParam;
 import com.mailvor.modules.tk.service.dto.DyLifeCityDto;
 import com.mailvor.modules.tk.util.HttpUtils;
 import com.mailvor.modules.tk.util.SignMD5Util;
 import com.mailvor.modules.tk.vo.*;
+import com.mailvor.modules.tk.vo.jd.JdKuCommonGoodsDetailDataVo;
+import com.mailvor.modules.tk.vo.jd.JdKuCommonGoodsDetailVO;
+import com.mailvor.modules.tk.vo.jd.JdKuSearchListVO;
 import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -108,13 +118,36 @@ public class KuService {
     }
 
 
+    /**
+     * 搜索京东商品
+     *
+     * @param param the param
+     * @return the jd ku goods detail data vo
+     */
+    public JdKuSearchListVO searchJD(GoodsListJDParam param) {
+        String sortName = param.getSortName();
+        String sort = param.getSort();
+        Integer sortKu = null;
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(sortName) && org.apache.commons.lang3.StringUtils.isNotBlank(sort)) {
+            if("inOrderCount30Days".equals(sortName)) {
+                sortKu = 2;
+            } else if ("price".equals(sortName) && "asc".equals(sort)) {
+                sortKu = 4;
+            } else if ("price".equals(sortName) && "asc".equals(sort)) {
+                sortKu = 5;
+            }
+        }
+        JdKuSearchListVO listVO = searchBaseJD(param, sortKu);
+        return listVO;
+    }
 
-    public JSONObject clipboard(ParseContentParam daParam) {
+    public TkParseCodeVO clipboard(ParseContentParam daParam) {
         /**
          * 获取时间
          */
         Date currentDate = new Date();
         String date = formatter.format(currentDate);
+
         /**
          * 生成签名
          */
@@ -124,16 +157,6 @@ public class KuService {
         map.put("date", date);
         map.put("method", "analyze.clipboard");
         map.put("content", daParam.getContent());
-//        try {
-//            map.put("pdd_custom_parameters", URLEncoder.encode(daParam.getCustomerParameters(),"UTF-8"));
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        }
-//        map.put("pdd_pid", daParam.getPddPid());
-//        map.put("tb_pid",daParam.getTbPid());
-//        map.put("tb_rid", daParam.getTbChannelId());
-//        map.put("jd_pid",daParam.getJdPid());
-//        map.put("jd_union",daParam.getJdUnionId());
 
         for (Map.Entry<String, String> entry : map.entrySet()) {
             key.append(entry.getKey()).append(entry.getValue());
@@ -148,11 +171,18 @@ public class KuService {
         }
         String jsonStr = jsonObject.toJSONString();
         log.info("提交的JSOn字符串:"+jsonStr);
-
-        return JSON.parseObject(convertUnicodeToCh(HttpUtils.doPost(KU_API_V3, jsonStr.toString())));
+        TkParseCodeVO codeVO = JSON.parseObject(convertUnicodeToCh(HttpUtil.post(KU_API_V3, jsonStr.toString())), TkParseCodeVO.class);
+        if(codeVO.getCode() == 200) {
+            codeVO.setCode(0);
+            //京东goodsId为空，需要使用skuId替换
+            TkParseVO parseVO = codeVO.getData();
+            if(parseVO != null && parseVO.getPlatType() == 2 && org.apache.commons.lang3.StringUtils.isBlank(parseVO.getGoodsId())) {
+                parseVO.setGoodsId(parseVO.getSkuId());
+            }
+        }
+        return codeVO;
 
     }
-
 
     public JSONObject shortLink(String link) throws UnsupportedEncodingException {
         /**
@@ -680,4 +710,54 @@ public class KuService {
                 JSONObject.class);
         return re.getBody();
     }
+
+
+    /**
+     * 京东详情页使用搜索接口搜索加密id得到
+     *
+     * @param param the param
+     * @return the jd ku goods detail data vo
+     */
+    public JdKuCommonGoodsDetailDataVo detailJD(GoodsListJDParam param) {
+        JdKuSearchListVO listVO = searchBaseJD(param, null);
+        JdKuCommonGoodsDetailDataVo commonSearchListVO = new JdKuCommonGoodsDetailDataVo();
+        if(CollectionUtils.isNotEmpty(listVO.getData())) {
+            commonSearchListVO.setData(JdKuCommonGoodsDetailVO.convert(listVO.getData().get(0)));
+        }
+        commonSearchListVO.setCode(listVO.getCode());
+        commonSearchListVO.setMsg(listVO.getMsg());
+        return commonSearchListVO;
+    }
+    /**
+     * 搜索京东商品
+     *
+     * @param param the param
+     * @return the jd ku goods detail data vo
+     */
+    private JdKuSearchListVO searchBaseJD(GoodsListJDParam param, Integer sortKu) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("apikey=");
+        sb.append(key);
+        sb.append("&min_id=");
+        sb.append(param.getPageId());
+        if(param.getPageSize() != null) {
+            sb.append("&back=");
+            sb.append(param.getPageSize());
+        }
+        //这里可以传京东商品加密id
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(param.getKeyword())) {
+            sb.append("&keyword=");
+            sb.append(param.getKeyword());
+        }
+        if(sortKu != null) {
+            sb.append("&sort=");
+            sb.append(sortKu);
+        }
+        ResponseEntity<String> re = restTemplate.getForEntity("http://v2.api.haodanku.com/jd_goods_search?" + sb, String.class);
+
+        JdKuSearchListVO listVO = JSON.parseObject(re.getBody(), JdKuSearchListVO.class);
+        return listVO;
+    }
+
+
 }

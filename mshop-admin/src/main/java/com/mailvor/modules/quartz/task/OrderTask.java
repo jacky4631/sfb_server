@@ -2,6 +2,8 @@ package com.mailvor.modules.quartz.task;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.jd.open.api.sdk.domain.kplunion.OrderService.response.query.OrderRowQueryResult;
+import com.jd.open.api.sdk.domain.kplunion.OrderService.response.query.OrderRowResp;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.modules.dataoke.dto.OrderListGetResponseOrderListDTO;
 import com.mailvor.modules.meituan.MeituanService;
@@ -78,6 +80,9 @@ public class OrderTask {
     private JdConfig jdConfig;
 
     @Resource
+    protected JdService jdService;
+
+    @Resource
     protected IGenerator generator;
 
     @Resource
@@ -144,15 +149,23 @@ public class OrderTask {
      * 写数据时只能覆盖已经提交了的数据 （没有脏写）
      * */
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    protected Integer saveJd(QueryJdParam param) {
-        param.setKey(jdConfig.getKey());
-        JdResVo res = dataokeService.queryJdList(param);
-        if(res != null && res.getData() != null && res.getData().getList() != null && !res.getData().getList().isEmpty()) {
-            ArrayList<MailvorJdOrder> orders = res.getData().getList();
+    public Integer saveJd(QueryJdParam param) {
+        //这里历史数据根据下单时间type=1查询 实时数据根据更新时间type=3查询
+        OrderRowQueryResult queryResult = jdService.order(param);
+
+        if(queryResult != null && queryResult.getData() != null && queryResult.getData().length > 0) {
+            OrderRowResp[] resps = queryResult.getData();
+
+            List<MailvorJdOrder> orders = JSON.parseArray(JSON.toJSONString(resps), MailvorJdOrder.class);
             //过滤父订单
             Map<Long, Long> parentIdMap = new HashMap<>();
 
             orders.stream().forEach(order -> {
+                //设置商品id
+                if(order.getGoodsInfo() != null) {
+                    order.getGoodsInfo().setGoodsId(order.getItemId());
+                }
+
                 if(order.getParentId() != 0) {
                     parentIdMap.put(order.getParentId(), order.getParentId());
                 }
@@ -161,28 +174,24 @@ public class OrderTask {
                     order.setSkuId(System.currentTimeMillis());
                 }
                 //绑定用户
-                Long uid = OrderUtil.getJdOrderUser(order.getPositionId());
+                Long uid = OrderUtil.getJdOrderUser(order.getSubUnionId());
                 if(uid > 0) {
                     order.setUid(uid);
                     //设置需要刷新今日预估的用户uid
                     RedisUtil.setFeeUid(uid);
                 }
             });
-            List<MailvorJdOrder> filterOrders = orders.stream().filter(mailvorJdOrder -> {
-                Long orderId = mailvorJdOrder.getOrderId();
-                return !parentIdMap.containsKey(orderId);
-            }).collect(Collectors.toList());
 
             try {
                 //某些情况
-                boolean saved = jdOrderService.saveOrUpdateBatch(filterOrders);
+                boolean saved = jdOrderService.saveOrUpdateBatch(orders);
                 log.debug(saved? "京东订单保存成功": "京东订单保存失败");
             }catch (Exception e) {
                 log.error("京东订单保存失败 {}", e);
             }
         }
-        if(res != null && res.getData() != null) {
-            return res.getData().getHasMore();
+        if(queryResult != null && queryResult.getHasMore() != null) {
+            return queryResult.getHasMore() ? 1 : 0;
         }
         return 0;
     }

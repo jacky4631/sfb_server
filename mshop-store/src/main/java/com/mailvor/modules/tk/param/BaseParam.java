@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018-2024
+ * Copyright (C) 2018-2025
  * All rights reserved, Designed By www.mailvor.com
  */
 package com.mailvor.modules.tk.param;
@@ -13,7 +13,7 @@ import java.io.Serializable;
 
 @Data
 @ApiModel("查询参数对象")
-public abstract class BaseParam implements Serializable{
+public class BaseParam implements Serializable{
     private static final long serialVersionUID = -3263921252635611410L;
 
     @ApiModelProperty(value = "页码,默认为1")

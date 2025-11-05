@@ -4,7 +4,7 @@ package com.mailvor.modules.tk.util;
 import cn.hutool.core.util.ReUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.mailvor.utils.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpRequestRetryHandler;
@@ -69,7 +69,7 @@ public class HttpUtil {
                 })
                 .setDefaultRequestConfig(RequestConfig.custom()
                         .setCookieSpec(CookieSpecs.STANDARD).build())
-                .setConnectionManager(cm).setConnectionManagerShared(true).build();
+                .setConnectionManager(cm).build();
     }
 
     /**

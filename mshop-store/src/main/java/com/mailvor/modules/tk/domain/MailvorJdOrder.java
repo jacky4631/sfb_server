@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018-2024
+ * Copyright (C) 2018-2025
  * All rights reserved, Designed By www.mailvor.com
  */
 package com.mailvor.modules.tk.domain;
@@ -145,13 +145,12 @@ public class MailvorJdOrder extends TkOrder {
     /** 团长渠道ID */
     private Long rid;
 
-    /** 微信用户json信息 */
+    /** 京东商品信息 */
     @TableField(typeHandler = FastjsonTypeHandler.class)
     private GoodsInfoDto GoodsInfo;
 
-
-
-
+    @TableField(exist = false)
+    private String itemId;
 
     public void copy(MailvorJdOrder source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

@@ -15,15 +15,30 @@ import com.mailvor.modules.tk.config.JdConfig;
 import com.mailvor.modules.tk.config.PddConfig;
 import com.mailvor.modules.tk.config.TbConfig;
 import com.mailvor.modules.tk.domain.*;
+import com.mailvor.modules.tk.param.GoodsListDyParam;
+import com.mailvor.modules.tk.param.GoodsListPddParam;
 import com.mailvor.modules.tk.param.ParseContentParam;
+import com.mailvor.modules.tk.param.jd.GoodsListJDParam;
 import com.mailvor.modules.tk.service.mapper.TkOrderMapper;
+import com.mailvor.modules.tk.util.ClipboardParseUtil;
 import com.mailvor.modules.tk.util.HttpUtil;
+import com.mailvor.modules.tk.util.LinkUtil;
+import com.mailvor.modules.tk.util.VipUtil;
+import com.mailvor.modules.tk.vo.*;
+import com.mailvor.modules.tk.vo.jd.JdKuGoodsDetailVO;
+import com.mailvor.modules.tk.vo.jd.JdKuSearchListVO;
+import com.mailvor.modules.tk.vo.pdd.PddSearchListVO;
+import com.mailvor.modules.tk.vo.pdd.PddSearchVO;
+import com.mailvor.modules.tk.vo.vip.VipGoodsDetailDataVo;
+import com.mailvor.modules.tk.vo.vip.VipGoodsDetailVO;
+import com.mailvor.modules.tk.vo.vip.VipWordCodeVO;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.domain.MwUserUnion;
 import com.mailvor.modules.user.service.MwUserService;
 import com.mailvor.modules.user.service.MwUserUnionService;
 import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.DateUtils;
+import com.mailvor.utils.RedisUtil;
 import com.mailvor.utils.StringUtils;
 import com.taobao.api.ApiException;
 import com.taobao.api.DefaultTaobaoClient;
@@ -40,12 +55,14 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
 
 import static com.mailvor.utils.DateUtils.YYYY_MM_DD;
 
@@ -103,137 +120,143 @@ public class TkService {
     private List<String> excludePids;
 
 
-    public JSONObject mixParse(ParseContentParam param, MwUser mwUser) throws UnsupportedEncodingException {
-        JSONObject res = new JSONObject();
-        //当查券内容长度大于800 中止查券
+    public TkParseCodeVO mixParse(ParseContentParam param, MwUser mwUser) {
         String content = param.getContent();
-        if(content.length() > 800) {
+        TkParseCodeVO res = new TkParseCodeVO();
+        //当查券内容长度大于1200 中止查券
+        if(content.length() > ClipboardParseUtil.getContentLimit()) {
             return res;
         }
-        if(content.contains("douyin.com") || content.contains("ɗΌƱϔίǸ") || content.contains("ɖʘȗɏΊɧ")) {
-            JSONObject dyObj = kuService.contentParse(content);
-            log.info("抖音查券结果 {}", dyObj.toJSONString());
-            Object data = dyObj.get("data");
-            if(data != null) {
-                if(data instanceof JSONObject) {
-                    String goodsId = dyObj.getJSONObject("data").getString("goods_id");
-                    if(goodsId !=null){
-                        JSONObject dyGoodsDetail = dataokeService.dyGoodsDetail(goodsId);
-                        if(dyGoodsDetail.getJSONObject("data") != null
-                                && !dyGoodsDetail.getJSONObject("data").getJSONArray("list").isEmpty()){
-                            JSONObject dyDetail = dyGoodsDetail.getJSONObject("data").getJSONArray("list").getJSONObject(0);
-                            res.put("code", 0);
-                            String dyPassword = dyObj.getJSONObject("data").getString("dyPassword");
-                            res.put("data", HttpUtil.parseDyDetail(dyDetail, goodsId, content,dyPassword));
-                        }
-                    }
-                }
-            }
-
-        } else if(content.contains("vip.com") || content.contains("m.vipglobal.hk")) {
-            String goodsId = HttpUtil.parseVipLink(param.getContent());
-            String openId = TkUtil.getVipOpenId(mwUser);
-            JSONObject vipRes = dataokeService.goodsDetailVIP(goodsId, openId);
-            if(vipRes != null && vipRes.getJSONArray("data") != null && !vipRes.getJSONArray("data").isEmpty()) {
-                JSONObject vipDetail = vipRes.getJSONArray("data").getJSONObject(0);
-                res.put("code", 0);
-                String buyLink = "";
-                try {
-                    JSONObject vipWords = dataokeService.goodsWordVIP(vipDetail.getString("destUrl"),
-                            openId,
-                            TkUtil.getVipGenRequest(openId, vipDetail.getString("adCode")));
-                    buyLink = vipWords.getJSONObject("data").getJSONArray("urlInfoList").getJSONObject(0).getString("url");
-                }catch (Exception e) {
-                    e.printStackTrace();
-                }
-                res.put("data", HttpUtil.parseVipDetail(vipDetail, goodsId, content, buyLink));
-            }
-        } else {
+        Matcher excludeMatcher = ClipboardParseUtil.getExcludePattern().matcher(content);
+        if(excludeMatcher.find()) {
+            return res;
+        }
+        boolean parseAgain = false;
+        if(ClipboardParseUtil.getTbPattern().matcher(content).find()) {
+            String pid = null;
+            String channelId = null;
+            MwUserUnion userUnion = null;
             if(mwUser != null) {
-                MwUserUnion userUnion = userUnionService.getOne(mwUser.getUid());
-                if(userUnion !=null && StringUtils.isNotBlank(userUnion.getTbPid())) {
-                    param.setTbPid(tbConfig.getChannelPid());
-                    param.setTbChannelId(userUnion.getTbPid());
-                }
-                //只有授权=1才需要传customParam，
-                int auth = pddService.authQuery(mwUser.getUid());
-                if(auth == 1) {
-                    param.setCustomerParameters(pddConfig.getParam(mwUser.getUid()));
-                }
-                param.setPddPid(pddConfig.getPid());
-
-                param.setJdUnionId(jdConfig.getUnionId());
-
-                param.setJdPositionId(mwUser.getUid().toString());
-
-                log.debug("jd mix parse positionId {}", param.getJdPositionId());
+                userUnion = userUnionService.getOne(mwUser.getUid());
             }
-//            res = dataokeService.parseContent(param);
-            //使用好单库替换
-            JSONObject kuRes = kuService.clipboard(param);
-            log.info("好单裤查券内容 {} 返回结果 {}", content, kuRes.toJSONString());
-            //把好单库结构转换成大淘客，保持接口一致
-            res = ku2Da(kuRes, content);
-        }
-        if(res != null && res.getJSONObject("data") != null && res.getJSONObject("data").get("platType") !=null) {
-            String platType = res.getJSONObject("data").getString("platType");
-            if("taobao".equals(platType)) {
-                res.getJSONObject("data").put("platType", "tb");
-            } else if("pdd".equals(platType)) {
-                res.getJSONObject("data").put("parseStatus", 0);
+            //获取pid为了实现自动追单
+            if(userUnion != null && StringUtils.isNotBlank(userUnion.getTbPid())) {
+                //如果渠道id存在使用渠道id，并使用渠道pid
+                pid = tbConfig.getChannelPid();
+                channelId = userUnion.getTbPid();
             }
-        }
-        return res;
-    }
+            if(channelId == null && mwUser != null) {
+                pid = RedisUtil.getPid(mwUser.getUid(), null);
+            }
 
-    public JSONObject mixParse2(ParseContentParam param, MwUser mwUser) {
-        JSONObject res = new JSONObject();
-        //当查券内容长度大于800 中止查券
-        String content = param.getContent();
-        if(content.length() > 800) {
-            return res;
-        }
-        log.info("查券内容 {}", content);
-        if(content.contains("零撸") || content.contains("提现")) {
-            return res;
-        }
-        if(content.contains("vip.com") || content.contains("m.vipglobal.hk")) {
-            String goodsId = HttpUtil.parseVipLink(param.getContent());
-            String openId = TkUtil.getVipOpenId(mwUser);
-            JSONObject vipRes = dataokeService.goodsDetailVIP(goodsId, openId);
-            if(vipRes != null && vipRes.get("data") != null && (vipRes.get("data") instanceof JSONArray) &&
-                    !vipRes.getJSONArray("data").isEmpty()) {
-                JSONObject vipDetail = vipRes.getJSONArray("data").getJSONObject(0);
-                res.put("code", 200);
-                String buyLink = "";
-                try {
-                    JSONObject vipWords = dataokeService.goodsWordVIP(vipDetail.getString("destUrl"),
-                            openId,
-                            TkUtil.getVipGenRequest(openId, vipDetail.getString("adCode")));
-                    buyLink = vipWords.getJSONObject("data").getJSONArray("urlInfoList").getJSONObject(0).getString("url");
-                }catch (Exception e) {
-                    e.printStackTrace();
-                }
-                res.put("data", HttpUtil.parseVipKuDetail(vipDetail, goodsId, content, buyLink));
+            DataokeResVo<GoodsParseVo> resVo = dataokeService.goodsParse(content, pid, channelId);
+            if(resVo.getCode() == 0) {
+                res.setCode(0);
+
+                //优先根据标题使用联盟搜索
+//                List<TkGoodsVO> tkGoodsVOS = tbSearch(content);
+                res.setData(LinkUtil.parseDtkGoodsParse(resVo.getData(), content));
+                log.info("查券返回结果 {}", JSON.toJSONString(res));
+                return res;
+            } else {
+                parseAgain = true;
             }
-        } else {
+        } else if (ClipboardParseUtil.getPddPattern().matcher(content).find()) {
+            //拼多多链接使用大淘客的列表查询接口
+            GoodsListPddParam pddParam = new GoodsListPddParam();
+            pddParam.setKeyword(content);
+            PddSearchListVO pddSearchListVO = dataokeService.goodsListPdd(pddParam);
+            if(pddSearchListVO != null && pddSearchListVO.getData() != null
+                    && org.apache.commons.collections.CollectionUtils.isNotEmpty(pddSearchListVO.getData().getList())) {
+                PddSearchVO pddSearchVO = pddSearchListVO.getData().getList().get(0);
+                res.setCode(0);
+                res.setData(LinkUtil.parsePddDetail(pddSearchVO, content));
+                log.info("查券返回结果 {}", JSON.toJSONString(res));
+                return res;
+            }
+        } else if (ClipboardParseUtil.getJdPattern().matcher(content).find()) {
+            GoodsListJDParam jdParam = new GoodsListJDParam();
+            jdParam.setKeyword(content);
+            JdKuSearchListVO jdKuSearchListVO = kuService.searchJD(jdParam);
+            if(jdKuSearchListVO.getCode()==200 && jdKuSearchListVO.getData().size() > 0) {
+                JdKuGoodsDetailVO jdKuGoodsDetailVO = jdKuSearchListVO.getData().get(0);
+                res.setCode(0);
+                res.setData(LinkUtil.parseJdKuDetail(jdKuGoodsDetailVO, content));
+                log.info("查券返回结果 {}", JSON.toJSONString(res));
+                return res;
+            } else {
+                parseAgain = true;
+            }
+        } else if(ClipboardParseUtil.getDyPattern().matcher(content).find()) {
+            GoodsListDyParam dyParam = new GoodsListDyParam();
+            try {
+                dyParam.setKeyword(URLEncoder.encode(content, "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+            dyParam.setSort(0);
+            dyParam.setPageId(1);
+            dyParam.setPageSize(20);
+
+//            dyParam.setKeyword(content);
+            DySearchListVO dySearchListVO = kuService.dyProductList(dyParam);
+            if(dySearchListVO.getCode() == 200 && org.apache.commons.collections.CollectionUtils.isNotEmpty(dySearchListVO.getData())) {
+                res.setCode(0);
+                DySearchVO dySearchVO = dySearchListVO.getData().get(0);
+                res.setData(LinkUtil.parseDyKuCmsDetail(dySearchVO, dySearchVO.getGoodsId(), content, ""));
+            } else {
+                res.setCode(-1);
+                TkParseVO data = new TkParseVO();
+                data.setOriginContent(content);
+                res.setData(data);
+            }
+        } else if(ClipboardParseUtil.getVipPattern().matcher(content).find()) {
+            String longUrl = LinkUtil.covertToVipLongUrl(content);
+            String goodsId = LinkUtil.parseVipLink(longUrl);
+            if(goodsId != null) {
+                String openId = VipUtil.getVipShopOpenId(mwUser != null ? mwUser.getUid() : null);
+                VipGoodsDetailDataVo vipRes = dataokeService.goodsDetailVIP(goodsId, openId);
+                if(vipRes != null && vipRes.getGoods() != null) {
+                    VipGoodsDetailVO vipDetail = vipRes.getGoods();
+                    res.setCode(0);
+                    String buyLink = "";
+                    try {
+                        VipWordCodeVO vipWords = dataokeService.goodsWordVIP(vipDetail.getDestUrl(),
+                                openId,
+                                TkUtil.getVipGenRequest(openId, vipDetail.getAdCode()));
+                        buyLink = vipWords.getWord().getUrl();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    res.setData(LinkUtil.parseVipKuDetail(vipDetail, goodsId, content, buyLink));
+                }
+            } else {
+                res.setCode(-1);
+                TkParseVO data = new TkParseVO();
+                data.setOriginContent(content);
+                res.setData(data);
+            }
+        }
+        if(parseAgain) {
             //使用好单库替换
             res = kuService.clipboard(param);
 
-            if(res != null && res.getInteger("code") == 200) {
-                res.getJSONObject("data").put("originContent", content);
+            if(res != null && res.getCode() == 0) {
+                res.getData().setOriginContent(content);
             } else {
-                if(res == null) {
-                    res = new JSONObject();
-                }
-                JSONObject data = new JSONObject();
-                data.put("originContent", content);
-                res.put("data", data);
+                res.setCode(-1);
+                TkParseVO data = new TkParseVO();
+                data.setOriginContent(content);
+                res.setData(data);
             }
         }
-        log.info("查券返回结果 {}", res.toJSONString());
+        if(res.getData() == null) {
+            res.setData(TkParseVO.builder().originContent(content).build());
+        }
+        log.info("查券返回结果 {}", JSON.toJSONString(res));
         return res;
     }
+
     @Transactional
     public void submitOrder(String origOrderId, Long uid, boolean checkBinding) throws ExecutionException, InterruptedException {
         log.info("用户{} 提交订单号 {}", uid, origOrderId);

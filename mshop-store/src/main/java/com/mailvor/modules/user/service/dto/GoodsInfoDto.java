@@ -19,4 +19,5 @@ public class GoodsInfoDto {
     private Long productId;
     private String shopName;
     private Long shopId;
+    private String goodsId;
 }
