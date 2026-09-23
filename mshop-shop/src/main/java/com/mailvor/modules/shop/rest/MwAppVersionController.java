@@ -39,8 +39,9 @@ import static com.mailvor.constant.SystemConfigConstants.UPDATE_CONFIG;
 */
 @AllArgsConstructor
 @Api(tags = "商城：app版本管理")
-@RestController
-@RequestMapping("/api/mwAppVersion")
+// ===== [做减法-已屏蔽] APP版本管理，MVP阶段暂不启用；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping("/api/mwAppVersion")
 public class MwAppVersionController {
 
     private final MwAppVersionService versionService;

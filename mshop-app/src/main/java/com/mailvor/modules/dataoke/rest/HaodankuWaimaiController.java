@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
+/**
+ * &#064;description:美团外卖转链、饿了么转链、美团、饿了么活动列表
+ * @author mailvor
+ */
 @RestController
 @RequestMapping("/ku")
 @Slf4j

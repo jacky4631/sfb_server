@@ -6,9 +6,9 @@ spring:
     druid:
       type: com.alibaba.druid.pool.DruidDataSource
       driverClassName: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://xx.xx.32.56:3306/mshop?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&zeroDateTimeBehavior=convertToNull&rewriteBatchedStatements=true
-      username: mshop
-      password: xxxx
+      url: jdbc:mysql://39.106.28.224:3306/rebate?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&zeroDateTimeBehavior=convertToNull&rewriteBatchedStatements=true
+      username: root
+      password: Yzk@2025
 
       # 初始连接数
       initialSize: 5
@@ -51,10 +51,10 @@ spring:
             multi-statement-allow: true
   redis:
     #数据库索引
-    database: 2
-    host: xx.xxx.114.157 # todo Redis服务器地址
-    port: 6379 # Redis服务器连接端口
-    password: xxxx # todo Redis服务器连接密码（默认为空）
+    database: 6
+    host: 39.106.28.224 # todo Redis服务器地址
+    port: 6378 # Redis服务器连接端口
+    password: 123456 # todo Redis服务器连接密码（默认为空）
     #连接超时时间
     timeout: 5000
 
@@ -96,15 +96,15 @@ file:
   maxSize: 100
   avatarMaxSize: 5
 
-# todo 大淘客开放平台key和密钥，最好和mshop-app中的不一致，防止订单采集耗空调用量
+# todo 大淘客开放平台 key 和密钥，最好和 mshop-app 中的不一致，防止订单采集耗空调用量
 dataoke:
-  key: xxxxxxeb094a5
-  secret: xxxxxxcee4a4b9579561ec0722cbd734
+  key: 69cb858ad9dbf
+  secret: daac5e4f8d0107fc69c565b1f66dcd96
   cmsUrl: https://cmscg.dataoke.com/cms-v2
   apiUrl: https://openapi.dataoke.com/api
 # todo 好单库开放平台key
 haodanku:
-  key: xxxxxxE08805
+  key: 8842557FF780
   waimaiKey: xxxxxxE08805
   # todo 好单库付费key
   vip:
@@ -140,25 +140,21 @@ pdd:
   pid: 1784892_252288888
 # todo 淘宝联盟key
 tb:
-  appKey: xxxx3230
-  appSecret: xxxxxxe76575eddfeebxxxxxx8f0f2d2
+  appKey: 35316823
+  appSecret: 61131640d15a04ff65c870198ac4d8bc
   url: https://eco.taobao.com/router/rest
-  # todo 淘宝渠道邀请码
-  inviterCode: XSJL93
+  inviterCode:
   pid:
-    # todo 渠道pid
-    channelPid: mm_52650383_39582271_114587650437
-    # 排除的pid，排除后订单不会保存到数据库
-    excludes: 110957850490,147894334
-    # todo 淘礼金pid 建议和渠道pid分开
-    tljPid: mm_52650383_3088500089_115682150104
-    #todo 动态pid配置，用户未授权渠道时，用这些pid追单
+    # 主推广位（第一个）
+    channelPid: mm_5408367206_3402600332_116250650303
+    # 排除黑名单，无则填 0
+    excludes: 0
+    # 淘礼金专用（第二个）
+    tljPid: mm_5408367206_305100118_1155150289
+    # PID动态池（选两个你的备用位）
     pool:
-      - mm_52650383_39582271_114498650344
-      - mm_52650383_39582271_114502950010
-      - mm_52650383_39582271_114501100159
-      - mm_52650383_39582271_114498800333
-      - mm_52650383_39582271_114499000336
+      - mm_5408367206_305100118_1155150289
+      - mm_5408367206_305100118_11548250498
 # todo 极光推送
 jpush:
   key: xxxxxxdeec4ebxxxxxx31551

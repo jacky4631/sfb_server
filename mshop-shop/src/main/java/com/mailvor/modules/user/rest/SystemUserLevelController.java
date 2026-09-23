@@ -30,8 +30,9 @@ import org.springframework.web.bind.annotation.RestController;
 * @date 2019-12-04
 */
 @Api(tags = "商城：用户等级管理")
-@RestController
-@RequestMapping("api")
+// ===== [做减法-已屏蔽] 会员等级管理，模块下线；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping("api")
 public class SystemUserLevelController {
 
     private final MwSystemUserLevelService mwSystemUserLevelService;

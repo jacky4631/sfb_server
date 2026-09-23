@@ -5,9 +5,9 @@ spring:
     druid:
       # todo 主库数据源
       master:
-        url: jdbc:mysql://xx.xx.32.56:3306/mshop?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
-        username: mshop
-        password: xxxx
+        url: jdbc:mysql://39.106.28.224:3306/rebate?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
+        username: root
+        password: Yzk@2025
       # 从库数据源
       slave:
         # 从数据源开关/默认关闭
@@ -47,10 +47,10 @@ spring:
           config:
             multi-statement-allow: true
   redis:
-    host: xx.xxx.114.157 # todo Redis服务器地址
-    database: 2 # Redis数据库索引（默认为0）
-    port: 6379 # Redis服务器连接端口
-    password: xxxx # todo Redis服务器连接密码（默认为空）
+    host: 39.106.28.224 # todo Redis服务器地址
+    database: 6 # Redis数据库索引（默认为0）
+    port: 6378 # Redis服务器连接端口
+    password: 123456 # todo Redis服务器连接密码（默认为空）
     jedis:
       pool:
         max-active: 8 # 连接池最大连接数（使用负值表示没有限制）
@@ -75,7 +75,7 @@ single:
 
 #是否开启 swagger-ui
 swagger:
-  enabled: true
+  enabled: false
   title: mshop商城移动端API
   serverUrl: http://localhost:8009
   version: 3.3
@@ -88,13 +88,13 @@ file:
   maxSize: 100
   avatarMaxSize: 5
 
-# todo 大淘客key
+# todo 大淘客 key
 dataoke:
-  key: xxxxxxeb094a5
-  secret: xxxxxxcee4a4b9579561ec0722cbd734
+  key: 69cb858ad9dbf
+  secret: daac5e4f8d0107fc69c565b1f66dcd96
 # todo 好单库key
 haodanku:
-  key: xxxxxxE08805
+  key: 8842557FF780
   waimaiKey: xxxxxxE08805
   # todo 好单库付费key
   vip:
@@ -126,36 +126,37 @@ aliyun:
     templateId: "SMS_167xxxxxx"
 # todo 拼多多开放平台key
 pdd:
-  clientId: xxxxxxe0e3b94b52bad28xxxxxxe9c0f
-  clientSecret: xxxxxxa8e131687f1aac5af282xxxxxx99c92639
-  pid: "1784892_252288888"
+  clientId: 4723a89f2764438e8e758bcad4fdf275
+  clientSecret: 3df0674dacb5a1b4118c29943ed4e45b20984220
+  pid: "44222070_317477645"
 # todo 淘宝联盟key
 tb:
-  appKey: xxxx3230
-  appSecret: xxxxxxe76575eddfeebxxxxxx8f0f2d2
+  appKey: 35316823
+  appSecret: 61f31640d15a04ff65c870198ac4d8bc
   url: https://eco.taobao.com/router/rest
+
   # todo 淘宝渠道邀请码
-  inviterCode: XSJL93
+  inviterCode:
   pid:
     # 排除的pid，排除后订单不会保存到数据库
     excludes: 110957850490,147894334
     # todo 渠道pid
-    channelPid: mm_52650383_39582271_114587650437
+    channelPid: mm_5408367206_3402600332_116250650303
     # todo 淘礼金pid 建议和渠道pid分开
-    tljPid: mm_52650383_3088500089_115682150104
+    tljPid: mm_5408367206_3402600332_116250650303
 # todo 极光推送
 jpush:
   key: xxxxxxdeec4ebxxxxxx31551
   secret: xxxxxxdd29fa3xxxxxx922f8
 # todo 京东联盟key
 jd:
-  appKey: xxxxxx4a54919f7e5axxxxxx8436301
-  appSecret: xxxxxxc5a8bc432682xxxxxxe638cb06
+  appKey: e33e4867c3b1256a8f36bc4ace8122b3
+  appSecret: ce5ca83c2e2f4b8a8e3c1a75e9ccdfe8
   server: https://api.jd.com/routerjson
-  siteId: 41xxxxxx62
-  unionId: 10xxxxxx54
+  siteId: 4107351829
+  unionId: 2029793026
   #每年替换一次
-  key: e420xxxxxxb9f8e29ebdee4bfd747b073171892939124xxxxxx252917d117dcc8d858692b111d138
+  key: e7529f83b9008cc04b7096124bbb62910594e1a2d21f2ec9cb6b8ac89a12b7d599f2fb42fdda4d2c
 # todo 闪验一键登录 注册地址https://www.chuanglan.com/control/login
 shanyan:
   android:

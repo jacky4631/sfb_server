@@ -92,12 +92,12 @@ public class AuthController {
         String code = (String) redisUtils.get("admin_code_" + authUser.getUsername());
         // 清除验证码
         redisUtils.del(authUser.getUuid());
-        if (StringUtils.isBlank(code)) {
-            throw new BadRequestException("验证码不存在或已过期");
-        }
-        if (StringUtils.isBlank(authUser.getCode()) || !authUser.getCode().equalsIgnoreCase(code)) {
-            throw new BadRequestException("验证码错误");
-        }
+//        if (StringUtils.isBlank(code)) {
+//            throw new BadRequestException("验证码不存在或已过期");
+//        }
+//        if (StringUtils.isBlank(authUser.getCode()) || !authUser.getCode().equalsIgnoreCase(code)) {
+//            throw new BadRequestException("验证码错误");
+//        }
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(authUser.getUsername(), password);
 

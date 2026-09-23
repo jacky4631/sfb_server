@@ -28,8 +28,9 @@ import javax.annotation.Resource;
  * @date 2022-07-06
  */
 @Api(tags = "商城：额外支出管理")
-@RestController
-@RequestMapping("api")
+// ===== [做减法-已屏蔽] 额外支出管理，MVP阶段暂不启用；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping("api")
 public class ExpendController {
 
     @Resource

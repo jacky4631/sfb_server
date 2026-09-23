@@ -21,6 +21,7 @@
         <module>mshop-db</module>
         <module>mshop-store</module>
         <module>mshop-redis</module>
+        <module>openapi-sdk-java-v1.0.3</module>
     </modules>
 
     <name>MSHOP商城管理系统</name>

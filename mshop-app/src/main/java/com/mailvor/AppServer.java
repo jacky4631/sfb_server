@@ -40,7 +40,7 @@ public class AppServer {
                         "                                       **            \n"+
                         "                                       **            \n"+
                         "                                       **            \n"+
-                        "\n迈沃电商系统移动端API启动成功 \n官网：https://www.mailvor.com 提供技术支持ﾞ  \n");
+                        "\n移动端API启动成功\n");
     }
 
     @Bean

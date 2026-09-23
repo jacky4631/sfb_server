@@ -31,7 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2019-10-27
  */
 @Slf4j
-@RestController
+// ===== [做减法-已屏蔽] 积分商城（积分确认），模块下线；恢复时取消下方注释即可 =====
+//@RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Api(value = "订单模块", tags = "商城：订单模块")
 public class PointsOrderController {
@@ -45,10 +46,10 @@ public class PointsOrderController {
     /**
      * 判断积分是否足够
      */
-    @AppLog(value = "积分确认", type = 1)
-    @AuthCheck
-    @PostMapping("/integral/confirm")
-    @ApiOperation(value = "积分确认", notes = "积分确认")
+//    @AppLog(value = "积分确认", type = 1)
+//    @AuthCheck
+//    @PostMapping("/integral/confirm")
+//    @ApiOperation(value = "积分确认", notes = "积分确认")
     public ApiResult<Boolean> confirm(@Validated @RequestBody ConfirmIntegralParam param) {
         MwUser mwUser = LocalUser.getUser();
         return ApiResult.ok(suStoreOrderService.confirmIntegral(mwUser, param.getId()));

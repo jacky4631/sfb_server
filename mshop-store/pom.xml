@@ -18,6 +18,13 @@
             <artifactId>mshop-tool</artifactId>
             <version>5.1.0</version>
         </dependency>
+
+        <!-- 大淘客官方SDK -->
+        <dependency>
+            <groupId>com.dtk</groupId>
+            <artifactId>dtk-java-open-platform-sdk</artifactId>
+            <version>1.0.3</version>
+        </dependency>
         <dependency>
             <groupId>com.pdd</groupId>
             <artifactId>pop-sdk</artifactId>
@@ -37,7 +44,7 @@
             <artifactId>open-api-sdk</artifactId>
             <version>2.0</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/jd-api-sdk-java-20250925.jar</systemPath>
+            <systemPath>${project.basedir}/../lib/jd-api-sdk-java-20260810.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.yinsheng</groupId>
@@ -74,6 +81,9 @@
         <dependency>
             <groupId>com.yeepay.yop.sdk</groupId>
             <artifactId>yop-java-sdk-biz</artifactId>
+            <version>4.3.3</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/yop-java-sdk-biz-4.3.3.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
@@ -89,6 +99,9 @@
         <dependency>
             <groupId>com.sankuai.shepherd</groupId>
             <artifactId>meituan-union-java</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/meituan-union-java-1.0-SNAPSHOT.jar</systemPath>
         </dependency>
     </dependencies>
 

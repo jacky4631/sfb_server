@@ -96,66 +96,12 @@ public class TkUtil {
     }
 
     public static BigDecimal getUserHbTimes(MwUser user, String platform, List<MwSystemUserLevel> levels) {
-        //todo 这里系统只能增加两个级别，一个是默认等级 一个是店主等级
-        if(user == null || levels.size() != 2) {
-            return BigDecimal.valueOf(1L);
-        }
-        Integer userLevel;
-        if("pdd".equals(platform) && user.getLevelPdd() > 0) {
-            userLevel = user.getLevelPdd();
-        }else if("jd".equals(platform) && user.getLevelJd() > 0) {
-            userLevel = user.getLevelJd();
-        }else if("dy".equals(platform) && user.getLevelDy() > 0) {
-            userLevel = user.getLevelDy();
-        }else if("vip".equals(platform) && user.getLevelVip() > 0) {
-            userLevel = user.getLevelVip();
-        } else {
-            //当其他平台会员不存在时，默认读取tb会员
-            userLevel = user.getLevel();
-        }
-
-        MwSystemUserLevel firstLevel = levels.get(0);
-        MwSystemUserLevel sLevel = levels.get(1);
-
-        MwSystemUserLevel baseLevel;
-        MwSystemUserLevel shopLevel;
-        if(firstLevel.getGrade() > sLevel.getGrade()) {
-            baseLevel = sLevel;
-            shopLevel = firstLevel;
-        } else {
-            baseLevel = firstLevel;
-            shopLevel = sLevel;
-        }
-        //用户等级和基础等级相同，没有星选会员奖励 就是1
-        if(userLevel == baseLevel.getGrade()) {
-            return BigDecimal.valueOf(1L);
-        }
-        //计算比例 当前自身比例 是基础比例的倍数，并加1 ，算出基础比例佣金
-        //红包金额直接除以这个倍数 就可以计算基础红包，然后相减就是店长红包
-        return NumberUtil.div(shopLevel.getDiscount(), baseLevel.getDiscount());
+        // 不做会员体系，统一返回倍数1（无额外倍数加成）
+        return BigDecimal.ONE;
     }
     public static BigDecimal getPlatformHbTimes(List<MwSystemUserLevel> levels) {
-        //todo 这里系统只能增加两个级别，一个是默认等级 一个是店主等级
-        if(levels.size() != 2) {
-            return BigDecimal.valueOf(1L);
-        }
-
-        MwSystemUserLevel firstLevel = levels.get(0);
-        MwSystemUserLevel sLevel = levels.get(1);
-
-        MwSystemUserLevel baseLevel;
-        MwSystemUserLevel shopLevel;
-        if(firstLevel.getGrade() > sLevel.getGrade()) {
-            baseLevel = sLevel;
-            shopLevel = firstLevel;
-        } else {
-            baseLevel = firstLevel;
-            shopLevel = sLevel;
-        }
-
-        //计算比例 当前自身比例 是基础比例的倍数，并加1 ，算出基础比例佣金
-        //红包金额直接除以这个倍数 就可以计算基础红包，然后相减就是店长红包
-        return NumberUtil.div(shopLevel.getDiscount(), baseLevel.getDiscount());
+        // 不做会员体系，统一返回倍数1（无额外倍数加成）
+        return BigDecimal.ONE;
     }
     public static BigDecimal getBaseHb(BigDecimal hb) {
         return OrderUtil.getRoundFee(hb);

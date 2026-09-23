@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 本地生活
+ */
 @RestController
 @RequestMapping("/ku")
 @Slf4j

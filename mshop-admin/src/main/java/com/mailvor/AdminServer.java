@@ -46,7 +46,7 @@ public class AdminServer {
                         "                                       **            \n"+
                         "                                       **            \n"+
                         "                                       **            \n"+
-                    "\n迈沃电商系统管理后台启动成功 \n官网：https://www.mailvor.com 提供技术支持ﾞ  \n");
+                    "\n电商系统管理后台启动成功\n");
     }
 
     @Bean

@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
+/**
+ * 抖音接口
+ * @author mailvor
+ */
 @RestController
 @RequestMapping("/dy")
 @Slf4j
@@ -22,20 +26,40 @@ public class DataokeDyController {
     @Resource
     private DataokeService service;
 
+    /**
+     * 抖音商品搜索
+     * @param goodQueryParam
+     * @return
+     */
 
     @Resource
     private MwUserService userService;
+    /**
+     * 抖音商品详情
+     * @param goodsId
+     * @return
+     */
     @GetMapping(value = "/goods/search")
     public JSONObject getGoodsSearch(GoodsSearchDyParam goodQueryParam) {
 
         return service.dyGoodsSearch(goodQueryParam);
     }
+    /**
+     * 抖音词包查询
+     * @param productUrl
+     * @return
+     */
     @GetMapping(value = "/goods/detail")
     public JSONObject getGoodsDetail(String goodsId) {
 
         return service.dyGoodsDetail(goodsId);
     }
 
+    /**
+     * 抖音词包查询
+     * @param productUrl
+     * @return
+     */
     @UserCheck
     @GetMapping(value = "/word")
     public JSONObject dyWord(String productUrl, @RequestParam(required = false) Long uid) {

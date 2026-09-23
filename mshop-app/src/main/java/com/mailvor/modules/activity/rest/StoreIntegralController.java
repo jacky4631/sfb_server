@@ -20,8 +20,9 @@ import java.util.List;
  * @author mshop
  */
 @Slf4j
-@RestController
-@RequestMapping
+// ===== [做减法-已屏蔽] 积分商城（积分兑换商品列表），模块下线；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping
 @Api(value = "积分兑换", tags = "营销:积分兑换")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StoreIntegralController {
@@ -31,8 +32,8 @@ public class StoreIntegralController {
     /**
      * 获取积分产品列表
      */
-    @GetMapping("/products/integral")
-    @ApiOperation(value = "获取积分产品列表",notes = "获取积分产品列表")
+//    @GetMapping("/products/integral")
+//    @ApiOperation(value = "获取积分产品列表",notes = "获取积分产品列表")
     public ApiResult<List<MwStoreProductQueryVo>> goodsList(MwStoreProductQueryParam productQueryParam){
         return ApiResult.ok(storeProductService.getGoodsList(productQueryParam));
     }

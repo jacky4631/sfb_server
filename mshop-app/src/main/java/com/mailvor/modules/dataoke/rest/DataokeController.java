@@ -42,6 +42,9 @@ import java.util.List;
 import static com.mailvor.constant.SystemConfigConstants.TLJ_KEY;
 import static com.mailvor.modules.tk.constants.TkConstants.HOME_DATA_CATEGORY_TB;
 
+/**
+ *
+ */
 @RestController
 @RequestMapping("/tao")
 @Slf4j
@@ -85,23 +88,47 @@ public class DataokeController {
         return config;
     }
 
+    /**
+     * 获取商品列表
+     *
+     * @param goodQueryParam the good query param
+     * @return the good list
+     */
     @GetMapping(value = "/goods/list")
     public JSONObject getGoodList(GoodsListParam goodQueryParam) {
 
         return service.goodsList(goodQueryParam);
     }
 
+    /**
+     * 商品搜索
+     *
+     * @param goodQueryParam the good query param
+     * @return the good list
+     */
     @GetMapping(value = "/goods/search")
     public JSONObject goodsSearch(GoodsSearchParam goodQueryParam) {
 
         return service.goodsSearch(goodQueryParam);
     }
+    /**
+     * 获取商品详情
+     *
+     * @param goodsId the goods id
+     * @return the good detail
+     */
     @GetMapping(value = "/goods/detail")
     public JSONObject getGoodsDetail(String goodsId) {
 
         return service.goodsDetail(goodsId);
     }
 
+    /**
+     * 获取商品评论列表
+     *
+     * @param param the param
+     * @return the comment list
+     */
     @GetMapping(value = "/goods/comment/list")
     public JSONObject getCommentList(GoodsCommentParam param) {
 
@@ -109,8 +136,7 @@ public class DataokeController {
     }
 
     /**
-     * Goods word json object.
-     *
+     * 获取商品解析
      * @param goodsId the goods id
      * @param type    默认传空， type=share时，说明分享生成的口令，pid需要绑定更长时间，5小时，
      * @param uid 如果uid存在不等于0说明是店铺订单
@@ -149,12 +175,23 @@ public class DataokeController {
 
     }
 
+    /**
+     * 获取商品口令
+     *
+      * @param content the content
+     * @return the json object
+     */
     @GetMapping(value = "/goods/parse")
     public DataokeResVo<GoodsParseVo> goodsParse(String content) {
 
         return service.goodsParse(content, null, null);
     }
 
+    /**
+     * 获取商品分类
+     *
+     * @return the json object
+     */
     @GetMapping(value = "/goods/category")
     public JSONObject getCategory() {
         JSONObject homeCategory = (JSONObject) redisUtils.get(HOME_DATA_CATEGORY_TB);
@@ -167,18 +204,34 @@ public class DataokeController {
         return homeCategory;
     }
 
+    /**
+     * 获取商品分类
+     *
+     * @return the json object
+     */
     @GetMapping(value = "/topic/list")
     public JSONObject getTopic() {
 
         return service.getTopic();
     }
 
+    /**
+     * 获取商品分类
+     *
+     * @return the json object
+     */
     @GetMapping(value = "/banner/list")
     public JSONObject getBanner() {
 
         return service.getBanner();
     }
 
+    /**
+     * 获取淘宝活动列表
+     *
+     * @param param the param
+     * @return the json object
+     */
 
     @GetMapping(value = "/activity/list")
     public JSONObject getTbActivityList(TbActivityListParam param) {
@@ -186,6 +239,12 @@ public class DataokeController {
         return service.getTbActivityList(param);
     }
 
+    /**
+     * 解析淘宝活动口令
+     *
+     * @param param the param
+     * @return the json object
+     */
     @UserCheck
     @GetMapping(value = "/activity/parse")
     public JSONObject parseTbActivityList(TbActivityParseParam param) {
@@ -202,6 +261,12 @@ public class DataokeController {
         return service.parseTbActivity(param);
     }
 
+    /**
+     * 解析内容
+     *
+     * @param param the param
+     * @return the json object
+     */
     @UserCheck
     @PostMapping(value = "/parse/content")
     public TkParseCodeVO parseContentPost(@RequestBody ParseContentParam param) {
@@ -209,23 +274,49 @@ public class DataokeController {
         return tkService.mixParse(param, mwUser);
     }
 
+    /**
+     * 获取相似商品
+     *
+     * @param id    商品id
+     * @param size  默认10
+     * @return the json object
+     */
     @GetMapping(value = "/goods/similar/list")
     public JSONObject getGoodSimilarList(@RequestParam String id, @RequestParam(defaultValue = "10") String size) {
 
         return service.goodsSimilarList(id, size);
     }
 
+    /**
+     * 获取秒杀商品
+     *
+     * @param roundTime 圆时间
+     * @return the json object
+     */
     @GetMapping(value = "/ddq")
     public JSONObject ddq(@RequestParam String roundTime) {
 
         return service.ddq(roundTime);
     }
 
+    /**
+     * 获取商品排名
+     *
+     * @param param the param
+     * @return the json object
+     */
     @GetMapping(value = "/ranking/list")
     public JSONObject rankingList(RankingListParam param) {
         return service.rankingList(param);
     }
 
+    /**
+     * 店铺转换
+     *
+     * @param shopId   店铺id
+     * @param shopName 店铺名称
+     * @return the json object
+     */
     @UserCheck
     @GetMapping(value = "/shop/convert")
     public JSONObject shopConvert(String shopId, String shopName) {
@@ -248,6 +339,13 @@ public class DataokeController {
         return service.shopConvert(shopId, shopName, pid, channelId);
     }
 
+    /**
+     * 获取品牌列表
+     *
+     * @param cid    分类id
+     * @param pageId 页码
+     * @return the json object
+     */
     @GetMapping(value = "/brand/list")
     public JSONObject getBrandList(Integer cid, Integer pageId) {
         if(cid == 0) {
@@ -258,11 +356,25 @@ public class DataokeController {
         return service.getBrandList(cid, pageId);
     }
 
+    /**
+     * 获取品牌商品列表
+     *
+     * @param brandId  品牌id
+     * @param pageId   页码
+     * @param pageSize 每页数量
+     * @return the json object
+     */
     @GetMapping(value = "/brand/goods/list")
     public JSONObject getBrandGoodsList(String brandId, Integer pageId, Integer pageSize) {
 
         return service.getBrandGoodsList(brandId, pageId, pageSize);
     }
+    /**
+     * 获取淘礼金商品列表
+     *
+     * @param goodQueryParam the good query param
+     * @return the json object
+     */
     @UserCheck
     @GetMapping(value = "/tlj/goods/list")
     public JSONObject getZeroGoodList(GoodsListParam goodQueryParam) throws ApiException {
@@ -300,8 +412,9 @@ public class DataokeController {
         }
         return res;
     }
+
     /**
-     * Goods word json object.
+     * 获取淘礼金商品口令
      *
      * @param goodsId the goods id
      * @return the json object

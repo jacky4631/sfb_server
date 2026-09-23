@@ -55,6 +55,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.mailvor.config.PayConfig.PAY_NAME;
@@ -106,6 +107,37 @@ public class AuthController {
         return ApiResult.ok(authService.authPhone(phone)).setMsg("获取成功");
     }
 
+    /**
+     * 小程序登录：wx.login 的 code 换取 JWT
+     */
+    @PostMapping("/wxapp/login")
+    @ApiOperation(value = "小程序登录", notes = "小程序登录")
+    public ApiResult<Map<String, Object>> wxappLogin(@Validated @RequestBody WxMiniLoginParam param,
+                                                     HttpServletRequest request) {
+        MwUser user = authService.wechatMiniLogin(param.getCode());
+
+        String token = JwtToken.makeToken(user.getUid(), user.getUsername());
+        // 保存在线信息，@AuthCheck 接口(如 /wxapp/binding)校验依赖此记录
+        authService.save(user, token, request);
+        if (singleLogin) {
+            //踢掉之前已经登录的token
+            authService.checkLoginOnUser(user.getUsername(), token);
+        }
+
+        Map<String, Object> userInfo = new LinkedHashMap<>(4);
+        userInfo.put("uid", user.getUid());
+        userInfo.put("nickname", user.getNickname());
+        userInfo.put("avatar", user.getAvatar());
+        userInfo.put("phone", user.getPhone());
+
+        Map<String, Object> data = new LinkedHashMap<>(3);
+        data.put("token", token);
+        data.put("userInfo", userInfo);
+        data.put("needBindPhone", StrUtil.isBlank(user.getPhone()));
+
+        return ApiResult.ok(data).setMsg("登录成功");
+    }
+
     @ApiOperation("H5登录授权")
     @PostMapping(value = "/login")
     public ApiResult<Map<String, Object>> login(@Validated @RequestBody HLoginParam loginDTO,HttpServletRequest request) {
@@ -144,21 +176,21 @@ public class AuthController {
     @ApiOperation("APP验证码登录")
     @PostMapping(value = "/login/mobile")
     public ApiResult<Map<String, Object>> loginVerify(@Validated @RequestBody LoginVerifyParam loginVerifyParam, HttpServletRequest request) {
-        Object codeObj = redisUtil.get("code_" + loginVerifyParam.getAccount());
-        if(systemConfigService.getAppLoginWhitelist().contains(loginVerifyParam.getAccount())) {
-            if(!"1234".equals(loginVerifyParam.getCaptcha())) {
-                throw new MshopException("验证码错误");
-            }
-        } else {
-            if(codeObj == null){
-                log.error("手机号{} 获取验证码失败", loginVerifyParam.getAccount());
-                throw new MshopException("请先获取验证码");
-            }
-            String code = codeObj.toString();
-            if (!StrUtil.equals(code, loginVerifyParam.getCaptcha())) {
-                throw new MshopException("验证码错误");
-            }
-        }
+//        Object codeObj = redisUtil.get("code_" + loginVerifyParam.getAccount());
+//        if(systemConfigService.getAppLoginWhitelist().contains(loginVerifyParam.getAccount())) {
+//            if(!"1234".equals(loginVerifyParam.getCaptcha())) {
+//                throw new MshopException("验证码错误");
+//            }
+//        } else {
+//            if(codeObj == null){
+//                log.error("手机号{} 获取验证码失败", loginVerifyParam.getAccount());
+//                throw new MshopException("请先获取验证码");
+//            }
+//            String code = codeObj.toString();
+//            if (!StrUtil.equals(code, loginVerifyParam.getCaptcha())) {
+//                throw new MshopException("验证码错误");
+//            }
+//        }
         return mobileLogin(loginVerifyParam, request);
     }
 

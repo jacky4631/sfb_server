@@ -21,6 +21,11 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * @author huangyu
+ * @date 2019-01-07
+ * @description: 大淘客配置
+ */
 @Component
 @Data
 public class DataokeConfig {

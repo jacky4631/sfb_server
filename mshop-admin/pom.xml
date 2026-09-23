@@ -34,6 +34,32 @@
             <artifactId>mshop-shop</artifactId>
             <version>5.1.0</version>
         </dependency>
+        <!-- 显式声明底层模块依赖，修复 system-scope 导致的传递依赖断裂 -->
+        <dependency>
+            <groupId>com.mailvor</groupId>
+            <artifactId>mshop-db</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mailvor</groupId>
+            <artifactId>mshop-system</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mailvor</groupId>
+            <artifactId>mshop-tool</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mailvor</groupId>
+            <artifactId>mshop-log</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mailvor</groupId>
+            <artifactId>mshop-redis</artifactId>
+            <version>5.1.0</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>

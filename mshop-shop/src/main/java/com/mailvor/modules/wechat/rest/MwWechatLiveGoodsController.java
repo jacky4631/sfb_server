@@ -37,8 +37,9 @@ import java.util.Arrays;
 */
 @AllArgsConstructor
 @Api(tags = "微信：直播间商品管理")
-@RestController
-@RequestMapping("/api/mwWechatLiveGoods")
+// ===== [做减法-已屏蔽] 直播间商品管理，MVP阶段暂不启用；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping("/api/mwWechatLiveGoods")
 public class MwWechatLiveGoodsController {
 
     private final MwWechatLiveGoodsService mwWechatLiveGoodsService;

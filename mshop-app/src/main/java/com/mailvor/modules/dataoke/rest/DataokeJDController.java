@@ -35,6 +35,12 @@ public class DataokeJDController {
     @Resource
     private JdService jdService;
 
+    /**
+     * 获取京东商品详情
+     * @param goodsId
+     * @param itemId
+     * @return
+     */
     @GetMapping(value = "/goods/detail")
     public JSONObject getGoodsDetail(@RequestParam(required = false) String goodsId,
                                      @RequestParam(required = false) String itemId) {
@@ -42,6 +48,11 @@ public class DataokeJDController {
         return service.goodsDetailJD(goodsId, itemId);
     }
 
+    /**
+     * 获取京东商品转链口令
+     * @param param
+     * @return
+     */
     @UserCheck
     @GetMapping(value = "/goods/word")
     public ApiResult<JdUnionCommonGoodsWordVO> goodsWord2(@Valid GoodsJdWordParam param) {
@@ -58,6 +69,12 @@ public class DataokeJDController {
         return ApiResult.ok(daRes);
 
     }
+    /**
+     * 获取京东商品榜单
+     * @param param
+     * @return
+     * @throws Exception
+     */
     @GetMapping(value = "/rank/list")
     public JdUnionCommonGoodsListVO getRankList(GoodsListJDParam param) throws Exception {
         return jdService.listRank(param);

@@ -19,6 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
+/**
+ * 唯品会接口控制器
+ * @author mailvor
+ * @date 2023/7/10
+ */
 @RestController
 @RequestMapping("/vip")
 @Slf4j
@@ -26,6 +31,11 @@ public class DataokeVipController {
     @Resource
     private DataokeService service;
 
+    /**
+     * 获取商品列表
+     * @param param
+     * @return
+     */
     @UserCheck
     @GetMapping(value = "/goods/list")
     public VipSearchListVO getGoodList(GoodsListVipParam param) {
@@ -40,6 +50,11 @@ public class DataokeVipController {
         return service.goodsListVip(param);
     }
 
+    /**
+     * 搜索商品
+     * @param param
+     * @return
+     */
     @UserCheck
     @GetMapping(value = "/goods/search")
     public JSONObject getGoodsSearch(GoodsSearchVipParam param) {
@@ -53,12 +68,24 @@ public class DataokeVipController {
         return service.vipGoodsSearch(param);
     }
 
+    /**
+     * 获取商品详情
+     * @param goodsId
+     * @return
+     */
     @UserCheck
     @GetMapping(value = "/goods/detail")
     public ApiResult<VipGoodsDetailDataVo> getGoodsDetail(String goodsId) {
         MwUser mwUser = LocalUser.getUser();
         return ApiResult.ok(service.goodsDetailVIP(goodsId, TkUtil.getVipOpenId(mwUser)));
     }
+    /**
+     * 获取商品关键词
+     * @param itemUrl
+     * @param statParam
+     * @param adCode
+     * @return
+     */
     @UserCheck
     @GetMapping(value = "/goods/word")
     public ApiResult<VipWordCodeVO> goodsWord(String itemUrl, String statParam, String adCode) {

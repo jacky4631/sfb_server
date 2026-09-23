@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.services;
 
+import cn.binarywang.wx.miniapp.api.WxMaService;
+import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson.JSONObject;
@@ -15,6 +17,7 @@ import com.mailvor.enums.AppFromEnum;
 import com.mailvor.modules.activity.service.MwUserExtractService;
 import com.mailvor.modules.auth.param.RegParam;
 import com.mailvor.modules.auth.param.WechatLoginParam;
+import com.mailvor.modules.mp.config.WxMaConfiguration;
 import com.mailvor.modules.mp.config.WxMpConfiguration;
 import com.mailvor.modules.shop.domain.MwSystemAttachment;
 import com.mailvor.modules.shop.service.MwSystemAttachmentService;
@@ -492,6 +495,81 @@ public class AuthService {
         return appLogin(wxService, code, PAY_NAME);
 
 
+    }
+
+    /**
+     * 小程序登录
+     * 通过 wx.login 返回的 code 换取 openid/session_key，按 openid 建/匹配用户，
+     * 并将 session_key 写入 Redis，供后续小程序绑定手机号(/wxapp/binding)解密使用。
+     *
+     * @param code wx.login 返回的 code
+     * @return 登录用户
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public MwUser wechatMiniLogin(String code) {
+        WxMaService wxMaService = WxMaConfiguration.getWxMaService();
+        WxMaJscode2SessionResult session;
+        try {
+            session = wxMaService.getUserService().getSessionInfo(code);
+        } catch (WxErrorException e) {
+            log.error("小程序登录失败:{}", e.getMessage());
+            throw new MshopException("微信登录失败");
+        }
+        String openid = session.getOpenid();
+        String sessionKey = session.getSessionKey();
+        String unionid = session.getUnionid();
+        if (StrUtil.isBlank(openid) || StrUtil.isBlank(sessionKey)) {
+            throw new MshopException("微信登录失败");
+        }
+
+        //如果开启了UnionId，优先用unionid匹配（与公众号/APP登录保持一致）
+        String matchId = StrUtil.isNotBlank(unionid) ? unionid : openid;
+        MwUserUnion userUnion = userUnionService.getByOpenId(matchId);
+
+        String ip = IpUtil.getRequestIp();
+        MwUser user;
+        if (userUnion == null) {
+            user = MwUser.builder()
+                    .username(openid)
+                    .nickname("微信用户")
+                    .avatar(ShopConstants.MSHOP_DEFAULT_AVATAR)
+                    .addIp(ip)
+                    .lastIp(ip)
+                    .level(3)
+                    .levelJd(3)
+                    .levelPdd(3)
+                    .levelVip(3)
+                    .levelDy(3)
+                    .userType(AppFromEnum.ROUNTINE.getValue())
+                    .status(1)
+                    .code(getCode())
+                    .build();
+            userService.save(user);
+
+            WechatUserDto wechatUserDTO = WechatUserDto.builder()
+                    .nickname(user.getNickname())
+                    .openid(openid)
+                    .unionId(unionid)
+                    .language("")
+                    .headimgurl(user.getAvatar())
+                    .subscribe(false)
+                    .subscribeTime(0L)
+                    .build();
+            userUnionService.save(user.getUid(), wechatUserDTO);
+        } else {
+            user = userService.getById(userUnion.getUid());
+            if (user == null) {
+                throw new MshopException("用户不存在");
+            }
+            user.setLastIp(ip);
+            userService.updateById(user);
+        }
+
+        //关键：写 session_key 到 Redis，键与 /wxapp/binding 读取端(MSHOP_MINI_SESSION_KET + uid)一致
+        long expire = expiredTimeIn == null ? 0L : expiredTimeIn.longValue();
+        RedisUtil.set(ShopConstants.MSHOP_MINI_SESSION_KET + user.getUid(), sessionKey, expire);
+
+        return user;
     }
 
 

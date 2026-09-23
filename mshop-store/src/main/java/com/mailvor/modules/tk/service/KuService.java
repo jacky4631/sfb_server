@@ -754,7 +754,7 @@ public class KuService {
             sb.append(sortKu);
         }
         ResponseEntity<String> re = restTemplate.getForEntity("http://v2.api.haodanku.com/jd_goods_search?" + sb, String.class);
-
+        log.info("京东搜索接口返回结果：{}", Objects.requireNonNull(JSONObject.parse(re.getBody())));
         JdKuSearchListVO listVO = JSON.parseObject(re.getBody(), JdKuSearchListVO.class);
         return listVO;
     }

@@ -30,8 +30,9 @@ import java.util.Arrays;
 */
 @AllArgsConstructor
 @Api(tags = "商城：美团订单管理")
-@RestController
-@RequestMapping("/api/mailvorMtOrder")
+// ===== [做减法-已屏蔽] 美团订单管理，MVP阶段暂不启用美团平台；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping("/api/mailvorMtOrder")
 public class MailvorMtOrderController {
 
     private final MailvorMtOrderService mtOrderService;

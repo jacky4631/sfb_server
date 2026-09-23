@@ -30,8 +30,9 @@ import java.util.Arrays;
 */
 @AllArgsConstructor
 @Api(tags = "商城：唯品会订单管理")
-@RestController
-@RequestMapping("/api/mailvorVipOrder")
+// ===== [做减法-已屏蔽] 唯品会订单管理，MVP阶段暂不启用唯品会平台；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping("/api/mailvorVipOrder")
 public class MailvorVipOrderController {
 
     private final MailvorVipOrderService mailvorVipOrderService;

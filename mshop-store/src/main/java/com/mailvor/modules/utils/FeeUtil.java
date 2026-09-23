@@ -4,6 +4,7 @@ import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson.JSON;
 import com.mailvor.enums.PlatformEnum;
 import com.mailvor.modules.shop.domain.MwSystemUserLevel;
+import com.mailvor.modules.tk.util.CommissionUtil;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.domain.MwUserFeeLog;
 import com.mailvor.modules.user.domain.MwUserFeeLogOpt;
@@ -152,14 +153,11 @@ public class FeeUtil {
 
 
     public static BigDecimal getScale(Map<String, MwSystemUserLevel> systemUserLevelMap, String platform, Integer level) {
-        MwSystemUserLevel userLevel = systemUserLevelMap.get(platform);
-        if(userLevel == null) {
-            return BigDecimal.ZERO;
-        }
+        // 不再依赖VIP等级的discountOne/discountTwo，统一使用80%佣金比例
         if(level == 1) {
-            return userLevel.getDiscountOne();
+            return CommissionUtil.getSelfCommissionRatio();
         }
-        return userLevel.getDiscountTwo();
+        return CommissionUtil.getShareCommissionRatio();
     }
 
     public static MwUserFeeLogOpt initFeeLogOpt(Long uid) {

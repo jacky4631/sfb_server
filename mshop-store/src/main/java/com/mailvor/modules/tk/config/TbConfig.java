@@ -21,6 +21,7 @@ public class TbConfig {
     private String channelPid;
     @Value("${tb.pid.tljPid}")
     private String tljPid;
+    // 邀请码，用于生成邀请链接
     @Value("${tb.inviterCode}")
     private String inviterCode;
 

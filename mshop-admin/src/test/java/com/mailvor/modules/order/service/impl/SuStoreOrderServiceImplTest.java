@@ -24,10 +24,9 @@ class SuStoreOrderServiceImplTest {
     }
     @Test
     void calIntegral() {
-        MwSystemUserLevel mwUserLevel = new MwSystemUserLevel();
-        mwUserLevel.setDiscount(BigDecimal.valueOf(45));
-        BigDecimal bigDecimal = orderService.calIntegral(mwUserLevel, 2.98);
-        Assertions.assertEquals(bigDecimal, BigDecimal.valueOf(134));
+        // 不再依赖VIP等级，统一使用80%佣金比例
+        BigDecimal bigDecimal = orderService.calIntegral(null, 2.98);
+        Assertions.assertEquals(bigDecimal, BigDecimal.valueOf(238));
     }
 
     @Test

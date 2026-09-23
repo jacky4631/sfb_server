@@ -27,6 +27,7 @@ import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.tk.config.TbConfig;
 import com.mailvor.modules.tk.domain.*;
 import com.mailvor.modules.tk.service.*;
+import com.mailvor.modules.tk.util.CommissionUtil;
 import com.mailvor.modules.tools.utils.CashUtils;
 import com.mailvor.modules.user.config.AppDataConfig;
 import com.mailvor.modules.user.config.HbUnlockConfig;
@@ -206,14 +207,12 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
             return;
         }
 
-        //根据用户当前等级获取会员详情
-        MwSystemUserLevel systemUserLevel = systemUserLevelService.getUserLevel(userInfo, platformEnum.getValue());
-        if(systemUserLevel == null) {
-            return;
-        }
+        //根据用户当前等级获取会员详情 — 不再依赖VIP等级，直接计算
+        // MwSystemUserLevel systemUserLevel = systemUserLevelService.getUserLevel(userInfo, platformEnum.getValue());
+        // if(systemUserLevel == null) { return; }
 
         //扣除一级返佣
-        BigDecimal feeOne = getFeeOne(systemUserLevel, hb);
+        BigDecimal feeOne = getFeeOne(hb);
         BigDecimal newMoney = NumberUtil.sub(userInfo.getNowMoney(), feeOne);
         //当上级积分不够扣的时候 扣到0，负数会报错
         if(newMoney.compareTo(BigDecimal.ZERO) < 0) {
@@ -242,12 +241,10 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
             return;
         }
 
-        //根据用户当前等级获取会员详情
-        MwSystemUserLevel preSystemLevel = systemUserLevelService.getUserLevel(preUser, platformEnum.getValue());
-        if(preSystemLevel == null) {
-            return;
-        }
-        BigDecimal feeTwo = getFeeTwo(preSystemLevel, hb);
+        //根据用户当前等级获取会员详情 — 不再依赖VIP等级，直接计算
+        // MwSystemUserLevel preSystemLevel = systemUserLevelService.getUserLevel(preUser, platformEnum.getValue());
+        // if(preSystemLevel == null) { return; }
+        BigDecimal feeTwo = getFeeTwo(hb);
         BigDecimal preNewMoney = NumberUtil.sub(preUser.getNowMoney(), feeTwo);
         //当上级余额不够扣的时候 扣到0，负数会报错
         if(preNewMoney.compareTo(BigDecimal.ZERO) < 0) {
@@ -266,25 +263,19 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
                 orderId, orderCreateTime);
     }
 
-    protected BigDecimal getFeeOne(MwSystemUserLevel systemUserLevel, BigDecimal hb) {
-        BigDecimal discountOne = systemUserLevel.getDiscountOne();
-        return NumberUtil.div(NumberUtil.mul(hb, discountOne), 100);
+    protected BigDecimal getFeeOne(BigDecimal hb) {
+        return CommissionUtil.calculateShareCommission(hb);
     }
 
-    protected BigDecimal getFeeTwo(MwSystemUserLevel systemUserLevel, BigDecimal hb) {
-        BigDecimal discountTwo = systemUserLevel.getDiscountTwo();
-        return NumberUtil.div(NumberUtil.mul(hb, discountTwo), 100);
+    protected BigDecimal getFeeTwo(BigDecimal hb) {
+        return CommissionUtil.calculateShareCommission(hb);
     }
 
     @Override
     public BigDecimal calIntegral(MwSystemUserLevel userLevel, double preFee) {
-        BigDecimal discount = BigDecimal.valueOf(30);
-        if(userLevel != null) {
-            discount = userLevel.getDiscount();
-        }
-
-        double integral = preFee*discount.intValue();
-
+        // 不做会员体系，统一使用80%佣金比例计算积分
+        BigDecimal discount = CommissionUtil.getSelfCommissionRatio();
+        double integral = preFee * discount.intValue();
         return BigDecimal.valueOf((int)integral);
     }
     /**
@@ -315,18 +306,13 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
             return;
         }
 
-        //根据用户当前等级获取会员详情
-        MwSystemUserLevel systemUserLevel = systemUserLevelService.getUserLevel(levelOneUser, platformEnum.getValue());
-        if(systemUserLevel == null) {
-            return;
-        }
-        //计算一级返佣
-        BigDecimal discountOne = systemUserLevel.getDiscountOne();
-        BigDecimal feeOne = OrderUtil.getRoundFee(NumberUtil.div(NumberUtil.mul(hb, discountOne), 100));
+        //计算一级返佣 — 使用统一佣金比例（默认80%），不再依赖VIP等级
+        BigDecimal feeOne = CommissionUtil.calculateShareCommission(hb);
+        int shareRatio = CommissionUtil.getShareCommissionRatio().intValue();
 //        levelOneUser.setNowMoney(NumberUtil.add(levelOneUser.getNowMoney(), feeOne));
 //        userService.updateById(levelOneUser);
         //增加流水
-        String mark = TkUtil.getOrderBillMark(origUser.getNickname(), platformEnum.getDesc(), orderId, orderHb, discountOne.intValue(),
+        String mark = TkUtil.getOrderBillMark(origUser.getNickname(), platformEnum.getDesc(), orderId, orderHb, shareRatio,
                 feeOne.doubleValue(), 1);
         billService.income(spreadUid, origUser.getUid(),
                 TkUtil.getOrderBillTitle(origUser.getNickname(), platformEnum.getDesc(), 1),
@@ -361,22 +347,17 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
             return;
         }
 
-        //根据用户当前等级获取会员详情
-        MwSystemUserLevel preSystemLevel = systemUserLevelService.getUserLevel(preUser, platformEnum.getValue());
-
-        if(preSystemLevel == null) {
-            return;
-        }
-
-        BigDecimal discountTwo = preSystemLevel.getDiscountTwo();
-        BigDecimal feeTwo = OrderUtil.getRoundFee(NumberUtil.div(NumberUtil.mul(hb, discountTwo), 100));
-        preUser.setNowMoney(NumberUtil.add(preUser.getNowMoney(), feeTwo));
-        userService.updateById(preUser);
+        //计算二级返佣 — 使用统一佣金比例（默认80%），不再依赖VIP等级
+        BigDecimal feeTwo = CommissionUtil.calculateShareCommission(hb);
+        int shareRatio = CommissionUtil.getShareCommissionRatio().intValue();
+        //二级佣金改为待解锁账单（与一级一致），不再直接加余额
+        // preUser.setNowMoney(NumberUtil.add(preUser.getNowMoney(), feeTwo));
+        // userService.updateById(preUser);
 
         //增加流水
         String mark = TkUtil.getOrderBillMark(baseUser.getNickname(),
                 platformEnum.getDesc(),
-                orderId, orderHb, discountTwo.intValue(),
+                orderId, orderHb, shareRatio,
                 feeTwo.doubleValue(), 2);
         billService.income(preUid, origUid, TkUtil.getOrderBillTitle(baseUser.getNickname(),
                         platformEnum.getDesc(), 2), BillDetailEnum.CATEGORY_1.getValue(),
@@ -645,46 +626,7 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
                 mark, linkid, orderCreateTime, IS_ORDER_STATUS_1.getValue(), unlockTime);
     }
 
-    public double getHb(Double commission, String platform, MwUser user) {
-        Integer level = TkUtil.getLevel(platform, user);
-
-        if(PlatformEnum.TB.getValue().equals(platform)) {
-            Integer tbScale = Integer.parseInt(systemConfigService.getData(SystemConfigConstants.TK_TB_REBATE_SCALE));
-            //如果是淘宝，扣除服务费
-            commission = commission*tbScale/100;
-        }
-        List<MwSystemUserLevel> systemUserLevels = systemUserLevelService.getPlatformLevels(platform);
-        MwSystemUserLevel curLevel = systemUserLevels.stream()
-                .filter(userLevel -> userLevel.getGrade() == level).findFirst().orElse(null);
-        BigDecimal curRate;
-        if(curLevel != null) {
-            curRate = curLevel.getDiscount();
-        } else {
-            curRate = BigDecimal.valueOf(70);
-        }
-
-        //乘以拆红包的佣金比例
-        Double hb = CashUtils.getHb(commission, (curRate.doubleValue()-10)/100, curRate.doubleValue()/100);
-
-        //红包最小0.1
-//        hb = NumberUtil.round(hb+0.1, 2).doubleValue();
-
-        //防止佣金过大
-        if(hb > commission*4) {
-            hb = hb/2;
-        }
-        if(hb > commission*4) {
-            hb = hb/2;
-        }
-        //如果退款超过3次，红包直接再除以8
-        Integer refund = poolService.getRefund(user.getUid());
-        if(refund != null && refund >=3) {
-            hb = NumberUtil.round(hb/8, 2).doubleValue();
-        }
-        hb = NumberUtil.round(hb, 2).doubleValue();
-
-        return hb;
-    }
+    // getHb() 已废弃 — 红包模型已替换为固定80%佣金比例，由CommissionUtil统一计算
 
     @Override
     public Map<String, Double> incMoneyAndBindOrder(Long uid, TkOrder order, Date unlockTime) {
@@ -718,7 +660,22 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         if(isTlj) {
             hb = 1.00;
         } else {
-            hb = getHb(commission, platform.getValue(), user);
+            // 淘宝先扣服务费（保留现有逻辑）
+            BigDecimal commissionBD = BigDecimal.valueOf(commission);
+            if(PlatformEnum.TB.getValue().equals(platform.getValue())) {
+                Integer tbScale = Integer.parseInt(systemConfigService.getData(SystemConfigConstants.TK_TB_REBATE_SCALE));
+                commissionBD = commissionBD.multiply(BigDecimal.valueOf(tbScale))
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+            }
+            // 使用统一佣金比例计算（默认80%），替代原来的随机红包算法
+            BigDecimal selfCommission = CommissionUtil.calculateSelfCommission(commissionBD);
+            hb = selfCommission.doubleValue();
+            // 退款惩罚：退款>=3次，佣金除以8（保留现有反刷单机制）
+            Integer refund = poolService.getRefund(user.getUid());
+            if(refund != null && refund >= 3) {
+                hb = NumberUtil.round(hb / 8, 2).doubleValue();
+            }
+            hb = NumberUtil.round(hb, 2).doubleValue();
         }
         BigDecimal baseHb = TkUtil.getBaseHb(BigDecimal.valueOf(hb));
         order.setHb(baseHb.doubleValue());

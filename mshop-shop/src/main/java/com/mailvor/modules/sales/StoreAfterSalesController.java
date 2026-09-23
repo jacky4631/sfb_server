@@ -33,8 +33,9 @@ import java.util.Map;
  * @author : gzlv 2021/6/29 3:48
  */
 @Api(tags = "商城：售后管理")
-@RestController
-@RequestMapping("/api/mwStoreAfterSales")
+// ===== [做减法-已屏蔽] 售后管理，MVP阶段暂不启用；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping("/api/mwStoreAfterSales")
 @Slf4j
 @SuppressWarnings("unchecked")
 @AllArgsConstructor

@@ -30,8 +30,9 @@ import javax.validation.Valid;
  * @date 2023-04-11
  */
 @Api(tags = "商城：数据配置管理")
-@RestController
-@RequestMapping("api")
+// ===== [做减法-已屏蔽] 数据配置管理，MVP阶段暂不启用；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping("api")
 public class PayCompanyController {
 
     @Resource

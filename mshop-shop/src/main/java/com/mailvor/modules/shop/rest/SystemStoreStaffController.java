@@ -39,8 +39,9 @@ import java.util.Arrays;
 * @date 2020-03-22
 */
 @Api(tags = "商城：门店店员管理")
-@RestController
-@RequestMapping("/api/mwSystemStoreStaff")
+// ===== [做减法-已屏蔽] 门店店员管理，MVP阶段暂不启用；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping("/api/mwSystemStoreStaff")
 public class SystemStoreStaffController {
 
     private final MwSystemStoreStaffService mwSystemStoreStaffService;

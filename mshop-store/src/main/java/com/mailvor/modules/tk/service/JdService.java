@@ -79,6 +79,13 @@ public class JdService {
 //        BigfieldQueryResult queryResult = goodsDetailUnion(itemId);
 //        //todo 后续实现
 //    }
+    /**
+     * 获取商品短链接
+     * @param itemId
+     * @param couponUrl
+     * @param uid
+     * @return
+     */
     @SneakyThrows
     private GetResult goodsWordUnion(String itemId, String couponUrl, String uid) {
         //无权限无法调用
@@ -101,6 +108,13 @@ public class JdService {
         return client.execute(request).getGetResult();
     }
 
+    /**
+     * 获取商品短链接
+     * @param itemId
+     * @param couponUrl
+     * @param uid
+     * @return
+     */
     public JdUnionCommonGoodsWordVO goodsWord(String itemId, String couponUrl, String uid) {
         GetResult getResult = goodsWordUnion(itemId, couponUrl, uid);
         return JdUnionCommonGoodsWordVO.builder()

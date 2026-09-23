@@ -29,10 +29,10 @@ class UserExtractControllerTest {
         mwUser.setRealName("杨玲");
         mwUser.setSpreadUid(1L);
         LocalUser.set(mwUser, 0);
-        UserExtParam param = new UserExtParam();
-        param.setExtractType("weixin");
-        param.setMoney("24.76");
-        param.setName("杨玲");
-        ApiResult result = orderController.addMwUserExtract(null, param);
+//        UserExtParam param = new UserExtParam();
+//        param.setExtractType("weixin");
+//        param.setMoney("24.76");
+//        param.setName("杨玲");
+//        ApiResult result = orderController.addMwUserExtract(null, param);
     }
 }

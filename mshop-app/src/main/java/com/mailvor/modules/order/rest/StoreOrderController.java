@@ -113,28 +113,29 @@ public class StoreOrderController {
 
     @Resource
     private MwSystemConfigService systemConfigService;
-    /**
-     * 订单确认
-     */
-    @AppLog(value = "订单确认", type = 1)
-    @AuthCheck
-    @PostMapping("/order/confirm")
-    @ApiOperation(value = "订单确认", notes = "订单确认")
+    // ===== [做减法-已屏蔽] 积分商城下单/支付入口，模块下线 =====
+//    /**
+//     * 订单确认
+//     */
+//    @AppLog(value = "订单确认", type = 1)
+//    @AuthCheck
+//    @PostMapping("/order/confirm")
+//    @ApiOperation(value = "订单确认", notes = "订单确认")
     public ApiResult<ConfirmOrderVo> confirm(@Validated @RequestBody ConfirmOrderParam param) {
         MwUser mwUser = LocalUser.getUser();
         return ApiResult.ok(storeOrderService.confirmOrder(mwUser, param.getGoodsId()));
 
     }
 
-    /**
-     * 苏分宝在用，积分订单创建
-     * 订单创建
-     */
-    @AppLog(value = "订单创建", type = 1)
-    @AuthCheck
-    @NoRepeatSubmit
-    @PostMapping("/order/create")
-    @ApiOperation(value = "订单创建", notes = "订单创建")
+//    /**
+//     * 苏分宝在用，积分订单创建
+//     * 订单创建
+//     */
+//    @AppLog(value = "订单创建", type = 1)
+//    @AuthCheck
+//    @NoRepeatSubmit
+//    @PostMapping("/order/create")
+//    @ApiOperation(value = "订单创建", notes = "订单创建")
     public ApiResult<Map<String, Object>> create(@Valid @RequestBody OrderParam param) {
         MwUser mwUser = LocalUser.getUser();
         ComputeOrderParam computeOrderParam = new ComputeOrderParam();
@@ -176,13 +177,13 @@ public class StoreOrderController {
     }
 
 
-    /**
-     * 订单支付
-     */
-    @AppLog(value = "订单支付", type = 1)
-    @AuthCheck
-    @PostMapping("/order/pay")
-    @ApiOperation(value = "订单支付", notes = "订单支付")
+//    /**
+//     * 订单支付
+//     */
+//    @AppLog(value = "订单支付", type = 1)
+//    @AuthCheck
+//    @PostMapping("/order/pay")
+//    @ApiOperation(value = "订单支付", notes = "订单支付")
     public ApiResult<Map<String, Object>> pay(@Valid @RequestBody PayParam param) {
         Map<String, Object> map = new LinkedHashMap<>();
         Long uid = LocalUser.getUser().getUid();
@@ -274,11 +275,11 @@ public class StoreOrderController {
         return ApiResult.ok();
     }
 
-    /**
-     * 订单产品信息
-     */
-    @PostMapping("/order/product")
-    @ApiOperation(value = "订单产品信息", notes = "订单产品信息")
+//    /**
+//     * 订单产品信息
+//     */
+//    @PostMapping("/order/product")
+//    @ApiOperation(value = "订单产品信息", notes = "订单产品信息")
     public ApiResult<OrderCartInfoVo> product(@Validated @RequestBody ProductOrderParam param) {
         return ApiResult.ok(orderSupplyService.getProductOrder(param.getUnique()));
     }
@@ -458,7 +459,8 @@ public class StoreOrderController {
         } else {
             tabs.add(new OrderTabFirstDto("用户", false, 1, 0));
         }
-        tabs.add(new OrderTabFirstDto("积分订单", false, 0, null));
+        // [做减法-已屏蔽] 积分商城下线，移除积分订单tab
+        // tabs.add(new OrderTabFirstDto("积分订单", false, 0, null));
         return ApiResult.ok(tabs);
     }
     @AuthCheck

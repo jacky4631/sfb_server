@@ -46,8 +46,9 @@ import java.util.List;
 */
 @AllArgsConstructor
 @Api(tags = "商城：运费模板管理")
-@RestController
-@RequestMapping("/api/mwShippingTemplates")
+// ===== [做减法-已屏蔽] 运费模板管理，MVP阶段暂不启用；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping("/api/mwShippingTemplates")
 public class ShippingTemplatesController {
 
     private final MwShippingTemplatesService mwShippingTemplatesService;

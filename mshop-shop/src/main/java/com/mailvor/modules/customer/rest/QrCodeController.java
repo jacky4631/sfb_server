@@ -35,8 +35,9 @@ import java.net.URLEncoder;
  */
 @Slf4j
 @Api(tags = "微信：基础信息")
-@Controller
-@RequestMapping("/api/wxmp")
+// ===== [做减法-已屏蔽] 微信二维码管理，MVP阶段暂不启用；恢复时取消下方注释即可 =====
+//@Controller
+//@RequestMapping("/api/wxmp")
 @AllArgsConstructor
 public class QrCodeController {
 

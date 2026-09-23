@@ -30,8 +30,9 @@ import org.springframework.web.bind.annotation.RestController;
 * @date 2019-12-12
 */
 @Api(tags = "商城：快递管理")
-@RestController
-@RequestMapping("api")
+// ===== [做减法-已屏蔽] 快递管理，MVP阶段暂不启用；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping("api")
 public class ExpressController {
 
 

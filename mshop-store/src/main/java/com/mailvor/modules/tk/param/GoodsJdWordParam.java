@@ -20,9 +20,9 @@ import lombok.EqualsAndHashCode;
 public class GoodsJdWordParam extends GoodsDetailParam {
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "优惠券链接")
+    @Schema(description = "优惠券领取链接，无优惠券为空")
     private String couponLink;
 
-    @Schema(description = "优惠券链接")
+    @Schema(description = "商品原始物料链接(商品详情地址)，转链必填")
     private String materialUrl;
 }

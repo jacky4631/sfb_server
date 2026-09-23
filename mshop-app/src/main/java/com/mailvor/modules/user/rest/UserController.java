@@ -120,9 +120,10 @@ public class UserController {
         MwUser mwUser = LocalUser.getUser();
         return ApiResult.ok(userUnionService.getOne(mwUser.getUid()));
     }
-    @AuthCheck
-    @GetMapping("/vipinfo")
-    @ApiOperation(value = "获取用户会员信息",notes = "获取用户会员信息",response = MwUserVipQueryVo.class)
+    // ===== [做减法-已屏蔽] 会员信息，模块下线 =====
+//    @AuthCheck
+//    @GetMapping("/vipinfo")
+//    @ApiOperation(value = "获取用户会员信息",notes = "获取用户会员信息",response = MwUserVipQueryVo.class)
     public ApiResult<Object> userVipInfo(){
         MwUser mwUser = LocalUser.getUser();
         return ApiResult.ok(mwUserService.getUserVipInfo(mwUser));
@@ -247,55 +248,55 @@ public class UserController {
     }
 
 
-    /**
-     * 签到用户信息
-     */
-    @AppLog(value = "签到用户信息", type = 1)
-    @AuthCheck
-    @PostMapping("/sign/user")
-    @ApiOperation(value = "签到用户信息",notes = "签到用户信息")
+    // ===== [做减法-已屏蔽] 积分签到，模块下线 =====
+//    /**
+//     * 签到用户信息
+//     */
+//    @AppLog(value = "签到用户信息", type = 1)
+//    @AuthCheck
+//    @PostMapping("/sign/user")
+//    @ApiOperation(value = "签到用户信息",notes = "签到用户信息")
     public ApiResult<MwUserQueryVo> sign(){
         MwUser mwUser = LocalUser.getUser();
         return ApiResult.ok(userSignService.userSignInfo(mwUser));
     }
 
-    /**
-     * 签到配置
-     */
-    @GetMapping("/sign/config")
-    @ApiOperation(value = "签到配置",notes = "签到配置")
+//    /**
+//     * 签到配置
+//     */
+//    @GetMapping("/sign/config")
+//    @ApiOperation(value = "签到配置",notes = "签到配置")
     public ApiResult<Object> signConfig(){
         return ApiResult.ok(systemGroupDataService.getDatas(ShopConstants.MSHOP_SIGN_DAY_NUM));
     }
 
-    /**
-     * 签到列表
-     */
-    @AppLog(value = "查看签到列表", type = 1)
-    @AuthCheck
-    @GetMapping("/sign/list")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "页码,默认为1", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "limit", value = "页大小,默认为10", paramType = "query", dataType = "int")
-    })
-    @ApiOperation(value = "签到列表",notes = "签到列表")
+//    /**
+//     * 签到列表
+//     */
+//    @AppLog(value = "查看签到列表", type = 1)
+//    @AuthCheck
+//    @GetMapping("/sign/list")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "page", value = "页码,默认为1", paramType = "query", dataType = "int"),
+//            @ApiImplicitParam(name = "limit", value = "页大小,默认为10", paramType = "query", dataType = "int")
+//    })
+//    @ApiOperation(value = "签到列表",notes = "签到列表")
     public ApiResult<List<SignVo>> signList(@RequestParam(value = "page",defaultValue = "1") int page,
                                             @RequestParam(value = "limit",defaultValue = "10") int limit){
         Long uid = LocalUser.getUser().getUid();
         return ApiResult.ok(userSignService.getSignList(uid,page,limit));
     }
 
-    /**
-     * 签到列表（年月）
-     */
-
-    @AuthCheck
-    @GetMapping("/sign/month")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "页码,默认为1", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "limit", value = "页大小,默认为10", paramType = "query", dataType = "int")
-    })
-    @ApiOperation(value = "签到列表（年月）",notes = "签到列表（年月）")
+//    /**
+//     * 签到列表（年月）
+//     */
+//    @AuthCheck
+//    @GetMapping("/sign/month")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "page", value = "页码,默认为1", paramType = "query", dataType = "int"),
+//            @ApiImplicitParam(name = "limit", value = "页大小,默认为10", paramType = "query", dataType = "int")
+//    })
+//    @ApiOperation(value = "签到列表（年月）",notes = "签到列表（年月）")
     public ApiResult<Object> signMonthList(@RequestParam(value = "page",defaultValue = "1") int page,
                                            @RequestParam(value = "limit",defaultValue = "10") int limit,
                                            @RequestParam(required = false, value = "month") String month){
@@ -303,14 +304,14 @@ public class UserController {
         return ApiResult.ok(userBillService.getUserBillList(page, limit,uid, BillInfoEnum.SIGN_INTEGRAL.getValue(), month));
     }
 
-    /**
-     * 开始签到
-     */
-    @AppLog(value = "开始签到", type = 1)
-    @NoRepeatSubmit
-    @AuthCheck
-    @PostMapping("/sign/integral")
-    @ApiOperation(value = "开始签到",notes = "开始签到")
+//    /**
+//     * 开始签到
+//     */
+//    @AppLog(value = "开始签到", type = 1)
+//    @NoRepeatSubmit
+//    @AuthCheck
+//    @PostMapping("/sign/integral")
+//    @ApiOperation(value = "开始签到",notes = "开始签到")
     public ApiResult<Object> signIntegral(){
         MwUser mwUser = LocalUser.getUser();
         int integral = userSignService.sign(mwUser);

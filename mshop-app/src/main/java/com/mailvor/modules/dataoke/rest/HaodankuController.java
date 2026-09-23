@@ -20,6 +20,7 @@ import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.RedisUtil;
 import com.mailvor.utils.RedisUtils;
+import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -40,6 +41,12 @@ import java.util.TreeMap;
 
 import static com.mailvor.modules.tk.constants.TkConstants.*;
 
+/**
+ * @author ：yangjie
+ * @date ：Created in 2022/11/21 14:39
+ * @description：好单库接口
+ * @version: 1.0
+ */
 @RestController
 @RequestMapping("/ku")
 @Slf4j
@@ -181,31 +188,113 @@ public class HaodankuController {
                 .getForObject(BANNER_LIST + kuService.getKuCid(), JSONObject.class);
     }
 
+    /**
+     * 9块9分类 - 前端路径 /ku/nine/cate
+     */
+    @GetMapping(value = "/nine/cate")
+    public JSONObject nineCate() {
+        return restTemplate
+                .getForObject(NINE_CATE, JSONObject.class);
+    }
+
+    /**
+     * 9块9商品列表 - 前端路径 /ku/nine/list
+     */
+    @GetMapping(value = "/nine/list")
+    public JSONObject nineList(Integer pageId, Integer pageSize, String cid) {
+        return restTemplate
+                .getForObject(String.format(NINE_LIST, cid, pageId, pageSize), JSONObject.class);
+    }
+
     @GetMapping(value = "/banners")
     public JSONArray banners() {
-        JSONArray homeBanner = (JSONArray) redisUtils.get(HOME_DATA_BANNER);
+        JSONArray homeBanner = normalizeArray(redisUtils.get(HOME_DATA_BANNER));
         if(homeBanner == null) {
-            JSONObject origData = restTemplate
-                    .getForObject(BANNER_LIST + kuService.getKuCid(), JSONObject.class);
-            JSONObject data = origData.getJSONObject("data");
-            homeBanner = data.getJSONArray("banners");
+            JSONObject data = getHomeIndexData();
+            if(data == null) {
+                return new JSONArray();
+            }
+            homeBanner = getArrayOrEmpty(data, "banners");
             redisUtils.set(HOME_DATA_BANNER, homeBanner, HOME_DATA_EXPIRED);
-            redisUtils.set(HOME_DATA_TILES, data.getJSONArray("tile_long"), HOME_DATA_EXPIRED);
+            redisUtils.set(HOME_DATA_TILES, getArrayOrEmpty(data, "tile_long"), HOME_DATA_EXPIRED);
         }
         return homeBanner;
     }
     @GetMapping(value = "/tiles")
     public JSONArray tiles() {
-        JSONArray homeTiles = (JSONArray) redisUtils.get(HOME_DATA_TILES);
+        JSONArray homeTiles = normalizeArray(redisUtils.get(HOME_DATA_TILES));
         if(homeTiles == null) {
-            JSONObject origData = restTemplate
-                    .getForObject(BANNER_LIST + kuService.getKuCid(), JSONObject.class);
-            JSONObject data = origData.getJSONObject("data");
-            homeTiles = data.getJSONArray("tile_long");
-            redisUtils.set(HOME_DATA_BANNER, data.getJSONArray("banners"), HOME_DATA_EXPIRED);
+            JSONObject data = getHomeIndexData();
+            if(data == null) {
+                return new JSONArray();
+            }
+            homeTiles = getArrayOrEmpty(data, "tile_long");
+            redisUtils.set(HOME_DATA_BANNER, getArrayOrEmpty(data, "banners"), HOME_DATA_EXPIRED);
             redisUtils.set(HOME_DATA_TILES, homeTiles, HOME_DATA_EXPIRED);
         }
         return homeTiles;
+    }
+
+    private JSONObject getHomeIndexData() {
+        String kuCid = kuService.getKuCid();
+        if(StringUtils.isBlank(kuCid)) {
+            log.warn("好单库首页配置缺少 cid，跳过 banners/tiles 请求");
+            return null;
+        }
+        JSONObject origData = restTemplate.getForObject(BANNER_LIST + kuCid, JSONObject.class);
+        if(origData == null) {
+            log.warn("好单库首页接口返回为空，cid={}", kuCid);
+            return null;
+        }
+        JSONObject data = normalizeObject(origData.get("data"));
+        if(data == null) {
+            log.warn("好单库首页接口 data 节点格式异常，cid={}, response={}", kuCid, JSON.toJSONString(origData));
+        }
+        return data;
+    }
+
+    private JSONArray getArrayOrEmpty(JSONObject data, String key) {
+        JSONArray jsonArray = normalizeArray(data.get(key));
+        return jsonArray == null ? new JSONArray() : jsonArray;
+    }
+
+    private JSONObject normalizeObject(Object data) {
+        if(data instanceof JSONObject) {
+            return (JSONObject) data;
+        }
+        if(data == null || data instanceof JSONArray) {
+            return null;
+        }
+        try {
+            return JSON.parseObject(JSON.toJSONString(data));
+        } catch (Exception e) {
+            log.warn("转换 JSONObject 失败: {}", data, e);
+            return null;
+        }
+    }
+
+    private JSONArray normalizeArray(Object data) {
+        if(data instanceof JSONArray) {
+            return (JSONArray) data;
+        }
+        if(data == null) {
+            return null;
+        }
+        JSONArray jsonArray = new JSONArray();
+        if(data instanceof JSONObject) {
+            jsonArray.add(data);
+            return jsonArray;
+        }
+        if(data instanceof List) {
+            jsonArray.addAll((List<?>) data);
+            return jsonArray;
+        }
+        try {
+            return JSON.parseArray(JSON.toJSONString(data));
+        } catch (Exception e) {
+            log.warn("转换 JSONArray 失败: {}", data, e);
+            return null;
+        }
     }
 
 

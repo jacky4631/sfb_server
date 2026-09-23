@@ -14,8 +14,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author /
  * 接口限流测试类
  */
-@RestController
-@RequestMapping("/api/limit")
+// ===== [做减法-已屏蔽] 限流测试，MVP阶段暂不启用；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping("/api/limit")
 @Api(tags = "系统：限流测试管理")
 public class LimitController {
 

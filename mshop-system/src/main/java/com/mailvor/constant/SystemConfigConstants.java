@@ -63,6 +63,10 @@ public class SystemConfigConstants {
     public final static String TK_HB_MIN_TIMES="tk_hb_min_times";
     //拆红包最大倍数
     public final static String TK_HB_MAX_TIMES="tk_hb_max_times";
+    //自购佣金比例（百分比，默认80）
+    public final static String COMMISSION_RATIO_SELF="commission_ratio_self";
+    //分享佣金比例（百分比，默认80）
+    public final static String COMMISSION_RATIO_SHARE="commission_ratio_share";
     //提现配置
     public final static String EXTRACT_CONFIG="extract_config";
     //支付配置

@@ -34,8 +34,9 @@ import org.springframework.web.multipart.MultipartFile;
 */
 @AllArgsConstructor
 @Api(tags = "商城：画布管理")
-@RestController
-@RequestMapping("/api/canvas")
+// ===== [做减法-已屏蔽] 画布管理，MVP阶段暂不启用；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping("/api/canvas")
 public class StoreCanvasController {
 
     private final StoreCanvasService storeCanvasService;

@@ -55,7 +55,8 @@ import static com.mailvor.config.PayConfig.PAY_NAME;
  * @since 2019-12-06
  */
 @Slf4j
-@RestController
+// ===== [做减法-已屏蔽] 会员（付费会员等级/等级任务），模块下线；恢复时取消下方注释即可 =====
+//@RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Api(value = "用户等级", tags = "用户:用户等级")
 public class UserLevelController {
@@ -69,9 +70,9 @@ public class UserLevelController {
     /**
      * 会员等级
      */
-    @AuthCheck
-    @GetMapping("/user/level")
-    @ApiOperation(value = "会员等级",notes = "会员等级")
+//    @AuthCheck
+//    @GetMapping("/user/level")
+//    @ApiOperation(value = "会员等级",notes = "会员等级")
     public ApiResult<Object> getUserLevel(){
         Long uid = LocalUser.getUser().getUid();
         MwUserLevel userLevel = userLevelService.getUserLevel(uid, null);
@@ -81,13 +82,13 @@ public class UserLevelController {
         }
         return ApiResult.ok(discount);
     }
-    /**
-    * 会员等级列表
-     * type null或0=加盟 2=月卡
-    */
-    @AuthCheck
-    @GetMapping("/user/level/grade")
-    @ApiOperation(value = "会员等级列表",notes = "会员等级列表")
+//    /**
+//    * 会员等级列表
+//     * type null或0=加盟 2=月卡
+//    */
+//    @AuthCheck
+//    @GetMapping("/user/level/grade")
+//    @ApiOperation(value = "会员等级列表",notes = "会员等级列表")
     public ApiResult<Object> getLevelInfo(){
         //获取所有充值方案
         MwSystemGroupDataQueryCriteria queryCriteria = new MwSystemGroupDataQueryCriteria();
@@ -201,9 +202,9 @@ public class UserLevelController {
     /**
      * 获取等级任务
      */
-    @AuthCheck
-    @GetMapping("/user/level/task/{id}")
-    @ApiOperation(value = "获取等级任务",notes = "获取等级任务")
+//    @AuthCheck
+//    @GetMapping("/user/level/task/{id}")
+//    @ApiOperation(value = "获取等级任务",notes = "获取等级任务")
     public ApiResult<Object> getTask(@PathVariable String id){
         if(StrUtil.isBlank(id) || !NumberUtil.isNumber(id)){
             throw new MshopException("参数非法");

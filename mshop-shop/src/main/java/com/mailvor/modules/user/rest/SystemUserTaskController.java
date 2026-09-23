@@ -33,8 +33,9 @@ import javax.annotation.Resource;
 * @date 2019-12-04
 */
 @Api(tags = "商城：用户任务管理")
-@RestController
-@RequestMapping("api")
+// ===== [做减法-已屏蔽] 会员等级任务管理，模块下线；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping("api")
 public class SystemUserTaskController {
 
     @Resource

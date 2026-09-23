@@ -38,6 +38,7 @@ import com.mailvor.modules.push.service.JPushService;
 import com.mailvor.modules.shop.domain.MwSystemUserLevel;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.tk.service.*;
+import com.mailvor.modules.tk.util.CommissionUtil;
 import com.mailvor.modules.user.config.AppDataConfig;
 import com.mailvor.modules.user.domain.*;
 import com.mailvor.modules.user.service.*;
@@ -406,58 +407,24 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
     public MwCommissionInfoQueryVo getCommissionInfo(MwUser user) {
 
         MwCommissionInfoQueryVo queryVo = new MwCommissionInfoQueryVo();
-        if(user == null) {
-            //如果用户不存在读取默认拆红包比例
-            queryVo.setHbRebateScale(Integer.parseInt(systemConfigService.getData(SystemConfigConstants.TK_HB_REBATE_SCALE)));
-        } else {
-            String open = systemConfigService.getData(SystemConfigConstants.STORE_MULTI_VIP_OPEN);
-            boolean multiVipOpen = !(StrUtil.isBlank(open) || ShopCommonEnum.ENABLE_2.getValue().toString().equals(open));
-            if(multiVipOpen) {
-                List<MwSystemUserLevel> userLevels = systemUserLevelService.list();
-                List<MwSystemUserLevel> tbLevels = new ArrayList<>(2);
-                List<MwSystemUserLevel> jdLevels = new ArrayList<>(2);
-                List<MwSystemUserLevel> pddLevels = new ArrayList<>(2);
-                List<MwSystemUserLevel> dyLevels = new ArrayList<>(2);
-                List<MwSystemUserLevel> vipLevels = new ArrayList<>(2);
-                for(MwSystemUserLevel vo: userLevels) {
-                    if(PlatformEnum.TB.getValue().equals(vo.getType())) {
-                        if(user.getLevel().equals(vo.getGrade())) {
-                            queryVo.setHbRebateScale(vo.getDiscount().intValue());
-                        }
-                        tbLevels.add(vo);
-                    }else if(PlatformEnum.JD.getValue().equals(vo.getType())) {
-                        if(user.getLevelJd().equals(vo.getGrade())) {
-                            queryVo.setJdHbRebateScale(vo.getDiscount().intValue());
-                        }
-                        jdLevels.add(vo);
-                    }else if(PlatformEnum.PDD.getValue().equals(vo.getType())) {
-                        if(user.getLevelPdd().equals(vo.getGrade())) {
-                            queryVo.setPddHbRebateScale(vo.getDiscount().intValue());
-                        }
-                        pddLevels.add(vo);
-                    }else if(PlatformEnum.DY.getValue().equals(vo.getType())) {
-                        if(user.getLevelDy().equals(vo.getGrade())) {
-                            queryVo.setDyHbRebateScale(vo.getDiscount().intValue());
-                        }
-                        dyLevels.add(vo);
-                    }else if(PlatformEnum.VIP.getValue().equals(vo.getType())) {
-                        if(user.getLevelVip().equals(vo.getGrade())) {
-                            queryVo.setVipHbRebateScale(vo.getDiscount().intValue());
-                        }
-                        vipLevels.add(vo);
-                    }
-                }
-                queryVo.setTbTimes(TkUtil.getPlatformHbTimes(tbLevels).doubleValue());
-                queryVo.setJdTimes(TkUtil.getPlatformHbTimes(jdLevels).doubleValue());
-                queryVo.setPddTimes(TkUtil.getPlatformHbTimes(pddLevels).doubleValue());
-                queryVo.setDyTimes(TkUtil.getPlatformHbTimes(dyLevels).doubleValue());
-                queryVo.setVipTimes(TkUtil.getPlatformHbTimes(vipLevels).doubleValue());
-            } else {
-                MwSystemUserLevel systemUserLevel = systemUserLevelService.getById(user.getLevel());
-                queryVo.setHbRebateScale(systemUserLevel.getDiscount().intValue());
-            }
+        // 不做会员体系，统一使用佣金配置比例（默认80%）
+        int commissionRatio = CommissionUtil.getSelfCommissionRatio().intValue();
+        queryVo.setHbRebateScale(commissionRatio);
 
+        if(user != null) {
+            // 各平台佣金比例统一，不再按VIP等级区分
+            queryVo.setJdHbRebateScale(commissionRatio);
+            queryVo.setPddHbRebateScale(commissionRatio);
+            queryVo.setDyHbRebateScale(commissionRatio);
+            queryVo.setVipHbRebateScale(commissionRatio);
+            // 不做会员体系，倍数统一为1
+            queryVo.setTbTimes(1.0);
+            queryVo.setJdTimes(1.0);
+            queryVo.setPddTimes(1.0);
+            queryVo.setDyTimes(1.0);
+            queryVo.setVipTimes(1.0);
         }
+
         queryVo.setTbRebateScale(Integer.parseInt(systemConfigService.getData(SystemConfigConstants.TK_TB_REBATE_SCALE)));
 
         //最大最小倍数默认读当前平台
@@ -649,28 +616,15 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
 
 
     /**
-     * 返回会员价
+     * 返回会员价 — 当前不做VIP体系，直接返回原价
      * @param price 原价
      * @param uid 用户id
-     * @return vip 价格
+     * @return 原价（无折扣）
      */
     @Override
     public double setLevelPrice(double price, long uid) {
-       LambdaQueryWrapper<MwUserLevel> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(MwUserLevel::getStatus, ShopCommonEnum.IS_STATUS_1.getValue())
-                .eq(MwUserLevel::getUid,uid)
-                .orderByDesc(MwUserLevel::getGrade)
-                .last("limit 1");
-        MwUserLevel userLevel = userLevelService.getOne(wrapper);
-        MwSystemUserLevel systemUserLevel = new MwSystemUserLevel();
-        if(ObjectUtil.isNotNull(userLevel)) {
-            systemUserLevel=  systemUserLevelService.getById(userLevel.getLevelId());
-        }
-        int discount = 100;
-        if(ObjectUtil.isNotNull(userLevel)) {
-            discount = systemUserLevel.getDiscount().intValue();
-        }
-        return NumberUtil.mul(NumberUtil.div(discount,100),price);
+        // 不做VIP体系，统一返回原价
+        return price;
     }
 
 

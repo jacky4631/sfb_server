@@ -119,7 +119,12 @@ public class TkService {
     @Value("${tb.pid.excludes}")
     private List<String> excludePids;
 
-
+    /**
+     * 混合解析
+     * @param param
+     * @param mwUser
+     * @return
+     */
     public TkParseCodeVO mixParse(ParseContentParam param, MwUser mwUser) {
         String content = param.getContent();
         TkParseCodeVO res = new TkParseCodeVO();

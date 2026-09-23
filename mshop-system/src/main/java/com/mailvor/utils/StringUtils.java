@@ -9,6 +9,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.UserAgent;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
@@ -20,6 +21,7 @@ import java.util.Date;
  * @author Zheng Jie
  * 字符串工具类, 继承org.apache.commons.lang3.StringUtils类
  */
+@Slf4j
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     private static final char SEPARATOR = '_';
@@ -145,15 +147,54 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
      * 根据ip获取详细地址
      */
     public static String getCityInfo(String ip) {
+        if (isBlank(ip) || isPrivateIp(ip)) {
+            return "";
+        }
         String api = String.format(MshopConstant.Url.IP_URL,ip);
         try {
-            JSONObject object = JSONUtil.parseObj(HttpUtil.get(api));
-            return object.get("addr", String.class);
+            String body = HttpUtil.get(api);
+            if (isBlank(body)) {
+                return "";
+            }
+
+            // 兼容接口返回前后存在无关文本的场景，只提取 JSON 主体。
+            int jsonStart = body.indexOf('{');
+            int jsonEnd = body.lastIndexOf('}');
+            if (jsonStart < 0 || jsonEnd <= jsonStart) {
+                return "";
+            }
+            String json = body.substring(jsonStart, jsonEnd + 1);
+            JSONObject object = JSONUtil.parseObj(json);
+            return defaultString(object.get("addr", String.class));
         }catch (Exception e) {
-            e.printStackTrace();
+            log.debug("IP归属地解析失败, ip={}, error={}", ip, e.getMessage());
             return "";
         }
 
+    }
+
+    /**
+     * 内网/本地地址不走外部归属地查询，避免无意义请求和异常日志。
+     */
+    private static boolean isPrivateIp(String ip) {
+        if ("127.0.0.1".equals(ip) || "::1".equals(ip) || ip.startsWith("169.254.")) {
+            return true;
+        }
+        if (ip.startsWith("10.") || ip.startsWith("192.168.")) {
+            return true;
+        }
+        if (ip.startsWith("172.")) {
+            String[] split = ip.split("\\.");
+            if (split.length > 1) {
+                try {
+                    int second = Integer.parseInt(split[1]);
+                    return second >= 16 && second <= 31;
+                } catch (NumberFormatException ignored) {
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 
     public static String getBrowser(HttpServletRequest request){

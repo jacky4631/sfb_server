@@ -32,8 +32,9 @@ import java.util.Arrays;
 * @date 2020-03-02
 */
 @Api(tags = "商城：充值管理")
-@RestController
-@RequestMapping("/api/mwUserRecharge")
+// ===== [做减法-已屏蔽] 充值管理，MVP阶段暂不启用；恢复时取消下方注释即可 =====
+//@RestController
+//@RequestMapping("/api/mwUserRecharge")
 public class UserRechargeController {
 
     private final MwUserRechargeService mwUserRechargeService;

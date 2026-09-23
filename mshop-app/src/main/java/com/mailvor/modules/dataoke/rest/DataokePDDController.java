@@ -23,6 +23,10 @@ import java.util.List;
 
 import static com.mailvor.modules.tk.constants.TkConstants.HOME_DATA_CATEGORY_PDD;
 
+/**
+ * PDD接口控制器
+ * @author mailvor
+ */
 @RestController
 @RequestMapping("/pdd")
 @Slf4j

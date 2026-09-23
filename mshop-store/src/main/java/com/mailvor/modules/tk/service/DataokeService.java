@@ -4,16 +4,26 @@
  */
 package com.mailvor.modules.tk.service;
 
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import com.dtk.api.client.DtkApiClient;
+import com.dtk.api.request.mastertool.*;
+import com.dtk.api.request.putstorage.DtkGoodsDetailsRequest;
+import com.dtk.api.request.putstorage.DtkGoodsListRequest;
+import com.dtk.api.request.putstorage.DtkJdCommodityDetailsRequest;
+import com.dtk.api.request.putstorage.DtkPddGoodsDetailsRequest;
+import com.dtk.api.request.search.DtkGetDtkSearchGoodsRequest;
+import com.dtk.api.request.search.DtkPddOrderIncrementSearchRequest;
+import com.dtk.api.request.special.*;
+import com.dtk.api.utils.SignMd5Util;
 import com.mailvor.modules.tk.config.DataokeConfig;
 import com.mailvor.modules.tk.config.JdConfig;
 import com.mailvor.modules.tk.config.PddConfig;
 import com.mailvor.modules.tk.param.*;
-import com.mailvor.modules.tk.util.DataokeApi;
-import com.mailvor.modules.tk.util.DataokeApiClient;
+import com.mailvor.modules.tk.util.DtkResponseConverter;
 import com.mailvor.modules.tk.vo.*;
 import com.mailvor.modules.tk.vo.pdd.PddSearchDataVO;
 import com.mailvor.modules.tk.vo.pdd.PddSearchListVO;
@@ -30,39 +40,32 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
+import java.net.URLEncoder;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.mailvor.modules.tk.util.DataokeApi.*;
 import static com.mailvor.modules.utils.TkUtil.EXCLUDE_KEY_WROD_LIST;
 import static com.mailvor.modules.utils.TkUtil.hasWord;
 
 /**
- * @projectName:openapi
- * @author:
- * @createTime: 2019/04/24 14:55
- * @description:
+ * 大淘客服务 - 基于新SDK实现
  */
 @Slf4j
 @Component
 public class DataokeService {
-    private static TypeReference<DataokeResVo<GoodsListVo>> goodsListTypeRef = new TypeReference<DataokeResVo<GoodsListVo>>(GoodsListVo.class){};
-    private static TypeReference<DataokeResVo<GoodsDetailVo>> goodsDetailTypeRef = new TypeReference<DataokeResVo<GoodsDetailVo>>(GoodsDetailVo.class){};
-    private static TypeReference<DataokeResVo<GoodsWordVo>> goodsWordTypeRef = new TypeReference<DataokeResVo<GoodsWordVo>>(GoodsWordVo.class){};
-    private static TypeReference<DataokeResVo<GoodsParseVo>> goodsParseTypeRef = new TypeReference<DataokeResVo<GoodsParseVo>>(GoodsParseVo.class){};
-    private static TypeReference<TreeMap<String, Object>> mapTypeReference = new TypeReference<TreeMap<String, Object>>() {};
-    private static TypeReference<DataokeResVo<ParseContentVo>> parseContentTypeRef = new TypeReference<DataokeResVo<ParseContentVo>>(ParseContentVo.class){};
+    private static TypeReference<DataokeResVo<GoodsParseVo>> goodsParseTypeRef =
+        new TypeReference<DataokeResVo<GoodsParseVo>>(GoodsParseVo.class){};
 
     private String regStr = "((http|https)://)([\\w-]+\\.)+[\\w$]+(\\/[\\w-?=&./]*)?";
-
     private Pattern pattern = Pattern.compile(regStr);
 
     @Resource
     private DataokeConfig config;
+
+    @Resource
+    private DtkApiClient dtkApiClient;
 
     @Resource
     private PddConfig pddConfig;
@@ -73,126 +76,145 @@ public class DataokeService {
     @Resource
     private PddService pddService;
 
-    public JSONObject goodsList(GoodsListParam param) {
+    // ==================== 商品列表 ====================
 
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.GOODS_LIST.getUrl(), DataokeApi.GOODS_LIST.getVersion(), paraMap);
-        JSONObject jsonObject = JSON.parseObject(data);
-        JSONArray resData = jsonObject.getJSONObject("data").getJSONArray("list");
-        List list = resData.stream().filter(e->{
-            JSONObject obj = (JSONObject) e;
-            String title = obj.getString("dtitle");
-            if(hasWord(title)){
-                return false;
-            }
-            return true;
-        }).collect(Collectors.toList());
-        jsonObject.getJSONObject("data").put("list", list);
+    public JSONObject goodsList(GoodsListParam param) {
+        DtkGoodsListRequest request = new DtkGoodsListRequest();
+        if (param.getPageId() != null) request.setPageId(param.getPageId().toString());
+        if (param.getPageSize() != null) request.setPageSize(param.getPageSize());
+        if (param.getSort() != null) request.setSort(param.getSort());
+        if (param.getCids() != null) request.setCids(param.getCids());
+        if (param.getSubcid() != null) {
+            try { request.setSubcid(Integer.parseInt(param.getSubcid())); }
+            catch (NumberFormatException e) { log.warn("subcid转换失败: {}", param.getSubcid()); }
+        }
+        if (param.getPriceLowerLimit() != null) request.setPriceLowerLimit(new java.math.BigDecimal(param.getPriceLowerLimit()));
+        if (param.getPriceUpperLimit() != null) request.setPriceUpperLimit(new java.math.BigDecimal(param.getPriceUpperLimit()));
+        if (param.getCouponPriceLowerLimit() != null) request.setCouponPriceLowerLimit(new java.math.BigDecimal(param.getCouponPriceLowerLimit()));
+        if (param.getCommissionRateLowerLimit() != null) request.setCommissionRateLowerLimit(new java.math.BigDecimal(param.getCommissionRateLowerLimit()));
+
+        JSONObject jsonObject = DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
+        // 过滤敏感词
+        if (jsonObject.containsKey("data") && jsonObject.getJSONObject("data").containsKey("list")) {
+            JSONArray resData = jsonObject.getJSONObject("data").getJSONArray("list");
+            List list = resData.stream().filter(e -> {
+                JSONObject obj = (JSONObject) e;
+                return !hasWord(obj.getString("dtitle"));
+            }).collect(Collectors.toList());
+            jsonObject.getJSONObject("data").put("list", list);
+        }
         return jsonObject;
     }
-    public DataokeResVo<GoodsListVo> goodsVOS(GoodsListParam param) {
 
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(GOODS_LIST.getUrl(), GOODS_LIST.getVersion(), paraMap);
-        try{
-            return JSON.parseObject(data, goodsListTypeRef);
-        }catch (Exception e) {
-            e.printStackTrace();
+    public DataokeResVo<GoodsListVo> goodsVOS(GoodsListParam param) {
+        JSONObject result = goodsList(param);
+        try {
+            return JSON.parseObject(JSON.toJSONString(result),
+                new TypeReference<DataokeResVo<GoodsListVo>>(GoodsListVo.class){});
+        } catch (Exception e) {
+            log.error("goodsVOS转换失败", e);
         }
         return null;
     }
 
+    // ==================== 商品搜索 ====================
+
     public JSONObject goodsSearch(GoodsSearchParam param) {
         String keyWord = param.getKeyWords().toLowerCase();
-        if(TkUtil.hasWord(keyWord) || EXCLUDE_KEY_WROD_LIST.contains(param.getKeyWords().toLowerCase())){
+        if (TkUtil.hasWord(keyWord) || EXCLUDE_KEY_WROD_LIST.contains(param.getKeyWords().toLowerCase())) {
             JSONObject res = new JSONObject();
             res.put("data", new JSONArray());
             return res;
         }
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.TB_SEARCH.getUrl(), DataokeApi.TB_SEARCH.getVersion(), paraMap);
-        return JSON.parseObject(data);
+        DtkGetDtkSearchGoodsRequest request = new DtkGetDtkSearchGoodsRequest();
+        request.setKeyWords(param.getKeyWords());
+        if (param.getPageNo() != null) request.setPageId(param.getPageNo().toString());
+        if (param.getPageSize() != null) request.setPageSize(param.getPageSize());
+        if (param.getSort() != null) request.setSort(param.getSort());
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
     }
-    public JSONObject goodsDetail(String goodsId) {
 
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("goodsId", goodsId);
-        String data = getData(DataokeApi.GOODS_DETAIL.getUrl(), DataokeApi.GOODS_DETAIL.getVersion(), paraMap);
-        return JSON.parseObject(data);
+    // ==================== 商品详情 ====================
+
+    public JSONObject goodsDetail(String goodsId) {
+        DtkGoodsDetailsRequest request = new DtkGoodsDetailsRequest();
+        request.setGoodsId(goodsId);
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
     }
+
+    // ==================== 高效转链 ====================
 
     public JSONObject goodsWord(String goodsId, String pid, String channelId) {
-
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("goodsId", goodsId);
-        if(StringUtils.isNotBlank(pid)) {
-            paraMap.put("pid", pid);
-        }
-        if(StringUtils.isNotBlank(channelId)) {
-            paraMap.put("channelId", channelId);
-        }
-        String data = getData(DataokeApi.GOODS_WORD.getUrl(), DataokeApi.GOODS_WORD.getVersion(), paraMap);
-        return JSON.parseObject(data);
+        DtkGetPrivilegeLinkRequest request = new DtkGetPrivilegeLinkRequest();
+        request.setGoodsId(goodsId);
+        if (StringUtils.isNotBlank(pid)) request.setPid(pid);
+        if (StringUtils.isNotBlank(channelId)) request.setChannelId(channelId);
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
     }
+
+    // ==================== 万能解析 ====================
+
     public DataokeResVo<GoodsParseVo> goodsParse(String content, String pid, String channelId) {
-
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("content", content);
-        if(org.apache.commons.lang3.StringUtils.isNotBlank(pid)) {
-            paraMap.put("pid", pid);
-        }
-//         大淘客接口问题 这里传渠道id就无法解析
-        if(org.apache.commons.lang3.StringUtils.isNotBlank(channelId)) {
-            paraMap.put("channelId", channelId);
-        }
-        String data = getData(DataokeApi.GOODS_PARSE.getUrl(), DataokeApi.GOODS_PARSE.getVersion(), paraMap);
-        return JSON.parseObject(data, goodsParseTypeRef);
+        DtkParseContentRequest request = new DtkParseContentRequest();
+        request.setContent(content);
+        JSONObject jsonObject = DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
+        return JSON.parseObject(JSON.toJSONString(jsonObject), goodsParseTypeRef);
     }
+
+    // ==================== 超级分类 ====================
+
     public JSONObject getCategory() {
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        String data = getData(DataokeApi.GOODS_CATEGORY.getUrl(), DataokeApi.GOODS_CATEGORY.getVersion(), paraMap);
-        return JSON.parseObject(data);
+        DtkGetSuperCategoryRequest request = new DtkGetSuperCategoryRequest();
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
     }
-    public JSONObject getCommentList(GoodsCommentParam param) {
 
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.GOODS_COMMENT.getUrl(), DataokeApi.GOODS_COMMENT.getVersion(), paraMap);
-        return JSON.parseObject(data);
+    // ==================== 商品评论 ====================
+
+    public JSONObject getCommentList(GoodsCommentParam param) {
+        DtkGoodsCommentListRequest request = new DtkGoodsCommentListRequest();
+        if (param.getGoodsId() != null) request.setGoodsId(param.getGoodsId());
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
     }
+
+    // ==================== 专题/轮播/活动 ====================
+
     public JSONObject getTopic() {
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        String data = getData(DataokeApi.TOPIC_LIST2.getUrl(), DataokeApi.TOPIC_LIST2.getVersion(), paraMap);
-        return JSON.parseObject(data);
+        DtkActivityCatalogueRequest request = new DtkActivityCatalogueRequest();
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
     }
 
     public JSONObject getBanner() {
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        String data = getData(DataokeApi.BANNER.getUrl(), DataokeApi.BANNER.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-    public JSONObject getTbActivityList(TbActivityListParam param) {
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.TB_ACTIVITY_LIST.getUrl(), DataokeApi.TB_ACTIVITY_LIST.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-    public JSONObject parseTbActivity(TbActivityParseParam param) {
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.TB_ACTIVITY_PARSE.getUrl(), DataokeApi.TB_ACTIVITY_PARSE.getVersion(), paraMap);
-        return JSON.parseObject(data);
+        DtkCarouselMapResponseRequest request = new DtkCarouselMapResponseRequest();
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
     }
 
+    public JSONObject getTbActivityList(TbActivityListParam param) {
+        DtkGetTbTopicListRequest request = new DtkGetTbTopicListRequest();
+        if (param.getType() != null) request.setType(param.getType());
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
+    }
+
+    public JSONObject parseTbActivity(TbActivityParseParam param) {
+        DtkActivityLinkRequest request = new DtkActivityLinkRequest();
+        request.setPromotionSceneId(param.getPromotionSceneId());
+        if (StringUtils.isNotBlank(param.getPid())) request.setPid(param.getPid());
+        if (StringUtils.isNotBlank(param.getRelationId())) request.setRelationId(param.getRelationId());
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
+    }
+
+    // ==================== 剪切板解析 ====================
+
     public JSONObject parseContent(ParseContentParam param) {
-        if(param.getContent()!= null && param.getContent().contains("yangkeduo.com")) {
+        if (param.getContent() != null && param.getContent().contains("yangkeduo.com")) {
             try {
-                //修复ios 拼多多查券无法识别的问题，goods_id必须放在?后面
                 param.setContent(parsePddContent(param.getContent()));
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                log.error("解析PDD内容失败", e);
             }
         }
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.GOODS_PARSE_ALL.getUrl(), DataokeApi.GOODS_PARSE_ALL.getVersion(), paraMap);
-        return JSON.parseObject(data);
+        DtkParseContentRequest request = new DtkParseContentRequest();
+        request.setContent(param.getContent());
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
     }
 
     protected String parsePddContent(String content) throws UnsupportedEncodingException {
@@ -204,252 +226,190 @@ public class DataokeService {
         }
         return content;
     }
-    public static void main(String[] args) throws UnsupportedEncodingException {
-        DataokeService service = new DataokeService();
-        String content = service.parsePddContent(
-//                "https://mobile.yangkeduo.com/goods.html?goods_id=410160347693&page_from=29&pxq_secret_key=33TRW3AEOYKNICYPDAMRKZYAIBORSSAIYRVGAPUEYLIBJYGXXFWQ&share_uin=OK3ATMDGM5DQLD75P3625MMMGY_GEXDA&refer_share_id=e7fa4c701d3545a096709154e1b3f17c&refer_share_uin=OK3ATMDGM5DQLD75P3625MMMGY_GEXDA&refer_share_channel=copy_link&refer_share_form=text"
-        "https://mobile.yangkeduo.com/goods2.html?refer_share_id=7hRYk1RcMeDNOBGy1590mIysmB5AZ60n&refer_share_channel=copy_link&pxq_secret_key=RFY2XNUVPFJEMXA6PPGD6UXLEBZYQJYTBWKFKECUFP3BG444E5UQ&_wvx=10&_x_ddjb_act=%7B%22st%22%3A%221%22%7D&_x_ddjb_id=1784892_252288888%7CCC_230129_1784892_252288888_7b316846d52696aba7de6707cc9488b5&_x_ddjb_gs=%7B%22gs_src%22%3A%221%22%2C%22gs_scn%22%3A%223%22%7D&_wv=41729&share_uin=FEHOG3PNIIGI24R2DELMGM34YU_GEXDA&page_from=29&refer_share_uin=FEHOG3PNIIGI24R2DELMGM34YU_GEXDA&_x_customParameters=%7B%22uid%22%3A%226%22%7D&goods_id=410160347693"
-        );
-        System.out.println(content);
+
+    // ==================== 相似商品 ====================
+
+    public JSONObject goodsSimilarList(String id, String size) {
+        DtkListSimilerGoodsByOpenRequest request = new DtkListSimilerGoodsByOpenRequest();
+        request.setId(Integer.parseInt(id));
+        request.setSize(Integer.parseInt(size));
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
     }
 
-    protected String getData(String url, String version, TreeMap<String, Object> paraMap) {
-        return DataokeApiClient.sendReq(
-                url,
-                config.getKey(),
-                config.getSecret(),
-                version,
-                paraMap);
+    // ==================== 咚咚抢 ====================
+
+    public JSONObject ddq(String roundTime) {
+        DtkDdqGoodsListRequest request = new DtkDdqGoodsListRequest();
+        if (StringUtils.isNotBlank(roundTime)) request.setRoundTime(roundTime);
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
     }
+
+    // ==================== 排行榜 ====================
+
+    public JSONObject rankingList(RankingListParam param) {
+        DtkGetRankingListRequest request = new DtkGetRankingListRequest();
+        if (param.getRankType() != null) request.setRankType(param.getRankType());
+        if (param.getPageId() != null) request.setPageId(param.getPageId().toString());
+        if (param.getPageSize() != null) request.setPageSize(param.getPageSize());
+
+        JSONObject jsonObject = DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
+        JSONArray resData = normalizeArray(jsonObject.get("data"));
+        if(resData == null) {
+            log.warn("大淘客榜单 data 节点异常, request={}", JSON.toJSONString(param));
+            jsonObject.put("data", new JSONArray());
+            return jsonObject;
+        }
+        JSONArray list = new JSONArray();
+        list.addAll(resData.stream()
+                .filter(JSONObject.class::isInstance)
+                .map(JSONObject.class::cast)
+                .filter(obj -> !hasWord(obj.getString("title")))
+                .collect(Collectors.toList()));
+        jsonObject.put("data", list);
+        return jsonObject;
+    }
+
+    private JSONArray normalizeArray(Object data) {
+        if(data instanceof JSONArray) return (JSONArray) data;
+        if(data == null) return null;
+        if(data instanceof JSONObject) {
+            JSONArray array = new JSONArray();
+            array.add(data);
+            return array;
+        }
+        try {
+            return JSON.parseArray(JSON.toJSONString(data));
+        } catch (Exception e) {
+            log.warn("转换数组节点失败: {}", data, e);
+            return null;
+        }
+    }
+
+    // ==================== 店铺转链 ====================
+
+    public JSONObject shopConvert(String shopId, String shopName, String pid, String channelId) {
+        DtkShopConvertRequest request = new DtkShopConvertRequest();
+        request.setSellerId(shopId);
+        request.setShopName(shopName);
+        if (StringUtils.isNotBlank(pid)) request.setPid(pid);
+        if (StringUtils.isNotBlank(channelId)) request.setRelationId(channelId);
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
+    }
+
+    // ==================== 品牌 ====================
+
+    public JSONObject getBrandList(Integer cid, Integer pageId) {
+        DtkGetColumnListRequest request = new DtkGetColumnListRequest();
+        request.setCid(cid);
+        request.setPageId(pageId.toString());
+        request.setPageSize(10);
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
+    }
+
+    public JSONObject getBrandGoodsList(String brandId, Integer pageId, Integer pageSize) {
+        DtkGetBrandGoodsListRequest request = new DtkGetBrandGoodsListRequest();
+        request.setBrandId(brandId);
+        request.setPageId(pageId.toString());
+        request.setPageSize(pageSize);
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
+    }
+
+    // ==================== 京东 ====================
 
     public JSONObject goodsDetailJD(String goodsId, String itemId) {
-
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        if(StringUtils.isNotBlank(goodsId) && !"0".equals(goodsId) && !goodsId.equals(itemId)) {
-            paraMap.put("skuIds", goodsId);
+        DtkJdCommodityDetailsRequest request = new DtkJdCommodityDetailsRequest();
+        if (StringUtils.isNotBlank(goodsId) && !"0".equals(goodsId) && !goodsId.equals(itemId)) {
+            request.setSkuIds(goodsId);
         }
-        if(StringUtils.isNotBlank(itemId)) {
-            paraMap.put("itemIds", itemId);
-        }
-        String data = getData(DataokeApi.JD_GOODS_DETAIL.getUrl(), DataokeApi.JD_GOODS_DETAIL.getVersion(), paraMap);
-        return JSON.parseObject(data);
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
     }
-    public VipGoodsDetailDataVo goodsDetailVIP(String goodsId, String openId) {
 
+    public JSONObject goodsWordJD(String itemUrl, String couponUrl, String pid) {
+        DtkJdCommodityTransformLinkRequest request = new DtkJdCommodityTransformLinkRequest();
+        request.setMaterialId(itemUrl);
+        request.setUnionId(jdConfig.getUnionId());
+        if (StringUtils.isNotBlank(couponUrl)) request.setCouponUrl(couponUrl);
+        if (pid != null) {
+            try { request.setPositionId(Long.parseLong(pid)); }
+            catch (NumberFormatException e) { log.warn("pid转换失败: {}", pid); }
+        }
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
+    }
+
+    public JSONObject parseUrlJD(String itemUrl) {
+        DtkJdLinkAnalysisRequest request = new DtkJdLinkAnalysisRequest();
+        request.setUrl(itemUrl);
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
+    }
+
+    // ==================== 拼多多 ====================
+
+    public JSONObject goodsDetailPDD(String goodsSign) {
+        DtkPddGoodsDetailsRequest request = new DtkPddGoodsDetailsRequest();
+        request.setGoodsSign(goodsSign);
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
+    }
+
+    public JSONObject goodsWordPDD(String goodsSign, Long uid) {
+        DtkPddTransformLinkRequest request = new DtkPddTransformLinkRequest();
+        request.setPid(pddConfig.getPid());
+        request.setGoodsSign(goodsSign);
+        if (uid != null) {
+            int auth = pddService.authQuery(uid);
+            if (auth == 1) request.setCustomParameters(pddConfig.getParam(uid));
+        }
+        return DtkResponseConverter.toFullJsonObject(dtkApiClient.execute(request));
+    }
+
+    // ==================== 唯品会 (无SDK对应接口，使用直接HTTP调用) ====================
+
+    public VipSearchListVO goodsListVip(GoodsListVipParam param) {
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param),
+            new TypeReference<TreeMap<String, Object>>() {});
+        String data = executeRawApi("/vip/search-by-keywords", "v1.0.0", paraMap);
+        return JSON.parseObject(data, VipSearchListVO.class);
+    }
+
+    public VipGoodsDetailDataVo goodsDetailVIP(String goodsId, String openId) {
         TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("goodsIdList", "[\"" + goodsId + "\"]");
         JSONObject request = new JSONObject();
-
         request.put("openId", openId);
         request.put("realCall", "true");
         paraMap.put("request", request.toJSONString());
-//        paraMap.put("chanTag", "default_pid");
-
-        String data = getData(DataokeApi.VIP_GOODS_DETAIL.getUrl(), DataokeApi.VIP_GOODS_DETAIL.getVersion(), paraMap);
+        String data = executeRawApi("/vip/goods-detail", "v1.0.0", paraMap);
         VipGoodsDetailDataVo dataVo = JSON.parseObject(data, VipGoodsDetailDataVo.class);
-        if(CollectionUtils.isNotEmpty(dataVo.getData())) {
+        if (CollectionUtils.isNotEmpty(dataVo.getData())) {
             VipGoodsDetailVO detailVO = dataVo.getData().get(0);
             detailVO.setShopName(detailVO.getStoreName());
             dataVo.setGoods(detailVO);
             dataVo.setData(null);
         }
-
         return dataVo;
     }
 
-    public JSONObject goodsWordJD(String itemUrl, String couponUrl, String pid) {
-
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("materialId", itemUrl);
-        if(StringUtils.isNotBlank(couponUrl)) {
-            paraMap.put("couponUrl", couponUrl);
-        }
-        if(pid != null) {
-            paraMap.put("positionId", pid);
-        }
-        paraMap.put("unionId", jdConfig.getUnionId());
-        String data = getData(DataokeApi.JD_GOODS_WORD.getUrl(), DataokeApi.JD_GOODS_WORD.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-
-    public JSONObject parseUrlJD(String itemUrl) {
-
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("url", itemUrl);
-        paraMap.put("unionId", jdConfig.getUnionId());
-        String data = getData(DataokeApi.JD_PARSE_URL.getUrl(), DataokeApi.JD_PARSE_URL.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-    public JSONObject goodsDetailPDD(String goodsSign) {
-
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("goodsSign", goodsSign);
-        String data = getData(DataokeApi.PDD_GOODS_DETAIL.getUrl(), DataokeApi.PDD_GOODS_DETAIL.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-    public JSONObject goodsWordPDD(String goodsSign,Long uid) {
-
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("pid", pddConfig.getPid());
-        paraMap.put("goodsSign", goodsSign);
-        if(uid != null) {
-            int auth = pddService.authQuery(uid);
-            if(auth == 1) {
-                paraMap.put("customParameters", pddConfig.getParam(uid));
-            }
-        }
-        String data = getData(DataokeApi.PDD_GOODS_WORD.getUrl(), DataokeApi.PDD_GOODS_WORD.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-
-    public JSONObject goodsSimilarList(String id, String size) {
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("id", id);
-        paraMap.put("size", size);
-        String data = getData(DataokeApi.GOODS_SIMILAR.getUrl(), DataokeApi.GOODS_SIMILAR.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-
-    public JSONObject ddq(String roundTime) {
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        if(StringUtils.isNotBlank(roundTime)) {
-            paraMap.put("roundTime", roundTime);
-        }
-        String data = getData(DataokeApi.TB_DDQ.getUrl(), DataokeApi.TB_DDQ.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-
-    public JSONObject rankingList(RankingListParam param) {
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.TB_RANK_LIST.getUrl(), DataokeApi.TB_RANK_LIST.getVersion(), paraMap);
-        JSONObject jsonObject = JSON.parseObject(data);
-        JSONArray resData = jsonObject.getJSONArray("data");
-        List list = resData.stream().filter(e->{
-            JSONObject obj = (JSONObject) e;
-            String title = obj.getString("title");
-            if(hasWord(title)){
-                return false;
-            }
-            return true;
-        }).collect(Collectors.toList());
-        jsonObject.put("data", list);
-        return jsonObject;
-    }
-    public JSONObject dyGoodsSearch(GoodsSearchDyParam param) {
-        if(StringUtils.isNotBlank(param.getTitle())) {
-            String keyWord = param.getTitle().toLowerCase();
-            if(TkUtil.hasWord(keyWord) || EXCLUDE_KEY_WROD_LIST.contains(keyWord)){
-                JSONObject res = new JSONObject();
-                JSONObject data = new JSONObject();
-                data.put("list", new JSONArray());
-                data.put("total", 0);
-                res.put("data", data);
-                return res;
-            }
-        }
-        param.setAppkey(config.getKey());
-
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.DY_GOODS_SEARCH.getUrl(), DataokeApi.DY_GOODS_SEARCH.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-    public JSONObject dyGoodsDetail(String goodsId) {
-
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("productIds", goodsId);
-        paraMap.put("appkey", config.getKey());
-        String data = getData(DataokeApi.DY_GOODS_DETAIL.getUrl(), DataokeApi.DY_GOODS_DETAIL.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-
-    public JSONObject dyWord(String productUrl, String externalInfo) {
-        if(productUrl.contains("pick_source")) {
-            productUrl = productUrl.substring(0, productUrl.lastIndexOf("&"));
-        }
-        if(!productUrl.startsWith("http")) {
-
-            Matcher matcher = pattern.matcher(productUrl);
-            if (matcher.find( )) {
-                productUrl = matcher.group(0);
-            } else {
-                return new JSONObject();
-            }
-        }
-
-        int splitIndex = productUrl.indexOf("&");
-        if(splitIndex > 0) {
-            productUrl = productUrl.substring(0, splitIndex);
-        }
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("productUrl", productUrl);
-        paraMap.put("externalInfo", externalInfo);
-        String data = getData(DataokeApi.DY_WORD.getUrl(), DataokeApi.DY_WORD.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-
-    public JSONObject shopConvert(String shopId, String shopName, String pid, String channelId) {
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("sellerId", shopId);
-        paraMap.put("shopName", shopName);
-        paraMap.put("appkey", config.getKey());
-        if(StringUtils.isNotBlank(pid)) {
-            paraMap.put("pid", pid);
-        }
-        if(StringUtils.isNotBlank(channelId)) {
-            paraMap.put("relationId", channelId);
-        }
-        String data = getData(DataokeApi.TB_SHOP_CONVERT.getUrl(), DataokeApi.TB_SHOP_CONVERT.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-
-    public JSONObject getBrandList(Integer cid, Integer pageId) {
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("cid", cid.toString());
-        paraMap.put("pageId", pageId.toString());
-        paraMap.put("pageSize", "10");
-        paraMap.put("appkey", config.getKey());
-        String data = getData(DataokeApi.TB_BRAND_LIST.getUrl(), DataokeApi.TB_BRAND_LIST.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-    public JSONObject getBrandGoodsList(String brandId, Integer pageId, Integer pageSize) {
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("brandId", brandId);
-        paraMap.put("pageId", pageId.toString());
-        paraMap.put("pageSize", pageSize.toString());
-        paraMap.put("appkey", config.getKey());
-        String data = getData(DataokeApi.TB_BRAND_GOODS_LIST.getUrl(), DataokeApi.TB_BRAND_GOODS_LIST.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-    public VipSearchListVO goodsListVip(GoodsListVipParam param) {
-        //唯品会结构和统一结构相同，无需转换
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.VIP_GOODS_LIST.getUrl(), DataokeApi.VIP_GOODS_LIST.getVersion(), paraMap);
-        return JSON.parseObject(data,VipSearchListVO.class);
-    }
-
-
     public VipWordCodeVO goodsWordVIP(String itemUrl, String statParam, JSONObject urlGenRequest) {
-
         TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("urlList", "[\"" + itemUrl + "\"]");
-        if(org.apache.commons.lang3.StringUtils.isNotBlank(statParam)) {
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(statParam)) {
             paraMap.put("statParam", statParam);
         }
         paraMap.put("urlGenRequest", urlGenRequest.toJSONString());
-        String data = getData(DataokeApi.VIP_GOODS_WORD.getUrl(), DataokeApi.VIP_GOODS_WORD.getVersion(), paraMap);
+        String data = executeRawApi("/vip/promote/link", "v1.0.0", paraMap);
         VipWordCodeVO codeVO = JSON.parseObject(data, VipWordCodeVO.class);
-        if(codeVO != null &&codeVO.getData() != null && CollectionUtils.isNotEmpty(codeVO.getData().getList())) {
+        if (codeVO != null && codeVO.getData() != null && CollectionUtils.isNotEmpty(codeVO.getData().getList())) {
             codeVO.setWord(codeVO.getData().getList().get(0));
             codeVO.getData().setList(null);
         }
         return codeVO;
     }
 
+    // ==================== 拼多多搜索/分类 (无SDK对应接口) ====================
 
     public PddSearchListVO goodsListPdd(GoodsListPddParam param) {
-        if(org.apache.commons.lang3.StringUtils.isNotBlank(param.getKeyword())) {
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(param.getKeyword())) {
             String keyWord = param.getKeyword().toLowerCase();
-            if(hasWord(keyWord) || EXCLUDE_KEY_WROD_LIST.contains(keyWord)){
+            if (hasWord(keyWord) || EXCLUDE_KEY_WROD_LIST.contains(keyWord)) {
                 PddSearchListVO res = new PddSearchListVO();
                 PddSearchDataVO data = new PddSearchDataVO();
                 data.setList(new ArrayList<>(0));
@@ -460,23 +420,22 @@ public class DataokeService {
                 return res;
             }
         }
-
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.PDD_GOODS_SEARCH.getUrl(), DataokeApi.PDD_GOODS_SEARCH.getVersion(), paraMap);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param),
+            new TypeReference<TreeMap<String, Object>>() {});
+        String data = executeRawApi("/dels/pdd/goods/search", "v2.0.0", paraMap);
         return JSON.parseObject(data, PddSearchListVO.class);
-
     }
-    public JSONObject goodsCatePdd(Integer parentId) {
 
+    public JSONObject goodsCatePdd(Integer parentId) {
         TreeMap<String, Object> paraMap = new TreeMap<>();
         paraMap.put("parentId", parentId.toString());
-        String data = getData(DataokeApi.PDD_GOODS_CATE.getUrl(), DataokeApi.PDD_GOODS_CATE.getVersion(), paraMap);
-        return JSON.parseObject(data);
+        return JSON.parseObject(executeRawApi("/dels/pdd/category/search", "v1.0.0", paraMap));
     }
+
     public JSONObject vipGoodsSearch(GoodsSearchVipParam param) {
-        if(StringUtils.isNotBlank(param.getKeyword())) {
+        if (StringUtils.isNotBlank(param.getKeyword())) {
             String keyWord = param.getKeyword().toLowerCase();
-            if(TkUtil.hasWord(keyWord) || EXCLUDE_KEY_WROD_LIST.contains(keyWord)){
+            if (TkUtil.hasWord(keyWord) || EXCLUDE_KEY_WROD_LIST.contains(keyWord)) {
                 JSONObject res = new JSONObject();
                 JSONObject data = new JSONObject();
                 data.put("goodsInfoList", new JSONArray());
@@ -485,88 +444,171 @@ public class DataokeService {
                 return res;
             }
         }
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.VIP_GOODS_SEARCH.getUrl(), DataokeApi.VIP_GOODS_SEARCH.getVersion(), paraMap);
-        return JSON.parseObject(data);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param),
+            new TypeReference<TreeMap<String, Object>>() {});
+        return JSON.parseObject(executeRawApi("/vip/search-by-keywords", "v1.0.0", paraMap));
     }
 
+    // ==================== 订单查询 ====================
+
     public TBResVo queryTBList(QueryTBParam param) {
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(TB_QUERY_ORDER.getUrl(), TB_QUERY_ORDER.getVersion(), paraMap);
-        log.warn("*淘宝订单："+ data);
-        try{
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param),
+            new TypeReference<TreeMap<String, Object>>() {});
+        String data = executeRawApi("/tb-service/get-order-details", "v1.0.0", paraMap);
+        log.warn("*淘宝订单：" + data);
+        try {
             return JSON.parseObject(data, TBResVo.class);
-        }catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("淘宝订单解析失败", e);
         }
         return null;
-
     }
 
     public JdResVo queryJdList(QueryJdParam param) {
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(JD_QUERY_ORDER.getUrl(), JD_QUERY_ORDER.getVersion(), paraMap);
-        log.warn("*京东订单："+ data);
-        if(StringUtils.isBlank(data)){
-            return null;
-        }
-        try{
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param),
+            new TypeReference<TreeMap<String, Object>>() {});
+        String data = executeRawApi("/dels/jd/order/get-official-order-list", "v2.0.0", paraMap);
+        log.warn("*京东订单：" + data);
+        if (StringUtils.isBlank(data)) return null;
+        try {
             return JSON.parseObject(data, JdResVo.class);
-        }catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("京东订单解析失败", e);
         }
         return null;
     }
+
     public VipResVo queryVipList(QueryVipParam param) {
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(VIP_QUERY_ORDER.getUrl(), VIP_QUERY_ORDER.getVersion(), paraMap);
-        log.warn("*唯品会订单："+ data);
-        if(StringUtils.isBlank(data)){
-            return null;
-        }
-        try{
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param),
+            new TypeReference<TreeMap<String, Object>>() {});
+        String data = executeRawApi("/vip/order-list", "v1.0.0", paraMap);
+        log.warn("*唯品会订单：" + data);
+        if (StringUtils.isBlank(data)) return null;
+        try {
             return JSON.parseObject(data, VipResVo.class);
-        }catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("唯品会订单解析失败", e);
         }
         return null;
-
     }
-    protected static String DY_ORDER_QUERY_URL = "%s?date_type=%s&size=%s&page=%s&order_type=%s&search_start_time=%s&search_end_time=%s&app_token=%s";
+
+    // ==================== 抖音 (不同域名，使用直接HTTP调用) ====================
+
+    private static final String DY_BASE_URL = "https://openapiv2.dataoke.com";
+
+    public JSONObject dyGoodsSearch(GoodsSearchDyParam param) {
+        if (StringUtils.isNotBlank(param.getTitle())) {
+            String keyWord = param.getTitle().toLowerCase();
+            if (TkUtil.hasWord(keyWord) || EXCLUDE_KEY_WROD_LIST.contains(keyWord)) {
+                JSONObject res = new JSONObject();
+                JSONObject data = new JSONObject();
+                data.put("list", new JSONArray());
+                data.put("total", 0);
+                res.put("data", data);
+                return res;
+            }
+        }
+        param.setAppkey(config.getKey());
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param),
+            new TypeReference<TreeMap<String, Object>>() {});
+        return JSON.parseObject(executeRawFullUrl(DY_BASE_URL + "/tiktok/tiktok-materials-products-search", "v1.0.0", paraMap));
+    }
+
+    public JSONObject dyGoodsDetail(String goodsId) {
+        TreeMap<String, Object> paraMap = new TreeMap<>();
+        paraMap.put("productIds", goodsId);
+        paraMap.put("appkey", config.getKey());
+        return JSON.parseObject(executeRawFullUrl(DY_BASE_URL + "/tiktok/tiktok-materials-products-details", "v1.0.0", paraMap));
+    }
+
+    public JSONObject dyWord(String productUrl, String externalInfo) {
+        if (productUrl.contains("pick_source")) {
+            productUrl = productUrl.substring(0, productUrl.lastIndexOf("&"));
+        }
+        if (!productUrl.startsWith("http")) {
+            Matcher matcher = pattern.matcher(productUrl);
+            if (matcher.find()) {
+                productUrl = matcher.group(0);
+            } else {
+                return new JSONObject();
+            }
+        }
+        int splitIndex = productUrl.indexOf("&");
+        if (splitIndex > 0) {
+            productUrl = productUrl.substring(0, splitIndex);
+        }
+        TreeMap<String, Object> paraMap = new TreeMap<>();
+        paraMap.put("productUrl", productUrl);
+        paraMap.put("externalInfo", externalInfo);
+        return JSON.parseObject(executeRawFullUrl(DY_BASE_URL + "/open-api/tiktok-kol-product-share", "v1.0.0", paraMap));
+    }
+
     public DyResVo queryDyList(QueryDyParam param) {
-//        String data = "";
-//        try {
-//            String url = String.format(DY_ORDER_QUERY_URL, param.getUrl(),
-//                    param.getDataType(), param.getSize(), param.getPage(),param.getOrderType(),
-//                    URLEncoder.encode(param.getSearchStartTime(), "UTF-8"),
-//                    URLEncoder.encode(param.getSearchEndTime(),"UTF-8"), param.getAppToken());
-//
-//
-//            data = HttpUtil.httpGetRequest(url);
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        }
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DY_QUERY_ORDER.getUrl(), DY_QUERY_ORDER.getVersion(), paraMap);
-        log.warn("*抖音订单："+ data);
-        try{
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param),
+            new TypeReference<TreeMap<String, Object>>() {});
+        String data = executeRawFullUrl(DY_BASE_URL + "/open-api/tiktok/order-list", "v1.0.0", paraMap);
+        log.warn("*抖音订单：" + data);
+        try {
             return JSON.parseObject(data, DyResVo.class);
-        }catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("抖音订单解析失败", e);
         }
         return null;
-
     }
+
+    // ==================== 拼多多订单 (保留直接调用，因注释标记不可用) ====================
+
     /**
      * 不可用 大淘客的订单采集有bug 使用 {@link PddService#queryPddOrderList(QueryPddParam)}
-     *
-     * @param param the param
-     * @return the pdd res vo
      */
     public PddResVo queryPddList(QueryPddParam param) {
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(PDD_QUERY_ORDER.getUrl(), PDD_QUERY_ORDER.getVersion(), paraMap);
-        log.warn("拼多多订单："+ data);
+        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param),
+            new TypeReference<TreeMap<String, Object>>() {});
+        String data = executeRawApi("/dels/pdd/order/incrementSearch", "v1.0.0", paraMap);
+        log.warn("拼多多订单：" + data);
         return JSON.parseObject(data, PddResVo.class);
+    }
+
+    // ==================== 通用API调用辅助方法 ====================
+
+    /**
+     * 通过新SDK签名机制调用大淘客API（无SDK Request类的接口使用此方法）
+     * @param path API路径，如 /vip/search-by-keywords
+     * @param version API版本号
+     * @param paraMap 请求参数
+     * @return API响应JSON字符串
+     */
+    protected String executeRawApi(String path, String version, TreeMap<String, Object> paraMap) {
+        return executeRawFullUrl("https://openapi.dataoke.com/api" + path, version, paraMap);
+    }
+
+    /**
+     * 通过完整URL调用大淘客API（用于不同基础域名的接口如抖音）
+     */
+    protected String executeRawFullUrl(String fullUrl, String version, TreeMap<String, Object> paraMap) {
+        TreeMap<String, Object> params = new TreeMap<>();
+        params.put("version", version);
+        params.put("appKey", config.getKey());
+        for (Map.Entry<String, Object> entry : paraMap.entrySet()) {
+            if (entry.getValue() != null) {
+                params.put(entry.getKey(), String.valueOf(entry.getValue()));
+            }
+        }
+        // 生成签名
+        String urlParams = params.entrySet().stream()
+                .filter(e -> e.getValue() != null && !String.valueOf(e.getValue()).isEmpty())
+                .map(e -> e.getKey() + "=" + e.getValue())
+                .collect(Collectors.joining("&"));
+        String sign = SignMd5Util.sign(urlParams, config.getSecret());
+        params.put("sign", sign);
+        // URL编码关键词
+        if (params.containsKey("keyWords")) {
+            try {
+                params.put("keyWords", URLEncoder.encode(String.valueOf(params.get("keyWords")), "UTF-8"));
+            } catch (Exception e) {
+                log.warn("keyWords编码失败", e);
+            }
+        }
+        return HttpUtil.get(fullUrl, params);
     }
 }
