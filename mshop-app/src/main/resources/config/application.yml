@@ -10,6 +10,8 @@ server:
     uri-encoding: UTF-8
 
 spring:
+  profiles:
+    active: dev
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -17,8 +19,6 @@ spring:
     allow-circular-references: true
   freemarker:
     check-template-location: false
-  profiles:
-    active: dev
   jackson:
     time-zone: GMT+8
   data:
