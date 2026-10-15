@@ -37,6 +37,8 @@ code:
 
 #登录图形验证码有效时间/分钟
 loginCode:
+  # 是否开启登录验证码校验，默认关闭（各环境可在对应 profile 的 yml 中覆盖为 true）
+  enabled: false
   expiration: 2
 
 #密码加密传输，前端公钥加密，后端私钥解密

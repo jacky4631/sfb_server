@@ -58,6 +58,8 @@ public class AuthController {
 
     @Value("${loginCode.expiration}")
     private Long expiration;
+    @Value("${loginCode.enabled:false}")
+    private Boolean loginCodeEnabled;
     @Value("${rsa.private_key}")
     private String privateKey;
     @Value("${single.login}")
@@ -87,16 +89,18 @@ public class AuthController {
         // 密码解密
         RSA rsa = new RSA(privateKey, null);
         String password = new String(rsa.decrypt(authUser.getPassword(), KeyType.PrivateKey));
-//        String code = "123456";
-        // 查询验证码
-        String code = (String) redisUtils.get("admin_code_" + authUser.getUsername());
-        // 清除验证码
-        redisUtils.del(authUser.getUuid());
-        if (StringUtils.isBlank(code)) {
-            throw new BadRequestException("验证码不存在或已过期");
-        }
-        if (StringUtils.isBlank(authUser.getCode()) || !authUser.getCode().equalsIgnoreCase(code)) {
-            throw new BadRequestException("验证码错误");
+        // 验证码校验（可通过配置 loginCode.enabled 关闭）
+        if (Boolean.TRUE.equals(loginCodeEnabled)) {
+            // 查询验证码
+            String code = (String) redisUtils.get("admin_code_" + authUser.getUsername());
+            // 清除验证码
+            redisUtils.del(authUser.getUuid());
+            if (StringUtils.isBlank(code)) {
+                throw new BadRequestException("验证码不存在或已过期");
+            }
+            if (StringUtils.isBlank(authUser.getCode()) || !authUser.getCode().equalsIgnoreCase(code)) {
+                throw new BadRequestException("验证码错误");
+            }
         }
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(authUser.getUsername(), password);
@@ -119,6 +123,15 @@ public class AuthController {
             onlineUserService.checkLoginOnUser(authUser.getUsername(),token);
         }
         return ResponseEntity.ok(authInfo);
+    }
+
+    @ApiOperation("获取登录验证码开关")
+    @AnonymousAccess
+    @GetMapping(value = "/captchaEnable")
+    public ResponseEntity<Object> getCaptchaEnable(){
+        Map<String,Object> info = new HashMap<>(2);
+        info.put("enable", Boolean.TRUE.equals(loginCodeEnabled));
+        return ResponseEntity.ok(info);
     }
 
     @ApiOperation("获取用户信息")
