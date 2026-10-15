@@ -23,7 +23,7 @@
         <module>mshop-redis</module>
     </modules>
 
-    <name>MSHOP商城管理系统</name>
+    <name>苏分宝开源淘客系统</name>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

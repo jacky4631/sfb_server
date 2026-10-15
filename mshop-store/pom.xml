@@ -74,6 +74,9 @@
         <dependency>
             <groupId>com.yeepay.yop.sdk</groupId>
             <artifactId>yop-java-sdk-biz</artifactId>
+            <version>4.3.3</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/yop-java-sdk-biz-4.3.3.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
@@ -89,6 +92,9 @@
         <dependency>
             <groupId>com.sankuai.shepherd</groupId>
             <artifactId>meituan-union-java</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/meituan-union-java-1.0.jar</systemPath>
         </dependency>
     </dependencies>
 
