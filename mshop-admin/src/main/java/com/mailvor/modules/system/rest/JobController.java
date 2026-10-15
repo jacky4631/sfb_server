@@ -60,6 +60,9 @@ public class JobController {
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','job:list')")
     public void download(HttpServletResponse response, JobQueryCriteria criteria) throws IOException {
+        // 数据权限：download 不经过 getJobs，需自行注入 deptIds，
+        // 否则 JobServiceImpl.queryAll 中 criteria.getDeptIds().size() 为 null 抛 NPE
+        criteria.setDeptIds(dataScope.getDeptIds());
         jobService.download(generator.convert(jobService.queryAll(criteria), JobDto.class), response);
     }
 
