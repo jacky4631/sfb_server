@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -45,10 +45,16 @@ public class DataokeCmsController {
             JSONObject data = restTemplate.getForObject(String.format("%s/brand-list", CMS_PREFIX), JSONObject.class);
             List list = data.getJSONObject("data").getJSONArray("list").subList(0, 3);
             int splitSize = 4;
+            // 仅保留前端（App/小程序首页"品牌特卖"）实际用到的字段，其余裁剪以精简返回体积
+            List<String> brandFields = Arrays.asList("brandLogo", "brandName", "background_img", "brand_text", "brandFeatures", "sales", "list");
+            List<String> goodsFields = Arrays.asList("mainPic", "actualPrice", "monthSales");
             list.stream().forEach(subData->{
                 Map map = (Map)subData;
                 List subList = (List)map.get("list");
-                map.put("list", subList.size() < splitSize ? subList : subList.subList(0, splitSize));
+                List goods = subList.size() < splitSize ? subList : subList.subList(0, splitSize);
+                goods.forEach(g -> ((Map)g).keySet().retainAll(goodsFields));
+                map.put("list", goods);
+                map.keySet().retainAll(brandFields);
             });
             //接口数据缓存6小时
             redisUtils.set(HOME_DATA_BRAND_LIST, list, HOME_DATA_EXPIRED);
