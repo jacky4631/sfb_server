@@ -27,6 +27,7 @@ import com.mailvor.utils.RedisUtils;
 import com.mailvor.utils.StringUtils;
 import com.taobao.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -157,12 +158,20 @@ public class DataokeController {
 
     @GetMapping(value = "/goods/category")
     public JSONObject getCategory() {
-        JSONObject homeCategory = (JSONObject) redisUtils.get(HOME_DATA_CATEGORY_TB);
-        if(homeCategory == null) {
+        JSONObject homeCategory = null;
+        boolean cacheAvailable = true;
+        try {
+            homeCategory = (JSONObject) redisUtils.get(HOME_DATA_CATEGORY_TB);
+        } catch (DataAccessException e) {
+            cacheAvailable = false;
+            log.warn("首页分类缓存读取失败，改从上游接口获取", e);
+        }
+        if (homeCategory == null) {
             homeCategory = service.getCategory();
-            //接口数据缓存24小时
-            redisUtils.set(HOME_DATA_CATEGORY_TB, homeCategory, 24*3600);
-
+            // 读取失败时跳过缓存回写，避免同一请求再次等待 Redis 超时。
+            if (cacheAvailable && homeCategory != null) {
+                redisUtils.set(HOME_DATA_CATEGORY_TB, homeCategory, 24 * 3600);
+            }
         }
         return homeCategory;
     }

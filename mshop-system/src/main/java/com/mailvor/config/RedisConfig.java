@@ -4,6 +4,9 @@
  */
 package com.mailvor.config;
 
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.SocketOptions;
+import org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer;
 import cn.hutool.core.lang.Assert;
 import com.mailvor.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
@@ -45,6 +48,15 @@ import java.util.Map;
 @ConditionalOnClass(RedisOperations.class)
 @EnableConfigurationProperties(RedisProperties.class)
 public class RedisConfig extends CachingConfigurerSupport {
+
+    @Bean
+    public LettuceClientConfigurationBuilderCustomizer lettuceConnectionCustomizer() {
+        return builder -> builder.clientOptions(ClientOptions.builder()
+                .autoReconnect(true)
+                .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
+                .socketOptions(SocketOptions.builder().keepAlive(true).build())
+                .build());
+    }
 
     /**
      *  设置 redis 数据默认过期时间，默认2小时

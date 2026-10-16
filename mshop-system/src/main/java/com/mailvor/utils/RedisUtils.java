@@ -197,7 +197,8 @@ public class RedisUtils {
     }
 
     public String getY(String key){
-        return key == null || !redisTemplate.hasKey(key) ? "" : redisTemplate.opsForValue().get(key).toString();
+        Object value = get(key);
+        return value == null ? "" : value.toString();
     }
     public Integer getI(String key){
         String value = getY(key);

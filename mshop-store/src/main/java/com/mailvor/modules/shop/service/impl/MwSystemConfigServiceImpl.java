@@ -26,6 +26,8 @@ import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.FileUtil;
 import com.mailvor.utils.RedisUtils;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -45,6 +47,7 @@ import static com.mailvor.constant.SystemConfigConstants.*;
 * @author huangyu
 * @date 2020-05-12
 */
+@Slf4j
 @Service
 @AllArgsConstructor
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
@@ -60,9 +63,13 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
      */
     @Override
     public String getData(String name) {
-        String result = redisUtils.getY(name);
-        if (StrUtil.isNotBlank(result)) {
-            return result;
+        try {
+            String result = redisUtils.getY(name);
+            if (StrUtil.isNotBlank(result)) {
+                return result;
+            }
+        } catch (DataAccessException e) {
+            log.warn("配置缓存读取失败，改从数据库读取，key={}", name, e);
         }
 
         LambdaQueryWrapper<MwSystemConfig> wrapper = new LambdaQueryWrapper<>();
