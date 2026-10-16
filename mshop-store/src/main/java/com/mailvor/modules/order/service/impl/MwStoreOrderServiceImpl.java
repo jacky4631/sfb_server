@@ -495,13 +495,12 @@ public class MwStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         }
 
 
+        // 本项目 store 订单模型用 pay_integral 表达“实际支付”（积分），mw_store_order 无 pay_price 列。
+        // 之前这里只 setId 却没把新价格写进去，updateById 默认忽略 null 字段等于没改，
+        // 这里补上 setPayIntegral 让改价真正落库
         MwStoreOrder storeOrder = new MwStoreOrder();
         storeOrder.setId(orderQueryVo.getId());
-
-        //判断金额是否有变动,生成一个额外订单号去支付
-        if (orderQueryVo.getPayIntegral().compareTo(new BigDecimal(price)) != 0) {
-            String orderSn = IdUtil.getSnowflake(0, 0).nextIdStr();
-        }
+        storeOrder.setPayIntegral(new BigDecimal(price));
 
         mwStoreOrderMapper.updateById(storeOrder);
 

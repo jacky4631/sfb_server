@@ -246,7 +246,9 @@ public class StoreOrderController {
     @ApiOperation(value = "删除")
     @DeleteMapping(value = "/mwStoreOrder/{id}")
     @PreAuthorize("hasAnyRole('admin','MWSTOREORDER_ALL','MWSTOREORDER_DELETE')")
-    public ResponseEntity delete(@PathVariable Integer id) {
+    public ResponseEntity delete(@PathVariable Long id) {
+        // MwStoreOrder 主键 @TableId 是 Long，这里必须用 Long 接收，
+        // 之前用 Integer 与主键类型不匹配，MP 逻辑删除处理 id 时会抛 ClassCastException
         mwStoreOrderService.removeById(id);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -259,6 +261,23 @@ public class StoreOrderController {
     public ResponseEntity editOrder(@RequestBody TkOrderParam param) throws ExecutionException, InterruptedException {
 
         tkService.submitOrder(param.getOrderId(), param.getUid(), false);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+
+    @Log("修改订单实际支付（积分改价）")
+    @ApiOperation(value = "修改订单实际支付（积分改价）")
+    @PostMapping(value = "/mwStoreOrder/editOrderPrice")
+    @PreAuthorize("hasAnyRole('admin','MWSTOREORDER_ALL','MWSTOREORDER_EDIT')")
+    public ResponseEntity editOrderPrice(@RequestBody MwStoreOrder resources) {
+        // 本项目 store 订单模型“实际支付”即 pay_integral（积分），走服务层 editOrderPrice 落库
+        if (StrUtil.isBlank(resources.getOrderId())) {
+            throw new BadRequestException("订单号不能为空");
+        }
+        if (resources.getPayIntegral() == null) {
+            throw new BadRequestException("请输入实际支付积分");
+        }
+        mwStoreOrderService.editOrderPrice(resources.getOrderId(), resources.getPayIntegral().toPlainString());
         return new ResponseEntity(HttpStatus.OK);
     }
 
