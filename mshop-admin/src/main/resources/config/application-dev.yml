@@ -84,14 +84,14 @@ generator:
 #是否开启 swagger-ui
 swagger:
   enabled: true
-  title: mshop商城管理后台API
+  title: 迈沃管理系统API
   serverUrl:
   version: 5.1.0
 
 # 文件存储路径
 file:
-  path: D:\mshop\file\
-  avatar: D:\mshop\avatar\
+  path: /home/mshop/file/
+  avatar: /homemshop/avatar/
   # 文件大小 /M
   maxSize: 100
   avatarMaxSize: 5
