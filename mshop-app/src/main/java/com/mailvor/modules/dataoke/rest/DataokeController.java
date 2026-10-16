@@ -161,7 +161,7 @@ public class DataokeController {
         JSONObject homeCategory = null;
         boolean cacheAvailable = true;
         try {
-            homeCategory = (JSONObject) redisUtils.get(HOME_DATA_CATEGORY_TB);
+            homeCategory = (JSONObject) redisUtils.getCache(HOME_DATA_CATEGORY_TB);
         } catch (DataAccessException e) {
             cacheAvailable = false;
             log.warn("首页分类缓存读取失败，改从上游接口获取", e);
@@ -170,7 +170,7 @@ public class DataokeController {
             homeCategory = service.getCategory();
             // 读取失败时跳过缓存回写，避免同一请求再次等待 Redis 超时。
             if (cacheAvailable && homeCategory != null) {
-                redisUtils.set(HOME_DATA_CATEGORY_TB, homeCategory, 24 * 3600);
+                redisUtils.setCache(HOME_DATA_CATEGORY_TB, homeCategory, 24 * 3600);
             }
         }
         return homeCategory;

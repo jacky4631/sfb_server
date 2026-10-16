@@ -4,6 +4,8 @@
  */
 package com.mailvor.utils;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -22,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author /
  */
+@Slf4j
 @Component
 @SuppressWarnings({"unchecked","all"})
 public class RedisUtils {
@@ -32,6 +35,46 @@ public class RedisUtils {
 
     public RedisUtils(RedisTemplate<Object, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
+    }
+
+    // 仅供可回源的业务缓存使用；登录态、锁、限流等仍使用严格的 Redis 方法。
+    private volatile long optionalCacheRetryAtNanos = System.nanoTime();
+
+    private boolean optionalCacheAvailable() {
+        return System.nanoTime() - optionalCacheRetryAtNanos >= 0;
+    }
+
+    private void optionalCacheFailed(String key, DataAccessException e) {
+        boolean firstFailure = optionalCacheAvailable();
+        optionalCacheRetryAtNanos = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+        if (firstFailure) {
+            log.warn("Redis 业务缓存不可用，10秒内跳过缓存并回源，key={}，异常={}", key, e.getClass().getSimpleName());
+        }
+    }
+
+    public Object getCache(String key) {
+        if (key == null || !optionalCacheAvailable()) return null;
+        try {
+            return get(key);
+        } catch (DataAccessException e) {
+            optionalCacheFailed(key, e);
+            return null;
+        }
+    }
+
+    public boolean setCache(String key, Object value, long seconds) {
+        if (key == null || value == null || !optionalCacheAvailable()) return false;
+        try {
+            if (seconds > 0) {
+                redisTemplate.opsForValue().set(key, value, seconds, TimeUnit.SECONDS);
+            } else {
+                redisTemplate.opsForValue().set(key, value);
+            }
+            return true;
+        } catch (DataAccessException e) {
+            optionalCacheFailed(key, e);
+            return false;
+        }
     }
 
     // =============================commonold============================

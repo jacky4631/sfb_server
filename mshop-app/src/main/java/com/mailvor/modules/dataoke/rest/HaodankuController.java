@@ -183,27 +183,27 @@ public class HaodankuController {
 
     @GetMapping(value = "/banners")
     public JSONArray banners() {
-        JSONArray homeBanner = (JSONArray) redisUtils.get(HOME_DATA_BANNER);
+        JSONArray homeBanner = (JSONArray) redisUtils.getCache(HOME_DATA_BANNER);
         if(homeBanner == null) {
             JSONObject origData = restTemplate
                     .getForObject(BANNER_LIST + kuService.getKuCid(), JSONObject.class);
             JSONObject data = origData.getJSONObject("data");
             homeBanner = data.getJSONArray("banners");
-            redisUtils.set(HOME_DATA_BANNER, homeBanner, HOME_DATA_EXPIRED);
-            redisUtils.set(HOME_DATA_TILES, data.getJSONArray("tile_long"), HOME_DATA_EXPIRED);
+            redisUtils.setCache(HOME_DATA_BANNER, homeBanner, HOME_DATA_EXPIRED);
+            redisUtils.setCache(HOME_DATA_TILES, data.getJSONArray("tile_long"), HOME_DATA_EXPIRED);
         }
         return homeBanner;
     }
     @GetMapping(value = "/tiles")
     public JSONArray tiles() {
-        JSONArray homeTiles = (JSONArray) redisUtils.get(HOME_DATA_TILES);
+        JSONArray homeTiles = (JSONArray) redisUtils.getCache(HOME_DATA_TILES);
         if(homeTiles == null) {
             JSONObject origData = restTemplate
                     .getForObject(BANNER_LIST + kuService.getKuCid(), JSONObject.class);
             JSONObject data = origData.getJSONObject("data");
             homeTiles = data.getJSONArray("tile_long");
-            redisUtils.set(HOME_DATA_BANNER, data.getJSONArray("banners"), HOME_DATA_EXPIRED);
-            redisUtils.set(HOME_DATA_TILES, homeTiles, HOME_DATA_EXPIRED);
+            redisUtils.setCache(HOME_DATA_BANNER, data.getJSONArray("banners"), HOME_DATA_EXPIRED);
+            redisUtils.setCache(HOME_DATA_TILES, homeTiles, HOME_DATA_EXPIRED);
         }
         return homeTiles;
     }

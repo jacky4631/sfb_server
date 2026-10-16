@@ -64,7 +64,8 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
     @Override
     public String getData(String name) {
         try {
-            String result = redisUtils.getY(name);
+            Object cached = redisUtils.getCache(name);
+            String result = cached == null ? "" : cached.toString();
             if (StrUtil.isNotBlank(result)) {
                 return result;
             }
@@ -243,7 +244,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
     @Override
     public AppDataConfig getAppDataConfig() {
         String key = TkUtil.getMixedPlatformKey(HOME_DATA);
-        Object result = redisUtils.get(key);
+        Object result = redisUtils.getCache(key);
         if (result != null) {
             return (AppDataConfig)result;
         }
@@ -255,7 +256,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
         } else {
             res = JSON.parseObject(config.getValue(), AppDataConfig.class);
         }
-        redisUtils.set(key, res);
+        redisUtils.setCache(key, res, 0);
         return res;
     }
 
