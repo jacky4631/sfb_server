@@ -190,7 +190,7 @@ public class GoodsSearchVo implements Serializable {
     private String marketGroup;
 
     @ApiModelProperty(value = "活动信息")
-    private GoodsActivityInfoVo activityInfo;
+    private List<GoodsActivityInfoVo> activityInfo;
 
     @ApiModelProperty(value = "商品是否已经验货，0-否；1-是")
     private Integer inspectedGoods;
