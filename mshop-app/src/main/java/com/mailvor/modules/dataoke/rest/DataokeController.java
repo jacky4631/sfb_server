@@ -15,6 +15,7 @@ import com.mailvor.modules.tk.service.DataokeService;
 import com.mailvor.modules.tk.service.TkService;
 import com.mailvor.modules.tk.vo.DataokeResVo;
 import com.mailvor.modules.tk.vo.GoodsParseVo;
+import com.mailvor.modules.tk.vo.GoodsSearchDataVo;
 import com.mailvor.modules.tk.vo.TkParseCodeVO;
 import com.mailvor.modules.user.config.AppDataConfig;
 import com.mailvor.modules.user.domain.MwUser;
@@ -93,7 +94,7 @@ public class DataokeController {
     }
 
     @GetMapping(value = "/goods/search")
-    public JSONObject goodsSearch(GoodsSearchParam goodQueryParam) {
+    public DataokeResVo<GoodsSearchDataVo> goodsSearch(GoodsSearchParam goodQueryParam) {
 
         return service.goodsSearch(goodQueryParam);
     }

@@ -2,10 +2,10 @@ package com.mailvor.modules.tk.util;
 
 import cn.hutool.http.HttpUtil;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Map;
 import java.util.TreeMap;
+
+import static com.mailvor.modules.tk.util.DataokeApi.GOODS_SEARCH;
 
 /**
  * @projectName:dtk-items-openapi
@@ -14,45 +14,21 @@ import java.util.TreeMap;
  */
 public class DataokeApiClient {
 
-    public static String sendReqNew(String url, String secret, Map<String, Object> paraMap){
-        if(null == url || "".equals(url)){
-            return "请求地址不能为空";
-        }
-        if(null == secret || "".equals(secret)){
-            return "secret不能为空";
-        }
-        if(null == paraMap || paraMap.size() < 1){
-            return "参数不能为空";
-        }
-
-        String timer = String.valueOf(System.currentTimeMillis());
-        paraMap.put("timer", timer);
-        paraMap.put("nonce", "110505");
-        paraMap.put("signRan", SignMD5Util.getSignStrNew(paraMap, secret));
-        String data = HttpUtil.get(url, paraMap);
-
-        return data;
-    }
-
     public static String sendReq(String url, String secret, Map<String, Object> paraMap){
-        if(null == url || "".equals(url)){
+        if(null == url || url.isEmpty()){
             return "请求地址不能为空";
         }
-        if(null == secret || "".equals(secret)){
+        if(null == secret || secret.isEmpty()){
             return "secret不能为空";
         }
         if(null == paraMap || paraMap.size() < 1){
             return "参数不能为空";
         }
 
+        // 签名基于原始参数值计算（与官方 SDK 一致）。
+        // 传输时的 URL 编码统一交由 HttpUtil.get 完成（内部只会编码一次），
+        // 切勿在此再手动 URLEncoder.encode，否则会造成双重编码，服务端解出的值与加签时的原始值不一致，导致验签失败。
         paraMap.put("sign", SignMD5Util.getSignStr(paraMap, secret));
-        if(paraMap.containsKey("keyWords")) {
-            try {
-                paraMap.put("keyWords", URLEncoder.encode((String)paraMap.get("keyWords"), "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
-        }
         String data = HttpUtil.get(url, paraMap);
 
         return data;
@@ -66,18 +42,16 @@ public class DataokeApiClient {
 
     public static void main(String[] args) {
 
-//        String url = "https://openapi.dataoke.com/api/goods/nine/op-goods-list";//9块9
-        String url = "https://openapi.dataoke.com/api/goods/get-ranking-list";//热力主播推荐
+        String url = GOODS_SEARCH.getUrl();//热力主播推荐
 
-        String appKey = "5d8d8ceb094a5";
-        String appSecret = "f4ff27cee4a4b9579561ec0722cbd734";
+        String appKey = "5d8d";
+        String appSecret = "f4ff27cee4";
         TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("version", "v1.3.0");
+        paraMap.put("version", "v2.1.2");
         paraMap.put("appKey", appKey);
         paraMap.put("pageId", "1");
         paraMap.put("pageSize", "20");
-//        paraMap.put("keyWords", "");
-        paraMap.put("rankType", "1");
+        paraMap.put("keyWords", "抽纸");
         long start = System.currentTimeMillis();
         String data = DataokeApiClient.sendReq(url, appSecret, paraMap);
         System.out.println("耗时："+ (System.currentTimeMillis() - start));

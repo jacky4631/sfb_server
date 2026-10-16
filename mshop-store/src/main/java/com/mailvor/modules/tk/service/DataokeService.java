@@ -54,6 +54,7 @@ public class DataokeService {
     private static TypeReference<DataokeResVo<GoodsDetailVo>> goodsDetailTypeRef = new TypeReference<DataokeResVo<GoodsDetailVo>>(GoodsDetailVo.class){};
     private static TypeReference<DataokeResVo<GoodsWordVo>> goodsWordTypeRef = new TypeReference<DataokeResVo<GoodsWordVo>>(GoodsWordVo.class){};
     private static TypeReference<DataokeResVo<GoodsParseVo>> goodsParseTypeRef = new TypeReference<DataokeResVo<GoodsParseVo>>(GoodsParseVo.class){};
+    private static TypeReference<DataokeResVo<GoodsSearchDataVo>> goodsSearchTypeRef = new TypeReference<DataokeResVo<GoodsSearchDataVo>>(GoodsSearchDataVo.class){};
     private static TypeReference<TreeMap<String, Object>> mapTypeReference = new TypeReference<TreeMap<String, Object>>() {};
     private static TypeReference<DataokeResVo<ParseContentVo>> parseContentTypeRef = new TypeReference<DataokeResVo<ParseContentVo>>(ParseContentVo.class){};
 
@@ -102,16 +103,20 @@ public class DataokeService {
         return null;
     }
 
-    public JSONObject goodsSearch(GoodsSearchParam param) {
+    public DataokeResVo<GoodsSearchDataVo> goodsSearch(GoodsSearchParam param) {
         String keyWord = param.getKeyWords().toLowerCase();
         if(TkUtil.hasWord(keyWord) || EXCLUDE_KEY_WROD_LIST.contains(param.getKeyWords().toLowerCase())){
-            JSONObject res = new JSONObject();
-            res.put("data", new JSONArray());
+            DataokeResVo<GoodsSearchDataVo> res = new DataokeResVo<>();
+            res.setCode(200);
+            GoodsSearchDataVo data = new GoodsSearchDataVo();
+            data.setList(new ArrayList<>(0));
+            data.setBrandList(new ArrayList<>(0));
+            res.setData(data);
             return res;
         }
         TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.TB_SEARCH.getUrl(), DataokeApi.TB_SEARCH.getVersion(), paraMap);
-        return JSON.parseObject(data);
+        String data = getData(DataokeApi.GOODS_SEARCH.getUrl(), DataokeApi.GOODS_SEARCH.getVersion(), paraMap);
+        return JSON.parseObject(data, goodsSearchTypeRef);
     }
     public JSONObject goodsDetail(String goodsId) {
 

@@ -21,7 +21,6 @@ public enum DataokeApi {
     GOODS_CATEGORY("https://openapi.dataoke.com/api/category/get-super-category","v1.1.0","超级分类"),
     GOODS_PARSE_ALL("https://openapi.dataoke.com/api/dels/kit/contentParse","v1.0.0","剪切板识别"),
     GOODS_SEARCH("https://openapi.dataoke.com/api/goods/get-dtk-search-goods","v2.1.2","大淘客搜索"),
-    TB_SEARCH("https://openapi.dataoke.com/api/tb-service/get-tb-service","v2.1.0","联盟搜索"),
     GOODS_SEARCH_HOT("https://openapi.dataoke.com/api/category/get-top100","v1.0.1","热搜记录"),
     GOODS_SEARCH_SUGGESTION("https://openapi.dataoke.com/api/goods/search-suggestion","v1.0.2","联想词"),
     BANNER("https://openapi.dataoke.com/api/goods/topic/carouse-list","v2.0.0","轮播图"),

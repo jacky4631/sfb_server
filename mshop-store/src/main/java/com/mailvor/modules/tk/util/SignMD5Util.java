@@ -30,31 +30,9 @@ public class SignMD5Util {
         Iterator<String> iter = keySet.iterator();
         while (iter.hasNext()) {
             String key = iter.next();
-            sb.append("&"+ key + "=" + map.get(key));
+            sb.append("&").append(key).append("=").append(map.get(key));
         }
         sb.deleteCharAt(0);
-        return sign(sb.toString(), secretKey);
-    }
-
-    /**
-     * 获取签名的util
-     * @param map 请求参数
-     * @param secretKey 密钥
-     * @return
-     */
-    public static String getSignStrNew(Map<String,Object> map, String secretKey){
-
-        if (map.size() == 0 ){
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append("appKey=");
-        sb.append(map.get("appKey"));
-        sb.append("&timer=");
-        sb.append(map.get("timer"));
-        sb.append("&nonce=");
-        sb.append(map.get("nonce"));
-        System.out.println(sb.toString());
         return sign(sb.toString(), secretKey);
     }
 

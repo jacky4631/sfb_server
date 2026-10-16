@@ -21,53 +21,22 @@ import lombok.EqualsAndHashCode;
 public class GoodsSearchParam extends BaseParam {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "类别")
-    private Integer pageNo = 1;
-
-    @ApiModelProperty(value = "分类ID")
-    private Integer pageSize = 10;
-
-    @ApiModelProperty(value = "是否新品")
+    @ApiModelProperty(value = "关键词搜索")
     private String keyWords;
 
-    @ApiModelProperty(value = "是否积分兑换商品")
-    private String sort;
-
-    @ApiModelProperty(value = "是否积分兑换商品")
-    private Integer source;
-
-    @ApiModelProperty(value = "价格排序")
-    private Integer overseas;
-
-    @ApiModelProperty(value = "销量排序")
-    private Integer endPrice;
-
-    @ApiModelProperty(value = "关键字")
-    private Integer startPrice;
-
-    @ApiModelProperty(value = "最低佣金比率")
-    private Integer startTkRate;
+    @ApiModelProperty(value = "排序字段，默认为0，0-综合排序，1-商品上架时间从新到旧，2-热销从高到低，3-领券量从高到低，4-佣金比例从高到低，5-价格（券后价）从高到低，6-价格（券后价）从低到高")
+    private String sort = "0";
 
     @ApiModelProperty(value = "价格（券后价）下限")
-    private Integer endTkRate;
+    private Integer priceLowerLimit;
 
-    @ApiModelProperty(value = "是否有优惠券")
-    private Boolean hasCoupon;
+    @ApiModelProperty(value = "价格（券后价）上限")
+    private Integer priceUpperLimit;
 
+    @ApiModelProperty(value = "最低佣金比率")
+    private Integer commissionRateLowerLimit;
 
-    @ApiModelProperty(value = "会员运营id")
-    private String specialId;
-
-    @ApiModelProperty(value = "渠道id将会和传入的pid进行验证，验证通过将正常转链")
-    private String channelId;
-
-    @ApiModelProperty(value = "商品所在地，默认为全部商品")
-    private String itemLoc;
-
-    @ApiModelProperty(value = "商品是否加入消费者保障，1为加入消费者保障，默认全部")
-    private String needPrepay;
-
-    @ApiModelProperty(value = "商品好评率是否高于行业均值，1为高于行业均值，默认全部")
-    private String includeGoodRate;
+    @ApiModelProperty(value = "商品是否有券（0 - 全部商品，1 - 有券商品，-1 - 无券商品，默认为1）")
+    private Integer hasCoupon;
 
 }
