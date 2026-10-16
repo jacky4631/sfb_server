@@ -150,7 +150,6 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
             JSONObject object = JSONUtil.parseObj(HttpUtil.get(api));
             return object.get("addr", String.class);
         }catch (Exception e) {
-            e.printStackTrace();
             return "";
         }
 
