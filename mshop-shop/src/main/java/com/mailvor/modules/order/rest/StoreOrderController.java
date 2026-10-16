@@ -353,40 +353,39 @@ public class StoreOrderController {
                                                   String orderType){
 
         //订单状态查询
+        // 注意：本项目 mw_store_order 表仅用 status 单列表达订单状态（不存在 paid / refund_status 列），
+        // 过滤口径与 app 端 orderList/orderData 保持一致。之前这里同时 setPaid/setRefundStatus，
+        // 会被 QueryHelpPlus 依据字段名生成表里不存在的 paid、refund_Status 列，
+        // 导致点击“未支付”等 tab 时抛 Unknown column 'paid'。
         if (StrUtil.isNotEmpty(orderStatus)) {
             switch (orderStatus) {
                 case "0":
-                    criteria.setPaid(OrderInfoEnum.PAY_STATUS_0.getValue());
+                    // 未支付
                     criteria.setStatus(OrderInfoEnum.STATUS_0.getValue());
-                    criteria.setRefundStatus(OrderInfoEnum.REFUND_STATUS_0.getValue());
                     break;
                 case "1":
-                    criteria.setPaid(OrderInfoEnum.PAY_STATUS_1.getValue());
+                    // 未发货（本模型下与未支付同为 status=0）
                     criteria.setStatus(OrderInfoEnum.STATUS_0.getValue());
-                    criteria.setRefundStatus(OrderInfoEnum.REFUND_STATUS_0.getValue());
                     break;
                 case "2":
-                    criteria.setPaid(OrderInfoEnum.PAY_STATUS_1.getValue());
+                    // 待收货
                     criteria.setStatus(OrderInfoEnum.STATUS_1.getValue());
-                    criteria.setRefundStatus(OrderInfoEnum.REFUND_STATUS_0.getValue());
                     break;
                 case "3":
-                    criteria.setPaid(OrderInfoEnum.PAY_STATUS_1.getValue());
+                    // 待评价
                     criteria.setStatus(OrderInfoEnum.STATUS_2.getValue());
-                    criteria.setRefundStatus(OrderInfoEnum.REFUND_STATUS_0.getValue());
                     break;
                 case "4":
-                    criteria.setPaid(OrderInfoEnum.PAY_STATUS_1.getValue());
+                    // 交易完成
                     criteria.setStatus(OrderInfoEnum.STATUS_3.getValue());
-                    criteria.setRefundStatus(OrderInfoEnum.REFUND_STATUS_0.getValue());
                     break;
                 case "-1":
-                    criteria.setPaid(OrderInfoEnum.PAY_STATUS_1.getValue());
-                    criteria.setRefundStatus(OrderInfoEnum.REFUND_STATUS_1.getValue());
+                    // 退款中（申请退款）
+                    criteria.setStatus(OrderInfoEnum.STATUS_NE1.getValue());
                     break;
                 case "-2":
-                    criteria.setPaid(OrderInfoEnum.PAY_STATUS_1.getValue());
-                    criteria.setRefundStatus(OrderInfoEnum.REFUND_STATUS_2.getValue());
+                    // 已退款（退款成功）
+                    criteria.setStatus(OrderInfoEnum.STATUS_NE2.getValue());
                     break;
                 default:
             }
