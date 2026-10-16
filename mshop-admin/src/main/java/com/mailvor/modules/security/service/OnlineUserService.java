@@ -28,7 +28,10 @@ import java.util.*;
 @Service
 @Slf4j
 public class OnlineUserService {
-    protected static TimedCache cursorMap = CacheUtil.newTimedCache(2000000);
+    private static final TimedCache<String, List<OnlineUser>> memberSnapshotCache = CacheUtil.newTimedCache(60000);
+    private static final String MEMBER_SNAPSHOT_KEY = "mshop_app_login_user_snapshot";
+    private static final long MEMBER_SNAPSHOT_TTL = 60000L;
+    private static final int SNAPSHOT_BATCH_SIZE = 500;
 
     private final SecurityProperties properties;
     private RedisUtils redisUtils;
@@ -65,26 +68,56 @@ public class OnlineUserService {
      * @return /
      */
     public Map<String, Object> getAll(String filter, Pageable pageable, int type) {
-        if(type != 1) {
-            List<OnlineUser> onlineUsers = getAll(filter, type);
-            return PageUtil.toPage(
-                    PageUtil.toPage(pageable.getPageNumber(), pageable.getPageSize(), onlineUsers),
-                    onlineUsers.size());
+        List<OnlineUser> onlineUsers = (type == 1)
+                ? filterUsers(getMemberOnlineSnapshot(), filter)
+                : getAll(filter, type);
+        return PageUtil.toPage(
+                PageUtil.toPage(pageable.getPageNumber(), pageable.getPageSize(), onlineUsers),
+                onlineUsers.size());
+    }
 
+    /**
+     * 在线会员快照缓存：翻页/搜索直接读内存，避免每次请求都对 Redis 全键空间 SCAN
+     */
+    private List<OnlineUser> getMemberOnlineSnapshot() {
+        List<OnlineUser> snapshot = memberSnapshotCache.get(MEMBER_SNAPSHOT_KEY, false);
+        if (snapshot != null) {
+            return snapshot;
         }
-        Map<String, Object> pageData = getPageData((String)cursorMap.get(pageable.getPageNumber()), pageable.getPageSize(), filter);
-        String cursorId = (String)pageData.get("cursorId");
-        if(!"0".equals(cursorId)) {
-            cursorMap.put(pageable.getPageNumber() + 1, cursorId);
-        }
-        Object totalObj = cursorMap.get("total");
-        if(totalObj == null) {
+        synchronized (this) {
+            snapshot = memberSnapshotCache.get(MEMBER_SNAPSHOT_KEY, false);
+            if (snapshot != null) {
+                return snapshot;
+            }
             List<String> keys = redisUtils.scan(ShopConstants.MSHOP_APP_LOGIN_USER + "*");
-            totalObj = keys.size();
-            cursorMap.put("total", totalObj);
+            List<OnlineUser> users = new ArrayList<>(keys.size());
+            // MGET 分批，避免单命令携带过多 key 阻塞 Redis
+            for (int i = 0; i < keys.size(); i += SNAPSHOT_BATCH_SIZE) {
+                List<String> batch = keys.subList(i, Math.min(i + SNAPSHOT_BATCH_SIZE, keys.size()));
+                for (Object obj : redisUtils.multiGet(batch)) {
+                    // scan 与 mget 之间可能有过期键
+                    if (obj instanceof OnlineUser) {
+                        users.add((OnlineUser) obj);
+                    }
+                }
+            }
+            users.sort((o1, o2) -> o2.getLoginTime().compareTo(o1.getLoginTime()));
+            memberSnapshotCache.put(MEMBER_SNAPSHOT_KEY, users, MEMBER_SNAPSHOT_TTL);
+            return users;
         }
+    }
 
-        return PageUtil.toPage(pageData.get("list"), totalObj);
+    private List<OnlineUser> filterUsers(List<OnlineUser> users, String filter) {
+        if (StringUtils.isBlank(filter)) {
+            return users;
+        }
+        List<OnlineUser> res = new ArrayList<>();
+        for (OnlineUser user : users) {
+            if (user.toString().contains(filter)) {
+                res.add(user);
+            }
+        }
+        return res;
     }
 
     /**
@@ -117,36 +150,6 @@ public class OnlineUserService {
         return onlineUsers;
     }
 
-    public Map<String, Object> getPageData(String cursorId, Integer pageSize, String filter) {
-
-        List<OnlineUser> findUsers = new ArrayList<>(pageSize);
-        do{
-            Map<String, Object> res =  redisUtils.scan(ShopConstants.MSHOP_APP_LOGIN_USER + "*", pageSize, cursorId);
-            cursorId = (String)res.get("cursorId");
-
-            HashSet set = (HashSet)res.get("list");
-            List list = new ArrayList<>(set);
-            if(StringUtils.isBlank(filter)) {
-                findUsers = list;
-            } else {
-                for(Object obj : list) {
-                    OnlineUser onlineUser = (OnlineUser) obj;
-                    if(onlineUser.getUserName().contains(filter) || onlineUser.getNickName().contains(filter)) {
-                        findUsers.add(onlineUser);
-                    }
-                }
-            }
-
-            //如果返回0 跳出循环
-            if("0".equals(cursorId)) {
-                break;
-            }
-        } while (findUsers.size() < pageSize);
-        Map<String, Object> res = new HashMap<>(2);
-        res.put("cursorId", cursorId);
-        res.put("list", findUsers);
-        return res;
-    }
 
     /**
      * 踢出用户

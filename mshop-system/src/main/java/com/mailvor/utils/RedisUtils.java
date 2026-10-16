@@ -68,7 +68,8 @@ public class RedisUtils {
      * @return /
      */
     public List<String> scan(String pattern) {
-        ScanOptions options = ScanOptions.scanOptions().match(pattern).build();
+        // 加大 COUNT 批次，避免默认 count=10 时对大键空间逐槽遍历产生海量往返
+        ScanOptions options = ScanOptions.scanOptions().match(pattern).count(1000).build();
         RedisConnectionFactory factory = redisTemplate.getConnectionFactory();
         RedisConnection rc = Objects.requireNonNull(factory).getConnection();
         Cursor<byte[]> cursor = rc.scan(options);
@@ -211,8 +212,10 @@ public class RedisUtils {
      * @return
      */
     public List<Object> multiGet(List<String> keys) {
-        Object obj = redisTemplate.opsForValue().multiGet(Collections.singleton(keys));
-        return null;
+        if (keys == null || keys.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return redisTemplate.opsForValue().multiGet(new ArrayList<Object>(keys));
     }
 
     /**
