@@ -8,6 +8,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum DataokeApi {
+    JD_BRAND_LIST("https://openapi.dataoke.com/api/dels/jd/column/list-discount-brand", "v1.0.0","京东大牌折扣"),
+    JD_NINES_LIST("https://openapi.dataoke.com/api/dels/jd/column/list-nines", "v1.0.0","京东9.9包邮"),
     TB_QUERY_ORDER("https://openapi.dataoke.com/api/tb-service/get-order-details", "v1.0.0","淘系订单查询"),
     JD_QUERY_ORDER("https://openapi.dataoke.com/api/dels/jd/order/get-official-order-list", "v2.0.0","京东订单查询"),
     VIP_QUERY_ORDER("https://openapi.dataoke.com/api/vip/order-list", "v1.0.0","唯品会订单列表"),

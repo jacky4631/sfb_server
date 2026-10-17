@@ -36,9 +36,7 @@ public class JdOrderCollectionTask extends OrderTask{
             param.setEndTime(end.format(FF));
             param.setStartTime(start.format(FF));
         }
-        if(param.getType() == null) {
-            param.setType(1);
-        }
+        param.setType(3);
         saveJdOrder(param);
     }
 

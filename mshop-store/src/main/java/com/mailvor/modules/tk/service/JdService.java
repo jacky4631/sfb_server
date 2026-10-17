@@ -50,8 +50,8 @@ public class JdService {
         JdClient client = getJdClient();
         UnionOpenGoodsRankQueryRequest request=new UnionOpenGoodsRankQueryRequest();
         RankGoodsReq rankGoodsReq=new RankGoodsReq();
-        rankGoodsReq.setRankId(200000L);
-        rankGoodsReq.setSortType(3);
+        rankGoodsReq.setRankId(param.getRankId());
+        rankGoodsReq.setSortType(param.getSortType());
         rankGoodsReq.setPageIndex(param.getPageId());
         rankGoodsReq.setPageSize(param.getPageSize());
         request.setRankGoodsReq(rankGoodsReq);
@@ -90,6 +90,7 @@ public class JdService {
         promotionCodeReq.setMaterialId(itemId);
         promotionCodeReq.setSiteId(jdConfig.getSiteId());
         promotionCodeReq.setSubUnionId(uid);
+        promotionCodeReq.setPositionId(Long.parseLong(uid));
         if(StringUtils.isNotBlank(couponUrl)){
             promotionCodeReq.setCouponUrl(couponUrl);
         }
@@ -103,6 +104,9 @@ public class JdService {
 
     public JdUnionCommonGoodsWordVO goodsWord(String itemId, String couponUrl, String uid) {
         GetResult getResult = goodsWordUnion(itemId, couponUrl, uid);
+        if (getResult == null || getResult.getData() == null) {
+            throw new IllegalStateException("京东转链失败，请稍后重试");
+        }
         return JdUnionCommonGoodsWordVO.builder()
                 .link(getResult.getData().getClickURL())
                 .pwd(getResult.getData().getJCommand())
@@ -153,8 +157,8 @@ public class JdService {
         JdClient client=new DefaultJdClient(url, null, clientId,clientSecret);
 //        UnionOpenGoodsRankQueryRequest request=new UnionOpenGoodsRankQueryRequest();
 //        RankGoodsReq rankGoodsReq=new RankGoodsReq();
-//        rankGoodsReq.setRankId(200000L);
-//        rankGoodsReq.setSortType(3);
+//        rankGoodsReq.setRankId(param.getRankId());
+//        rankGoodsReq.setSortType(param.getSortType());
 //        rankGoodsReq.setPageIndex(1);
 //        rankGoodsReq.setPageSize(10);
 //        request.setRankGoodsReq(rankGoodsReq);

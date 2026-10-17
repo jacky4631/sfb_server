@@ -19,7 +19,7 @@ import lombok.Data;
 public class QueryJdParam {
     private static final long serialVersionUID = 1L;
     @ApiModelProperty(value = "页大小，默认20，1~100")
-    private Integer pageNo;
+    private Integer pageNo = 1;
     @ApiModelProperty(value = "页大小，默认20，1~100")
     private Integer pageSize = 100;
 

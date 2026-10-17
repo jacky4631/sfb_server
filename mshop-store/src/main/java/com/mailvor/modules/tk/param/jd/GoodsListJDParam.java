@@ -23,6 +23,9 @@ import java.math.BigDecimal;
 public class GoodsListJDParam extends BaseParam {
     private static final long serialVersionUID = 1L;
 
+    private Long rankId = 200000L;
+    private Integer sortType = 1;
+
     @Schema(description = "一级类目id")
     private String cid1;
 

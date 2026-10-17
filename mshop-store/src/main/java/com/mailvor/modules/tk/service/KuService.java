@@ -133,7 +133,7 @@ public class KuService {
                 sortKu = 2;
             } else if ("price".equals(sortName) && "asc".equals(sort)) {
                 sortKu = 4;
-            } else if ("price".equals(sortName) && "asc".equals(sort)) {
+            } else if ("price".equals(sortName) && "desc".equals(sort)) {
                 sortKu = 5;
             }
         }
@@ -753,7 +753,7 @@ public class KuService {
             sb.append("&sort=");
             sb.append(sortKu);
         }
-        ResponseEntity<String> re = restTemplate.getForEntity("http://v2.api.haodanku.com/jd_goods_search?" + sb, String.class);
+        ResponseEntity<String> re = restTemplate.getForEntity("http://v3.api.haodanku.com/jd_goods_search?" + sb, String.class);
 
         JdKuSearchListVO listVO = JSON.parseObject(re.getBody(), JdKuSearchListVO.class);
         return listVO;

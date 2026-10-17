@@ -42,7 +42,7 @@ public class JdOrderBindTask {
 
         jdOrders.stream().forEach(jdOrder -> {
             //pid绑定 getPositionId即为用户id
-            Long uid = OrderUtil.getJdOrderUser(jdOrder.getSubUnionId());
+            Long uid = OrderUtil.getJdOrderUser(jdOrder.getSubUnionId(), jdOrder.getPositionId());
             if(uid > 0) {
                 suStoreOrderService.bindOrder(uid, jdOrder);
             }

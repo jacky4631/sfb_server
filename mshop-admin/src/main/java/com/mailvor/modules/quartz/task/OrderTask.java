@@ -174,7 +174,7 @@ public class OrderTask {
                     order.setSkuId(System.currentTimeMillis());
                 }
                 //绑定用户
-                Long uid = OrderUtil.getJdOrderUser(order.getSubUnionId());
+                Long uid = OrderUtil.getJdOrderUser(order.getSubUnionId(), order.getPositionId());
                 if(uid > 0) {
                     order.setUid(uid);
                     //设置需要刷新今日预估的用户uid

@@ -41,6 +41,7 @@ public class JdOrderHistoryCollectionTask extends OrderTask{
             //如果还有更多，不做时间更新，继续查询下一页，订单少时无须测试
             if(hasMore == 1) {
                 param.setPageNo(param.getPageNo()+1);
+                count++;
             } else {
                 //结束时间变成之前的开始时间
                 param.setPageNo(1);

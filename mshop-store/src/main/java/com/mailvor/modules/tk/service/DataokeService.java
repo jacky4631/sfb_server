@@ -15,6 +15,7 @@ import com.mailvor.modules.tk.param.*;
 import com.mailvor.modules.tk.util.DataokeApi;
 import com.mailvor.modules.tk.util.DataokeApiClient;
 import com.mailvor.modules.tk.vo.*;
+import com.mailvor.modules.tk.vo.jd.JdGoodsListVO;
 import com.mailvor.modules.tk.vo.pdd.PddSearchDataVO;
 import com.mailvor.modules.tk.vo.pdd.PddSearchListVO;
 import com.mailvor.modules.tk.vo.vip.VipGoodsDetailDataVo;
@@ -216,6 +217,18 @@ public class DataokeService {
         "https://mobile.yangkeduo.com/goods2.html?refer_share_id=7hRYk1RcMeDNOBGy1590mIysmB5AZ60n&refer_share_channel=copy_link&pxq_secret_key=RFY2XNUVPFJEMXA6PPGD6UXLEBZYQJYTBWKFKECUFP3BG444E5UQ&_wvx=10&_x_ddjb_act=%7B%22st%22%3A%221%22%7D&_x_ddjb_id=1784892_252288888%7CCC_230129_1784892_252288888_7b316846d52696aba7de6707cc9488b5&_x_ddjb_gs=%7B%22gs_src%22%3A%221%22%2C%22gs_scn%22%3A%223%22%7D&_wv=41729&share_uin=FEHOG3PNIIGI24R2DELMGM34YU_GEXDA&page_from=29&refer_share_uin=FEHOG3PNIIGI24R2DELMGM34YU_GEXDA&_x_customParameters=%7B%22uid%22%3A%226%22%7D&goods_id=410160347693"
         );
         System.out.println(content);
+    }
+
+    public JdGoodsListVO brandListJD(com.mailvor.modules.tk.param.jd.GoodsListJDParam param) {
+        TreeMap<String, Object> params = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        String data = getData(DataokeApi.JD_BRAND_LIST.getUrl(), DataokeApi.JD_BRAND_LIST.getVersion(), params);
+        return JSON.parseObject(data, JdGoodsListVO.class);
+    }
+
+    public JdGoodsListVO ninesListJD(com.mailvor.modules.tk.param.jd.GoodsListJDParam param) {
+        TreeMap<String, Object> params = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
+        String data = getData(DataokeApi.JD_NINES_LIST.getUrl(), DataokeApi.JD_NINES_LIST.getVersion(), params);
+        return JSON.parseObject(data, JdGoodsListVO.class);
     }
 
     protected String getData(String url, String version, TreeMap<String, Object> paraMap) {
