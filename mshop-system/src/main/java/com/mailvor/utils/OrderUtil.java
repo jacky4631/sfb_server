@@ -40,6 +40,8 @@ public class OrderUtil {
 
     public static final List MT_VALID_ORDER_STATUS = Arrays.asList(0,1);
     public static final List MT_VALID_ORDER_BIZ_STATUS = Arrays.asList(1,2,3);
+
+    public static final String VIP_UID_PREFIX = "sfb_";
     /**
      * 获取精确到秒的时间戳
      * @return
@@ -355,7 +357,7 @@ public class OrderUtil {
             return 0L;
         }
         try {
-            return Long.parseLong(param);
+            return Long.parseLong(param.substring(VIP_UID_PREFIX.length()));
         }catch (Exception e) {
             e.printStackTrace();
         }

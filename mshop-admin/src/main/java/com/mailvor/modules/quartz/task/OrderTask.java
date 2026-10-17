@@ -41,6 +41,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.mailvor.modules.meituan.constants.MeituanConstants.MT_MEDIUM_PREFIX;
+import static com.mailvor.utils.OrderUtil.VIP_UID_PREFIX;
 
 /**
  * @author Zheng Jie
@@ -283,7 +284,9 @@ public class OrderTask {
                     res.getOrderListGetResponse().getOrderList();
             List<PddDdkOrderListRangeGetResponse.OrderListGetResponseOrderListItem> filteredOrders =
                     orders.stream().filter(order -> Objects.equals(order.getPId(), pddConfig.getPid())).collect(Collectors.toList());
-
+            if(filteredOrders.isEmpty()) {
+                return null;
+            }
             //todo 由于拼多多订单时间为秒，存入数据库后显示1970年，目前手动乘以1000 后期优化
             List<OrderListGetResponseOrderListDTO> orderDTOS = generator.convert(filteredOrders, OrderListGetResponseOrderListDTO.class);
             orderDTOS = orderDTOS.stream().map(o->{
@@ -345,7 +348,13 @@ public class OrderTask {
             VipDataVo data = res.getData();
             ArrayList<MailvorVipOrder> orders = data.getOrderInfoList();
             //绑定用户
-            orders.forEach(vipOrder -> {
+            List<MailvorVipOrder> filterOrders = orders.stream().filter(
+                    vipOrder -> vipOrder.getStatParam() != null && vipOrder.getStatParam().startsWith(VIP_UID_PREFIX))
+                    .collect(Collectors.toList());
+            if(filterOrders.isEmpty()) {
+                return false;
+            }
+            filterOrders.forEach(vipOrder -> {
                 Long uid = OrderUtil.getVipOrderUser(vipOrder.getStatParam());
                 if(uid > 0) {
                     vipOrder.setUid(uid);
@@ -358,7 +367,7 @@ public class OrderTask {
                     vipOrder.setCommissionRate(rate);
                 }
             });
-            boolean saved = vipOrderService.saveOrUpdateBatch(orders);
+            boolean saved = vipOrderService.saveOrUpdateBatch(filterOrders);
             log.debug(saved? "唯品会订单保存成功": "唯品会订单保存失败");
             return data.getTotal() > data.getPageSize() * data.getPage();
 

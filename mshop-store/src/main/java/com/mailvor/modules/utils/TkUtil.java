@@ -3,7 +3,6 @@ package com.mailvor.modules.utils;
 import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.mailvor.api.MshopException;
 import com.mailvor.enums.PlatformEnum;
 import com.mailvor.modules.shop.domain.MwSystemUserLevel;
 import com.mailvor.modules.tk.domain.*;
@@ -22,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.mailvor.config.PayConfig.PAY_NAME;
+import static com.mailvor.utils.OrderUtil.VIP_UID_PREFIX;
 
 @Data
 public class TkUtil {
@@ -379,9 +379,9 @@ public class TkUtil {
 
     public static String getVipOpenId(MwUser user) {
         if(user != null) {
-            return user.getUid().toString();
+            return VIP_UID_PREFIX + user.getUid().toString();
         }
-        return "0";
+        return VIP_UID_PREFIX + "0";
     }
 
     public static Integer getLevel(String platform, MwUser user) {
