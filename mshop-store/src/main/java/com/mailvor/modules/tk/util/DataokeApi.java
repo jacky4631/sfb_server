@@ -40,10 +40,6 @@ public enum DataokeApi {
     TB_BRAND_LIST("https://openapi.dataoke.com/api/delanys/brand/get-column-list", "v1.0.0","品牌栏目"),
     TB_BRAND_GOODS_LIST("https://openapi.dataoke.com/api/delanys/brand/get-goods-list", "v1.0.0","单个品牌详情"),
 
-    DY_GOODS_SEARCH("https://openapiv2.dataoke.com/tiktok/tiktok-materials-products-search", "v1.0.0","抖音搜索"),
-    DY_GOODS_DETAIL("https://openapiv2.dataoke.com/tiktok/tiktok-materials-products-details", "v1.0.0","抖音详情"),
-    DY_WORD("https://openapiv2.dataoke.com/open-api/tiktok-kol-product-share", "v1.0.0","抖音转链"),
-
     VIP_GOODS_LIST("https://openapi.dataoke.com/api/vip/search-by-keywords", "v1.0.0","唯品会联盟搜索"),
     VIP_GOODS_WORD("https://openapi.dataoke.com/api/vip/promote/link", "v1.0.0","唯品会商品转链"),
     VIP_GOODS_SEARCH("https://openapi.dataoke.com/api/vip/search-by-keywords", "v1.0.0","唯品会联盟搜索"),

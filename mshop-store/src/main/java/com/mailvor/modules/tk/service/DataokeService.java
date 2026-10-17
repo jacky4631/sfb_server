@@ -353,57 +353,6 @@ public class DataokeService {
         jsonObject.put("data", list);
         return jsonObject;
     }
-    public JSONObject dyGoodsSearch(GoodsSearchDyParam param) {
-        if(StringUtils.isNotBlank(param.getTitle())) {
-            String keyWord = param.getTitle().toLowerCase();
-            if(TkUtil.hasWord(keyWord) || EXCLUDE_KEY_WROD_LIST.contains(keyWord)){
-                JSONObject res = new JSONObject();
-                JSONObject data = new JSONObject();
-                data.put("list", new JSONArray());
-                data.put("total", 0);
-                res.put("data", data);
-                return res;
-            }
-        }
-        param.setAppkey(config.getKey());
-
-        TreeMap<String, Object> paraMap = JSON.parseObject(JSON.toJSONString(param), mapTypeReference);
-        String data = getData(DataokeApi.DY_GOODS_SEARCH.getUrl(), DataokeApi.DY_GOODS_SEARCH.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-    public JSONObject dyGoodsDetail(String goodsId) {
-
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("productIds", goodsId);
-        paraMap.put("appkey", config.getKey());
-        String data = getData(DataokeApi.DY_GOODS_DETAIL.getUrl(), DataokeApi.DY_GOODS_DETAIL.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
-
-    public JSONObject dyWord(String productUrl, String externalInfo) {
-        if(productUrl.contains("pick_source")) {
-            productUrl = productUrl.substring(0, productUrl.lastIndexOf("&"));
-        }
-        if(!productUrl.startsWith("http")) {
-
-            Matcher matcher = pattern.matcher(productUrl);
-            if (matcher.find( )) {
-                productUrl = matcher.group(0);
-            } else {
-                return new JSONObject();
-            }
-        }
-
-        int splitIndex = productUrl.indexOf("&");
-        if(splitIndex > 0) {
-            productUrl = productUrl.substring(0, splitIndex);
-        }
-        TreeMap<String, Object> paraMap = new TreeMap<>();
-        paraMap.put("productUrl", productUrl);
-        paraMap.put("externalInfo", externalInfo);
-        String data = getData(DataokeApi.DY_WORD.getUrl(), DataokeApi.DY_WORD.getVersion(), paraMap);
-        return JSON.parseObject(data);
-    }
 
     public JSONObject shopConvert(String shopId, String shopName, String pid, String channelId) {
         TreeMap<String, Object> paraMap = new TreeMap<>();

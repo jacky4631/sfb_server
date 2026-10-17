@@ -74,8 +74,6 @@ public class KuService {
     public static final String COUDAN_API = "http://v2.api.haodanku.com/make_order";
 
 
-    public static final String MEITUAN_ORDER_LIST_API = KU_API_BASE + "/meituan_order_list";
-
     /**
      *  抖音本地生活分类
      *  参照这个链接做了精简 KU_API_BASE + "/dy_life_category
