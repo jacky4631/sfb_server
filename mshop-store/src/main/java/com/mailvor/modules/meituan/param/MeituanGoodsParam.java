@@ -48,6 +48,15 @@ public class MeituanGoodsParam extends MeituanBaseParam {
 
     @ApiModelProperty(value = "选品池榜单主题ID，支持查询1:精选，2:今日必推、3:同城热销、4:跟推爆款的商品售卖券；到店、到家医药业务类型，本项为必填，且只支持传枚举3")
     private Integer listTopiId;
+
+    @ApiModelProperty(value = "搜索关键词，搜索时请勿同时传 vpSkuViewIds 或 listTopiId")
+    private String searchText;
+    @ApiModelProperty(value = "搜索分页游标，沿用上一页返回的 searchId")
+    private String searchId;
+    @ApiModelProperty(value = "城市编码")
+    private String cityId;
+    @ApiModelProperty(value = "商圈编码")
+    private String businessAreaId;
     @ApiModelProperty(value = "分页大小，不填返回默认分页20")
     private Integer pageSize;
 

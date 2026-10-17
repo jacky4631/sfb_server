@@ -10,6 +10,7 @@ import com.mailvor.modules.meituan.MeituanService;
 import com.mailvor.modules.meituan.config.MeituanConfig;
 import com.mailvor.modules.meituan.param.MeituanOrderParam;
 import com.mailvor.modules.meituan.utils.MeituanUtil;
+import com.mailvor.modules.meituan.utils.MeituanSidUtil;
 import com.mailvor.modules.tk.config.PddConfig;
 import com.mailvor.modules.tk.config.TbConfig;
 import com.mailvor.modules.tk.domain.*;
@@ -40,7 +41,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.mailvor.modules.meituan.constants.MeituanConstants.MT_MEDIUM_PREFIX;
 import static com.mailvor.utils.OrderUtil.VIP_UID_PREFIX;
 
 /**
@@ -414,15 +414,7 @@ public class OrderTask {
                 if(order.getCpaType() != null && order.getCpaType() == -1) {
                     return false;
                 }
-                String medium = order.getUtmMedium();
-                if(StringUtils.isBlank(medium)) {
-                    return false;
-                }
-                String dec = MeituanUtil.decryptHex(medium, meituanConfig.getAppKey());
-                if(!dec.startsWith(MT_MEDIUM_PREFIX)) {
-                    return false;
-                }
-                return true;
+                return getMtOrderUid(order) != null;
             }).collect(Collectors.toList());
             if(orders.isEmpty()) {
                 return res.getMsg().getPositionIndex();
@@ -436,24 +428,10 @@ public class OrderTask {
                         order.setUniqueItemId(order.getOrderId());
                     }
                 }
-                //美团uid解析
-                String medium = order.getUtmMedium();
-                if(StringUtils.isBlank(medium)) {
-                    return;
-                }
-                try{
-                    String dec = MeituanUtil.decryptHex(medium, meituanConfig.getAppKey());
-                    if(!dec.startsWith(MT_MEDIUM_PREFIX)) {
-                        return;
-                    }
-                    Long uid = Long.parseLong(dec.replace(MT_MEDIUM_PREFIX, ""));
-                    if(uid != null && uid > 0) {
-                        order.setUid(uid);
-                        //设置需要刷新今日预估的用户uid
-                        RedisUtil.setFeeUid(uid);
-                    }
-                }catch (Exception e) {
-                    e.printStackTrace();
+                Long uid = getMtOrderUid(order);
+                if (uid != null && uid > 0) {
+                    order.setUid(uid);
+                    RedisUtil.setFeeUid(uid);
                 }
             });
             boolean saved = mtOrderService.saveOrUpdateBatch(orders);
@@ -464,11 +442,22 @@ public class OrderTask {
         return null;
     }
 
+    private Long getMtOrderUid(MailvorMtOrder order) {
+        if (StringUtils.isNotBlank(order.getSid())) {
+            return MeituanSidUtil.parse(order.getSid());
+        }
+        // 兼容旧接口的加密 utmMedium，仅官方 sid 缺失时使用。
+        if (StringUtils.isBlank(order.getUtmMedium())) {
+            return null;
+        }
+        return MeituanSidUtil.parse(MeituanUtil.decryptHex(order.getUtmMedium(), meituanConfig.getAppKey()));
+    }
+
     protected String saveMtCPS(QueryMtParam param) {
         MeituanOrderParam objParam = initParam(param);
         MtResVo res = meituanService.order(objParam);
         saveMtOrder(res);
-        return res != null ? res.getMsg().getPositionIndex() : null;
+        return res != null && res.getMsg() != null ? res.getMsg().getPositionIndex() : null;
     }
 
 

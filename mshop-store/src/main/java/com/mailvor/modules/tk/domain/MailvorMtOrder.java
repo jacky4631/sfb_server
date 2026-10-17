@@ -99,6 +99,10 @@ public class MailvorMtOrder extends TkOrder {
 
     private String utmMedium;
 
+    /** 官方 CPS 接口原始归属标识，仅供本次同步校验，不新增数据库字段。 */
+    @TableField(exist = false)
+    private String sid;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date modifyTime;
 
