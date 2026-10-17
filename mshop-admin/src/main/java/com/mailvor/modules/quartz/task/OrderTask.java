@@ -156,7 +156,14 @@ public class OrderTask {
         if(queryResult != null && queryResult.getData() != null && queryResult.getData().length > 0) {
             OrderRowResp[] resps = queryResult.getData();
 
-            List<MailvorJdOrder> orders = JSON.parseArray(JSON.toJSONString(resps), MailvorJdOrder.class);
+            List<MailvorJdOrder> orders = JSON.parseArray(JSON.toJSONString(resps), MailvorJdOrder.class)
+                    .stream()
+                    .filter(order -> OrderUtil.getJdOrderUser(order.getSubUnionId(), order.getPositionId()) > 0)
+                    .collect(Collectors.toList());
+            // 过滤掉整页也要继续使用京东的 hasMore，不能提前停止分页。
+            if (orders.isEmpty()) {
+                return Boolean.TRUE.equals(queryResult.getHasMore()) ? 1 : 0;
+            }
             //过滤父订单
             Map<Long, Long> parentIdMap = new HashMap<>();
 

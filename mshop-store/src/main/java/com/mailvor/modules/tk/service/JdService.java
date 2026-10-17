@@ -21,6 +21,7 @@ import com.jd.open.api.sdk.request.kplunion.UnionOpenOrderRowQueryRequest;
 import com.jd.open.api.sdk.request.kplunion.UnionOpenPromotionCommonGetRequest;
 import com.jd.open.api.sdk.response.kplunion.UnionOpenOrderRowQueryResponse;
 import com.mailvor.modules.tk.config.JdConfig;
+import com.mailvor.utils.JdAttribution;
 import com.mailvor.modules.tk.param.QueryJdParam;
 import com.mailvor.modules.tk.param.jd.GoodsListJDParam;
 import com.mailvor.modules.tk.vo.jd.JdUnionCommonGoodsListVO;
@@ -80,7 +81,7 @@ public class JdService {
 //        //todo 后续实现
 //    }
     @SneakyThrows
-    private GetResult goodsWordUnion(String itemId, String couponUrl, String uid) {
+    private GetResult goodsWordUnion(String itemId, String couponUrl, Long uid) {
         //无权限无法调用
         JdClient client=new DefaultJdClient(jdConfig.getServer(),
                 null,
@@ -89,8 +90,8 @@ public class JdService {
         PromotionCodeReq promotionCodeReq=new PromotionCodeReq();
         promotionCodeReq.setMaterialId(itemId);
         promotionCodeReq.setSiteId(jdConfig.getSiteId());
-        promotionCodeReq.setSubUnionId(uid);
-        promotionCodeReq.setPositionId(Long.parseLong(uid));
+        promotionCodeReq.setSubUnionId(JdAttribution.subUnionId(uid));
+        promotionCodeReq.setPositionId(JdAttribution.positionId(uid));
         if(StringUtils.isNotBlank(couponUrl)){
             promotionCodeReq.setCouponUrl(couponUrl);
         }
@@ -102,7 +103,7 @@ public class JdService {
         return client.execute(request).getGetResult();
     }
 
-    public JdUnionCommonGoodsWordVO goodsWord(String itemId, String couponUrl, String uid) {
+    public JdUnionCommonGoodsWordVO goodsWord(String itemId, String couponUrl, Long uid) {
         GetResult getResult = goodsWordUnion(itemId, couponUrl, uid);
         if (getResult == null || getResult.getData() == null) {
             throw new IllegalStateException("京东转链失败，请稍后重试");

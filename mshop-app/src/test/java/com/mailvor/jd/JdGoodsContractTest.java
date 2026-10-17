@@ -68,10 +68,10 @@ public class JdGoodsContractTest {
     }
 
     @Test
-    public void attributionKeepsLegacyChannelAndFallsBackToPosition() {
-        assertEquals(Long.valueOf(12), OrderUtil.getJdOrderUser("12", 34L));
-        assertEquals(Long.valueOf(34), OrderUtil.getJdOrderUser(null, 34L));
-        assertEquals(Long.valueOf(34), OrderUtil.getJdOrderUser("invalid", 34L));
+    public void attributionUsesSfbSubUnionOrPositionRange() {
+        assertEquals(Long.valueOf(12), OrderUtil.getJdOrderUser("sfb_12", 1_000_000_000_012L));
+        assertEquals(Long.valueOf(34), OrderUtil.getJdOrderUser(null, 1_000_000_000_034L));
+        assertEquals(Long.valueOf(34), OrderUtil.getJdOrderUser("invalid", 1_000_000_000_034L));
         assertEquals(Long.valueOf(0), OrderUtil.getJdOrderUser(null, null));
         assertEquals(Integer.valueOf(1), new QueryJdParam().getPageNo());
     }

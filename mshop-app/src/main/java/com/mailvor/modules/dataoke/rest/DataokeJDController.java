@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import static com.mailvor.utils.JdAttribution.POSITION_BASE;
+
 /**
  *
  * @author shenji
@@ -119,13 +121,13 @@ public class DataokeJDController {
     @UserCheck
     @GetMapping(value = "/goods/word")
     public ApiResult<JdUnionCommonGoodsWordVO> goodsWord2(@Valid GoodsJdWordParam param) {
-        String positionId;
+        Long positionId;
 
         MwUser user = LocalUser.getUser();
         if(user != null) {
-            positionId = user.getUid().toString();
+            positionId = user.getUid();
         } else {
-            positionId = "0";
+            positionId = POSITION_BASE;
         }
         JdUnionCommonGoodsWordVO daRes = jdService.goodsWord(param.getGoodsId(), param.getCouponLink(), positionId);
 
