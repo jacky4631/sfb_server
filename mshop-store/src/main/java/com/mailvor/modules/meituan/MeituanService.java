@@ -27,7 +27,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.mailvor.modules.meituan.constants.MeituanConstants.MT_MEDIUM_PREFIX;

@@ -414,6 +414,14 @@ public class OrderTask {
                 if(order.getCpaType() != null && order.getCpaType() == -1) {
                     return false;
                 }
+                String medium = order.getUtmMedium();
+                if(StringUtils.isBlank(medium)) {
+                    return false;
+                }
+                String dec = MeituanUtil.decryptHex(medium, meituanConfig.getAppKey());
+                if(!dec.startsWith(MT_MEDIUM_PREFIX)) {
+                    return false;
+                }
                 return true;
             }).collect(Collectors.toList());
             if(orders.isEmpty()) {

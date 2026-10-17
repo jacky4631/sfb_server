@@ -17,7 +17,7 @@ public class MeituanConstants {
     public static final String MT_URL_ORDER_CPS = "https://union.dianping.com/data/promote/verify/item/new";
     public static final String MT_URL_ORDER_CPA = "https://union.dianping.com/data/promote/verify/cpa/new";
     public static final String MT_URL_ORDER_REFUND = "https://union.dianping.com/data/promote/abnormal/item/new";
-    public static final String MT_MEDIUM_PREFIX = "uid_";
+    public static final String MT_MEDIUM_PREFIX = "sfbuid_";
     public static final String MT_GROUP_NAME_ACTIVITY_LIST = "mshop_meituan_activity_list";
 
 
