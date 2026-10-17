@@ -499,6 +499,8 @@ public class DataokeService {
                 JSONObject data = new JSONObject();
                 data.put("goodsInfoList", new JSONArray());
                 data.put("total", 0);
+                res.put("code", 0);
+                res.put("msg", "成功");
                 res.put("data", data);
                 return res;
             }

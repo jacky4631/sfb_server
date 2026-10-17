@@ -1,5 +1,6 @@
 package com.mailvor.modules.dataoke.rest;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.api.ApiResult;
 import com.mailvor.common.bean.LocalUser;
@@ -7,67 +8,81 @@ import com.mailvor.common.interceptor.UserCheck;
 import com.mailvor.modules.tk.param.GoodsListVipParam;
 import com.mailvor.modules.tk.param.GoodsSearchVipParam;
 import com.mailvor.modules.tk.service.DataokeService;
-import com.mailvor.modules.tk.vo.vip.VipGoodsDetailDataVo;
-import com.mailvor.modules.tk.vo.vip.VipSearchListVO;
-import com.mailvor.modules.tk.vo.vip.VipWordCodeVO;
-import com.mailvor.modules.user.domain.MwUser;
+import com.mailvor.modules.tk.vo.vip.*;
 import com.mailvor.modules.utils.TkUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/vip")
-@Slf4j
 public class DataokeVipController {
-    @Resource
-    private DataokeService service;
+    @Resource private DataokeService service;
 
     @UserCheck
-    @GetMapping(value = "/goods/list")
-    public VipSearchListVO getGoodList(GoodsListVipParam param) {
-        MwUser mwUser = LocalUser.getUser();
-        //获取pid为了实现自动追单
-        if(mwUser != null) {
-            param.setOpenId(mwUser.getUid().toString());
-        } else {
-            param.setOpenId("0");
-        }
-
-        return service.goodsListVip(param);
+    @GetMapping("/goods/list")
+    public ApiResult<Map<String, Object>> getGoodList(GoodsListVipParam param) {
+        param.setOpenId(TkUtil.getVipOpenId(LocalUser.getUser()));
+        return productList(service.goodsListVip(param));
     }
 
     @UserCheck
-    @GetMapping(value = "/goods/search")
-    public JSONObject getGoodsSearch(GoodsSearchVipParam param) {
-        MwUser mwUser = LocalUser.getUser();
-        //获取pid为了实现自动追单
-        if(mwUser != null) {
-            param.setOpenId(mwUser.getUid().toString());
-        } else {
-            param.setOpenId("0");
+    @GetMapping("/goods/search")
+    public ApiResult<Map<String, Object>> getGoodsSearch(GoodsSearchVipParam param) {
+        return postGoodsSearch(param);
+    }
+
+    // JSON request bodies preserve keywords containing %, +, &, or non-ASCII text.
+    @UserCheck
+    @PostMapping("/goods/search")
+    public ApiResult<Map<String, Object>> postGoodsSearch(@RequestBody GoodsSearchVipParam param) {
+        param.setOpenId(TkUtil.getVipOpenId(LocalUser.getUser()));
+        JSONObject response = service.vipGoodsSearch(param);
+        return productList(response == null ? null : response.toJavaObject(VipSearchListVO.class));
+    }
+
+    private ApiResult<Map<String, Object>> productList(VipSearchListVO result) {
+        if (result == null || !Integer.valueOf(0).equals(result.getCode())) {
+            throw new IllegalStateException(result == null ? "唯品会商品查询失败" : result.getMsg());
         }
-        return service.vipGoodsSearch(param);
+        VipSearchDataVO source = result.getData();
+        Map<String, Object> data = new HashMap<>();
+        data.put("total", source == null || source.getTotal() == null ? 0 : source.getTotal());
+        data.put("list", source == null || source.getList() == null ? Collections.emptyList() :
+                source.getList().stream().map(BeanUtil::beanToMap).collect(Collectors.toList()));
+        return ApiResult.ok(data);
     }
 
     @UserCheck
-    @GetMapping(value = "/goods/detail")
-    public ApiResult<VipGoodsDetailDataVo> getGoodsDetail(String goodsId) {
-        MwUser mwUser = LocalUser.getUser();
-        return ApiResult.ok(service.goodsDetailVIP(goodsId, TkUtil.getVipOpenId(mwUser)));
-    }
-    @UserCheck
-    @GetMapping(value = "/goods/word")
-    public ApiResult<VipWordCodeVO> goodsWord(String itemUrl, String statParam, String adCode) {
-        MwUser mwUser = LocalUser.getUser();
-        //获取pid为了实现自动追单
-        if(mwUser != null) {
-            statParam = mwUser.getUid().toString();
+    @GetMapping("/goods/detail")
+    public ApiResult<Map<String, Object>> getGoodsDetail(@RequestParam String goodsId) {
+        VipGoodsDetailDataVo response = service.goodsDetailVIP(goodsId, TkUtil.getVipOpenId(LocalUser.getUser()));
+        if (response == null || !Integer.valueOf(0).equals(response.getCode())) {
+            throw new IllegalStateException(response == null ? "唯品会商品查询失败" : response.getMsg());
         }
+        VipGoodsDetailVO goods = response.getGoods();
+        // Also tolerate provider responses not yet reduced to a single product.
+        if (goods == null && response.getData() != null && !response.getData().isEmpty()) {
+            goods = response.getData().get(0);
+        }
+        return ApiResult.ok(goods == null ? Collections.emptyMap() : BeanUtil.beanToMap(goods));
+    }
 
-        return ApiResult.ok(service.goodsWordVIP(itemUrl, statParam, TkUtil.getVipGenRequest(TkUtil.getVipOpenId(mwUser), adCode)));
+    @UserCheck
+    @GetMapping("/goods/word")
+    public ApiResult<Map<String, Object>> goodsWord(@RequestParam String goodsId,
+                                                   @RequestParam(required = false) String adCode) {
+        String uid = TkUtil.getVipOpenId(LocalUser.getUser());
+        VipWordCodeVO result = service.goodsWordVIP(goodsId, uid, TkUtil.getVipGenRequest(uid, adCode));
+        if (result == null || !Integer.valueOf(0).equals(result.getCode()) || result.getWord() == null) {
+            throw new IllegalStateException(result == null ? "唯品会转链失败" : result.getMsg());
+        }
+        VipWordVO word = result.getWord();
+        if ((word.getLink() == null || word.getLink().isEmpty()) &&
+                (word.getLongLink() == null || word.getLongLink().isEmpty())) {
+            throw new IllegalStateException("唯品会转链失败，请稍后重试");
+        }
+        return ApiResult.ok(BeanUtil.beanToMap(word));
     }
 }

@@ -56,4 +56,10 @@ public class VipSearchVO {
 
     @Schema(description = "优惠券金额")
     private Double coupon;
+    private VipGoodsDetailVO.StoreInfo storeInfo;
+    private VipGoodsDetailCouponInfoVO couponInfo;
+
+    public String getShopName() {
+        return shopName != null ? shopName : storeInfo == null ? null : storeInfo.getStoreName();
+    }
 }
