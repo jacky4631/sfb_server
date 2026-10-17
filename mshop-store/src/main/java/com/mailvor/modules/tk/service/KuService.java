@@ -5,6 +5,7 @@
 package com.mailvor.modules.tk.service;
 
 
+import com.mailvor.modules.tk.config.KuCmsAddress;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
@@ -87,6 +88,7 @@ public class KuService {
 
     @Value("${haodanku.key}")
     private String key;
+
     @Value("${haodanku.waimaiKey}")
     private String waimaiKey;
 
@@ -503,59 +505,25 @@ public class KuService {
     }
 
     public DySearchListVO dyProductList(GoodsListDyParam param) {
-        String url = String.format("https://api.cmspro.haodanku.com/douyin/item/getListsByDy?cate_id=%s&min_id=%s&back=%s&cid=%s",
-                param.getCateId(), param.getPageId(), param.getPageSize(), getKuCid());
-        ResponseEntity<String> re = restTemplate.getForEntity(url, String.class);
+        org.springframework.web.util.UriComponentsBuilder url = org.springframework.web.util.UriComponentsBuilder
+                .fromHttpUrl("https://api.cmspro.haodanku.com/douyin/item/getListsByDy")
+                .queryParam("min_id", param.getPageId())
+                .queryParam("back", param.getPageSize())
+                .queryParam("cid", getKuCid());
+        if (StringUtils.isNotBlank(param.getKeyword())) url.queryParam("keyword", "{keyword}");
+        if (param.getCateId() != null) url.queryParam("cate_id", param.getCateId());
+        if (param.getSort() != null) url.queryParam("sort", param.getSort());
+        java.net.URI uri = url.encode().buildAndExpand(Collections.singletonMap("keyword", param.getKeyword())).toUri();
+        ResponseEntity<String> re = restTemplate.getForEntity(uri, String.class);
         DyCmsListVO cmsListVO = JSON.parseObject(re.getBody(), DyCmsListVO.class);
         DySearchListVO searchListVO = new DySearchListVO();
         searchListVO.setCode(cmsListVO.getCode());
         searchListVO.setMsg(cmsListVO.getMsg());
-        searchListVO.setMinId(cmsListVO.getData().getMinId());
-        searchListVO.setData(cmsListVO.getData().getProducts());
+        if(cmsListVO.getData() != null) {
+            searchListVO.setMinId(cmsListVO.getData().getMinId());
+            searchListVO.setData(cmsListVO.getData().getProducts());
+        }
         return searchListVO;
-//        StringBuilder sb = new StringBuilder();
-//        sb.append(KU_API_BASE);
-//        sb.append("/dy_item_list?");
-//        sb.append("apikey=");
-//        sb.append(config.getConfig().getHaodankuKey());
-//        sb.append("&min_id=");
-//        sb.append(param.getPageId());
-//        sb.append("&back=");
-//        sb.append(param.getPageSize());
-//        if(StringUtils.isNotBlank(param.getKeyword())) {
-//            sb.append("&keyword=");
-//            sb.append(param.getKeyword());
-//        }
-//
-//        if(param.getSort() != null) {
-//            sb.append("&sort=");
-//            sb.append(param.getSort());
-//        }
-//        if(param.getCateId() != null) {
-//            sb.append("&cate_id=");
-//            sb.append(param.getCateId());
-//        }
-//
-//        if(param.getPriceMin() != null) {
-//            sb.append("&price_min=");
-//            sb.append(param.getPriceMin());
-//        }
-//        if(param.getPriceMax() != null) {
-//            sb.append("&price_max=");
-//            sb.append(param.getPriceMax());
-//        }
-//        if(param.getSalesMin() != null) {
-//            sb.append("&sales_min=");
-//            sb.append(param.getSalesMin());
-//        }
-//        if(param.getSalesMax() != null) {
-//            sb.append("&sales_max=");
-//            sb.append(param.getSalesMax());
-//        }
-//        ResponseEntity<String> re = restTemplate.getForEntity(
-//                sb.toString(),
-//                String.class);
-//        return JSON.parseObject(re.getBody(), DySearchListVO.class);
     }
 
     public DyGoodsDetailDataVo dyProductDetail(String itemId) {
@@ -570,51 +538,18 @@ public class KuService {
         res.setDetail(dataVo.getData());
         res.setMsg(dataVo.getMsg());
         return res;
-
-//        StringBuilder sb = new StringBuilder();
-//        sb.append(KU_API_BASE);
-//        sb.append("/dy_detail?");
-//        sb.append("apikey=");
-//        sb.append(config.getConfig().getHaodankuKey());
-//        sb.append("&itemid=");
-//        sb.append(itemId);
-//        ResponseEntity<String> re = restTemplate.getForEntity(
-//                sb.toString(),
-//                String.class);
-//        DyGoodsDetailDataVo dataVo = JSON.parseObject(re.getBody(), DyGoodsDetailDataVo.class);
-//        if(CollectionUtils.isNotEmpty(dataVo.getData())) {
-//            DyGoodsDetailVO detailVO = dataVo.getData().get(0);
-//            detailVO.setDetails(detailVO.getBanners());
-//            JSONObject totalScore = detailVO.getShopTotalScore();
-//            if(totalScore != null) {
-//                JSONObject shipScore = totalScore.getJSONObject("logistics_score");
-//                if(shipScore != null) {
-//                    detailVO.setShipScore(shipScore.getString("score"));
-//                }
-//                JSONObject serviceScore = totalScore.getJSONObject("service_score");
-//                if(serviceScore != null) {
-//                    detailVO.setServiceScore(serviceScore.getString("score"));
-//                }
-//                JSONObject productScore = totalScore.getJSONObject("product_score");
-//                if(productScore != null) {
-//                    detailVO.setDescScore(productScore.getString("score"));
-//                }
-//                detailVO.setShopTotalScore(null);
-//            }
-//            dataVo.setData(null);
-//            dataVo.setDetail(detailVO);
-//        }
-//        return dataVo;
     }
 
     public DyWordGoodsDataVO dyProductWord(String itemId, String channel) {
+
+        KuCmsAddress cmsAddress = getKuCmsAddress();
         StringBuilder sb = new StringBuilder();
-        sb.append("domain=jkj.mailvor.com");
+        sb.append("domain=").append(cmsAddress.getDomain());
         sb.append("&type=1");
-        sb.append("&product_id="+itemId);
+        sb.append("&product_id=").append(itemId);
         sb.append("&use_coupon=true");
         sb.append("&need_share_link=true");
-        sb.append("&cid=" + getKuCid());
+        sb.append("&cid=").append(cmsAddress.getCid());
         HttpHeaders headers = new HttpHeaders();
         // 以表单的方式提交
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -624,44 +559,36 @@ public class KuService {
                 requestParam,
                 String.class);
         return JSON.parseObject(re.getBody(), DyWordGoodsDataVO.class);
-
-//        StringBuilder sb = new StringBuilder();
-//        sb.append("apikey=");
-//        sb.append(config.getConfig().getHaodankuKey());
-//        sb.append("&itemid=");
-//        sb.append(itemId);
-//        sb.append("&channel=");
-//        sb.append(channel);
-//        HttpHeaders headers = new HttpHeaders();
-//        // 以表单的方式提交
-//        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-//        HttpEntity<String> requestParam = new HttpEntity<>(sb.toString(),headers);
-//        ResponseEntity<String> re = restTemplate.postForEntity(
-//                KU_API_BASE+"/get_dyitem_link",
-//                requestParam,
-//                String.class);
-//        return JSON.parseObject(re.getBody(), DyWordGoodsDataVO.class);
     }
+
     public DyCateDataVO dyProductCateList() {
-        ResponseEntity<JSONObject> re = restTemplate.getForEntity(
-                "https://api.cmspro.haodanku.com/duohaodan/index/category?type=9&cid=" + getKuCid(), JSONObject.class);
-        JSONArray cates = re.getBody().getJSONObject("data").getJSONArray("category");
-        List<DyCateVO> data = new ArrayList<>(cates.size());
-        for(Object obj : cates) {
-            Map cate = (Map)obj;
-            DyCateVO cateVO = new DyCateVO();
-            cateVO.setCid((Integer) cate.get("id"));
-            cateVO.setTitle((String)cate.get("name"));
-            data.add(cateVO);
+        // Read JSON as text so Spring/Jackson cannot leave nested LinkedHashMaps
+        // inside a Fastjson JSONObject and break category-item casts.
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                "https://api.cmspro.haodanku.com/duohaodan/index/category?type=9&cid=" + getKuCid(), String.class);
+        JSONObject body = JSON.parseObject(response.getBody());
+        if (body == null || (!Integer.valueOf(0).equals(body.getInteger("code")) &&
+                !Integer.valueOf(200).equals(body.getInteger("code")))) {
+            throw new IllegalStateException(body == null ? "抖音分类查询失败" : body.getString("msg"));
         }
-        DyCateDataVO dataVO = new DyCateDataVO();
-        dataVO.setCode(0);
-        dataVO.setData(data);
-        return dataVO;
-        //原抖音接口暂时注释
-//        return getCateList(4, null);
+        JSONObject payload = body.getJSONObject("data");
+        JSONArray categories = payload == null ? null : payload.getJSONArray("category");
+        if (categories == null) throw new IllegalStateException("抖音分类响应缺少分类列表");
+        List<DyCateVO> data = new ArrayList<>(categories.size());
+        for (int i = 0; i < categories.size(); i++) {
+            JSONObject category = categories.getJSONObject(i);
+            if (category == null || category.getInteger("id") == null ||
+                    StringUtils.isBlank(category.getString("name"))) continue;
+            DyCateVO item = new DyCateVO();
+            item.setCid(category.getInteger("id"));
+            item.setTitle(category.getString("name"));
+            data.add(item);
+        }
+        DyCateDataVO result = new DyCateDataVO();
+        result.setCode(0);
+        result.setData(data);
+        return result;
     }
-
 
     public JSONObject getCateList(Integer type, Integer labelId) {
         StringBuilder sb = new StringBuilder();
@@ -683,12 +610,23 @@ public class KuService {
     }
 
     public String getKuCid() {
-        if(StringUtils.isBlank(TkConstants.kuCid)) {
-            TkConstants.kuCid = systemConfigService.getAppDataConfig().getKuCid();
-        }
-        return TkConstants.kuCid;
+        return getKuCmsAddress().getCid();
     }
 
+    public String getKuHost() {
+        return getKuCmsAddress().getDomain();
+    }
+
+    private KuCmsAddress getKuCmsAddress() {
+        String url = TkConstants.kuCmsUrl;
+        if (StringUtils.isBlank(url)) {
+            url = systemConfigService.getAppDataConfig().getKuCid();
+            KuCmsAddress address = KuCmsAddress.parse(url);
+            TkConstants.kuCmsUrl = url;
+            return address;
+        }
+        return KuCmsAddress.parse(url);
+    }
 
     public JSONObject coudanList(Integer page, Integer size, String search) {
 

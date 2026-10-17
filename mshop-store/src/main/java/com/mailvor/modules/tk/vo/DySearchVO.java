@@ -11,11 +11,11 @@ import lombok.Data;
 @Data
 public class DySearchVO {
 
-    @JSONField(name = "itemid")
+    @JSONField(name = "product_id")
     @Schema(description = "商品id")
     private String goodsId;
 
-    @JSONField(name = "itemtitle")
+    @JSONField(name = "product_title")
     @Schema(description = "商品标题")
     private String title;
     @Schema(description = "商品短标题")
@@ -61,4 +61,8 @@ public class DySearchVO {
     @JSONField(name = "cate_name")
     @Schema(description = "分类名称")
     private String cateName;
+
+    @JSONField(name = "detail_url")
+    @Schema(description = "商品链接")
+    private String itemUrl;
 }

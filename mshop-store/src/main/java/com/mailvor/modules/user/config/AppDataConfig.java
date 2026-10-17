@@ -9,11 +9,11 @@ import java.io.Serializable;
 @Data
 public class AppDataConfig implements Serializable {
     /**
-     * 好单库cms的cid
+     * 好单库 CMS 完整地址（使用时拆分域名和 cid）
      * 申请链接：https://user.cms.haodanku.com/record
-     * 例如：https://renyigo8.kuaizhan.com/?cid=6bpB4iTC#/     kuCid=6bpB4iTC
+     * 例如：http://test.mailvor.com/?cid=DaqG6352
      * */
-    @NotBlank(message = "好单库cms的cid不能为空")
+    @NotBlank(message = "好单库 CMS 完整地址不能为空")
     private String kuCid;
 
 

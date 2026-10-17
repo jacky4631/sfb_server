@@ -1,5 +1,6 @@
 package com.mailvor.modules.tk.vo;
 
+import com.mailvor.enums.PlatformEnum;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -95,5 +96,8 @@ public class DyGoodsDetailVO {
     @JSONField(name = "logistics_info")
     @Schema(description = "物流发货时间")
     private String logisticsInfo;
+
+    @Schema(description = "平台")
+    private String platform = PlatformEnum.DY.getValue();
 
 }

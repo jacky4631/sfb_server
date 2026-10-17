@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.shop.service.impl;
 
+import com.mailvor.modules.tk.config.KuCmsAddress;
+import com.mailvor.exception.BadRequestException;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -261,6 +263,12 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
     }
 
     public void setAppDataConfig(AppDataConfig param) {
+        try {
+            KuCmsAddress.parse(param.getKuCid());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+        param.setKuCid(param.getKuCid().trim());
         String key = TkUtil.getMixedPlatformKey(HOME_DATA);
         MwSystemConfig systemConfig = getOne(new LambdaQueryWrapper<MwSystemConfig>()
                 .eq(MwSystemConfig::getMenuName, key));
@@ -269,7 +277,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
             systemConfig.setMenuName(key);
         }
         systemConfig.setValue(JSON.toJSONString(param));
-        TkConstants.kuCid = null;
+        TkConstants.kuCmsUrl = null;
         redisUtils.set(key, param);
         saveOrUpdate(systemConfig);
     }
