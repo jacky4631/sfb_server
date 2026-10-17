@@ -682,7 +682,9 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
             hb = NumberUtil.round(hb/8, 2).doubleValue();
         }
         hb = NumberUtil.round(hb, 2).doubleValue();
-
+        if(hb == 0) {
+            hb = 0.1;
+        }
         return hb;
     }
 
