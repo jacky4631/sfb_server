@@ -22,6 +22,9 @@ public class PddConfig {
     private String pid;
 
 
+    @Value("${pdd.superRedPackage:0}")
+    private Integer superRedPackage;
+
     public String getParam(Long uid) {
         return "{\"uid\":\""+uid + "\"}";
     }

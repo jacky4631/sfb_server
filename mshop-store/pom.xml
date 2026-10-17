@@ -21,9 +21,9 @@
         <dependency>
             <groupId>com.pdd</groupId>
             <artifactId>pop-sdk</artifactId>
-            <version>1.14.38</version>
+            <version>1.25.54</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/pop-sdk-1.14.38-all.jar</systemPath>
+            <systemPath>${project.basedir}/../lib/pop-sdk-1.25.54-all.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.taobao</groupId>
