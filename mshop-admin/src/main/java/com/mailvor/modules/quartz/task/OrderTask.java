@@ -10,7 +10,7 @@ import com.mailvor.modules.meituan.MeituanService;
 import com.mailvor.modules.meituan.config.MeituanConfig;
 import com.mailvor.modules.meituan.param.MeituanOrderParam;
 import com.mailvor.modules.meituan.utils.MeituanUtil;
-import com.mailvor.modules.tk.config.JdConfig;
+import com.mailvor.modules.tk.config.TbConfig;
 import com.mailvor.modules.tk.domain.*;
 import com.mailvor.modules.tk.param.*;
 import com.mailvor.modules.tk.service.*;
@@ -31,7 +31,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,7 +76,7 @@ public class OrderTask {
     protected KuService kuService;
 
     @Resource
-    private JdConfig jdConfig;
+    private TbConfig tbConfig;
 
     @Resource
     protected JdService jdService;
@@ -101,6 +100,20 @@ public class OrderTask {
                 return null;
             }
             try {
+                //过滤不是渠道pid和淘礼金pid的订单
+                List<String> adZoneIds = tbConfig.getAdZoneIds();
+                orders = orders.stream().filter(order-> {
+                    if(order.getAdzoneId() == null) {
+                        return false;
+                    }
+                    return adZoneIds.contains(order.getAdzoneId().toString());
+                }).collect(Collectors.toList());
+
+                // 上面过滤后 订单可能为空，为空就不做后续处理
+                if(CollectionUtils.isEmpty(orders)) {
+                    return null;
+                }
+
                 //获取订单的淘宝渠道id
                 List<String> pids = orders.stream()
                         .filter(order-> order.getRelationId() != null && order.getRelationId() > 0)

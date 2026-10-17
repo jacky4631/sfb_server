@@ -5,23 +5,18 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReUtil;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mailvor.api.MshopException;
 import com.mailvor.modules.order.service.SuStoreOrderService;
-import com.mailvor.modules.tk.config.JdConfig;
-import com.mailvor.modules.tk.config.PddConfig;
 import com.mailvor.modules.tk.config.TbConfig;
 import com.mailvor.modules.tk.domain.*;
 import com.mailvor.modules.tk.param.GoodsListDyParam;
 import com.mailvor.modules.tk.param.GoodsListPddParam;
 import com.mailvor.modules.tk.param.ParseContentParam;
 import com.mailvor.modules.tk.param.jd.GoodsListJDParam;
-import com.mailvor.modules.tk.service.mapper.TkOrderMapper;
 import com.mailvor.modules.tk.util.ClipboardParseUtil;
-import com.mailvor.modules.tk.util.HttpUtil;
 import com.mailvor.modules.tk.util.LinkUtil;
 import com.mailvor.modules.tk.util.VipUtil;
 import com.mailvor.modules.tk.vo.*;
@@ -38,7 +33,6 @@ import com.mailvor.modules.user.service.MwUserService;
 import com.mailvor.modules.user.service.MwUserUnionService;
 import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.DateUtils;
-import com.mailvor.utils.RedisUtil;
 import com.mailvor.utils.StringUtils;
 import com.taobao.api.ApiException;
 import com.taobao.api.DefaultTaobaoClient;
@@ -48,7 +42,6 @@ import com.taobao.api.request.TbkDgVegasTljReportRequest;
 import com.taobao.api.response.TbkDgVegasTljCreateResponse;
 import com.taobao.api.response.TbkDgVegasTljReportResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -79,16 +72,10 @@ public class TkService {
     private SuStoreOrderService suStoreOrderService;
     @Resource
     private DataokeService dataokeService;
-    @Resource
-    private PddService pddService;
+
     @Resource
     private TbConfig tbConfig;
 
-    @Resource
-    private PddConfig pddConfig;
-
-    @Resource
-    private JdConfig jdConfig;
     @Resource
     private MailvorTbOrderService tbOrderService;
 
@@ -113,13 +100,6 @@ public class TkService {
     @Resource
     private KuService kuService;
 
-    @Resource
-    private TkOrderMapper orderMapper;
-
-    @Value("${tb.pid.excludes}")
-    private List<String> excludePids;
-
-
     public TkParseCodeVO mixParse(ParseContentParam param, MwUser mwUser) {
         String content = param.getContent();
         TkParseCodeVO res = new TkParseCodeVO();
@@ -133,7 +113,7 @@ public class TkService {
         }
         boolean parseAgain = false;
         if(ClipboardParseUtil.getTbPattern().matcher(content).find()) {
-            String pid = null;
+            String pid = tbConfig.getChannelPid();
             String channelId = null;
             MwUserUnion userUnion = null;
             if(mwUser != null) {
@@ -142,11 +122,7 @@ public class TkService {
             //获取pid为了实现自动追单
             if(userUnion != null && StringUtils.isNotBlank(userUnion.getTbPid())) {
                 //如果渠道id存在使用渠道id，并使用渠道pid
-                pid = tbConfig.getChannelPid();
                 channelId = userUnion.getTbPid();
-            }
-            if(channelId == null && mwUser != null) {
-                pid = RedisUtil.getPid(mwUser.getUid(), null);
             }
 
             DataokeResVo<GoodsParseVo> resVo = dataokeService.goodsParse(content, pid, channelId);
@@ -297,9 +273,6 @@ public class TkService {
         }
         if(!CollectionUtils.isEmpty(tbOrders)) {
             for(MailvorTbOrder tbOrder : tbOrders) {
-                if(excludePids.contains(tbOrder.getAdzoneId().toString())){
-                    throw new MshopException("订单不存在");
-                }
                 if(checkBinding) {
                     checkBinding(tbOrder.getBind(), uid, tbOrder.getUid());
                 }

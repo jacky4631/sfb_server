@@ -7,11 +7,9 @@ package com.mailvor.utils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.mailvor.config.PayConfig.PAY_NAME;
 import static com.mailvor.constant.ShopConstants.*;
 
 @SuppressWarnings("unchecked")
@@ -192,90 +190,6 @@ public class RedisUtil {
         }
 
     }
-
-    private static String doubleCheckPid(String pid) {
-        if(StringUtils.isBlank(pid)) {
-            return null;
-        }
-        Set<String> findKeySet = redisTemplate.keys(getTbPidBindKey() + "*" + pid);
-        //如果没有绑定用户 直接返回该pid
-        if(findKeySet.isEmpty()) {
-            return pid;
-        }
-        //重新获取pid
-        Object pidKey = redisTemplate.opsForSet().pop(getTbPoolKey());
-        if(pidKey != null) {
-            pid = pidKey.toString();
-            return doubleCheckPid(pid);
-        }
-        return null;
-    }
-    public static String getPid(Long uid, String type) {
-        //追单处需要通过pid获取用户uid 如 pid:tb:{uid}:{pid}
-        //查找是否存在已经绑定的pid
-        Object pidObj = null;
-        String key = getTbPidBindKey() + uid;
-        Set<String> findKeySet = redisTemplate.keys(key + "*");
-        if(findKeySet.isEmpty()) {
-            //没有已经绑定的pid,从list中取
-            pidObj = redisTemplate.opsForSet().pop(getTbPoolKey());
-            pidObj = doubleCheckPid(pidObj == null ? null : pidObj.toString());
-        } else {
-            String findKey = findKeySet.stream().findFirst().orElse(null);
-            String[] splitKey = findKey.split(":");
-            if(splitKey.length == 5) {
-                pidObj = splitKey[4];
-            }
-        }
-        //如果pidObj不为null，保存到PID_TB_BINDING，并设置过期时间
-        if(pidObj != null) {
-            //分享的pid过期时间为2小时，直接购买的为20分钟
-            Duration duration;
-            if("share".equals(type)) {
-                duration = Duration.ofHours(2);
-            } else {
-                duration = Duration.ofMinutes(20);
-            }
-            redisTemplate.opsForValue().set(key + ":" + pidObj, "1", duration);
-        }
-        return pidObj == null ? null : pidObj.toString();
-
-    }
-
-    public static void setPid(String pid) {
-        redisTemplate.opsForSet().add(getTbPoolKey(), pid);
-    }
-    public static void setPids(List<String> pids) {
-        redisTemplate.opsForSet().add(getTbPoolKey(), pids.toArray());
-    }
-
-    protected static String getTbPoolKey() {
-        return PID_TB_POOL + ":" + PAY_NAME;
-    }
-    public static String getTbPidBindKey() {
-        return PID_TB_BINDING + PAY_NAME + ":";
-    }
-    /**
-     * key pid
-     * value uid
-     *
-     * @return the binding pid
-     */
-    public static Map<String,String> getBindingPid() {
-        Set keys = redisTemplate.keys(getTbPidBindKey() + "*");
-        Map<String,String> pidMap = new HashMap<>();
-        keys.stream().forEach(key->{
-            String[] splitKey = key.toString().split(":");
-            if(splitKey.length != 5) {
-                return;
-            }
-            String uid = splitKey[3];
-            String pid = splitKey[4];
-            pidMap.put(pid, uid);
-        });
-        return pidMap;
-    }
-
     public static Set<String> keys(String pattern) {
         return redisTemplate.keys(pattern);
     }

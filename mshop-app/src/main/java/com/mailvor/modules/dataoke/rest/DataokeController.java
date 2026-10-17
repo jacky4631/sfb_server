@@ -23,7 +23,6 @@ import com.mailvor.modules.user.domain.MwUserUnion;
 import com.mailvor.modules.user.service.MwUserService;
 import com.mailvor.modules.user.service.MwUserUnionService;
 import com.mailvor.modules.user.service.dto.TljDataDto;
-import com.mailvor.utils.RedisUtil;
 import com.mailvor.utils.RedisUtils;
 import com.mailvor.utils.StringUtils;
 import com.taobao.api.ApiException;
@@ -34,7 +33,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -123,7 +121,7 @@ public class DataokeController {
     public JSONObject goodsWord(String goodsId, @RequestParam(required = false) String type,
                                 @RequestParam(required = false) Long uid) {
 
-        String pid = null;
+        String pid = tbConfig.getChannelPid();
         MwUserUnion userUnion = null;
         MwUser mwUser = LocalUser.getUser();
         if(uid != null && uid > 0) {
@@ -134,17 +132,13 @@ public class DataokeController {
             }
 
         }
-
         //获取pid为了实现自动追单
         String channelId = null;
         if(userUnion != null && StringUtils.isNotBlank(userUnion.getTbPid())) {
             //如果渠道id存在使用渠道id，并使用渠道pid
-            pid = tbConfig.getChannelPid();
             channelId = userUnion.getTbPid();
         }
-        if(channelId == null && mwUser != null) {
-            pid = RedisUtil.getPid(mwUser.getUid(), type);
-        }
+
         JSONObject resVo = service.goodsWord(goodsId, pid, channelId);
 
         return resVo;
@@ -242,19 +236,16 @@ public class DataokeController {
 
         MwUser mwUser = LocalUser.getUser();
         //获取pid为了实现自动追单
-        String pid = null;
+        String pid = tbConfig.getChannelPid();
         String channelId = null;
         if(mwUser != null) {
             MwUserUnion userUnion = userUnionService.getOne(mwUser.getUid());
             //如果渠道id存在使用渠道id，并使用渠道pid
             if(userUnion != null && StringUtils.isNotBlank(userUnion.getTbPid())) {
-                pid = tbConfig.getChannelPid();
                 channelId = userUnion.getTbPid();
             }
         }
-        if(channelId == null && mwUser != null) {
-            pid = RedisUtil.getPid(mwUser.getUid(), "self");
-        }
+
         return service.shopConvert(shopId, shopName, pid, channelId);
     }
 

@@ -137,8 +137,6 @@ tb:
   # todo 淘宝渠道邀请码
   inviterCode: XSJL93
   pid:
-    # 排除的pid，排除后订单不会保存到数据库
-    excludes: 110957850490,147894334
     # todo 渠道pid
     channelPid: mm_52650383_39582271_114587650437
     # todo 淘礼金pid 建议和渠道pid分开

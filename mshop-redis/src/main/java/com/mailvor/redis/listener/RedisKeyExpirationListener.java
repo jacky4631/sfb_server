@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2018-2024
+ * Copyright (C) 2018-2026
  * All rights reserved, Designed By www.mailvor.com
  */
 package com.mailvor.redis.listener;
@@ -15,15 +15,12 @@ import com.mailvor.modules.order.domain.MwStoreOrder;
 import com.mailvor.modules.order.service.MwStoreOrderService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.mailvor.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Component;
-
-import static com.mailvor.utils.RedisUtil.getTbPidBindKey;
 
 /**
  * redis过期监听
@@ -55,15 +52,7 @@ public class RedisKeyExpirationListener implements MessageListener {
 		String body = String.valueOf(serializer.deserialize(message.getBody()));
 		log.debug("redis key过期：{}", body);
 		//key过期监听
-		if (body.startsWith(getTbPidBindKey())) { // 判断是否是想要监听的过期key
-			//监听pid绑定过期，重新放进redis list
-			String[] splitKey = body.split(":");
-			if(splitKey.length != 5) {
-				return;
-			}
-			String pid = splitKey[4];
-			RedisUtil.setPid(pid);
-		}else if(StrUtil.format("__keyevent@{}__:expired", redisConfigProperties.getDatabase()).equals(channel)){
+		if(StrUtil.format("__keyevent@{}__:expired", redisConfigProperties.getDatabase()).equals(channel)){
 			//订单自动取消
 			if(body.contains(ShopConstants.REDIS_ORDER_OUTTIME_UNPAY)) {
 				body = body.replace(ShopConstants.REDIS_ORDER_OUTTIME_UNPAY, "");
