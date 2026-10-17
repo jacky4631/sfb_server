@@ -10,6 +10,7 @@ import com.mailvor.modules.meituan.MeituanService;
 import com.mailvor.modules.meituan.config.MeituanConfig;
 import com.mailvor.modules.meituan.param.MeituanOrderParam;
 import com.mailvor.modules.meituan.utils.MeituanUtil;
+import com.mailvor.modules.tk.config.PddConfig;
 import com.mailvor.modules.tk.config.TbConfig;
 import com.mailvor.modules.tk.domain.*;
 import com.mailvor.modules.tk.param.*;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.mailvor.modules.meituan.constants.MeituanConstants.MT_MEDIUM_PREFIX;
@@ -77,6 +79,9 @@ public class OrderTask {
 
     @Resource
     private TbConfig tbConfig;
+
+    @Resource
+    private PddConfig pddConfig;
 
     @Resource
     protected JdService jdService;
@@ -276,8 +281,11 @@ public class OrderTask {
                 && !res.getOrderListGetResponse().getOrderList().isEmpty()) {
             List<PddDdkOrderListRangeGetResponse.OrderListGetResponseOrderListItem> orders =
                     res.getOrderListGetResponse().getOrderList();
+            List<PddDdkOrderListRangeGetResponse.OrderListGetResponseOrderListItem> filteredOrders =
+                    orders.stream().filter(order -> Objects.equals(order.getPId(), pddConfig.getPid())).collect(Collectors.toList());
+
             //todo 由于拼多多订单时间为秒，存入数据库后显示1970年，目前手动乘以1000 后期优化
-            List<OrderListGetResponseOrderListDTO> orderDTOS = generator.convert(orders, OrderListGetResponseOrderListDTO.class);
+            List<OrderListGetResponseOrderListDTO> orderDTOS = generator.convert(filteredOrders, OrderListGetResponseOrderListDTO.class);
             orderDTOS = orderDTOS.stream().map(o->{
                 if(o.getOrderCreateTime() != null) {
                     o.setOrderCreateTime(o.getOrderCreateTime()*1000);
@@ -312,7 +320,7 @@ public class OrderTask {
                 }
                 try{
                     JSONObject obj = JSON.parseObject(customParams);
-                    Long uid = Long.parseLong(obj.getString("uid"));
+                    Long uid = Long.parseLong(obj.getString(pddConfig.getParamPrefix()));
                     if(uid != null && uid > 0) {
                         pddOrder.setUid(uid);
                         //设置需要刷新今日预估的用户uid

@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Data
 public class PddConfig {
+    @Value("${pdd.paramPrefix: sfbuid}")
+    private String paramPrefix;
 
     @Value("${pdd.clientId}")
     private String clientId;
@@ -26,7 +28,7 @@ public class PddConfig {
     private Integer superRedPackage;
 
     public String getParam(Long uid) {
-        return "{\"uid\":\""+uid + "\"}";
+        return "{\"" + paramPrefix + "\":\""+uid + "\"}";
     }
 
 }
