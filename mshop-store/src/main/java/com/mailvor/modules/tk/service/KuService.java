@@ -52,7 +52,6 @@ import java.util.regex.Pattern;
 @Slf4j
 @Component
 public class KuService {
-    public static final String DY_ANALYZE_CODE = "https://v2.api.haodanku.com/dy_analyze_code";
     public static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public static final String KU_API_BASE = "https://v3.api.haodanku.com";
@@ -98,25 +97,6 @@ public class KuService {
 
     @Resource
     private MwSystemConfigService systemConfigService;
-
-    public JSONObject contentParse(String content) {
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("apikey=");
-        sb.append(key);
-        sb.append("&content=");
-        sb.append(content);
-        HttpHeaders headers = new HttpHeaders();
-        // 以表单的方式提交
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        HttpEntity<String> requestParam = new HttpEntity<>(sb.toString(),headers);
-        ResponseEntity<String> re = restTemplate.postForEntity(
-                DY_ANALYZE_CODE,
-                requestParam,
-                String.class);
-        return JSON.parseObject(re.getBody());
-    }
-
 
     /**
      * 搜索京东商品

@@ -65,7 +65,7 @@ public class HaodankuController {
     public static final String CUSTOM_CATE = API_CMS_PREFIX + "/activity/hdkActivityInfo?id=%s&cid=";
     public static final String CUSTOM_LIST = API_CMS_PREFIX + "/activity/hdkActivityItemList";
 
-    public static final String DY_WORD = API_CMS_PREFIX +"/douyin/douyin/getActivityLink";
+    public static final String DY_ACTIVITY_WORD = API_CMS_PREFIX +"/douyin/douyin/getActivityLink";
 
     //link_type=6
     public static final String ACTIVITY_DETAIL = API_CMS_PREFIX +"/meetingActivity/detail?id=%s&cid=";
@@ -234,21 +234,23 @@ public class HaodankuController {
                 .getForObject(sb.toString(), JSONObject.class);
     }
 
-    @GetMapping(value = "/dy/banner/word")
-    public JSONObject getDyWord() {
+    @GetMapping(value = "/dy/activity/word")
+    public JSONObject getDyActivityWord(@RequestParam String activityId) {
 
         StringBuilder sb = new StringBuilder();
         sb.append("activity_id=3");
         sb.append("&domain=").append(kuService.getKuHost());
-        sb.append("&mix_activity_id=7122297162473406756");
-        sb.append("&activity_url=sslocal://webcast_webview?url=https%3A%2F%2Fmix.jinritemai.com%2Ffalcon%2Fmix_page%2Findex.html%3F__live_platform__%3Dwebcast%26activity_tag%3D%25E4%25B8%25AA%25E6%258A%25A4%25E5%25AE%25B6%25E6%25B8%2585%26allowMediaAutoPlay%3D1%26enter_from%3Ddouke%26hide_nav_bar%3D1%26hide_system_video_poster%3D1%26id%3D7122297162473406756%26origin_type%3Ddouke%26should_full_screen%3D1%26trans_status_bar%3D1%26entrance_info%3D%257B%2522ecom_scene_id%2522%253A%25221209%2522%257D");
+        sb.append("&mix_activity_id=").append(activityId);
+        sb.append("&activity_url=");
+        sb.append("&use_coupon=true");
+        sb.append("&need_share_link=true");
         sb.append("&cid=").append(kuService.getKuCid());
         HttpHeaders headers = new HttpHeaders();
         // 以表单的方式提交
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         HttpEntity<String> requestParam = new HttpEntity<>(sb.toString(),headers);
         ResponseEntity<String> re = restTemplate.postForEntity(
-                DY_WORD,
+                DY_ACTIVITY_WORD,
                 requestParam,
                 String.class);
         return JSON.parseObject(re.getBody());
