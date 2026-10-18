@@ -13,12 +13,15 @@ import com.mailvor.modules.shop.service.mapper.SystemConfigMapper;
 import com.mailvor.modules.tk.service.DataokeService;
 import com.mailvor.utils.RedisUtils;
 import io.lettuce.core.ClientOptions;
+import io.lettuce.core.SocketOptions;
 import org.junit.Test;
 import org.springframework.dao.QueryTimeoutException;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.Duration;
 
 import static com.mailvor.modules.tk.constants.TkConstants.HOME_DATA_CATEGORY_TB;
 import static org.junit.Assert.*;
@@ -182,5 +185,37 @@ public class RedisCacheFallbackTest {
         assertTrue(options.isAutoReconnect());
         assertTrue(options.getSocketOptions().isKeepAlive());
         assertEquals(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS, options.getDisconnectedBehavior());
+    }
+
+    /**
+     * keepAlive(true) 只打开 SO_KEEPALIVE 开关，Lettuce 不会写入探测参数，内核沿用操作系统默认值
+     * （实测 TCP_KEEPIDLE=7200s），远大于 NAT 空闲会话老化时间（实测约 250s），连接会变成半开黑洞。
+     * 必须用细粒度 KeepAliveOptions 重载，且 idle 要显著小于老化阈值。
+     */
+    @Test
+    public void keepAliveProbesBeforeNatSessionExpires() {
+        LettuceClientConfiguration.LettuceClientConfigurationBuilder builder = LettuceClientConfiguration.builder();
+        new RedisConfig().lettuceConnectionCustomizer().customize(builder);
+        SocketOptions.KeepAliveOptions keepAlive =
+                builder.build().getClientOptions().get().getSocketOptions().getKeepAlive();
+        assertTrue(keepAlive.isEnabled());
+        assertEquals(Duration.ofSeconds(60), keepAlive.getIdle());
+        assertEquals(Duration.ofSeconds(15), keepAlive.getInterval());
+        assertEquals(3, keepAlive.getCount());
+        assertTrue("keepalive 首次探测必须早于 NAT 会话老化（实测约 250s）",
+                keepAlive.getIdle().getSeconds() < 250);
+    }
+
+    /**
+     * RedisConfig 整体替换 ClientOptions 会覆盖 spring-data-redis 构造时默认注入的
+     * TimeoutOptions.enabled()；不显式设置则回落为 timeoutCommands=false，
+     * CommandExpiryWriter 不会被安装，键过期订阅等异步路径将失去命令超时保护。
+     */
+    @Test
+    public void clientOptionsKeepCommandTimeoutEnabled() {
+        LettuceClientConfiguration.LettuceClientConfigurationBuilder builder = LettuceClientConfiguration.builder();
+        new RedisConfig().lettuceConnectionCustomizer().customize(builder);
+        ClientOptions options = builder.build().getClientOptions().get();
+        assertTrue(options.getTimeoutOptions().isTimeoutCommands());
     }
 }
