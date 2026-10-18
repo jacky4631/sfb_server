@@ -11,6 +11,7 @@ import com.mailvor.common.service.impl.BaseServiceImpl;
 import com.mailvor.common.utils.QueryHelpPlus;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.enums.PayTypeEnum;
+import com.mailvor.modules.pay.config.PayCertificateProfiles;
 import com.mailvor.modules.pay.domain.MwPayBind;
 import com.mailvor.modules.pay.domain.MwPayChannel;
 import com.mailvor.modules.pay.dto.PayChannelDto;
@@ -54,6 +55,14 @@ public class MwPayChannelServiceImpl extends BaseServiceImpl<PayChannelMapper, M
     private PayChannelMapper mapper;
     @Resource
     private MwPayBindService payBindService;
+    @Resource
+    private PayCertificateProfiles certificateProfiles;
+
+    /** 解密后统一新旧字段名，避免历史配置里残留的下划线旧字段盖掉后台重新保存的证书和私钥。 */
+    private String certProfile(MwPayChannel channel) {
+        return certificateProfiles.normalizeProfile(
+                RsaUtil.decrypt(new String(channel.getCertProfileEnc()), KEY_RSA_PRIVATE));
+    }
 
     @Override
     //@Cacheable
@@ -223,7 +232,7 @@ public class MwPayChannelServiceImpl extends BaseServiceImpl<PayChannelMapper, M
             return null;
         }
         PayChannelDto channelDto = generator.convert(payChannel, PayChannelDto.class);
-        channelDto.setCertProfile(RsaUtil.decrypt(new String(payChannel.getCertProfileEnc()), KEY_RSA_PRIVATE));
+        channelDto.setCertProfile(certProfile(payChannel));
         return channelDto;
     }
 
@@ -250,7 +259,7 @@ public class MwPayChannelServiceImpl extends BaseServiceImpl<PayChannelMapper, M
         }
 
         PayChannelDto channelDto = generator.convert(channel, PayChannelDto.class);
-        channelDto.setCertProfile(RsaUtil.decrypt(new String(channel.getCertProfileEnc()), KEY_RSA_PRIVATE));
+        channelDto.setCertProfile(certProfile(channel));
         return channelDto;
     }
     @Override
@@ -271,7 +280,7 @@ public class MwPayChannelServiceImpl extends BaseServiceImpl<PayChannelMapper, M
             throw new MshopException("证书信息不存在");
         }
         PayChannelDto channelDto = generator.convert(payChannel, PayChannelDto.class);
-        channelDto.setCertProfile(RsaUtil.decrypt(new String(payChannel.getCertProfileEnc()), KEY_RSA_PRIVATE));
+        channelDto.setCertProfile(certProfile(payChannel));
 
         return channelDto;
     }
@@ -290,7 +299,7 @@ public class MwPayChannelServiceImpl extends BaseServiceImpl<PayChannelMapper, M
             return null;
         }
         PayChannelDto channelDto = generator.convert(channel, PayChannelDto.class);
-        channelDto.setCertProfile(RsaUtil.decrypt(new String(channel.getCertProfileEnc()), KEY_RSA_PRIVATE));
+        channelDto.setCertProfile(certProfile(channel));
         return channelDto;
     }
 }

@@ -33,6 +33,53 @@ public class PayCertificateProfiles {
         LEGACY.put("rootCertContent", "aliRootCert");
         LEGACY.put("keyContent", "keyPath");
     }
+    /** 旧版后台按数据库列名保存支付宝配置，与驼峰字段指向同一个属性。 */
+    private static final Map<String, String> SNAKE_CASE = new LinkedHashMap<>();
+    static {
+        SNAKE_CASE.put("app_id", "appId");
+        SNAKE_CASE.put("private_key", "privateKey");
+        SNAKE_CASE.put("public_key", "publicKey");
+        SNAKE_CASE.put("gateway_url", "gatewayUrl");
+        SNAKE_CASE.put("sign_type", "signType");
+        SNAKE_CASE.put("sys_service_provider_id", "sysServiceProviderId");
+        SNAKE_CASE.put("return_url", "returnUrl");
+        SNAKE_CASE.put("notify_url", "notifyUrl");
+        SNAKE_CASE.put("app_public_cert", "appPublicCert");
+        SNAKE_CASE.put("ali_public_cert", "aliPublicCert");
+        SNAKE_CASE.put("ali_root_cert", "aliRootCert");
+    }
+
+    /**
+     * fastjson 反序列化时同义字段先出现者生效，历史配置里残留的下划线旧字段会盖掉后台新保存的驼峰字段，
+     * 曾导致用旧私钥签名却上报新证书的 app_cert_sn，支付宝返回 isv.invalid-signature。
+     * 这里统一成驼峰字段：驼峰值优先，旧值只在驼峰缺失或空白时回填，随后删除旧键。
+     */
+    public JSONObject normalize(JSONObject profile) {
+        JSONObject canonical = new JSONObject(true);
+        for (Map.Entry<String, Object> entry : profile.entrySet()) {
+            canonical.put(entry.getKey().trim(), entry.getValue());
+        }
+        for (Map.Entry<String, String> entry : SNAKE_CASE.entrySet()) {
+            if (!canonical.containsKey(entry.getKey())) continue;
+            Object legacy = canonical.remove(entry.getKey());
+            if (blank(canonical.get(entry.getValue())) && !blank(legacy)) canonical.put(entry.getValue(), legacy);
+        }
+        return canonical;
+    }
+
+    /** 运行时解密通道配置后调用，历史数据无需迁移即可读到正确字段；非对象结构原样返回。 */
+    public String normalizeProfile(String profile) {
+        if (StringUtils.isBlank(profile)) return profile;
+        try {
+            return normalize(JSON.parseObject(profile)).toJSONString();
+        } catch (Exception e) {
+            return profile;
+        }
+    }
+
+    private boolean blank(Object value) {
+        return value == null || (value instanceof String && StringUtils.isBlank((String) value));
+    }
 
     public boolean nativeChannel(String key) {
         return "alipay".equals(key) || "alipayweb".equals(key) || "wechatpay".equals(key);
@@ -43,7 +90,7 @@ public class PayCertificateProfiles {
         try {
             JSONObject profile = JSON.parseObject(RsaUtil.decrypt(new String(encrypted, StandardCharsets.UTF_8), KEY_RSA_PRIVATE));
             if (profile == null) throw new IllegalArgumentException();
-            return profile;
+            return normalize(profile);
         } catch (Exception e) {
             throw new MshopException("支付证书配置无法解析，请检查加密配置");
         }
