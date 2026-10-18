@@ -91,7 +91,7 @@ public class CouponParseContractTest {
 
     @Test
     public void nullJdSearchAndFallbackResponsesPreserveOriginalForSearch() {
-        String content = "https://item.jd.com/123.html";
+        String content = "【京东】https://3.jd.hk/10-3zJkl 「【鱼油NO.1】斯维诗4倍深海鱼油」";
         TkParseCodeVO result = service().mixParse(new ParseContentParam(content), null);
         assertEquals(Integer.valueOf(-1), result.getCode());
         assertEquals(content, result.getData().getOriginContent());

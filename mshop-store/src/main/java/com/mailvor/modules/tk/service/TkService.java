@@ -154,17 +154,35 @@ public class TkService {
         } else if (ClipboardParseUtil.getJdPattern().matcher(content).find()) {
             GoodsListJDParam jdParam = new GoodsListJDParam();
             jdParam.setKeyword(content);
-            JdKuSearchListVO jdKuSearchListVO = kuService.searchJD(jdParam);
-            if(jdKuSearchListVO != null && Integer.valueOf(200).equals(jdKuSearchListVO.getCode())
-                    && !CollectionUtils.isEmpty(jdKuSearchListVO.getData())) {
-                JdKuGoodsDetailVO jdKuGoodsDetailVO = jdKuSearchListVO.getData().get(0);
-                res.setCode(0);
-                res.setData(LinkUtil.parseJdKuDetail(jdKuGoodsDetailVO, content));
-                log.info("查券返回结果 {}", JSON.toJSONString(res));
-                return res;
-            } else {
-                parseAgain = true;
+            JdKuSearchListVO searchResult = searchJdForClipboard(jdParam);
+            String shareTitle = null;
+            if (!hasJdGoods(searchResult)) {
+                // TSQ 最新逻辑：先取分享标题，再通过短链和移动端商品页兜底。
+                shareTitle = JdProductFetcher.getTitle(content);
+                if (StringUtils.isNotBlank(shareTitle)) {
+                    jdParam.setKeyword(shareTitle);
+                    searchResult = searchJdForClipboard(jdParam);
+                }
             }
+            if (hasJdGoods(searchResult)) {
+                JdKuGoodsDetailVO product = searchResult.getData().get(0);
+                // 原文搜索返回多个商品时，以分享标题校正，避免误取不相关商品。
+                if (searchResult.getData().size() > 1 && shareTitle == null) {
+                    shareTitle = JdProductFetcher.getTitle(content);
+                    if (StringUtils.isNotBlank(shareTitle)
+                            && (product.getTitle() == null || !product.getTitle().contains(shareTitle))) {
+                        jdParam.setKeyword(shareTitle);
+                        JdKuSearchListVO byTitle = searchJdForClipboard(jdParam);
+                        if (hasJdGoods(byTitle)) {
+                            product = byTitle.getData().get(0);
+                        }
+                    }
+                }
+                res.setCode(0);
+                res.setData(LinkUtil.parseJdKuDetail(product, content));
+                return res;
+            }
+            parseAgain = true;
         } else if(ClipboardParseUtil.getDyPattern().matcher(content).find()) {
             GoodsListDyParam dyParam = new GoodsListDyParam();
             // KuService 已负责 URL 编码，避免剪贴板文本被编码两次。
@@ -235,6 +253,20 @@ public class TkService {
         }
         log.info("查券返回结果 {}", JSON.toJSONString(res));
         return res;
+    }
+
+    private boolean hasJdGoods(JdKuSearchListVO result) {
+        return result != null && Integer.valueOf(200).equals(result.getCode())
+                && !CollectionUtils.isEmpty(result.getData());
+    }
+
+    private JdKuSearchListVO searchJdForClipboard(GoodsListJDParam param) {
+        try {
+            return kuService.searchJD(param);
+        } catch (Exception e) {
+            log.warn("京东查券搜索失败，继续尝试标题或备用解析", e);
+            return null;
+        }
     }
 
     @Transactional
