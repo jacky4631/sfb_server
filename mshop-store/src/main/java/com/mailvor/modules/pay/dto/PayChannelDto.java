@@ -52,8 +52,11 @@ public class PayChannelDto implements Serializable {
     /** 通道最近刷新时间，待定 */
     @JsonFormat(pattern = "HH:mm:ss",timezone="GMT+8")
     private Date cycleTime;
-    /** 公司名称 */
+    /** 主体id，对应 MwPayCompany 的 id */
     private String companyId;
+
+    /** 主体名称，由 MwPayCompany.company 回填 */
+    private String companyName;
 
     private Integer type;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")

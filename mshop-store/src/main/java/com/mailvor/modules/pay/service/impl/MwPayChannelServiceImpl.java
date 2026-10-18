@@ -18,7 +18,9 @@ import com.mailvor.modules.pay.dto.PayChannelDto;
 import com.mailvor.modules.pay.dto.PayChannelQueryCriteria;
 import com.mailvor.modules.pay.enums.PayChannelEnum;
 import com.mailvor.modules.pay.service.MwPayBindService;
+import com.mailvor.modules.pay.domain.MwPayCompany;
 import com.mailvor.modules.pay.service.MwPayChannelService;
+import com.mailvor.modules.pay.service.MwPayCompanyService;
 import com.mailvor.modules.pay.service.mapper.PayChannelMapper;
 import com.mailvor.modules.utils.RsaUtil;
 import lombok.AllArgsConstructor;
@@ -32,6 +34,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.mailvor.config.PayConfig.PAY_NAME;
 import static com.mailvor.modules.config.RSAConfig.KEY_RSA_PRIVATE;
@@ -57,6 +60,8 @@ public class MwPayChannelServiceImpl extends BaseServiceImpl<PayChannelMapper, M
     private MwPayBindService payBindService;
     @Resource
     private PayCertificateProfiles certificateProfiles;
+    @Resource
+    private MwPayCompanyService payCompanyService;
 
     /** 解密后统一新旧字段名，避免历史配置里残留的下划线旧字段盖掉后台重新保存的证书和私钥。 */
     private String certProfile(MwPayChannel channel) {
@@ -71,10 +76,33 @@ public class MwPayChannelServiceImpl extends BaseServiceImpl<PayChannelMapper, M
         PageInfo<MwPayChannel> page = new PageInfo<>(queryAll(criteria));
         Map<String, Object> map = new LinkedHashMap<>(2);
         List<PayChannelDto> payChannelDtos = generator.convert(page.getList(), PayChannelDto.class);
+        fillCompanyName(page.getList(), payChannelDtos);
 
         map.put("content",payChannelDtos);
         map.put("totalElements",page.getTotal());
         return map;
+    }
+
+    /** 按 companyId 批量回填主体名称，避免前端再额外拉取主体列表 */
+    private void fillCompanyName(List<MwPayChannel> channels, List<PayChannelDto> dtos) {
+        if (CollectionUtils.isEmpty(channels) || channels.size() != dtos.size()) {
+            return;
+        }
+        Set<Long> companyIds = channels.stream()
+                .map(MwPayChannel::getCompanyId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (companyIds.isEmpty()) {
+            return;
+        }
+        Map<Long, String> nameMap = payCompanyService.listByIds(companyIds).stream()
+                .collect(Collectors.toMap(MwPayCompany::getId, MwPayCompany::getCompany, (a, b) -> a));
+        for (int i = 0; i < dtos.size(); i++) {
+            Long companyId = channels.get(i).getCompanyId();
+            if (companyId != null) {
+                dtos.get(i).setCompanyName(nameMap.get(companyId));
+            }
+        }
     }
 
     @Override
