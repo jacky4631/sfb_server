@@ -23,8 +23,9 @@ public class TkConstants {
     public static final String NINE_LIST = CMS_API_PREFIX + "/page-goods-nine?aid=0&cid=%s&pageNo=%s&pageSize=%s&app_key=aqoadw";
     public static final String HOME_DATA_TOP_CATE = "cache:home:top:cate";
     public static final String HOME_DATA_BRAND_LIST = "cache:home:brandList";
-    public static final String HOME_DATA_HOT = "cache:home:hot";
-    public static final String HOME_DATA_DDQ = "cache:home:ddq";
+    // 首页卡片字段精简后启用新缓存，避免命中已有的完整商品响应。
+    public static final String HOME_DATA_HOT = "cache:home:hot:v2";
+    public static final String HOME_DATA_DDQ = "cache:home:ddq:v2";
     public static final String HOME_DATA_BANNER = "cache:home:banner";
 
     /**

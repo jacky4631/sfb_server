@@ -2,6 +2,7 @@ package com.mailvor.modules.dataoke.rest;
 
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.mailvor.modules.tk.config.DataokeConfig;
 import com.mailvor.modules.tk.param.RankingListParam;
@@ -71,8 +72,8 @@ public class DataokeCmsController {
             param.setRankType(1);
             param.setPageId(1);
             param.setPageSize(2);
-            JSONObject data = dataokeService.rankingList(param);;
-            //接口数据缓存2个小时
+            JSONObject data = compactHot(dataokeService.rankingList(param));
+            // 仅缓存首页卡片使用的字段，沿用现有缓存时长。
             redisUtils.set(HOME_DATA_HOT, data, HOME_DATA_EXPIRED);
             return data;
         }
@@ -83,12 +84,65 @@ public class DataokeCmsController {
     public Object ddq() {
         Object dataObj = redisUtils.get(HOME_DATA_DDQ);
         if(dataObj == null) {
-            JSONObject data = dataokeService.ddq(null);
-            //接口数据缓存24个小时
+            JSONObject data = compactDdq(dataokeService.ddq(null));
+            // 仅缓存首页卡片使用的字段，完整秒杀页仍走 /tao/ddq。
             redisUtils.set(HOME_DATA_DDQ, data, HOME_DATA_EXPIRED);
             return data;
         }
         return dataObj;
+    }
+
+    private JSONObject compactHot(JSONObject response) {
+        if (response == null) {
+            return null;
+        }
+        JSONObject result = selectFields(response, "code", "msg", "data");
+        JSONArray goods = response.getJSONArray("data");
+        if (goods != null) {
+            result.put("data", compactItems(goods, 2, "mainPic", "actualPrice", "twoHoursSales"));
+        }
+        return result;
+    }
+
+    private JSONObject compactDdq(JSONObject response) {
+        if (response == null) {
+            return null;
+        }
+        JSONObject result = selectFields(response, "code", "msg", "data");
+        JSONObject data = response.getJSONObject("data");
+        if (data != null) {
+            JSONObject card = new JSONObject();
+            card.put("goodsList", compactItems(data.getJSONArray("goodsList"), 2,
+                    "mainPic", "actualPrice", "specialText"));
+            // 保留全部场次，前端需要从中查找 status=2 的倒计时场次。
+            card.put("roundsList", compactItems(data.getJSONArray("roundsList"), Integer.MAX_VALUE,
+                    "status", "ddqTime"));
+            result.put("data", card);
+        }
+        return result;
+    }
+
+    private JSONArray compactItems(JSONArray items, int limit, String... fields) {
+        JSONArray result = new JSONArray();
+        if (items != null) {
+            for (int i = 0; i < Math.min(items.size(), limit); i++) {
+                JSONObject item = items.getJSONObject(i);
+                if (item != null) {
+                    result.add(selectFields(item, fields));
+                }
+            }
+        }
+        return result;
+    }
+
+    private JSONObject selectFields(JSONObject source, String... fields) {
+        JSONObject result = new JSONObject();
+        for (String field : fields) {
+            if (source.containsKey(field)) {
+                result.put(field, source.get(field));
+            }
+        }
+        return result;
     }
 
     @GetMapping(value = "/everyone/buy")
