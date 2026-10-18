@@ -9,4 +9,6 @@ public class WechatPayConfig {
 	private String mchKey;
 
 	private String keyPath;
+	/** PKCS12 证书的 Base64 内容。 */
+	private String keyContent;
 }

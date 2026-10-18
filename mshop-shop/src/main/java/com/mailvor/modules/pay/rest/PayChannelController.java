@@ -10,6 +10,7 @@ import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.modules.aop.ForbidSubmit;
 import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.pay.domain.MwPayChannel;
+import com.mailvor.modules.pay.config.PayCertificateProfiles;
 import com.mailvor.modules.pay.dto.PayChannelQueryCriteria;
 import com.mailvor.modules.pay.rest.param.PayChannelEditParam;
 import com.mailvor.modules.pay.rest.param.PayChannelParam;
@@ -52,6 +53,17 @@ public class PayChannelController {
     @Resource
     private MwSystemConfigService systemConfigService;
 
+    @Resource
+    private PayCertificateProfiles certificateProfiles;
+
+    @GetMapping("/payset/{id}/certificate")
+    @PreAuthorize("hasAnyRole('admin','PAYSET_ALL','PAYSET_EDIT')")
+    public ResponseEntity certificateMetadata(@PathVariable Long id) {
+        MwPayChannel channel = payConfigService.getById(id);
+        if (channel == null) throw new MshopException("通道不存在");
+        return ResponseEntity.ok(certificateProfiles.metadata(channel.getChannelKey(), channel.getCertProfileEnc()));
+    }
+
     @Log("查询支付通道")
     @ApiOperation(value = "查询支付通道")
     @GetMapping(value = "/payset")
@@ -74,10 +86,9 @@ public class PayChannelController {
         }
 
         MwPayChannel payChannel = generator.convert(param, MwPayChannel.class);
-        if(StringUtils.isNotBlank(param.getCertProfileE())) {
-            payChannel.setCertProfileEnc(param.getCertProfileE().getBytes());
-
-        }
+        if (StringUtils.isBlank(param.getCertProfileE())) throw new MshopException("请配置支付证书信息");
+        payChannel.setCertProfileEnc(certificateProfiles.prepare(param.getChannelKey(), null,
+                param.getCertProfileE(), param.isMergeCertProfile()));
         return new ResponseEntity<>(payConfigService.save(payChannel), HttpStatus.CREATED);
     }
 
@@ -93,10 +104,14 @@ public class PayChannelController {
             throw new MshopException("主体id不存在");
         }
         MwPayChannel payChannel = generator.convert(param, MwPayChannel.class);
-        if(StringUtils.isNotBlank(param.getCertProfileE())) {
-            payChannel.setCertProfileEnc(param.getCertProfileE().getBytes());
-
+        MwPayChannel existing = payConfigService.getById(param.getId());
+        if (existing == null) throw new MshopException("通道不存在");
+        if (!existing.getChannelKey().equals(param.getChannelKey()) && StringUtils.isBlank(param.getCertProfileE())) {
+            throw new MshopException("更换通道商后请重新配置支付证书");
         }
+        byte[] original = existing.getChannelKey().equals(param.getChannelKey()) ? existing.getCertProfileEnc() : null;
+        payChannel.setCertProfileEnc(certificateProfiles.prepare(param.getChannelKey(), original,
+                param.getCertProfileE(), param.isMergeCertProfile()));
 
         payConfigService.saveOrUpdate(payChannel);
         return new ResponseEntity(HttpStatus.NO_CONTENT);

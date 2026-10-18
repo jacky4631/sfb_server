@@ -7,6 +7,7 @@ package com.mailvor.modules.tools.domain;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -92,6 +93,16 @@ public class AlipayConfig implements Serializable {
      * 支付宝根证书
      * */
     private String aliRootCert;
+
+    /** 通道配置内容字段，仅保存在 mw_pay_channel 加密配置中。 */
+    @TableField(exist = false)
+    private String appCertContent;
+    @TableField(exist = false)
+    private String alipayPublicCertContent;
+    @TableField(exist = false)
+    private String rootCertContent;
+    @TableField(exist = false)
+    private Integer mode;
 
     public void copy(AlipayConfig source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));

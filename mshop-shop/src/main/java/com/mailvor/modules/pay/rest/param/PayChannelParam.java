@@ -32,6 +32,9 @@ public class PayChannelParam implements Serializable {
     /** 证书信息 */
     private String certProfileE;
 
+    /** 结构化编辑时，仅合并本次提供的非空配置。 */
+    private boolean mergeCertProfile;
+
     /** 异步回调 */
     private String notifyUrl;
     /** 最大额度 */

@@ -44,14 +44,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
 public class AlipayConfigServiceImpl extends BaseServiceImpl<AlipayConfigMapper, AlipayConfig> implements AlipayConfigService {
 
-    private static AlipayClient alipayClient = null;
     @Override
     public String toPayAsPc(AlipayConfig alipay, TradeVo trade) throws Exception {
 
         if(alipay.getId() == null){
             throw new BadRequestException("请先添加相应配置，再操作");
         }
-        AlipayClient alipayClient = new DefaultAlipayClient(alipay.getGatewayUrl(), alipay.getAppId(), alipay.getPrivateKey(), alipay.getFormat(), alipay.getCharset(), alipay.getPublicKey(), alipay.getSignType());
+        AlipayClient alipayClient = initAlipayClient(alipay);
 
         // 创建API对应的request(电脑网页版)
         AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
@@ -77,7 +76,7 @@ public class AlipayConfigServiceImpl extends BaseServiceImpl<AlipayConfigMapper,
 
     @Override
     public String toPayAsWeb(AlipayConfig alipay, TradeVo trade) throws Exception {
-        AlipayClient alipayClient = new DefaultAlipayClient(alipay.getGatewayUrl(), alipay.getAppId(), alipay.getPrivateKey(), alipay.getFormat(), alipay.getCharset(), alipay.getPublicKey(), alipay.getSignType());
+        AlipayClient alipayClient = initAlipayClient(alipay);
 
         double money = Double.parseDouble(trade.getTotalAmount());
         double maxMoney = 5000;
@@ -230,11 +229,23 @@ public class AlipayConfigServiceImpl extends BaseServiceImpl<AlipayConfigMapper,
         //设置签名类型
         certAlipayRequest.setSignType(alipay.getSignType());
         //设置应用公钥证书路径
-        certAlipayRequest.setCertPath(alipay.getAppPublicCert());
+        if (StringUtils.isNotBlank(alipay.getAppCertContent())) {
+            certAlipayRequest.setCertContent(alipay.getAppCertContent());
+        } else {
+            certAlipayRequest.setCertPath(alipay.getAppPublicCert());
+        }
         //设置支付宝公钥证书路径
-        certAlipayRequest.setAlipayPublicCertPath(alipay.getAliPublicCert());
+        if (StringUtils.isNotBlank(alipay.getAlipayPublicCertContent())) {
+            certAlipayRequest.setAlipayPublicCertContent(alipay.getAlipayPublicCertContent());
+        } else {
+            certAlipayRequest.setAlipayPublicCertPath(alipay.getAliPublicCert());
+        }
         //设置支付宝根证书路径
-        certAlipayRequest.setRootCertPath(alipay.getAliRootCert());
+        if (StringUtils.isNotBlank(alipay.getRootCertContent())) {
+            certAlipayRequest.setRootCertContent(alipay.getRootCertContent());
+        } else {
+            certAlipayRequest.setRootCertPath(alipay.getAliRootCert());
+        }
         //设置应用公钥证书路径
 //        certAlipayRequest.setCertPath("F:\\sufenbaoKey\\appCertPublicKey_2021003147661140.crt");
 //        //设置支付宝公钥证书路径
@@ -247,12 +258,14 @@ public class AlipayConfigServiceImpl extends BaseServiceImpl<AlipayConfigMapper,
         if(alipay.getAppId() == null){
             throw new BadRequestException("请先添加相应配置，再操作");
         }
-        if(alipayClient == null) {
-            CertAlipayRequest certAlipayRequest = initAlipayRequest(alipay);
-            //构造client
-            alipayClient = new DefaultAlipayClient(certAlipayRequest);
+        // 每份通道配置独立创建，修改证书立即生效，避免多商户共用旧客户端。
+        if (Integer.valueOf(1).equals(alipay.getMode())
+                || (alipay.getMode() == null && StringUtils.isBlank(alipay.getAppCertContent())
+                && StringUtils.isBlank(alipay.getAppPublicCert()) && StringUtils.isNotBlank(alipay.getPublicKey()))) {
+            return new DefaultAlipayClient(alipay.getGatewayUrl(), alipay.getAppId(), alipay.getPrivateKey(),
+                    alipay.getFormat(), alipay.getCharset(), alipay.getPublicKey(), alipay.getSignType());
         }
-        return alipayClient;
+        return new DefaultAlipayClient(initAlipayRequest(alipay));
     }
 
     @Override

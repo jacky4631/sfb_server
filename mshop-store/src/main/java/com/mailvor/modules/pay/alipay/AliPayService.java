@@ -19,6 +19,10 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.cert.CertificateFactory;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -104,7 +108,17 @@ public class AliPayService extends PayService{
         }
         AlipayConfig alipay = parseAliPayConfig(payChannel);
         boolean flag = false;
-        if(alipay.getAliPublicCert()!=null){
+        if (!Integer.valueOf(1).equals(alipay.getMode())
+                && StringUtils.isNotBlank(alipay.getAlipayPublicCertContent())) {
+            try {
+                java.security.cert.Certificate certificate = CertificateFactory.getInstance("X.509")
+                        .generateCertificate(new ByteArrayInputStream(alipay.getAlipayPublicCertContent().getBytes(StandardCharsets.UTF_8)));
+                String publicKey = Base64.getEncoder().encodeToString(certificate.getPublicKey().getEncoded());
+                flag = AlipaySignature.rsaCheckV1(params, publicKey, alipay.getCharset(), alipay.getSignType());
+            } catch (java.security.cert.CertificateException e) {
+                throw new AlipayApiException("支付宝验签证书内容无效");
+            }
+        } else if(!Integer.valueOf(1).equals(alipay.getMode()) && StringUtils.isNotBlank(alipay.getAliPublicCert())){
             flag = AlipaySignature.rsaCertCheckV1(params,
                     alipay.getAliPublicCert(),
                     alipay.getCharset(),alipay.getSignType());
@@ -130,7 +144,9 @@ public class AliPayService extends PayService{
     }
 
     protected AlipayConfig parseAliPayConfig(PayChannelDto channelDto) {
-        return JSON.parseObject(channelDto.getCertProfile(), AlipayConfig.class);
+        AlipayConfig config = JSON.parseObject(channelDto.getCertProfile(), AlipayConfig.class);
+        config.setNotifyUrl(channelDto.getNotifyUrl());
+        return config;
 
     }
 

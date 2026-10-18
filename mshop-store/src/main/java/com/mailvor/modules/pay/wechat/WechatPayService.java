@@ -91,7 +91,11 @@ public class WechatPayService extends PayService {
         payConfig.setMchId(config.getMchId());
         payConfig.setMchKey(config.getMchKey());
         payConfig.setApiV3Key(config.getMchKey());
-        payConfig.setKeyPath(config.getKeyPath());
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(config.getKeyContent())) {
+            payConfig.setKeyContent(java.util.Base64.getDecoder().decode(config.getKeyContent()));
+        } else {
+            payConfig.setKeyPath(config.getKeyPath());
+        }
         // 可以指定是否使用沙箱环境
         payConfig.setUseSandboxEnv(false);
         WxPayService wxPayService = new WxPayServiceImpl();
@@ -103,30 +107,24 @@ public class WechatPayService extends PayService {
     public String notify(AppFromEnum from, String xmlData) throws IOException, AlipayApiException {
         try {
             log.info("微信充值回调信息:{}", xmlData);
-            WxPayService wxPayService= null;
-            if(AppFromEnum.APP == from) {
-                wxPayService = getAppWxPayService();
-            } else {
-
-                //todo 其他支付回调
+            if (AppFromEnum.APP != from) {
+                return WxPayNotifyResponse.fail("不支持的支付回调来源");
             }
-
-            if(wxPayService == null) {
-                throw new RuntimeException("解析微信充值回调错误：未找到有效支付通道");
+            // 仅用未验签订单号选择通道；验签成功之前不处理订单。
+            String orderId = WxPayOrderNotifyResult.fromXML(xmlData).getOutTradeNo();
+            MwUserRecharge recharge = userRechargeService.getRecharge(orderId);
+            if (recharge == null || recharge.getChannelId() == null) {
+                return WxPayNotifyResponse.fail("订单不存在");
             }
-
-            WxPayOrderNotifyResult notifyResult = wxPayService.parseOrderNotifyResult(xmlData);
+            PayChannelDto payChannel = payChannelService.getChannel(recharge.getChannelId());
+            WxPayOrderNotifyResult notifyResult = getWxPayService(payChannel).parseOrderNotifyResult(xmlData);
             if(isOk(notifyResult)) {
-                String orderId = notifyResult.getOutTradeNo();
-                MwUserRecharge recharge = userRechargeService.getRecharge(orderId);
-                PayChannelDto payChannel = payChannelService.getChannel(recharge.getChannelId());
-
                 finishRecharge(orderId, recharge, payChannel);
 
                 return WxPayNotifyResponse.success("处理成功!");
             }
-        } catch (WxPayException e) {
-            log.error("微信支付回调异常: {}", e);
+        } catch (Exception e) {
+            log.error("微信支付回调异常", e);
         }
         return WxPayNotifyResponse.fail("处理失败");
     }
