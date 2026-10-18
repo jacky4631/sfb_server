@@ -47,8 +47,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -101,8 +99,11 @@ public class TkService {
     private KuService kuService;
 
     public TkParseCodeVO mixParse(ParseContentParam param, MwUser mwUser) {
-        String content = param.getContent();
+        String content = param == null ? null : param.getContent();
         TkParseCodeVO res = new TkParseCodeVO();
+        if (StringUtils.isBlank(content)) {
+            return res;
+        }
         //当查券内容长度大于1200 中止查券
         if(content.length() > ClipboardParseUtil.getContentLimit()) {
             return res;
@@ -125,18 +126,18 @@ public class TkService {
                 channelId = userUnion.getTbPid();
             }
 
-            DataokeResVo<GoodsParseVo> resVo = dataokeService.goodsParse(content, pid, channelId);
-            if(resVo.getCode() == 0) {
-                res.setCode(0);
-
-                //优先根据标题使用联盟搜索
-//                List<TkGoodsVO> tkGoodsVOS = tbSearch(content);
-                res.setData(LinkUtil.parseDtkGoodsParse(resVo.getData(), content));
-                log.info("查券返回结果 {}", JSON.toJSONString(res));
-                return res;
-            } else {
-                parseAgain = true;
+            try {
+                // 标题中的百分号会导致大淘客解析失败。
+                DataokeResVo<GoodsParseVo> resVo = dataokeService.goodsParse(content.replace("%", ""), pid, channelId);
+                if (resVo != null && Integer.valueOf(0).equals(resVo.getCode()) && resVo.getData() != null) {
+                    res.setCode(0);
+                    res.setData(LinkUtil.parseDtkGoodsParse(resVo.getData(), content));
+                    return res;
+                }
+            } catch (Exception e) {
+                log.warn("淘宝查券失败，尝试备用解析", e);
             }
+            parseAgain = true;
         } else if (ClipboardParseUtil.getPddPattern().matcher(content).find()) {
             //拼多多链接使用大淘客的列表查询接口
             GoodsListPddParam pddParam = new GoodsListPddParam();
@@ -154,7 +155,8 @@ public class TkService {
             GoodsListJDParam jdParam = new GoodsListJDParam();
             jdParam.setKeyword(content);
             JdKuSearchListVO jdKuSearchListVO = kuService.searchJD(jdParam);
-            if(jdKuSearchListVO.getCode()==200 && jdKuSearchListVO.getData().size() > 0) {
+            if(jdKuSearchListVO != null && Integer.valueOf(200).equals(jdKuSearchListVO.getCode())
+                    && !CollectionUtils.isEmpty(jdKuSearchListVO.getData())) {
                 JdKuGoodsDetailVO jdKuGoodsDetailVO = jdKuSearchListVO.getData().get(0);
                 res.setCode(0);
                 res.setData(LinkUtil.parseJdKuDetail(jdKuGoodsDetailVO, content));
@@ -165,18 +167,17 @@ public class TkService {
             }
         } else if(ClipboardParseUtil.getDyPattern().matcher(content).find()) {
             GoodsListDyParam dyParam = new GoodsListDyParam();
-            try {
-                dyParam.setKeyword(URLEncoder.encode(content, "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
+            // KuService 已负责 URL 编码，避免剪贴板文本被编码两次。
+            dyParam.setKeyword(content);
             dyParam.setSort(0);
             dyParam.setPageId(1);
             dyParam.setPageSize(20);
 
 //            dyParam.setKeyword(content);
             DySearchListVO dySearchListVO = kuService.dyProductList(dyParam);
-            if(dySearchListVO.getCode() == 200 && org.apache.commons.collections.CollectionUtils.isNotEmpty(dySearchListVO.getData())) {
+            if(dySearchListVO != null && (Integer.valueOf(200).equals(dySearchListVO.getCode())
+                    || Integer.valueOf(0).equals(dySearchListVO.getCode()))
+                    && !CollectionUtils.isEmpty(dySearchListVO.getData())) {
                 res.setCode(0);
                 DySearchVO dySearchVO = dySearchListVO.getData().get(0);
                 res.setData(LinkUtil.parseDyKuCmsDetail(dySearchVO, dySearchVO.getGoodsId(), content, ""));
@@ -215,15 +216,18 @@ public class TkService {
         }
         if(parseAgain) {
             //使用好单库替换
-            res = kuService.clipboard(param);
-
-            if(res != null && res.getCode() == 0) {
+            TkParseCodeVO fallback = null;
+            try {
+                fallback = kuService.clipboard(param);
+            } catch (Exception e) {
+                log.warn("备用查券失败，保留原文用于全网搜索", e);
+            }
+            if (fallback != null && Integer.valueOf(0).equals(fallback.getCode()) && fallback.getData() != null) {
+                res = fallback;
                 res.getData().setOriginContent(content);
             } else {
                 res.setCode(-1);
-                TkParseVO data = new TkParseVO();
-                data.setOriginContent(content);
-                res.setData(data);
+                res.setData(TkParseVO.builder().originContent(content).build());
             }
         }
         if(res.getData() == null) {

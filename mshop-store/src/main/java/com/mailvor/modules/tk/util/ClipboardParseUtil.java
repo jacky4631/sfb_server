@@ -12,11 +12,11 @@ import java.util.regex.Pattern;
 @Slf4j
 @Component
 public class ClipboardParseUtil {
-    private static Pattern tbPattern = Pattern.compile("taobao|tb");
+    private static Pattern tbPattern = Pattern.compile("taobao.com|tb.cn|tmall.com");
     private static Pattern jdPattern = Pattern.compile("京|jd|JD");
-    private static Pattern pddPattern = Pattern.compile("yangkeduo");
+    private static Pattern pddPattern = Pattern.compile("yangkeduo|pinduoduo|拼多多", Pattern.CASE_INSENSITIVE);
     private static Pattern dyPattern = Pattern.compile("抖音|douyin");
-    private static Pattern vipPattern = Pattern.compile("vip");
+    private static Pattern vipPattern = Pattern.compile("vip|vipglobal");
     private static Pattern excludePattern = Pattern.compile("零撸|提现");
     private static Long contentLimit = 1200L;
 

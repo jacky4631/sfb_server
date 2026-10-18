@@ -125,6 +125,10 @@ public class LinkUtil {
             }
         }
     }
+    private static double priceDifference(Double startPrice, Double endPrice) {
+        return startPrice == null || endPrice == null ? 0D : Math.max(0D, startPrice - endPrice);
+    }
+
     public static TkParseVO parseDyKuCmsDetail(DySearchVO detail, String goodsId, String origContent, String buyLink) {
         return TkParseVO.builder()
                 .img(detail.getImg())
@@ -136,7 +140,7 @@ public class LinkUtil {
                 .platType(4)
                 .originContent(origContent)
                 .goodsId(goodsId)
-                .coupon(detail.getStartPrice() - detail.getEndPrice())
+                .coupon(priceDifference(detail.getStartPrice(), detail.getEndPrice()))
                 .sales(detail.getSales())
                 .build();
     }
@@ -150,7 +154,7 @@ public class LinkUtil {
                 .platType(2)
                 .originContent(origContent)
                 .goodsId(detail.getGoodsId())
-                .coupon(detail.getStartPrice() - detail.getEndPrice())
+                .coupon(priceDifference(detail.getStartPrice(), detail.getEndPrice()))
                 .sales(detail.getSales())
                 .build();
     }
@@ -262,7 +266,7 @@ public class LinkUtil {
                 .platType(5)
                 .originContent(origContent)
                 .goodsId(goodsId)
-                .coupon(detail.getStartPrice() - detail.getEndPrice())
+                .coupon(priceDifference(detail.getStartPrice(), detail.getEndPrice()))
                 .sales(detail.getSales())
                 .build();
     }
