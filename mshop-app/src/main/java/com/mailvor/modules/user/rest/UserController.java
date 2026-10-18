@@ -324,7 +324,9 @@ public class UserController {
     @PostMapping("/user/binding")
     @ApiOperation(value = "用户绑定淘宝渠道id",notes = "用户绑定淘宝渠道id")
     public ApiResult<String> binding(@Validated @RequestBody UserBindingParam param) throws ApiException {
-        //todo
+        if (StringUtils.isBlank(param.getSession())) {
+            return ApiResult.fail("请先在淘宝完成实名认证后再授权。");
+        }
         TaobaoClient client = new DefaultTaobaoClient(tbConfig.getUrl(),
                 tbConfig.getAppKey(), tbConfig.getAppSecret());
         Long uid =LocalUser.getUser().getUid();
@@ -337,8 +339,18 @@ public class UserController {
         req.setNote(uid.toString());
         TbkScPublisherInfoSaveResponse rsp = client.execute(req, param.getSession());
         log.info("淘宝{}渠道授权 {}", uid, JSON.toJSONString(rsp));
-        if(rsp != null && !rsp.isSuccess()) {
-            return ApiResult.fail(rsp.getSubMessage());
+        if (rsp == null) {
+            return ApiResult.fail("授权失败");
+        }
+        if (!rsp.isSuccess()) {
+            String reason = rsp.getSubMessage();
+            if (StringUtils.isBlank(reason)) reason = rsp.getSubMsg();
+            if (StringUtils.isBlank(reason)) reason = rsp.getMsg();
+            return ApiResult.fail(StringUtils.isBlank(reason)
+                    ? "授权失败" : reason);
+        }
+        if (rsp.getData() == null || rsp.getData().getRelationId() == null) {
+            return ApiResult.fail("授权失败");
         }
         //校验渠道id是否已被绑定
         String channelId = rsp.getData().getRelationId().toString();
@@ -347,7 +359,7 @@ public class UserController {
                 .eq(MwUserUnion::getName, PAY_NAME)
                 .ne(MwUserUnion::getUid, uid));
         if(findUser != null) {
-            throw new ApiException("授权失败，该淘宝号已经被授权");
+            return ApiResult.fail("授权失败，该淘宝号已经被授权");
         }
 
         MwUserUnion userUnion = userUnionService.getOne(uid);
