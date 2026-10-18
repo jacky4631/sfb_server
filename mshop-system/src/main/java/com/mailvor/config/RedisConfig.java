@@ -6,6 +6,7 @@ package com.mailvor.config;
 
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.SocketOptions;
+import io.lettuce.core.TimeoutOptions;
 import org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer;
 import cn.hutool.core.lang.Assert;
 import com.mailvor.utils.StringUtils;
@@ -49,12 +50,29 @@ import java.util.Map;
 @EnableConfigurationProperties(RedisProperties.class)
 public class RedisConfig extends CachingConfigurerSupport {
 
+    /**
+     * keepAlive 必须用细粒度重载：keepAlive(true) 只打开 SO_KEEPALIVE 开关，探测间隔取操作系统
+     * 默认值（7200s），远大于公网链路上 NAT 的空闲会话老化时间（实测约 250s）。连接会在空闲期被
+     * 中间设备静默丢弃且不回 RST，形成半开黑洞，下一个业务请求要等 TCP 重传耗尽（实测 18s）才失败。
+     * 探测参数 60s/15s/3 次可持续刷新 NAT 会话表项，实测空闲 300s 后连接依然健康。
+     * timeoutOptions 必须显式开启：下面整体替换 ClientOptions 会覆盖 spring-data-redis 构造时默认
+     * 注入的 TimeoutOptions.enabled()，不显式设置将回落到 timeoutCommands=false，
+     * 导致 Lettuce 命令过期机制 CommandExpiryWriter 不生效（键过期订阅等异步路径将失去超时保护）。
+     */
     @Bean
     public LettuceClientConfigurationBuilderCustomizer lettuceConnectionCustomizer() {
         return builder -> builder.clientOptions(ClientOptions.builder()
                 .autoReconnect(true)
                 .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
-                .socketOptions(SocketOptions.builder().keepAlive(true).build())
+                .socketOptions(SocketOptions.builder()
+                        .keepAlive(SocketOptions.KeepAliveOptions.builder()
+                                .enable()
+                                .idle(Duration.ofSeconds(60))
+                                .interval(Duration.ofSeconds(15))
+                                .count(3)
+                                .build())
+                        .build())
+                .timeoutOptions(TimeoutOptions.enabled())
                 .build());
     }
 
