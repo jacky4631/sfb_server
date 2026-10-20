@@ -285,7 +285,11 @@ public class OrderTask {
             List<PddDdkOrderListRangeGetResponse.OrderListGetResponseOrderListItem> filteredOrders =
                     orders.stream().filter(order -> Objects.equals(order.getPId(), pddConfig.getPid())).collect(Collectors.toList());
             if(filteredOrders.isEmpty()) {
-                return null;
+                // 本页订单都不属于当前 pid 时不能直接结束，否则后续页的归属订单会漏采；
+                // 游标为空或与本次请求游标相同说明已翻到底，避免死循环
+                String lastOrderId = res.getOrderListGetResponse().getLastOrderId();
+                return StringUtils.isNotBlank(lastOrderId) && !Objects.equals(lastOrderId, param.getLastOrderId())
+                        ? lastOrderId : null;
             }
             //todo 由于拼多多订单时间为秒，存入数据库后显示1970年，目前手动乘以1000 后期优化
             List<OrderListGetResponseOrderListDTO> orderDTOS = generator.convert(filteredOrders, OrderListGetResponseOrderListDTO.class);
