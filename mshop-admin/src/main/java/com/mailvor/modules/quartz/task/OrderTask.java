@@ -378,7 +378,8 @@ public class OrderTask {
                     vipOrder -> vipOrder.getStatParam() != null && vipOrder.getStatParam().startsWith(VIP_UID_PREFIX))
                     .collect(Collectors.toList());
             if(filterOrders.isEmpty()) {
-                return false;
+                // 本页没有当前前缀的订单时，仍按 total 判断是否继续翻页，避免漏单
+                return data.getTotal() > data.getPageSize() * data.getPage();
             }
             filterOrders.forEach(vipOrder -> {
                 Long uid = OrderUtil.getVipOrderUser(vipOrder.getStatParam());
