@@ -11,6 +11,7 @@ import com.mailvor.modules.meituan.config.MeituanConfig;
 import com.mailvor.modules.meituan.param.MeituanOrderParam;
 import com.mailvor.modules.meituan.utils.MeituanUtil;
 import com.mailvor.modules.meituan.utils.MeituanSidUtil;
+import com.mailvor.modules.tk.config.JdConfig;
 import com.mailvor.modules.tk.config.PddConfig;
 import com.mailvor.modules.tk.config.TbConfig;
 import com.mailvor.modules.tk.domain.*;
@@ -80,6 +81,9 @@ public class OrderTask {
 
     @Resource
     private TbConfig tbConfig;
+
+    @Resource
+    private JdConfig jdConfig;
 
     @Resource
     private PddConfig pddConfig;
@@ -175,9 +179,11 @@ public class OrderTask {
         if(queryResult != null && queryResult.getData() != null && queryResult.getData().length > 0) {
             OrderRowResp[] resps = queryResult.getData();
 
+            // 只同步当前站点(siteId)的订单，避免同一联盟账号下其他站点的订单混入
+            Long siteId = parseSiteId();
             List<MailvorJdOrder> orders = JSON.parseArray(JSON.toJSONString(resps), MailvorJdOrder.class)
                     .stream()
-                    .filter(order -> OrderUtil.getJdOrderUser(order.getSubUnionId(), order.getPositionId()) > 0)
+                    .filter(order -> siteId == null || Objects.equals(order.getSiteId(), siteId))
                     .collect(Collectors.toList());
             // 过滤掉整页也要继续使用京东的 hasMore，不能提前停止分页。
             if (orders.isEmpty()) {
@@ -220,6 +226,22 @@ public class OrderTask {
             return queryResult.getHasMore() ? 1 : 0;
         }
         return 0;
+    }
+
+    /**
+     * 当前站点 id；未配置或配置非法时返回 null，表示不做站点过滤
+     */
+    private Long parseSiteId() {
+        String siteIdText = StringUtils.trim(jdConfig.getSiteId());
+        if (StringUtils.isBlank(siteIdText)) {
+            return null;
+        }
+        try {
+            return Long.valueOf(siteIdText);
+        } catch (NumberFormatException e) {
+            log.warn("京东 siteId 配置格式错误，本次跳过站点过滤 siteId={}", siteIdText);
+            return null;
+        }
     }
 
     protected boolean saveDy(QueryDyParam param) {
@@ -285,7 +307,11 @@ public class OrderTask {
             List<PddDdkOrderListRangeGetResponse.OrderListGetResponseOrderListItem> filteredOrders =
                     orders.stream().filter(order -> Objects.equals(order.getPId(), pddConfig.getPid())).collect(Collectors.toList());
             if(filteredOrders.isEmpty()) {
-                return null;
+                // 本页订单都不属于当前 pid 时不能直接结束，否则后续页的归属订单会漏采；
+                // 游标为空或与本次请求游标相同说明已翻到底，避免死循环
+                String lastOrderId = res.getOrderListGetResponse().getLastOrderId();
+                return StringUtils.isNotBlank(lastOrderId) && !Objects.equals(lastOrderId, param.getLastOrderId())
+                        ? lastOrderId : null;
             }
             //todo 由于拼多多订单时间为秒，存入数据库后显示1970年，目前手动乘以1000 后期优化
             List<OrderListGetResponseOrderListDTO> orderDTOS = generator.convert(filteredOrders, OrderListGetResponseOrderListDTO.class);
@@ -352,7 +378,8 @@ public class OrderTask {
                     vipOrder -> vipOrder.getStatParam() != null && vipOrder.getStatParam().startsWith(VIP_UID_PREFIX))
                     .collect(Collectors.toList());
             if(filterOrders.isEmpty()) {
-                return false;
+                // 本页没有当前前缀的订单时，仍按 total 判断是否继续翻页，避免漏单
+                return data.getTotal() > data.getPageSize() * data.getPage();
             }
             filterOrders.forEach(vipOrder -> {
                 Long uid = OrderUtil.getVipOrderUser(vipOrder.getStatParam());
