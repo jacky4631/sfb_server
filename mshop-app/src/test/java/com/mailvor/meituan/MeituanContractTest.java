@@ -1,7 +1,7 @@
 package com.mailvor.meituan;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.modules.meituan.MeituanService;
 import com.mailvor.modules.meituan.config.MeituanConfig;
 import com.mailvor.modules.meituan.param.*;
@@ -34,7 +34,7 @@ public class MeituanContractTest {
 
     private MtResVo orders(String rows) {
         MeituanClient client = mock(MeituanClient.class);
-        when(client.request(any(MeituanOrderParam.class), anyString())).thenReturn(JSON.parseObject(
+        when(client.request(any(MeituanOrderParam.class), anyString())).thenReturn(JsonUtil.parseObject(
                 "{\"code\":0,\"data\":{\"code\":0,\"scrollId\":\"next-page\",\"dataList\":" + rows + "}}"));
         return service(client).order(new MeituanOrderParam());
     }
@@ -56,7 +56,7 @@ public class MeituanContractTest {
             assertEquals("https://media.meituan.com" + path, request.getURI().toString());
             assertEquals(HttpMethod.POST, request.getMethod());
             byte[] body = ((MockClientHttpRequest) request).getBodyAsBytes();
-            assertEquals(JSON.toJSONString(param), new String(body, StandardCharsets.UTF_8));
+            assertEquals(JsonUtil.toJSONString(param), new String(body, StandardCharsets.UTF_8));
             try {
             String digest = Base64.getEncoder().encodeToString(MessageDigest.getInstance("MD5").digest(body));
             assertEquals(digest, request.getHeaders().getFirst("Content-MD5"));
@@ -80,7 +80,7 @@ public class MeituanContractTest {
         MeituanClient client = mock(MeituanClient.class);
         MeituanLinkParam param = new MeituanLinkParam();
         param.setActId("activity"); param.setLinkType(4);
-        JSONObject response = JSON.parseObject("{\"code\":0,\"data\":\"pages/path\"}");
+        JsonObject response = JsonUtil.parseObject("{\"code\":0,\"data\":\"pages/path\"}");
         when(client.request(param, "/cps_open/common/api/v1/get_referral_link")).thenReturn(response);
         assertSame(response, service(client).getCode(param, 123L));
         assertEquals("sfbuid_123", param.getSid());

@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.cart.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.annotation.Limit;
 import com.mailvor.api.ApiResult;
 import com.mailvor.modules.logging.aop.log.AppLog;
@@ -14,8 +16,6 @@ import com.mailvor.modules.cart.param.CartIdsParm;
 import com.mailvor.modules.cart.param.CartNumParam;
 import com.mailvor.modules.cart.param.CartParam;
 import com.mailvor.modules.cart.service.MwStoreCartService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +38,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@Api(value = "购物车", tags = "商城：购物车")
+@Tag(name = "商城：购物车")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StoreCartController {
 
@@ -49,7 +49,7 @@ public class StoreCartController {
      */
     @AuthCheck
     @GetMapping("/cart/count")
-    @ApiOperation(value = "获取数量",notes = "获取数量")
+    @Operation(summary = "获取数量", description = "获取数量")
     public ApiResult<Map<String,Object>> count(){
         Map<String,Object> map = new LinkedHashMap<>();
         Long uid = LocalUser.getUser().getUid();
@@ -64,7 +64,7 @@ public class StoreCartController {
     @NoRepeatSubmit
     @AuthCheck
     @PostMapping("/cart/add")
-    @ApiOperation(value = "添加购物车",notes = "添加购物车")
+    @Operation(summary = "添加购物车", description = "添加购物车")
     @Limit(key = "cart_limit", period = 60, count = 30, name = "cartLimit", prefix = "mshop")
     public ApiResult<Map<String,Object>> add(@Validated @RequestBody CartParam cartParam){
         Map<String,Object> map = new LinkedHashMap<>();
@@ -82,7 +82,7 @@ public class StoreCartController {
     @AppLog(value = "查看购物车列表", type = 1)
     @AuthCheck
     @GetMapping("/cart/list")
-    @ApiOperation(value = "购物车列表",notes = "购物车列表")
+    @Operation(summary = "购物车列表", description = "购物车列表")
     public ApiResult<Map<String,Object>> getList(){
         Long uid = LocalUser.getUser().getUid();
         return ApiResult.ok(storeCartService.getUserProductCartList(uid,"",null));
@@ -94,7 +94,7 @@ public class StoreCartController {
     @AppLog(value = "修改购物车产品数量", type = 1)
     @AuthCheck
     @PostMapping("/cart/num")
-    @ApiOperation(value = "修改产品数量",notes = "修改产品数量")
+    @Operation(summary = "修改产品数量", description = "修改产品数量")
     public ApiResult<Boolean> cartNum(@Validated @RequestBody CartNumParam param){
         Long uid = LocalUser.getUser().getUid();
         storeCartService.changeUserCartNum(param.getId(), param.getNumber(),uid);
@@ -108,7 +108,7 @@ public class StoreCartController {
     @NoRepeatSubmit
     @AuthCheck
     @PostMapping("/cart/del")
-    @ApiOperation(value = "购物车删除产品",notes = "购物车删除产品")
+    @Operation(summary = "购物车删除产品", description = "购物车删除产品")
     public ApiResult<Boolean> cartDel(@Validated @RequestBody CartIdsParm parm){
         Long uid = LocalUser.getUser().getUid();
         storeCartService.removeUserCart(uid, parm.getIds());

@@ -1,6 +1,6 @@
 package com.mailvor.modules.quartz.task;
 
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.mailvor.modules.tk.param.QueryMtParam;
 import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class OrderMtCPSHistoryCollectionTask extends OrderTask{
         if(StringUtils.isEmpty(paramStr)) {
             param = new QueryMtParam();
         } else {
-            param = JSON.parseObject(paramStr, QueryMtParam.class);
+            param = JsonUtil.parseObject(paramStr, QueryMtParam.class);
         }
         Integer day = param.getDay();
         Integer minutes = param.getMinutes();

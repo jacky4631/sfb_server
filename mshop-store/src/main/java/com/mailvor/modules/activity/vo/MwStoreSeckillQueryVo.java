@@ -1,11 +1,10 @@
 package com.mailvor.modules.activity.vo;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import cn.hutool.core.util.StrUtil;
 import com.mailvor.serializer.BigDecimalSerializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -24,20 +23,20 @@ import java.util.List;
  * @date 2019-12-14
  */
 @Data
-@ApiModel(value="MwStoreSeckillQueryVo对象", description="商品秒杀产品表查询参数")
+@Schema(description = "商品秒杀产品表查询参数")
 public class MwStoreSeckillQueryVo implements Serializable{
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "商品秒杀产品表id")
+    @Schema(description = "商品秒杀产品表id")
     private Long id;
 
-    @ApiModelProperty(value = "商品id")
+    @Schema(description = "商品id")
     private Long productId;
 
-    @ApiModelProperty(value = "推荐图")
+    @Schema(description = "推荐图")
     private String image;
 
-    @ApiModelProperty(value = "轮播图")
+    @Schema(description = "轮播图")
     private String images;
 
     private List<String> sliderImageArr;
@@ -52,62 +51,62 @@ public class MwStoreSeckillQueryVo implements Serializable{
     }
 
     @JsonSerialize(using = BigDecimalSerializer.class)
-    @ApiModelProperty(value = "价格")
+    @Schema(description = "价格")
     private BigDecimal price;
 
     @JsonSerialize(using = BigDecimalSerializer.class)
-    @ApiModelProperty(value = "成本")
+    @Schema(description = "成本")
     private BigDecimal cost;
 
     @JsonSerialize(using = BigDecimalSerializer.class)
-    @ApiModelProperty(value = "原价")
+    @Schema(description = "原价")
     private BigDecimal otPrice;
 
-    @ApiModelProperty(value = "轮播图")
+    @Schema(description = "轮播图")
     private String[] pics;
-    @ApiModelProperty(value = "活动标题")
+    @Schema(description = "活动标题")
     private String title;
 
-    @ApiModelProperty(value = "简介")
+    @Schema(description = "简介")
     private String info;
 
-    @ApiModelProperty(value = "返多少积分")
+    @Schema(description = "返多少积分")
     private BigDecimal giveIntegral;
 
-    @ApiModelProperty(value = "排序")
+    @Schema(description = "排序")
     private Integer sort;
 
-    @ApiModelProperty(value = "库存")
+    @Schema(description = "库存")
     private Integer stock;
 
-    @ApiModelProperty(value = "销量")
+    @Schema(description = "销量")
     private Integer sales;
 
-    @ApiModelProperty(value = "单位名")
+    @Schema(description = "单位名")
     private String unitName;
 
-    @ApiModelProperty(value = "邮费")
+    @Schema(description = "邮费")
     private BigDecimal postage;
 
-    @ApiModelProperty(value = "内容")
+    @Schema(description = "内容")
     private String description;
 
-    @ApiModelProperty(value = "开始时间")
+    @Schema(description = "开始时间")
     private Date startTime;
 
-    @ApiModelProperty(value = "结束时间")
+    @Schema(description = "结束时间")
     private Date stopTime;
 
-    @ApiModelProperty(value = "产品状态")
+    @Schema(description = "产品状态")
     private Integer status;
 
-    @ApiModelProperty(value = "最多秒杀几个")
+    @Schema(description = "最多秒杀几个")
     private Integer num;
 
-    @ApiModelProperty(value = "显示")
+    @Schema(description = "显示")
     private Integer isShow;
 
-    @ApiModelProperty(value = "百分比")
+    @Schema(description = "百分比")
     private Integer percent;
 
     /** 是否单独分佣 */

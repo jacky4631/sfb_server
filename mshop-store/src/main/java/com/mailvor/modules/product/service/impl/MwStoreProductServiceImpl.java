@@ -53,8 +53,8 @@ import com.mailvor.utils.FileUtil;
 import com.mailvor.utils.RedisUtil;
 import com.mailvor.utils.RegexUtil;
 import com.mailvor.utils.ShopKeyUtils;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -67,7 +67,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
@@ -572,7 +572,7 @@ public class MwStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
      */
     @Override
     public Map<String, Object> getFormatAttr(Long id, String jsonStr, boolean isActivity) {
-        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        JsonObject jsonObject = JsonUtil.parseObject(jsonStr);
         Map<String, Object> resultMap = new LinkedHashMap<>(3);
 
         if (jsonObject == null || jsonObject.get("attrs") == null || jsonObject.getJSONArray("attrs").isEmpty()) {
@@ -583,7 +583,7 @@ public class MwStoreProductServiceImpl extends BaseServiceImpl<StoreProductMappe
         }
 
 
-        List<FromatDetailDto> fromatDetailDTOList = JSON.parseArray(jsonObject.get("attrs").toString(),
+        List<FromatDetailDto> fromatDetailDTOList = JsonUtil.parseArray(jsonObject.get("attrs").toString(),
                 FromatDetailDto.class);
 
         //fromatDetailDTOList

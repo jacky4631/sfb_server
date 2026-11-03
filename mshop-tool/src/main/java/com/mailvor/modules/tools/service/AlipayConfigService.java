@@ -4,7 +4,7 @@
  */
 package com.mailvor.modules.tools.service;
 
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.response.AlipayFundTransUniTransferResponse;
 import com.alipay.api.response.AlipayUserInfoShareResponse;
@@ -44,8 +44,8 @@ public interface AlipayConfigService  extends BaseService<AlipayConfig>{
      */
     String toPayAsApp(AlipayConfig alipay, TradeVo trade) throws Exception;
 
-    JSONObject faceVerification(AlipayConfig alipay, String certName, String certNo, String phone) throws Exception;
-    JSONObject faceVerificationResult(AlipayConfig alipay, String certifyId) throws AlipayApiException;
+    JsonObject faceVerification(AlipayConfig alipay, String certName, String certNo, String phone) throws Exception;
+    JsonObject faceVerificationResult(AlipayConfig alipay, String certifyId) throws AlipayApiException;
     /**
      * 支付宝登录
      *
@@ -87,5 +87,5 @@ public interface AlipayConfigService  extends BaseService<AlipayConfig>{
      */
     void update(AlipayConfig alipayConfig);
 
-    JSONObject cardOCR(AlipayConfig alipay, String ocrType, String name, byte[] fileContent) throws Exception;
+    JsonObject cardOCR(AlipayConfig alipay, String ocrType, String name, byte[] fileContent) throws Exception;
 }

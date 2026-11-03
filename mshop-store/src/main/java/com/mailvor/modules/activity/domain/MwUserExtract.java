@@ -9,7 +9,7 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
+import com.mailvor.common.json.JsonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mailvor.domain.BaseDomain;
 import com.mailvor.modules.user.service.dto.OrderExtractDto;
@@ -89,7 +89,7 @@ public class MwUserExtract extends BaseDomain {
 
 
     /** 订单json array信息 */
-    @TableField(typeHandler = FastjsonTypeHandler.class)
+    @TableField(typeHandler = JsonTypeHandler.class)
     private ArrayList<OrderExtractDto> orderList;
 
 

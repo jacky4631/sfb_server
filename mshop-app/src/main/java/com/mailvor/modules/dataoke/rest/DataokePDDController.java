@@ -1,7 +1,7 @@
 package com.mailvor.modules.dataoke.rest;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.api.ApiResult;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.AuthCheck;
@@ -15,7 +15,7 @@ import com.mailvor.utils.RedisUtils;
 import com.pdd.pop.sdk.http.api.pop.response.PddDdkRpPromUrlGenerateResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 import static com.mailvor.modules.tk.constants.TkConstants.HOME_DATA_CATEGORY_PDD;
@@ -48,10 +48,10 @@ public class DataokePDDController {
     @GetMapping("/goods/cate")
     public ApiResult<List<Map<String, Object>>> getGoodList(@RequestParam(defaultValue = "0") Integer parentId) {
         String key = HOME_DATA_CATEGORY_PDD + ":v2:" + parentId;
-        JSONObject result = null;
+        JsonObject result = null;
         try {
             Object cached = redisUtils.get(key);
-            if (cached instanceof JSONObject) result = (JSONObject) cached;
+            if (cached instanceof JsonObject) result = (JsonObject) cached;
         } catch (RuntimeException e) {
             log.warn("拼多多分类缓存读取失败", e);
         }

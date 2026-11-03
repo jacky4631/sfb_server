@@ -4,8 +4,7 @@
  */
 package com.mailvor.modules.tk.param;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -17,11 +16,11 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value="MwGoodsDetailQueryParam对象", description="商品详情查询参数")
+@Schema(description = "商品详情查询参数")
 public class GoodsDetailParam extends BaseParam {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "淘宝商品id")
+    @Schema(description = "淘宝商品id")
     private String goodsId;
 
 }

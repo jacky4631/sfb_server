@@ -1,7 +1,7 @@
 package com.mailvor.modules.quartz.task;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.enums.PlatformEnum;
 import com.mailvor.modules.user.domain.MwUserBill;
 import com.mailvor.modules.user.service.MwUserBillService;
@@ -9,7 +9,7 @@ import com.mailvor.modules.user.service.MwUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 /**
@@ -30,7 +30,7 @@ public class BillUnlockTask {
         //淘宝 京东 拼多多 抖音 唯品会都需执行
         //淘宝 查找30天内 bind=1 并且tkStatus=13的订单，扣除奖励红包， 积分记录, 订单bind改为2
         //todo 其他平台暂未验证
-        JSONObject jsonObject = JSON.parseObject(paramStr);
+        JsonObject jsonObject = JsonUtil.parseObject(paramStr);
 //        Integer day = jsonObject.getInteger("day");
         Integer limit = jsonObject.getInteger("limit");
         if(limit == null || limit == 0) {

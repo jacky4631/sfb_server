@@ -12,11 +12,6 @@
     <artifactId>mshop-app</artifactId>
     <name>移动端API模块</name>
 
-    <properties>
-        <jjwt.version>0.10.6</jjwt.version>
-        <mybatis-plus-boot-starter.version>3.4.2</mybatis-plus-boot-starter.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.mailvor</groupId>

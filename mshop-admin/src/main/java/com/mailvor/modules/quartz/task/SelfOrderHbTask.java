@@ -1,7 +1,7 @@
 package com.mailvor.modules.quartz.task;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.modules.order.service.SuStoreOrderService;
 import com.mailvor.modules.order.service.dto.UserRefundDto;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -53,7 +53,7 @@ public class SelfOrderHbTask {
     @Transactional(propagation = Propagation.SUPPORTS, readOnly = true, rollbackFor = Exception.class)
     protected void run(String paramStr) throws InterruptedException {
 
-        JSONObject jsonObject = JSON.parseObject(paramStr);
+        JsonObject jsonObject = JsonUtil.parseObject(paramStr);
 //        Integer day = jsonObject.getInteger("day");
         Integer limit = jsonObject.getInteger("limit");
         //找到尚未拆红包，并且已经超过解锁时间的订单

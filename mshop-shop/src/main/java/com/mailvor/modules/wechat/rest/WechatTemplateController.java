@@ -4,14 +4,14 @@
  */
 package com.mailvor.modules.wechat.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.modules.aop.ForbidSubmit;
 import com.mailvor.modules.mp.domain.MwWechatTemplate;
 import com.mailvor.modules.mp.service.MwWechatTemplateService;
 import com.mailvor.modules.mp.service.dto.MwWechatTemplateDto;
 import com.mailvor.modules.mp.service.dto.MwWechatTemplateQueryCriteria;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -27,14 +27,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
 * @author huangyu
 * @date 2019-12-10
 */
-@Api(tags = "微信：微信模板管理")
+@Tag(name = "微信：微信模板管理")
 @RestController
 @RequestMapping("/api/mwWechatTemplate")
 @AllArgsConstructor
@@ -45,7 +45,7 @@ public class WechatTemplateController {
     private final IGenerator generator;
 
 
-    @ApiOperation("导出数据")
+    @Operation(summary = "导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','mwWechatTemplate:list')")
     public void download(HttpServletResponse response, MwWechatTemplateQueryCriteria criteria) throws IOException {
@@ -53,7 +53,7 @@ public class WechatTemplateController {
     }
 
     @GetMapping
-    @ApiOperation("查询微信模板消息")
+    @Operation(summary = "查询微信模板消息")
     @PreAuthorize("@el.check('admin','mwWechatTemplate:list')")
     public ResponseEntity<Object> getmwWechatTemplates(MwWechatTemplateQueryCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(mwWechatTemplateService.queryAll(criteria,pageable),HttpStatus.OK);
@@ -61,7 +61,7 @@ public class WechatTemplateController {
 
     @ForbidSubmit
     @PostMapping
-    @ApiOperation("新增微信模板消息")
+    @Operation(summary = "新增微信模板消息")
     @PreAuthorize("@el.check('admin','mwWechatTemplate:add')")
     public ResponseEntity<Object> create(@Validated @RequestBody MwWechatTemplate resources){
         return new ResponseEntity<>(mwWechatTemplateService.save(resources),HttpStatus.CREATED);
@@ -69,7 +69,7 @@ public class WechatTemplateController {
 
     @ForbidSubmit
     @PutMapping
-    @ApiOperation("修改微信模板消息")
+    @Operation(summary = "修改微信模板消息")
     @PreAuthorize("@el.check('admin','mwWechatTemplate:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody MwWechatTemplate resources){
         mwWechatTemplateService.updateById(resources);
@@ -77,7 +77,7 @@ public class WechatTemplateController {
     }
 
     @ForbidSubmit
-    @ApiOperation("删除微信模板消息")
+    @Operation(summary = "删除微信模板消息")
     @PreAuthorize("@el.check('admin','mwWechatTemplate:del')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteAll(@PathVariable Integer id) {

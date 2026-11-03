@@ -4,8 +4,11 @@
  */
 package com.mailvor.modules.order.rest;
 
+import com.mailvor.common.json.JsonUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONArray;
+import com.mailvor.common.json.JsonArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.enums.OrderInfoEnum;
@@ -25,8 +28,6 @@ import com.mailvor.modules.tk.service.TkService;
 import com.mailvor.modules.tools.express.ExpressService;
 import com.mailvor.modules.tools.express.config.ExpressAutoConfiguration;
 import com.mailvor.modules.tools.express.dao.ExpressInfo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +38,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -51,7 +52,7 @@ import java.util.stream.Collectors;
  * @author mazhongjun
  * @date 2019-10-14
  */
-@Api(tags = "商城：订单管理")
+@Tag(name = "商城：订单管理")
 @RestController
 @RequestMapping("api")
 @Slf4j
@@ -79,7 +80,7 @@ public class StoreOrderController {
      * 根据商品分类统计订单占比
      */
     @GetMapping("/mwStoreOrder/orderCount")
-    @ApiOperation(value = "根据商品分类统计订单占比",notes = "根据商品分类统计订单占比",response = ExpressParam.class)
+    @Operation(summary = "根据商品分类统计订单占比", description = "根据商品分类统计订单占比")
     public ResponseEntity orderCount(){
         OrderCountDto orderCountDto  = mwStoreOrderService.getOrderCount();
         return new ResponseEntity<>(orderCountDto, HttpStatus.OK);
@@ -111,7 +112,7 @@ public class StoreOrderController {
     }
 
 
-    @ApiOperation(value = "查询订单")
+    @Operation(summary = "查询订单")
     @GetMapping(value = "/mwStoreOrder")
     @PreAuthorize("hasAnyRole('admin','MWSTOREORDER_ALL','MWSTOREORDER_SELECT','MWEXPRESS_SELECT')")
     public ResponseEntity getMwStoreOrders(MwStoreOrderQueryCriteria criteria,
@@ -124,13 +125,13 @@ public class StoreOrderController {
         return new ResponseEntity<>(mwStoreOrderService.queryAll(newCriteria, pageable), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "根据订单id获取订单详情")
+    @Operation(summary = "根据订单id获取订单详情")
     @GetMapping(value = "/getStoreOrderDetail/{id}")
     @PreAuthorize("hasAnyRole('admin','MWSTOREORDER_ALL','MWSTOREORDER_SELECT','MWEXPRESS_SELECT')")
     public ResponseEntity getMwStoreOrders(@PathVariable Long id) {
         return new ResponseEntity<>(mwStoreOrderService.getOrderDetail(id), HttpStatus.OK);
     }
-    @ApiOperation(value = "查询订单当前状态流程")
+    @Operation(summary = "查询订单当前状态流程")
     @GetMapping(value = "/getNowOrderStatus/{id}")
     public ResponseEntity getNowOrderStatus(@PathVariable Long id) {
         List<String> statusList = new ArrayList<>();
@@ -189,7 +190,7 @@ public class StoreOrderController {
         }).collect(Collectors.toList());
         return dtoList;
     }
-    @ApiOperation(value = "发货")
+    @Operation(summary = "发货")
     @PutMapping(value = "/mwStoreOrder")
     @PreAuthorize("hasAnyRole('admin','MWSTOREORDER_ALL','MWSTOREORDER_EDIT')")
     public ResponseEntity update(@Validated @RequestBody MwStoreOrder resources) {
@@ -205,7 +206,7 @@ public class StoreOrderController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @ApiOperation(value = "修改快递单号")
+    @Operation(summary = "修改快递单号")
     @PutMapping(value = "/mwStoreOrder/updateDelivery")
     @PreAuthorize("hasAnyAuthority('admin','MWSTOREORDER_ALL','MWSTOREORDER_EDIT')")
     public ResponseEntity updateDelivery(@Validated @RequestBody MwStoreOrder resources) {
@@ -223,7 +224,7 @@ public class StoreOrderController {
 
 
 
-    @ApiOperation(value = "订单核销")
+    @Operation(summary = "订单核销")
     @PutMapping(value = "/mwStoreOrder/check")
     @PreAuthorize("hasAnyRole('admin','MWSTOREORDER_ALL','MWSTOREORDER_EDIT')")
     public ResponseEntity check(@Validated @RequestBody MwStoreOrder resources) {
@@ -243,7 +244,7 @@ public class StoreOrderController {
 
     @ForbidSubmit
     @Log("删除")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     @DeleteMapping(value = "/mwStoreOrder/{id}")
     @PreAuthorize("hasAnyRole('admin','MWSTOREORDER_ALL','MWSTOREORDER_DELETE')")
     public ResponseEntity delete(@PathVariable Long id) {
@@ -255,7 +256,7 @@ public class StoreOrderController {
 
 
     @Log("修改订单绑定用户")
-    @ApiOperation(value = "修改订单绑定用户")
+    @Operation(summary = "修改订单绑定用户")
     @PostMapping(value = "/mwStoreOrder/edit")
     @PreAuthorize("hasAnyRole('admin','MWSTOREORDER_ALL','MWSTOREORDER_EDIT')")
     public ResponseEntity editOrder(@RequestBody TkOrderParam param) throws ExecutionException, InterruptedException {
@@ -266,7 +267,7 @@ public class StoreOrderController {
 
 
     @Log("修改订单实际支付（积分改价）")
-    @ApiOperation(value = "修改订单实际支付（积分改价）")
+    @Operation(summary = "修改订单实际支付（积分改价）")
     @PostMapping(value = "/mwStoreOrder/editOrderPrice")
     @PreAuthorize("hasAnyRole('admin','MWSTOREORDER_ALL','MWSTOREORDER_EDIT')")
     public ResponseEntity editOrderPrice(@RequestBody MwStoreOrder resources) {
@@ -283,7 +284,7 @@ public class StoreOrderController {
 
 
     @Log("修改订单备注")
-    @ApiOperation(value = "修改订单备注")
+    @Operation(summary = "修改订单备注")
     @PostMapping(value = "/mwStoreOrder/remark")
     @PreAuthorize("hasAnyRole('admin','MWSTOREORDER_ALL','MWSTOREORDER_EDIT')")
     public ResponseEntity editOrderRemark(@RequestBody MwStoreOrder resources) {
@@ -299,7 +300,7 @@ public class StoreOrderController {
      * 快递查询
      */
     @PostMapping("/mwStoreOrder/express")
-    @ApiOperation(value = "获取物流信息",notes = "获取物流信息",response = ExpressParam.class)
+    @Operation(summary = "获取物流信息", description = "获取物流信息")
     public ResponseEntity express( @RequestBody ExpressParam expressInfoDo){
 
         //顺丰轨迹查询处理
@@ -323,7 +324,7 @@ public class StoreOrderController {
     }
 
     @Log("导出数据")
-    @ApiOperation("导出数据")
+    @Operation(summary = "导出数据")
     @GetMapping(value = "/mwStoreOrder/download")
     @PreAuthorize("hasAnyRole('admin','MWSTOREORDER_SELECT')")
     public void download(HttpServletResponse response,
@@ -336,7 +337,7 @@ public class StoreOrderController {
         if(StringUtils.isEmpty(listContent)){
             list =  (List)getMwStoreList(criteria, pageable, orderStatus, orderType).get("content");
         }else {
-            List<String> idList = JSONArray.parseArray(listContent).toJavaList(String.class);
+            List<String> idList = JsonUtil.parseArray(listContent).toJavaList(String.class);
             list = (List)mwStoreOrderService.queryAll(idList).get("content");
         }
         mwStoreOrderService.download(list, response);

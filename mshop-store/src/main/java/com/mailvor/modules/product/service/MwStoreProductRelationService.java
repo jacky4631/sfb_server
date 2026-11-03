@@ -11,7 +11,7 @@ import com.mailvor.modules.product.domain.MwStoreProductRelation;
 import com.mailvor.modules.product.service.dto.MwStoreProductRelationDto;
 import com.mailvor.modules.product.service.dto.MwStoreProductRelationQueryCriteria;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.data.domain.Pageable;
 import java.io.IOException;

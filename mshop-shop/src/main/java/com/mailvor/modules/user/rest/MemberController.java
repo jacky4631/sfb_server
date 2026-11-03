@@ -4,9 +4,11 @@
  */
 package com.mailvor.modules.user.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.IdUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.api.ApiResult;
 import com.mailvor.api.MshopException;
 import com.mailvor.modules.aop.ForbidSubmit;
@@ -32,8 +34,6 @@ import com.mailvor.utils.RedisUtils;
 import com.mailvor.utils.StringUtils;
 import com.yinsheng.command.smsVerify.ConfirmVerifyRespCommand;
 import com.yinsheng.command.wallet.BindCardRespCommand;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -42,8 +42,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.validation.Valid;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -52,7 +52,7 @@ import java.util.*;
 * @date 2019-10-06
 */
 @Slf4j
-@Api(tags = "商城：会员管理")
+@Tag(name = "商城：会员管理")
 @RestController
 @RequestMapping("api")
 public class MemberController {
@@ -83,7 +83,7 @@ public class MemberController {
     private MwSystemConfigService systemConfigService;
 
     @Log("查看下级")
-    @ApiOperation(value = "查看下级")
+    @Operation(summary = "查看下级")
     @PostMapping(value = "/mwUser/spread")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
     public ResponseEntity getSpread(@RequestBody MwUserQueryCriteria criteria){
@@ -92,7 +92,7 @@ public class MemberController {
     }
 
     @Log("查询用户")
-    @ApiOperation(value = "查询用户")
+    @Operation(summary = "查询用户")
     @GetMapping(value = "/mwUser")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
     public ResponseEntity getMwUsers(MwUserQueryCriteria criteria, Pageable pageable){
@@ -100,17 +100,17 @@ public class MemberController {
     }
 
     @Log("查询用户额外信息")
-    @ApiOperation(value = "查询用户额外信息")
+    @Operation(summary = "查询用户额外信息")
     @GetMapping(value = "/mwUserExtra/{uid}")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
     public ResponseEntity getUserExtra(@PathVariable Long uid){
-        JSONObject jsonObject = new JSONObject();
+        JsonObject jsonObject = new JsonObject();
         jsonObject.put("extra", userExtraService.getById(uid));
         jsonObject.put("union", userUnionService.getByUid(uid));
         return new ResponseEntity<>(jsonObject,HttpStatus.OK);
     }
     @Log("修改用户")
-    @ApiOperation(value = "修改用户")
+    @Operation(summary = "修改用户")
     @PutMapping(value = "/mwUser")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public ResponseEntity update(@Validated @RequestBody MwUserParam param){
@@ -141,7 +141,7 @@ public class MemberController {
 
 
     @Log("删除用户微信授权信息")
-    @ApiOperation(value = "删除用户微信授权信息")
+    @Operation(summary = "删除用户微信授权信息")
     @DeleteMapping(value = "/mwUser/wechat/{uid}")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public ResponseEntity deleteWechat(@Validated @RequestBody MwUserParam param){
@@ -160,7 +160,7 @@ public class MemberController {
 
 
     @Log("删除用户支付宝授权信息")
-    @ApiOperation(value = "删除用户支付宝授权信息")
+    @Operation(summary = "删除用户支付宝授权信息")
     @DeleteMapping(value = "/mwUser/ali/{uid}")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public ResponseEntity deleteAli(@Validated @RequestBody MwUserParam param){
@@ -174,7 +174,7 @@ public class MemberController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
     @Log("重置退款次数")
-    @ApiOperation(value = "重置退款次数")
+    @Operation(summary = "重置退款次数")
     @PostMapping(value = "/mwUser/reset/refund/{uid}")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public ResponseEntity resetRefund(@PathVariable Long uid, @Validated @RequestBody MwUserParam param){
@@ -192,7 +192,7 @@ public class MemberController {
     }
     @ForbidSubmit
     @Log("删除用户")
-    @ApiOperation(value = "删除用户")
+    @Operation(summary = "删除用户")
     @DeleteMapping(value = "/mwUser/{uid}")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_DELETE')")
     public ResponseEntity delete(@PathVariable Integer uid){
@@ -201,16 +201,16 @@ public class MemberController {
     }
 
     @ForbidSubmit
-    @ApiOperation(value = "用户禁用启用")
+    @Operation(summary = "用户禁用启用")
     @PostMapping(value = "/mwUser/onStatus/{id}")
     public ResponseEntity onStatus(@PathVariable Long id,@RequestBody String jsonStr){
-        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        JsonObject jsonObject = JsonUtil.parseObject(jsonStr);
         Integer status = jsonObject.getInteger("status");
         mwUserService.onStatus(id,status);
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "修改余额")
+    @Operation(summary = "修改余额")
     @PostMapping(value = "/mwUser/money")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public ResponseEntity updatePrice(@Validated @RequestBody UserMoneyDto param){
@@ -221,7 +221,7 @@ public class MemberController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @ApiOperation(value = "修改积分")
+    @Operation(summary = "修改积分")
     @PostMapping(value = "/mwUser/integral")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public ResponseEntity updateIntegral(@Validated @RequestBody UserIntegralDto param){
@@ -233,7 +233,7 @@ public class MemberController {
     }
 
     @Log("后台提现绑卡")
-    @ApiOperation(value = "后台提现绑卡")
+    @Operation(summary = "后台提现绑卡")
     @PostMapping("/mwUser/bank/bind/{uid}")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public ApiResult extractBankBind(@PathVariable Long uid, @Valid @RequestBody BankBindParam param) {
@@ -264,7 +264,7 @@ public class MemberController {
         switch (PayChannelEnum.toKey(key)) {
             case YSEPAY_BANK_BIND:
                 BindCardRespCommand resp = ysePayService.bindCard(payChannel, userExtra.getMerchantNo(), param.getBankNo(), param.getPhone());
-                log.info("extractBankBind param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(resp));
+                log.info("extractBankBind param: {}  res: {}", JsonUtil.toJSONString(param), JsonUtil.toJSONString(resp));
                 data.put("requestNo", resp.getRequestNo());
                 data.put("authSn", resp.getAuthSn());
                 MwUserBank userBank = userBankService.findOne(uid, param.getBankNo());
@@ -283,7 +283,7 @@ public class MemberController {
     }
 
     @Log("后台提现绑卡短信确认")
-    @ApiOperation(value = "后台提现绑卡短信确认")
+    @Operation(summary = "后台提现绑卡短信确认")
     @PostMapping("/mwUser/bank/bind/confirm/{uid}")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public ApiResult extractBankBindConfirm(@PathVariable Long uid, @Valid @RequestBody BankBindConfirmParam param){
@@ -314,7 +314,7 @@ public class MemberController {
                 }
                 userBankService.updateById(userBank);
 
-                log.info("payBankBind param: {}", JSON.toJSONString(param));
+                log.info("payBankBind param: {}", JsonUtil.toJSONString(param));
                 break;
         }
         return ApiResult.ok();
@@ -322,7 +322,7 @@ public class MemberController {
     }
 
     @Log("后台提现")
-    @ApiOperation(value = "后台提现")
+    @Operation(summary = "后台提现")
     @PostMapping("/mwUser/extract/{uid}")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_EDIT')")
     public Map<String,Object> extract(@PathVariable Long uid, @Valid @RequestBody BankExtractParam param) {
@@ -346,7 +346,7 @@ public class MemberController {
 
 
     @Log("查询红包解锁配置")
-    @ApiOperation(value = "查询红包解锁配置")
+    @Operation(summary = "查询红包解锁配置")
     @GetMapping(value = "/order/unlock/config")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
     public ResponseEntity getOrderUnlockConfig(){
@@ -354,7 +354,7 @@ public class MemberController {
     }
 
     @Log("修改红包解锁配置")
-    @ApiOperation(value = "修改红包解锁配置")
+    @Operation(summary = "修改红包解锁配置")
     @PostMapping(value = "/order/unlock/config")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
     public ResponseEntity setOrderUnlockConfig(@RequestBody @Validated HbUnlockConfig param){
@@ -364,7 +364,7 @@ public class MemberController {
 
 
     @Log("查询APP基础信息配置")
-    @ApiOperation(value = "查询APP基础信息配置")
+    @Operation(summary = "查询APP基础信息配置")
     @GetMapping(value = "/app/data/config")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
     public ResponseEntity getAppDataConfig(){
@@ -372,7 +372,7 @@ public class MemberController {
     }
 
     @Log("修改APP基础信息配置")
-    @ApiOperation(value = "修改APP基础信息配置")
+    @Operation(summary = "修改APP基础信息配置")
     @PostMapping(value = "/app/data/config")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
     public ResponseEntity setAppDataConfig(@RequestBody @Validated AppDataConfig param){
@@ -382,7 +382,7 @@ public class MemberController {
 
 
     @Log("查询APP分享图配置")
-    @ApiOperation(value = "查询APP分享图配置")
+    @Operation(summary = "查询APP分享图配置")
     @GetMapping(value = "/app/share/config")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
     public ResponseEntity getAppShareConfig(){
@@ -390,7 +390,7 @@ public class MemberController {
     }
 
     @Log("修改APP分享图配置")
-    @ApiOperation(value = "修改APP分享图配置")
+    @Operation(summary = "修改APP分享图配置")
     @PostMapping(value = "/app/share/config")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
     public ResponseEntity setAppShareConfig(@RequestBody @Validated List<String> param){
@@ -401,7 +401,7 @@ public class MemberController {
 
 
     @Log("查询APP登录白名单")
-    @ApiOperation(value = "查询APP登录白名单")
+    @Operation(summary = "查询APP登录白名单")
     @GetMapping(value = "/app/login/whitelist")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
     public ResponseEntity getAppLoginWhitelist(){
@@ -409,7 +409,7 @@ public class MemberController {
     }
 
     @Log("修改APP登录白名单")
-    @ApiOperation(value = "修改APP登录白名单")
+    @Operation(summary = "修改APP登录白名单")
     @PostMapping(value = "/app/login/whitelist")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
     public ResponseEntity setAppLoginWhitelist(@RequestBody @Validated List<String> whitelist){

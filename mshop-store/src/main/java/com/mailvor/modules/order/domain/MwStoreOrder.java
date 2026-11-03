@@ -4,13 +4,13 @@
  */
 package com.mailvor.modules.order.domain;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import com.mailvor.domain.BaseDomain;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -83,10 +83,10 @@ public class MwStoreOrder extends BaseDomain {
 
     private Integer isSystemDel;
 
-    @ApiModelProperty(value = "实际支付积分")
+    @Schema(description = "实际支付积分")
     private BigDecimal payIntegral;
 
-    @ApiModelProperty(value = "商品ID")
+    @Schema(description = "商品ID")
     private Long goodsId;
     private String goodsImg;
     private String goodsName;

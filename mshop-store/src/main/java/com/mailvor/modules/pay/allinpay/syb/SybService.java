@@ -1,6 +1,6 @@
 package com.mailvor.modules.pay.allinpay.syb;
 
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.mailvor.modules.pay.allinpay.syb.lib.SybPayService;
 import com.mailvor.modules.pay.allinpay.syb.lib.SybUtil;
 import com.mailvor.modules.pay.dto.PayChannelDto;
@@ -9,8 +9,8 @@ import com.mailvor.modules.user.domain.MwUserRecharge;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
@@ -19,7 +19,7 @@ import java.util.TreeMap;
 @Slf4j
 public class SybService extends PayService{
 	public Map<String, String> alipay(PayChannelDto certProfile, String orderId, String price) throws Exception{
-		SybConfig sybKey = JSON.parseObject(certProfile.getCertProfile(), SybConfig.class);
+		SybConfig sybKey = JsonUtil.parseObject(certProfile.getCertProfile(), SybConfig.class);
 		SybPayService service = new SybPayService(sybKey);
 		Double priceD = Double.parseDouble(price)*100;
 
@@ -32,13 +32,13 @@ public class SybService extends PayService{
 		request.setCharacterEncoding("UTF-8");//通知传输的编码为GBK
 		response.setCharacterEncoding("UTF-8");
 		TreeMap<String,String> params = getParams(request);//动态遍历获取所有收到的参数,此步非常关键,因为收银宝以后可能会加字段,动态获取可以兼容
-		log.info("通联支付回调{}", JSON.toJSONString(params));
+		log.info("通联支付回调{}", JsonUtil.toJSONString(params));
 		try {
 
 			String orderId = params.get("chnltrxid");
 			MwUserRecharge recharge = userRechargeService.getRecharge(orderId);
 			PayChannelDto payChannel = payChannelService.getChannel(recharge.getChannelId());
-			SybConfig sybKey = JSON.parseObject(payChannel.getCertProfile(), SybConfig.class);
+			SybConfig sybKey = JsonUtil.parseObject(payChannel.getCertProfile(), SybConfig.class);
 
 			boolean isSign = SybUtil.validSign(params, sybKey.getRsaTlPubKey(), params.get("signtype"));// 接受到推送通知,首先验签
 			if(isSign) {

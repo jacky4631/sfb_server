@@ -5,9 +5,13 @@
 package com.mailvor.modules.user.rest;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Maps;
@@ -45,18 +49,14 @@ import com.taobao.api.DefaultTaobaoClient;
 import com.taobao.api.TaobaoClient;
 import com.taobao.api.request.TbkScPublisherInfoSaveRequest;
 import com.taobao.api.response.TbkScPublisherInfoSaveResponse;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -74,7 +74,7 @@ import static com.mailvor.config.PayConfig.PAY_NAME;
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "用户中心", tags = "用户:用户中心")
+@Tag(name = "用户:用户中心")
 public class UserController {
     private static Set<String> sensitiveWordSet = new HashSet<>();
 
@@ -99,7 +99,7 @@ public class UserController {
     private MwUserBankService bankService;
 
     @GetMapping("/push")
-    @ApiOperation(value = "测试推送",notes = "测试推送",response = MwUserQueryVo.class)
+    @Operation(summary = "测试推送", description = "测试推送")
     public ApiResult<Object> push(@RequestParam Long uid, @RequestParam String msg){
         return ApiResult.ok(jPushService.push(msg, uid));
     }
@@ -108,42 +108,42 @@ public class UserController {
      */
     @AuthCheck
     @GetMapping("/userinfo")
-    @ApiOperation(value = "获取用户信息",notes = "获取用户信息",response = MwUserQueryVo.class)
+    @Operation(summary = "获取用户信息", description = "获取用户信息")
     public ApiResult<Object> userInfo(Boolean baseInfo){
         MwUser mwUser = LocalUser.getUser();
         return ApiResult.ok(mwUserService.getNewMwUserById(mwUser, baseInfo));
     }
     @AuthCheck
     @GetMapping("/user/wxprofile")
-    @ApiOperation(value = "获取用户微信信息",notes = "获取用户微信信息",response = MwUserQueryVo.class)
+    @Operation(summary = "获取用户微信信息", description = "获取用户微信信息")
     public ApiResult<Object> userWxProfile(){
         MwUser mwUser = LocalUser.getUser();
         return ApiResult.ok(userUnionService.getOne(mwUser.getUid()));
     }
     @AuthCheck
     @GetMapping("/vipinfo")
-    @ApiOperation(value = "获取用户会员信息",notes = "获取用户会员信息",response = MwUserVipQueryVo.class)
+    @Operation(summary = "获取用户会员信息", description = "获取用户会员信息")
     public ApiResult<Object> userVipInfo(){
         MwUser mwUser = LocalUser.getUser();
         return ApiResult.ok(mwUserService.getUserVipInfo(mwUser));
     }
 
     @GetMapping("/loginmustcode")
-    @ApiOperation(value = "登录强制邀请码",notes = "登录强制邀请码",response = Integer.class)
+    @Operation(summary = "登录强制邀请码", description = "登录强制邀请码")
     public ApiResult<Object> loginMustCode(){
         return ApiResult.ok(Integer.parseInt(systemConfigService.getData(SystemConfigConstants.LOGIN_MUST_CODE)));
     }
 
     @AuthCheck
     @GetMapping("/hasUnlockOrder")
-    @ApiOperation(value = "是否包含已解锁红包",notes = "是否包含已解锁红包",response = Boolean.class)
+    @Operation(summary = "是否包含已解锁红包", description = "是否包含已解锁红包")
     public ApiResult<Boolean> hasUnlockOrder(){
         MwUser mwUser = LocalUser.getUser();
         return ApiResult.ok(mwUserService.hasUnlockOrder(mwUser));
     }
     @UserCheck
     @GetMapping("/commissionInfo")
-    @ApiOperation(value = "获取佣金信息",notes = "获取佣金信息",response = MwCommissionInfoQueryVo.class)
+    @Operation(summary = "获取佣金信息", description = "获取佣金信息")
     public ApiResult<Object> commissionInfo(){
         MwUser mwUser = LocalUser.getUser();
         if(mwUser != null) {
@@ -156,7 +156,7 @@ public class UserController {
      */
     @AuthCheck
     @DeleteMapping("/user/delete")
-    @ApiOperation(value = "删除用户信息",notes = "删除用户信息")
+    @Operation(summary = "删除用户信息", description = "删除用户信息")
     public ApiResult userDelete(){
         MwUser mwUser = LocalUser.getUser();
         mwUserService.remove(mwUser.getUid());
@@ -165,7 +165,7 @@ public class UserController {
 
     @AuthCheck
     @GetMapping("/user/spread")
-    @ApiOperation(value = "获取用户上级信息",notes = "获取用户上级信息")
+    @Operation(summary = "获取用户上级信息", description = "获取用户上级信息")
     public ApiResult userSpread(){
         MwUser user = mwUserService.getById(LocalUser.getUser().getUid());
         if(user == null || user.getSpreadUid() == 0) {
@@ -175,7 +175,7 @@ public class UserController {
         if(spreadUser == null) {
             throw new MshopException("上级用户不存在");
         }
-        JSONObject info = new JSONObject();
+        JsonObject info = new JsonObject();
         info.put("nickname", spreadUser.getNickname());
         info.put("phone", PhoneUtil.desensitize(spreadUser.getPhone()));
         info.put("code", spreadUser.getCode());
@@ -186,7 +186,7 @@ public class UserController {
      * 获取个人中心菜单
      */
     @GetMapping("/menu/user")
-    @ApiOperation(value = "获取个人中心菜单",notes = "获取个人中心菜单")
+    @Operation(summary = "获取个人中心菜单", description = "获取个人中心菜单")
     public ApiResult<Map<String,Object>> userMenu(){
         Map<String,Object> map = new LinkedHashMap<>();
         map.put("routine_my_menus",systemGroupDataService.getDatas(ShopConstants.MSHOP_MY_MENUES));
@@ -201,7 +201,7 @@ public class UserController {
     @AppLog(value = "查看订单统计数据", type = 1)
     @AuthCheck
     @GetMapping("/order/data")
-    @ApiOperation(value = "订单统计数据",notes = "订单统计数据")
+    @Operation(summary = "订单统计数据", description = "订单统计数据")
     public ApiResult<UserOrderCountVo> orderData(){
         Long uid = LocalUser.getUser().getUid();
         return ApiResult.ok(orderService.orderData(uid));
@@ -212,12 +212,12 @@ public class UserController {
      */
     @AuthCheck
     @GetMapping("/collect/user")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "页码,默认为1", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "limit", value = "页大小,默认为10", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "type", value = "foot为足迹,collect为收藏", paramType = "query", dataType = "String")
+    @Parameters({
+            @Parameter(name = "page", description = "页码,默认为1"),
+            @Parameter(name = "limit", description = "页大小,默认为10"),
+            @Parameter(name = "type", description = "foot为足迹,collect为收藏")
     })
-    @ApiOperation(value = "获取收藏产品,或足迹",notes = "获取收藏产品,或足迹")
+    @Operation(summary = "获取收藏产品,或足迹", description = "获取收藏产品,或足迹")
     public ApiResult<Object> collectUser(@RequestParam(value = "page",defaultValue = "1") int page,
                                                                       @RequestParam(value = "limit",defaultValue = "10") int limit,
                                                                       @RequestParam(value = "type") String type){
@@ -234,7 +234,7 @@ public class UserController {
     @AppLog(value = "查看用户资金统计", type = 1)
     @AuthCheck
     @GetMapping("/user/balance")
-    @ApiOperation(value = "用户资金统计",notes = "用户资金统计")
+    @Operation(summary = "用户资金统计", description = "用户资金统计")
     public ApiResult<Object> userBalance(){
         MwUser mwUser = LocalUser.getUser();
         Map<String,Object> map = Maps.newHashMap();
@@ -253,7 +253,7 @@ public class UserController {
     @AppLog(value = "签到用户信息", type = 1)
     @AuthCheck
     @PostMapping("/sign/user")
-    @ApiOperation(value = "签到用户信息",notes = "签到用户信息")
+    @Operation(summary = "签到用户信息", description = "签到用户信息")
     public ApiResult<MwUserQueryVo> sign(){
         MwUser mwUser = LocalUser.getUser();
         return ApiResult.ok(userSignService.userSignInfo(mwUser));
@@ -263,7 +263,7 @@ public class UserController {
      * 签到配置
      */
     @GetMapping("/sign/config")
-    @ApiOperation(value = "签到配置",notes = "签到配置")
+    @Operation(summary = "签到配置", description = "签到配置")
     public ApiResult<Object> signConfig(){
         return ApiResult.ok(systemGroupDataService.getDatas(ShopConstants.MSHOP_SIGN_DAY_NUM));
     }
@@ -274,11 +274,11 @@ public class UserController {
     @AppLog(value = "查看签到列表", type = 1)
     @AuthCheck
     @GetMapping("/sign/list")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "页码,默认为1", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "limit", value = "页大小,默认为10", paramType = "query", dataType = "int")
+    @Parameters({
+            @Parameter(name = "page", description = "页码,默认为1"),
+            @Parameter(name = "limit", description = "页大小,默认为10")
     })
-    @ApiOperation(value = "签到列表",notes = "签到列表")
+    @Operation(summary = "签到列表", description = "签到列表")
     public ApiResult<List<SignVo>> signList(@RequestParam(value = "page",defaultValue = "1") int page,
                                             @RequestParam(value = "limit",defaultValue = "10") int limit){
         Long uid = LocalUser.getUser().getUid();
@@ -291,11 +291,11 @@ public class UserController {
 
     @AuthCheck
     @GetMapping("/sign/month")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "页码,默认为1", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "limit", value = "页大小,默认为10", paramType = "query", dataType = "int")
+    @Parameters({
+            @Parameter(name = "page", description = "页码,默认为1"),
+            @Parameter(name = "limit", description = "页大小,默认为10")
     })
-    @ApiOperation(value = "签到列表（年月）",notes = "签到列表（年月）")
+    @Operation(summary = "签到列表（年月）", description = "签到列表（年月）")
     public ApiResult<Object> signMonthList(@RequestParam(value = "page",defaultValue = "1") int page,
                                            @RequestParam(value = "limit",defaultValue = "10") int limit,
                                            @RequestParam(required = false, value = "month") String month){
@@ -310,7 +310,7 @@ public class UserController {
     @NoRepeatSubmit
     @AuthCheck
     @PostMapping("/sign/integral")
-    @ApiOperation(value = "开始签到",notes = "开始签到")
+    @Operation(summary = "开始签到", description = "开始签到")
     public ApiResult<Object> signIntegral(){
         MwUser mwUser = LocalUser.getUser();
         int integral = userSignService.sign(mwUser);
@@ -322,7 +322,7 @@ public class UserController {
     @AppLog(value = "用户绑定淘宝渠道id", type = 1)
     @AuthCheck
     @PostMapping("/user/binding")
-    @ApiOperation(value = "用户绑定淘宝渠道id",notes = "用户绑定淘宝渠道id")
+    @Operation(summary = "用户绑定淘宝渠道id", description = "用户绑定淘宝渠道id")
     public ApiResult<String> binding(@Validated @RequestBody UserBindingParam param) throws ApiException {
         if (StringUtils.isBlank(param.getSession())) {
             return ApiResult.fail("请先在淘宝完成实名认证后再授权。");
@@ -338,7 +338,7 @@ public class UserController {
         req.setInfoType(1L);
         req.setNote(uid.toString());
         TbkScPublisherInfoSaveResponse rsp = client.execute(req, param.getSession());
-        log.info("淘宝{}渠道授权 {}", uid, JSON.toJSONString(rsp));
+        log.info("淘宝{}渠道授权 {}", uid, JsonUtil.toJSONString(rsp));
         if (rsp == null) {
             return ApiResult.fail("授权失败");
         }
@@ -377,7 +377,7 @@ public class UserController {
     public ApiResult authQuery() {
         Long uid =LocalUser.getUser().getUid();
         MwUserUnion userUnion = userUnionService.getOne(uid);
-        JSONObject res = new JSONObject();
+        JsonObject res = new JsonObject();
         if(userUnion != null && StringUtils.isNotBlank(userUnion.getTbPid())) {
             res.put("auth", true);
         } else {
@@ -388,7 +388,7 @@ public class UserController {
     @AppLog(value = "用户修改信息", type = 1)
     @AuthCheck
     @PostMapping("/user/edit")
-    @ApiOperation(value = "用户修改信息",notes = "用修改信息")
+    @Operation(summary = "用户修改信息", description = "用修改信息")
     public ApiResult<String> edit(@Validated @RequestBody UserEditParam param){
         MwUser mwUser = mwUserService.getById(LocalUser.getUser().getUid());
         if(StringUtils.isNotBlank(param.getAvatar())) {
@@ -482,7 +482,7 @@ public class UserController {
     @AppLog(value = "保存搜索历史", type = 1)
     @AuthCheck
     @PostMapping("/user/history/save")
-    @ApiOperation(value = "保存搜索历史",notes = "保存搜索历史")
+    @Operation(summary = "保存搜索历史", description = "保存搜索历史")
     public ApiResult<String> historySave(@Validated @RequestBody String keyword){
 
         RedisUtil.setHistory(LocalUser.getUser().getUid(), keyword);
@@ -493,7 +493,7 @@ public class UserController {
     @AppLog(value = "获取搜索历史", type = 1)
     @AuthCheck
     @GetMapping("/user/history")
-    @ApiOperation(value = "获取搜索历史",notes = "获取搜索历史")
+    @Operation(summary = "获取搜索历史", description = "获取搜索历史")
     public ApiResult<List> history(){
 
         List data = RedisUtil.getHistory(LocalUser.getUser().getUid());
@@ -504,7 +504,7 @@ public class UserController {
     @AppLog(value = "清空搜索历史", type = 1)
     @AuthCheck
     @DeleteMapping("/user/history/clear")
-    @ApiOperation(value = "清空搜索历史",notes = "清空搜索历史")
+    @Operation(summary = "清空搜索历史", description = "清空搜索历史")
     public ApiResult<List> historyClear(){
 
         boolean deleted = RedisUtil.clearHistory(LocalUser.getUser().getUid());
@@ -516,7 +516,7 @@ public class UserController {
      * 绑定手机号
      * */
     @AuthCheck
-    @ApiOperation("绑定手机号")
+    @Operation(summary = "绑定手机号")
     @PostMapping(value = "/user/bind/mobile")
     public ApiResult<Map<String, Object>> loginVerify(@Validated @RequestBody MobileBindParam bindParam, HttpServletRequest request) {
         Object codeObj = redisUtil.get("code_" + bindParam.getAccount());
@@ -565,7 +565,7 @@ public class UserController {
 
     @AuthCheck
     @GetMapping("/user/share")
-    @ApiOperation(value = "获取用户分享图",notes = "获取用户分享图")
+    @Operation(summary = "获取用户分享图", description = "获取用户分享图")
     public ApiResult<List> userShare(){
 
         return ApiResult.ok(systemConfigService.getAppShareConfig());
@@ -573,7 +573,7 @@ public class UserController {
 
     @AuthCheck
     @GetMapping("/user/bank/list")
-    @ApiOperation(value = "用户签约银行卡列表",notes = "用户签约银行卡列表")
+    @Operation(summary = "用户签约银行卡列表", description = "用户签约银行卡列表")
     public ApiResult<List<MwUserBankQueryVo>> getMwUserAddressPageList(@RequestParam(value = "page",defaultValue = "1") int page,
                                                                        @RequestParam(value = "limit",defaultValue = "10") int limit,
                                                                        @RequestParam(value = "extract",defaultValue = "0", required = false) int extract){

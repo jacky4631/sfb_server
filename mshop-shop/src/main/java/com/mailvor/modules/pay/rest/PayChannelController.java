@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.pay.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.api.MshopException;
 import com.mailvor.constant.ShopConstants;
 import com.mailvor.dozer.service.IGenerator;
@@ -20,8 +22,6 @@ import com.mailvor.modules.pay.service.MwPayCompanyService;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.shop.service.dto.PayConfigDto;
 import com.mailvor.utils.StringUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -29,14 +29,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.validation.Valid;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 
 /**
  * @author huangyu
  * @date 2023-04-11
  */
-@Api(tags = "商城：:支付通道管理")
+@Tag(name = "商城：:支付通道管理")
 @RestController
 @RequestMapping("api")
 public class PayChannelController {
@@ -65,7 +65,7 @@ public class PayChannelController {
     }
 
     @Log("查询支付通道")
-    @ApiOperation(value = "查询支付通道")
+    @Operation(summary = "查询支付通道")
     @GetMapping(value = "/payset")
     @PreAuthorize("hasAnyRole('admin','PAYSET_ALL','PAYSET_SELECT')")
     public ResponseEntity getPayChannelList(PayChannelQueryCriteria criteria,
@@ -75,7 +75,7 @@ public class PayChannelController {
 
     @ForbidSubmit
     @Log("新增支付通道")
-    @ApiOperation(value = "新增支付通道")
+    @Operation(summary = "新增支付通道")
     @PostMapping(value = "/payset")
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY, allEntries = true)
     @PreAuthorize("hasAnyRole('admin','PAYSET_ALL','PAYSET_CREATE')")
@@ -94,7 +94,7 @@ public class PayChannelController {
 
     @ForbidSubmit
     @Log("修改支付通道")
-    @ApiOperation(value = "修改支付通道")
+    @Operation(summary = "修改支付通道")
     @PutMapping(value = "/payset")
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY, allEntries = true)
     @PreAuthorize("hasAnyRole('admin','PAYSET_ALL','PAYSET_EDIT')")
@@ -119,7 +119,7 @@ public class PayChannelController {
 
     @ForbidSubmit
     @Log("删除支付通道")
-    @ApiOperation(value = "删除支付通道")
+    @Operation(summary = "删除支付通道")
     @DeleteMapping(value = "/payset/{id}")
     @PreAuthorize("hasAnyRole('admin','PAYSET_ALL','PAYSET_DELETE')")
     public ResponseEntity delete(@PathVariable Long id) {
@@ -127,7 +127,7 @@ public class PayChannelController {
         return new ResponseEntity(HttpStatus.OK);
     }
     @Log("设置APP支付开关")
-    @ApiOperation(value = "设置APP支付开关")
+    @Operation(summary = "设置APP支付开关")
     @PostMapping(value = "/pay/config")
     @PreAuthorize("hasAnyRole('admin','PAYSET_ALL','PAYSET_DELETE')")
     public ResponseEntity setPayConfig(@Valid @RequestBody PayConfigParam param){
@@ -136,7 +136,7 @@ public class PayChannelController {
 
     }
     @Log("获取APP支付开关")
-    @ApiOperation(value = "获取APP支付开关")
+    @Operation(summary = "获取APP支付开关")
     @GetMapping(value = "/pay/config")
     @PreAuthorize("hasAnyRole('admin','PAYSET_ALL','PAYSET_DELETE')")
     public ResponseEntity setPayConfig(){

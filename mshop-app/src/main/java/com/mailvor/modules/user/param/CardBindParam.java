@@ -1,9 +1,9 @@
 package com.mailvor.modules.user.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -14,6 +14,6 @@ import java.io.Serializable;
 @Data
 public class CardBindParam implements Serializable {
     @NotBlank(message = "银行卡号不能为空")
-    @ApiModelProperty(value = "银行卡号")
+    @Schema(description = "银行卡号")
     private String no;
 }

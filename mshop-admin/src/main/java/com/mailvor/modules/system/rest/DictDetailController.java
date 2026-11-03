@@ -4,14 +4,14 @@
  */
 package com.mailvor.modules.system.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.exception.BadRequestException;
 import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.aop.ForbidSubmit;
 import com.mailvor.modules.dict.domain.DictDetail;
 import com.mailvor.modules.dict.service.DictDetailService;
 import com.mailvor.modules.dict.service.dto.DictDetailQueryCriteria;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -36,7 +36,7 @@ import java.util.Map;
 * @date 2019-04-10
 */
 @RestController
-@Api(tags = "系统：字典详情管理")
+@Tag(name = "系统：字典详情管理")
 @RequestMapping("/api/dictDetail")
 public class DictDetailController {
 
@@ -48,7 +48,7 @@ public class DictDetailController {
     }
 
     @Log("查询字典详情")
-    @ApiOperation("查询字典详情")
+    @Operation(summary = "查询字典详情")
     @GetMapping
     public ResponseEntity<Object> getDictDetails(DictDetailQueryCriteria criteria,
                                                  @PageableDefault(sort = {"sort + 0"}, direction = Sort.Direction.ASC) Pageable pageable){
@@ -56,7 +56,7 @@ public class DictDetailController {
     }
 
     @Log("查询多个字典详情")
-    @ApiOperation("查询多个字典详情")
+    @Operation(summary = "查询多个字典详情")
     @GetMapping(value = "/map")
     public ResponseEntity<Object> getDictDetailMaps(DictDetailQueryCriteria criteria,
                                          @PageableDefault(sort = {"sort + 0"}, direction = Sort.Direction.ASC) Pageable pageable){
@@ -70,7 +70,7 @@ public class DictDetailController {
     }
 
     @Log("新增字典详情")
-    @ApiOperation("新增字典详情")
+    @Operation(summary = "新增字典详情")
     @PostMapping
     @PreAuthorize("@el.check('admin','dict:add')")
     public ResponseEntity<Object> create(@Validated @RequestBody DictDetail resources){
@@ -83,7 +83,7 @@ public class DictDetailController {
 
     @ForbidSubmit
     @Log("修改字典详情")
-    @ApiOperation("修改字典详情")
+    @Operation(summary = "修改字典详情")
     @PutMapping
     @PreAuthorize("@el.check('admin','dict:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody DictDetail resources){
@@ -93,7 +93,7 @@ public class DictDetailController {
 
     @ForbidSubmit
     @Log("删除字典详情")
-    @ApiOperation("删除字典详情")
+    @Operation(summary = "删除字典详情")
     @DeleteMapping(value = "/{id}")
     @PreAuthorize("@el.check('admin','dict:del')")
     public ResponseEntity<Object> delete(@PathVariable Long id){

@@ -1,6 +1,6 @@
 package com.mailvor.modules.user.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Data
 public class UserBindingParam implements Serializable {
 
-    @ApiModelProperty(value = "session")
+    @Schema(description = "session")
     private String session;
 
 }

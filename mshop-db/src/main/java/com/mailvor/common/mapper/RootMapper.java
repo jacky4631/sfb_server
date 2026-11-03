@@ -8,8 +8,8 @@ import java.util.List;
 /**
  * 根Mapper，给表Mapper继承用的，可以自定义通用方法
  * {@link BaseMapper}
- * {@link com.baomidou.mybatisplus.extension.service.IService}
- * {@link com.baomidou.mybatisplus.extension.service.impl.ServiceImpl}
+ * {@link com.baomidou.mybatisplus.spring.service.IService}
+ * {@link com.baomidou.mybatisplus.spring.service.impl.ServiceImpl}
  */
 public interface RootMapper<T> extends BaseMapper<T> {
 

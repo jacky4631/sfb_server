@@ -1,6 +1,6 @@
 package com.mailvor.modules.tk.vo.pdd;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,15 +17,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PddWordVO {
 
-    @JSONField(name = "mobileShortUrl")
+    @JsonProperty("mobileShortUrl")
     @Schema(description = "转链过后的链接")
     private String link;
 
-    @JSONField(name = "mobileUrl")
+    @JsonProperty("mobileUrl")
     @Schema(description = "转链过后的链接")
     private String longLink;
 
-    @JSONField(name = "weAppPagePath")
+    @JsonProperty("weAppPagePath")
     @Schema(description = "微信小程序路径")
     private String wechatPath;
 

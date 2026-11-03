@@ -4,13 +4,13 @@
  */
 package com.mailvor.modules.tools.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.modules.tools.domain.VerificationCode;
 import com.mailvor.modules.tools.domain.vo.EmailVo;
 import com.mailvor.modules.tools.service.EmailConfigService;
 import com.mailvor.modules.tools.service.VerificationCodeService;
 import com.mailvor.utils.MshopConstant;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/code")
-@Api(tags = "工具：验证码管理")
+@Tag(name = "工具：验证码管理")
 public class VerificationCodeController {
 
     private final VerificationCodeService verificationCodeService;
@@ -39,7 +39,7 @@ public class VerificationCodeController {
     }
 
     @PostMapping(value = "/resetEmail")
-    @ApiOperation("重置邮箱，发送验证码")
+    @Operation(summary = "重置邮箱，发送验证码")
     public ResponseEntity<Object> resetEmail(@RequestBody VerificationCode code) throws Exception {
         code.setScenes(MshopConstant.RESET_MAIL);
         EmailVo emailVo = verificationCodeService.sendEmail(code);
@@ -48,7 +48,7 @@ public class VerificationCodeController {
     }
 
     @PostMapping(value = "/email/resetPass")
-    @ApiOperation("重置密码，发送验证码")
+    @Operation(summary = "重置密码，发送验证码")
     public ResponseEntity<Object> resetPass(@RequestParam String email) throws Exception {
         VerificationCode code = new VerificationCode();
         code.setType("email");
@@ -60,7 +60,7 @@ public class VerificationCodeController {
     }
 
     @GetMapping(value = "/validated")
-    @ApiOperation("验证码验证")
+    @Operation(summary = "验证码验证")
     public ResponseEntity<Object> validated(VerificationCode code){
         verificationCodeService.validated(code);
         return new ResponseEntity<>(HttpStatus.OK);

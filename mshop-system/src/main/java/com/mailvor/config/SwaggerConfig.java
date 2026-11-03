@@ -4,53 +4,50 @@
  */
 package com.mailvor.config;
 
-import com.fasterxml.classmate.TypeResolver;
-import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
-import com.google.common.base.Predicates;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.parameters.HeaderParameter;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+import org.springdoc.core.customizers.OperationCustomizer;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.core.Ordered;
-import org.springframework.data.domain.Pageable;
-import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
-import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.ParameterBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.schema.AlternateTypeRule;
-import springfox.documentation.schema.AlternateTypeRuleConvention;
-import springfox.documentation.schema.ModelRef;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.ApiKey;
-import springfox.documentation.service.AuthorizationScope;
-import springfox.documentation.service.Contact;
-import springfox.documentation.service.Parameter;
-import springfox.documentation.service.SecurityReference;
-import springfox.documentation.service.SecurityScheme;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spi.service.contexts.SecurityContext;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static springfox.documentation.schema.AlternateTypeRules.newRule;
-
 
 /**
  * api页面 /doc.html
+ * <p>
+ * 原实现基于 springfox 的 Docket，springfox 在 Jakarta / Spring Boot 3+ 上已不可用，
+ * 这里改为 springdoc-openapi + knife4j（jakarta 版）。
+ * <p>
+ * 与旧实现的对应关系：
+ * <ul>
+ *     <li>{@code Docket.enable(enabled)} -&gt; {@code @ConditionalOnProperty(swagger.enabled)}，
+ *         同时 yml 里把 {@code springdoc.api-docs.enabled} 指向同一个开关，保证文档端点也一起关掉</li>
+ *     <li>{@code RequestHandlerSelectors.basePackage} -&gt; {@code packagesToScan}</li>
+ *     <li>{@code PathSelectors.regex("/error.*").negate()} -&gt; {@code pathsToExclude}</li>
+ *     <li>{@code globalOperationParameters(token 头)} -&gt; {@link OperationCustomizer}</li>
+ *     <li>{@code securitySchemes/securityContexts} -&gt; 全局 {@code SecurityScheme} + {@code SecurityRequirement}。
+ *         旧实现用 {@code ^(?!/auth).*$} 排除 auth 接口，springdoc 没有等价的路径级开关；
+ *         这里保留"所有接口声明同一个 header"的行为，鉴权本身仍由 Spring Security 决定，
+ *         文档里多出的一个可选请求头不影响调用</li>
+ *     <li>springfox 的 Pageable 备选类型规则（把 Pageable 换成 page/size/sort 三个字段）不再需要，
+ *         springdoc 原生支持 Spring Data 分页参数</li>
+ * </ul>
+ *
  * @author huangyu
  * @Date 2019/1/9
  **/
-
 @Configuration(proxyBeanMethods = false)
-@EnableSwagger2
+@ConditionalOnProperty(name = "swagger.enabled", havingValue = "true")
 public class SwaggerConfig {
 
     @Value("${jwt.header}")
@@ -58,9 +55,6 @@ public class SwaggerConfig {
 
     @Value("${jwt.token-start-with}")
     private String tokenStartWith;
-
-    @Value("${swagger.enabled}")
-    private Boolean enabled;
 
     @Value("${swagger.title}")
     private String title;
@@ -72,109 +66,50 @@ public class SwaggerConfig {
     private String serverUrl;
 
     @Bean
-    @SuppressWarnings("all")
-    public Docket createRestApi() {
-        ParameterBuilder ticketPar = new ParameterBuilder();
-        List<Parameter> pars = new ArrayList<>();
-        ticketPar.name(tokenHeader).description("token")
-                .modelRef(new ModelRef("string"))
-                .parameterType("header")
-                .defaultValue(tokenStartWith + " ")
-                .required(true)
-                .build();
-        pars.add(ticketPar.build());
-        return new Docket(DocumentationType.SWAGGER_2)
-                .enable(enabled)
-                .apiInfo(apiInfo())
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("com.mailvor.modules"))
-                .paths(PathSelectors.regex("/error.*").negate())
-                .build()
-                .globalOperationParameters(pars)
-                //添加登陆认证
-                .securitySchemes(securitySchemes())
-                .securityContexts(securityContexts());
+    public OpenAPI mshopOpenAPI() {
+        return new OpenAPI()
+                .info(new Info()
+                        .title(title)
+                        .description(title)
+                        .version(version)
+                        .termsOfService(serverUrl)
+                        .contact(new Contact().name("wanglu").url("https://www.mailvor.com")))
+                .servers(List.of(new Server().url(serverUrl)))
+                .components(new Components().addSecuritySchemes(tokenHeader, new SecurityScheme()
+                        .type(SecurityScheme.Type.APIKEY)
+                        .in(SecurityScheme.In.HEADER)
+                        .name(tokenHeader)
+                        .description("token")))
+                .addSecurityItem(new SecurityRequirement().addList(tokenHeader));
     }
 
-    private ApiInfo apiInfo() {
-        return new ApiInfoBuilder()
-                .title(title)
-                .termsOfServiceUrl(serverUrl)
-                .description(title)
-                .version(version)
-                .contact(new Contact("wanglu","https://www.mailvor.com",""))
-                .build();
-    }
-
-    private List<SecurityScheme> securitySchemes() {
-        //设置请求头信息
-        List<SecurityScheme> securitySchemes = new ArrayList<>();
-        ApiKey apiKey = new ApiKey(tokenHeader, tokenHeader, "header");
-        securitySchemes.add(apiKey);
-        return securitySchemes;
-    }
-
-    private List<SecurityContext> securityContexts() {
-        //设置需要登录认证的路径
-        List<SecurityContext> securityContexts = new ArrayList<>();
-        // ^(?!auth).*$ 表示所有包含auth的接口不需要使用securitySchemes即不需要带token
-        // ^标识开始  ()里是一子表达式  ?!/auth表示匹配不是/auth的位置，匹配上则添加请求头，注意路径已/开头  .表示任意字符  *表示前面的字符匹配多次 $标识结束
-        securityContexts.add(getContextByPath());
-        return securityContexts;
-    }
-
-    private SecurityContext getContextByPath() {
-        return SecurityContext.builder()
-                .securityReferences(defaultAuth())
-                .forPaths(PathSelectors.regex("^(?!/auth).*$"))
-                .build();
-    }
-
-    private List<SecurityReference> defaultAuth() {
-        List<SecurityReference> securityReferences = new ArrayList<>();
-        AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
-        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
-        authorizationScopes[0] = authorizationScope;
-        securityReferences.add(new SecurityReference(tokenHeader, authorizationScopes));
-        return securityReferences;
-    }
-
-}
-
-/**
- *  将Pageable转换展示在swagger中
- */
-@Configuration(proxyBeanMethods = false)
-@EnableSwagger2
-@EnableKnife4j
-@Import(BeanValidatorPluginsConfiguration.class)
-class SwaggerDataConfig {
-
+    /**
+     * 只暴露业务模块下的接口，排除 /error
+     */
     @Bean
-    public AlternateTypeRuleConvention pageableConvention(final TypeResolver resolver) {
-        return new AlternateTypeRuleConvention() {
-            @Override
-            public int getOrder() {
-                return Ordered.HIGHEST_PRECEDENCE;
-            }
-
-            @Override
-            public List<AlternateTypeRule> rules() {
-                return newArrayList(newRule(resolver.resolve(Pageable.class), resolver.resolve(Page.class)));
-            }
-        };
+    public GroupedOpenApi mshopApi() {
+        return GroupedOpenApi.builder()
+                .group("mshop")
+                .packagesToScan("com.mailvor.modules")
+                .pathsToExclude("/error.*")
+                .build();
     }
 
-    @ApiModel
-    @Data
-    private static class Page {
-        @ApiModelProperty("页码 (0..N)")
-        private Integer page;
-
-        @ApiModelProperty("每页显示的数目")
-        private Integer size;
-
-        @ApiModelProperty("以下列格式排序标准：property[,asc | desc]。 默认排序顺序为升序。 支持多种排序条件：如：id,asc")
-        private List<String> sort;
+    /**
+     * 等价于旧的 globalOperationParameters：每个接口都带上 token 请求头，默认值 "Bearer "
+     */
+    @Bean
+    public OperationCustomizer tokenHeaderCustomizer() {
+        return (operation, handlerMethod) -> {
+            // swagger-models 2.x 的 Schema 构造器是 protected，需用具体子类
+            StringSchema schema = new StringSchema();
+            schema.setDefault(tokenStartWith + " ");
+            operation.addParametersItem(new HeaderParameter()
+                    .name(tokenHeader)
+                    .description("token")
+                    .required(true)
+                    .schema(schema));
+            return operation;
+        };
     }
 }

@@ -29,8 +29,8 @@ import com.mailvor.modules.sales.service.vo.StoreAfterSalesVo;
 import com.mailvor.modules.sales.service.vo.MwStoreOrderCartInfoVo;
 import com.mailvor.utils.FileUtil;
 import com.mailvor.utils.SecurityUtils;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -43,7 +43,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -75,7 +75,7 @@ public class StoreAfterSalesServiceImpl extends BaseServiceImpl<StoreAfterSalesM
         //拿到所有的商品
         List<MwStoreOrderCartInfo> mwStoreOrderCartInfos = storeOrderCartInfoMapper.selectList(Wrappers.<MwStoreOrderCartInfo>lambdaQuery().eq(MwStoreOrderCartInfo::getOid, mwStoreOrder.getId()));
         for (MwStoreOrderCartInfo mwStoreOrderCartInfo : mwStoreOrderCartInfos) {
-            MwStoreCartQueryVo cartInfo = JSONObject.parseObject(mwStoreOrderCartInfo.getCartInfo(), MwStoreCartQueryVo.class);
+            MwStoreCartQueryVo cartInfo = JsonUtil.parseObject(mwStoreOrderCartInfo.getCartInfo(), MwStoreCartQueryVo.class);
             ProsuctParam prosuctParam = storeAfterSalesParam.getProductParamList().stream().filter(item -> item.getProductId().equals(mwStoreOrderCartInfo.getProductId())).findFirst().orElse(new ProsuctParam());
             if (prosuctParam.getProductId() != null) {
                 //商品优惠前总金额
@@ -143,7 +143,7 @@ public class StoreAfterSalesServiceImpl extends BaseServiceImpl<StoreAfterSalesM
             mwStoreOrderCartInfoVo.setOid(mwStoreOrderCartInfo.getOid());
             mwStoreOrderCartInfoVo.setCartId(mwStoreOrderCartInfo.getCartId());
             mwStoreOrderCartInfoVo.setProductId(mwStoreOrderCartInfo.getProductId());
-            MwStoreCartQueryVo cartInfo = JSONObject.parseObject(mwStoreOrderCartInfo.getCartInfo(), MwStoreCartQueryVo.class);
+            MwStoreCartQueryVo cartInfo = JsonUtil.parseObject(mwStoreOrderCartInfo.getCartInfo(), MwStoreCartQueryVo.class);
             mwStoreOrderCartInfoVo.setCartInfo(cartInfo);
             mwStoreOrderCartInfoVo.setUnique(mwStoreOrderCartInfo.getUnique());
             mwStoreOrderCartInfoVo.setIsAfterSales(mwStoreOrderCartInfo.getIsAfterSales() == null ? 0 : mwStoreOrderCartInfo.getIsAfterSales());
@@ -218,7 +218,7 @@ public class StoreAfterSalesServiceImpl extends BaseServiceImpl<StoreAfterSalesM
     public StoreAfterSalesVo handleSales(StoreAfterSalesVo storeAfterSalesVo) {
         List<StoreAfterSalesItem> storeAfterSalesItems = storeAfterSalesItemMapper.selectList(Wrappers.<StoreAfterSalesItem>lambdaQuery().eq(StoreAfterSalesItem::getStoreAfterSalesId, storeAfterSalesVo.getId()));
         List<MwStoreCartQueryVo> cartInfo = storeAfterSalesItems.stream()
-                .map(cart -> JSON.parseObject(cart.getCartInfo(), MwStoreCartQueryVo.class))
+                .map(cart -> JsonUtil.parseObject(cart.getCartInfo(), MwStoreCartQueryVo.class))
                 .collect(Collectors.toList());
         storeAfterSalesVo.setCartInfo(cartInfo);
         List<StoreAfterSalesStatus> storeAfterSalesStatuses = storeAfterSalesStatusMapper.selectList(Wrappers.<StoreAfterSalesStatus>lambdaQuery().eq(StoreAfterSalesStatus::getStoreAfterSalesId, storeAfterSalesVo.getId()));

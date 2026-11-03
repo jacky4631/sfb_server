@@ -1,7 +1,7 @@
 package com.mailvor.modules.quartz.task;
 
 import cn.hutool.core.date.DateUtil;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.mailvor.modules.tk.param.QueryVipParam;
 import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ public class VipOrderHistoryCollectionTask extends OrderTask{
         if(StringUtils.isEmpty(paramStr)) {
             param = new QueryVipParam();
         } else {
-            param = JSON.parseObject(paramStr, QueryVipParam.class);
+            param = JsonUtil.parseObject(paramStr, QueryVipParam.class);
         }
         Integer day = param.getDay();
         Integer minutes = param.getMinutes();

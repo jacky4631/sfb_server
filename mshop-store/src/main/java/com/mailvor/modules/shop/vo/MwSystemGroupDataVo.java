@@ -4,7 +4,7 @@
  */
 package com.mailvor.modules.shop.vo;
 
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,7 +27,7 @@ public class MwSystemGroupDataVo {
 
 
     /** 数据组对应的数据值（json数据） */
-    private JSONObject value;
+    private JsonObject value;
 
 
     /** 数据排序 */

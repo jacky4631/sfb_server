@@ -9,7 +9,7 @@ import com.mailvor.modules.product.domain.MwStoreProductRule;
 import com.mailvor.modules.product.service.dto.MwStoreProductRuleQueryCriteria;
 import org.springframework.data.domain.Pageable;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

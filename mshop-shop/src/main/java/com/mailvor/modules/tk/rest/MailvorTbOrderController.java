@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.tk.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.domain.PageResult;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.modules.logging.aop.log.Log;
@@ -11,8 +13,6 @@ import com.mailvor.modules.tk.domain.MailvorTbOrder;
 import com.mailvor.modules.tk.service.MailvorTbOrderService;
 import com.mailvor.modules.tk.service.dto.MailvorTbOrderDto;
 import com.mailvor.modules.tk.service.dto.MailvorTbOrderQueryCriteria;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +23,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 /**
@@ -31,7 +31,7 @@ import java.util.Arrays;
 * @date 2022-08-29
 */
 @AllArgsConstructor
-@Api(tags = "商城：淘宝订单管理")
+@Tag(name = "商城：淘宝订单管理")
 @RestController
 @RequestMapping("/api/mailvorTbOrder")
 public class MailvorTbOrderController {
@@ -41,7 +41,7 @@ public class MailvorTbOrderController {
 
 
     @Log("导出数据")
-    @ApiOperation("导出数据")
+    @Operation(summary = "导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','mailvorTbOrder:list')")
     public void download(HttpServletResponse response, MailvorTbOrderQueryCriteria criteria) throws IOException {
@@ -50,7 +50,7 @@ public class MailvorTbOrderController {
 
     @GetMapping
     @Log("查询tbOrder")
-    @ApiOperation("查询tbOrder")
+    @Operation(summary = "查询tbOrder")
     @PreAuthorize("@el.check('admin','mailvorTbOrder:list')")
     public ResponseEntity<PageResult<MailvorTbOrderDto>> getMailvorTbOrders(MailvorTbOrderQueryCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(mailvorTbOrderService.queryAll(criteria,pageable),HttpStatus.OK);
@@ -58,7 +58,7 @@ public class MailvorTbOrderController {
 
     @PostMapping
     @Log("新增tbOrder")
-    @ApiOperation("新增tbOrder")
+    @Operation(summary = "新增tbOrder")
     @PreAuthorize("@el.check('admin','mailvorTbOrder:add')")
     public ResponseEntity<Object> create(@Validated @RequestBody MailvorTbOrder resources){
         return new ResponseEntity<>(mailvorTbOrderService.save(resources),HttpStatus.CREATED);
@@ -66,7 +66,7 @@ public class MailvorTbOrderController {
 
     @PutMapping
     @Log("修改tbOrder")
-    @ApiOperation("修改tbOrder")
+    @Operation(summary = "修改tbOrder")
     @PreAuthorize("@el.check('admin','mailvorTbOrder:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody MailvorTbOrder resources){
         mailvorTbOrderService.updateById(resources);
@@ -74,7 +74,7 @@ public class MailvorTbOrderController {
     }
 
     @Log("删除tbOrder")
-    @ApiOperation("删除tbOrder")
+    @Operation(summary = "删除tbOrder")
     @PreAuthorize("@el.check('admin','mailvorTbOrder:del')")
     @DeleteMapping
     public ResponseEntity<Object> deleteAll(@RequestBody Long[] ids) {

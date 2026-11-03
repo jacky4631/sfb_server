@@ -1,8 +1,7 @@
 package com.mailvor.modules.tk.vo;
 
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -18,16 +17,16 @@ import java.io.Serializable;
  */
 @AllArgsConstructor
 @Data
-@ApiModel(value = "PddNavVo", description = "商品表查询参数")
+@Schema(description = "商品表查询参数")
 public class PddNavVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "商品id")
+    @Schema(description = "商品id")
     private String title;
 
-    @ApiModelProperty(value = "淘宝商品id")
+    @Schema(description = "淘宝商品id")
     private String img;
 
-    @ApiModelProperty(value = "商品淘宝链接")
+    @Schema(description = "商品淘宝链接")
     private String url;
 }

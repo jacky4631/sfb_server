@@ -1,6 +1,6 @@
 package com.mailvor.modules.order.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +13,6 @@ import lombok.Setter;
 @Setter
 public class ConfirmIntegralParam {
 
-    @ApiModelProperty(value = "商品ID")
+    @Schema(description = "商品ID")
     private Long id;
 }

@@ -4,6 +4,7 @@
  */
 package com.mailvor.modules.order.service.impl;
 
+import com.mailvor.common.json.JsonUtil;
 import cn.hutool.core.util.IdUtil;
 import com.mailvor.common.service.impl.BaseServiceImpl;
 import com.mailvor.common.utils.QueryHelpPlus;
@@ -15,7 +16,7 @@ import com.mailvor.modules.order.service.dto.MwStoreOrderCartInfoDto;
 import com.mailvor.modules.order.service.dto.MwStoreOrderCartInfoQueryCriteria;
 import com.mailvor.modules.order.service.mapper.StoreOrderCartInfoMapper;
 import com.mailvor.utils.FileUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -67,7 +68,7 @@ public class MwStoreOrderCartInfoServiceImpl extends BaseServiceImpl<StoreOrderC
             info.setOrderId(orderId);
             info.setCartId(cart.getId());
             info.setProductId(cart.getProductId());
-            info.setCartInfo(JSONObject.toJSON(cart).toString());
+            info.setCartInfo(JsonUtil.toJSON(cart).toString());
             info.setUnique(IdUtil.simpleUUID());
             info.setIsAfterSales(1);
             list.add(info);

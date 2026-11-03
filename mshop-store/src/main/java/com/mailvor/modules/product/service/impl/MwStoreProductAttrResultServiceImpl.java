@@ -8,7 +8,7 @@ import com.mailvor.common.service.impl.BaseServiceImpl;
 import com.mailvor.modules.product.domain.MwStoreProductAttrResult;
 import com.mailvor.modules.product.service.MwStoreProductAttrResultService;
 import com.mailvor.modules.product.service.mapper.StoreProductAttrResultMapper;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class MwStoreProductAttrResultServiceImpl extends BaseServiceImpl<StorePr
     {
         MwStoreProductAttrResult mwStoreProductAttrResult = new MwStoreProductAttrResult();
         mwStoreProductAttrResult.setProductId(productId);
-        mwStoreProductAttrResult.setResult(JSON.toJSONString(map));
+        mwStoreProductAttrResult.setResult(JsonUtil.toJSONString(map));
         mwStoreProductAttrResult.setChangeTime(new Date());
 
         Long count = this.count(Wrappers.<MwStoreProductAttrResult>lambdaQuery()

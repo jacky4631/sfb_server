@@ -1,9 +1,9 @@
 package com.mailvor.modules.user.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -15,14 +15,14 @@ import java.io.Serializable;
 public class FaceParam implements Serializable {
 
     @NotBlank
-    @ApiModelProperty(value = "姓名")
+    @Schema(description = "姓名")
     private String certName;
 
     @NotBlank
-    @ApiModelProperty(value = "身份证")
+    @Schema(description = "身份证")
     private String certNo;
 
     @NotBlank
-    @ApiModelProperty(value = "手机号")
+    @Schema(description = "手机号")
     private String phone;
 }

@@ -4,6 +4,10 @@
  */
 package com.mailvor.modules.activity.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mailvor.api.ApiResult;
@@ -24,10 +28,6 @@ import com.mailvor.modules.services.CreatShareProductService;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.user.domain.MwUser;
 import com.google.common.collect.Maps;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "拼团", tags = "营销:拼团")
+@Tag(name = "营销:拼团")
 public class StoreCombinationController {
 
     private final MwStoreCombinationService storeCombinationService;
@@ -70,11 +70,11 @@ public class StoreCombinationController {
      * 拼团产品列表
      */
     @GetMapping("/combination/list")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "页码,默认为1", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "limit", value = "页大小,默认为10", paramType = "query", dataType = "int")
+    @Parameters({
+            @Parameter(name = "page", description = "页码,默认为1"),
+            @Parameter(name = "limit", description = "页大小,默认为10")
     })
-    @ApiOperation(value = "拼团产品列表",notes = "拼团产品列表")
+    @Operation(summary = "拼团产品列表", description = "拼团产品列表")
     public ApiResult<CombinationQueryVo> getList(@RequestParam(value = "page",defaultValue = "1") int page,
                                                  @RequestParam(value = "limit",defaultValue = "10") int limit){
         return  ApiResult.ok(storeCombinationService.getList(page, limit));
@@ -86,7 +86,7 @@ public class StoreCombinationController {
     @AppLog(value = "查看拼团产品详情", type = 1)
     @AuthCheck
     @GetMapping("/combination/detail/{id}")
-    @ApiOperation(value = "拼团产品详情",notes = "拼团产品详情")
+    @Operation(summary = "拼团产品详情", description = "拼团产品详情")
     public ApiResult<StoreCombinationVo> detail(@PathVariable Long id){
         if(ObjectUtil.isNull(id)) {
             throw new MshopException("参数错误");
@@ -104,7 +104,7 @@ public class StoreCombinationController {
     @AppLog(value = "查看拼团明细", type = 1)
     @AuthCheck
     @GetMapping("/combination/pink/{id}")
-    @ApiOperation(value = "拼团明细",notes = "拼团明细")
+    @Operation(summary = "拼团明细", description = "拼团明细")
     public ApiResult<PinkInfoVo> pink(@PathVariable Long id){
         if(ObjectUtil.isNull(id)) {
             throw new MshopException("参数错误");
@@ -119,7 +119,7 @@ public class StoreCombinationController {
     @AppLog(value = "生成拼团海报", type = 1)
     @AuthCheck
     @PostMapping("/combination/poster")
-    @ApiOperation(value = "拼团海报",notes = "拼团海报")
+    @Operation(summary = "拼团海报", description = "拼团海报")
     public ApiResult<Object> poster(@Validated @RequestBody PinkShareParam param){
         String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
         if(StrUtil.isEmpty(siteUrl)){
@@ -143,7 +143,7 @@ public class StoreCombinationController {
     @AppLog(value = "取消开团", type = 1)
     @AuthCheck
     @PostMapping("/combination/remove")
-    @ApiOperation(value = "取消开团",notes = "取消开团")
+    @Operation(summary = "取消开团", description = "取消开团")
     public ApiResult<Boolean> remove(@Validated @RequestBody PinkCancelParam param){
         Long pinkId = Long.valueOf(param.getId());
         Long cId = Long.valueOf(param.getCid());

@@ -1,9 +1,9 @@
 package com.mailvor.modules.dataoke.rest;
 
 import cn.hutool.http.HttpUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonArray;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.modules.tk.config.DataokeConfig;
 import com.mailvor.modules.tk.param.RankingListParam;
 import com.mailvor.modules.tk.service.DataokeService;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +43,7 @@ public class DataokeCmsController {
     public Object brandList() {
         Object dataObj = redisUtils.get(HOME_DATA_BRAND_LIST);
         if(dataObj == null) {
-            JSONObject data = restTemplate.getForObject(String.format("%s/brand-list", CMS_PREFIX), JSONObject.class);
+            JsonObject data = restTemplate.getForObject(String.format("%s/brand-list", CMS_PREFIX), JsonObject.class);
             List list = data.getJSONObject("data").getJSONArray("list").subList(0, 3);
             int splitSize = 4;
             // 仅保留前端（App/小程序首页"品牌特卖"）实际用到的字段，其余裁剪以精简返回体积
@@ -72,7 +72,7 @@ public class DataokeCmsController {
             param.setRankType(1);
             param.setPageId(1);
             param.setPageSize(2);
-            JSONObject data = compactHot(dataokeService.rankingList(param));
+            JsonObject data = compactHot(dataokeService.rankingList(param));
             // 仅缓存首页卡片使用的字段，沿用现有缓存时长。
             redisUtils.set(HOME_DATA_HOT, data, HOME_DATA_EXPIRED);
             return data;
@@ -84,7 +84,7 @@ public class DataokeCmsController {
     public Object ddq() {
         Object dataObj = redisUtils.get(HOME_DATA_DDQ);
         if(dataObj == null) {
-            JSONObject data = compactDdq(dataokeService.ddq(null));
+            JsonObject data = compactDdq(dataokeService.ddq(null));
             // 仅缓存首页卡片使用的字段，完整秒杀页仍走 /tao/ddq。
             redisUtils.set(HOME_DATA_DDQ, data, HOME_DATA_EXPIRED);
             return data;
@@ -92,26 +92,26 @@ public class DataokeCmsController {
         return dataObj;
     }
 
-    private JSONObject compactHot(JSONObject response) {
+    private JsonObject compactHot(JsonObject response) {
         if (response == null) {
             return null;
         }
-        JSONObject result = selectFields(response, "code", "msg", "data");
-        JSONArray goods = response.getJSONArray("data");
+        JsonObject result = selectFields(response, "code", "msg", "data");
+        JsonArray goods = response.getJSONArray("data");
         if (goods != null) {
             result.put("data", compactItems(goods, 2, "mainPic", "actualPrice", "twoHoursSales"));
         }
         return result;
     }
 
-    private JSONObject compactDdq(JSONObject response) {
+    private JsonObject compactDdq(JsonObject response) {
         if (response == null) {
             return null;
         }
-        JSONObject result = selectFields(response, "code", "msg", "data");
-        JSONObject data = response.getJSONObject("data");
+        JsonObject result = selectFields(response, "code", "msg", "data");
+        JsonObject data = response.getJSONObject("data");
         if (data != null) {
-            JSONObject card = new JSONObject();
+            JsonObject card = new JsonObject();
             card.put("goodsList", compactItems(data.getJSONArray("goodsList"), 2,
                     "mainPic", "actualPrice", "specialText"));
             // 保留全部场次，前端需要从中查找 status=2 的倒计时场次。
@@ -122,11 +122,11 @@ public class DataokeCmsController {
         return result;
     }
 
-    private JSONArray compactItems(JSONArray items, int limit, String... fields) {
-        JSONArray result = new JSONArray();
+    private JsonArray compactItems(JsonArray items, int limit, String... fields) {
+        JsonArray result = new JsonArray();
         if (items != null) {
             for (int i = 0; i < Math.min(items.size(), limit); i++) {
-                JSONObject item = items.getJSONObject(i);
+                JsonObject item = items.getJSONObject(i);
                 if (item != null) {
                     result.add(selectFields(item, fields));
                 }
@@ -135,8 +135,8 @@ public class DataokeCmsController {
         return result;
     }
 
-    private JSONObject selectFields(JSONObject source, String... fields) {
-        JSONObject result = new JSONObject();
+    private JsonObject selectFields(JsonObject source, String... fields) {
+        JsonObject result = new JsonObject();
         for (String field : fields) {
             if (source.containsKey(field)) {
                 result.put(field, source.get(field));
@@ -159,7 +159,7 @@ public class DataokeCmsController {
             paraMap.put("activityGroup", "1,3,4,6,11");
             paraMap.put("sign", SignMD5Util.getSignStr(paraMap, config.getSecret()));
             String res = HttpUtil.get(API_PREFIX + "/goods/search", paraMap);
-            JSONObject data = JSON.parseObject(res);
+            JsonObject data = JsonUtil.parseObject(res);
 
             //接口数据缓存6个小时
             redisUtils.set(HOME_DATA_EVERY, data, HOME_DATA_EXPIRED/4);
@@ -169,19 +169,19 @@ public class DataokeCmsController {
     }
 
     @GetMapping(value = "/hot-words")
-    public JSONObject hotWords() {
+    public JsonObject hotWords() {
         //https://openapi.dataoke.com/api/etc/search/list-hot-words
         return restTemplate
                 .getForObject(
                         String.format("%s/etc/search/list-hot-words?version=v1.0.0&appKey=612bcfe884763&sign=8beae01e0da745fc62fcc954fafa2944",
-                        API_PREFIX), JSONObject.class);
+                        API_PREFIX), JsonObject.class);
     }
     @GetMapping(value = "/ranking/cate")
-    public JSONObject rankingCate() {
-        JSONObject data = (JSONObject) redisUtils.get(HOME_DATA_TOP_CATE);
+    public JsonObject rankingCate() {
+        JsonObject data = (JsonObject) redisUtils.get(HOME_DATA_TOP_CATE);
         if(data == null) {
             data = restTemplate
-                    .getForObject(RANKING_CATE, JSONObject.class);
+                    .getForObject(RANKING_CATE, JsonObject.class);
             //接口数据缓存24小时
             redisUtils.set(HOME_DATA_TOP_CATE, data, HOME_DATA_EXPIRED);
             return data;
@@ -225,7 +225,7 @@ public class DataokeCmsController {
         paraMap.put("sign", sign);
 
         String data = HttpUtil.get(url, paraMap);
-        return JSON.parseObject(data);
+        return JsonUtil.parseObject(data);
     }
 
     /**
@@ -237,37 +237,37 @@ public class DataokeCmsController {
     @GetMapping(value = "/cate")
     public Object pickCate(String id) {
         String url = CMS_PREFIX + "/column-conf?preview=&id="+ id;
-        return restTemplate.getForObject(url, JSONObject.class);
+        return restTemplate.getForObject(url, JsonObject.class);
     }
 
     @GetMapping(value = "/check/cate")
-    public JSONObject checkCate() {
+    public JsonObject checkCate() {
         return restTemplate
-                .getForObject(CHECK_CATE, JSONObject.class);
+                .getForObject(CHECK_CATE, JsonObject.class);
     }
 
     @GetMapping(value = "/brand/goods/list")
-    public JSONObject brandGoodsList(Integer pageId, Integer pageSize, String brandId) {
+    public JsonObject brandGoodsList(Integer pageId, Integer pageSize, String brandId) {
         return restTemplate
                 .getForObject(String.format(
                         "%s/delanys/brand/get-goods-list?version=v1.0.0&pageId=%s&pageSize=%s&brandId=%s&appKey=%s",
-                        API_PREFIX, pageId, pageSize, brandId, "612bcfe884763"), JSONObject.class);
+                        API_PREFIX, pageId, pageSize, brandId, "612bcfe884763"), JsonObject.class);
     }
     @GetMapping(value = "/nine/cate")
-    public JSONObject nineCate() {
+    public JsonObject nineCate() {
         return restTemplate
-                .getForObject(NINE_CATE, JSONObject.class);
+                .getForObject(NINE_CATE, JsonObject.class);
     }
     @GetMapping(value = "/nine/top")
-    public JSONObject nineTOP() {
+    public JsonObject nineTOP() {
         return restTemplate
-                .getForObject(NINE_TOP, JSONObject.class);
+                .getForObject(NINE_TOP, JsonObject.class);
     }
 
     @GetMapping(value = "/nine/list")
-    public JSONObject nineList(Integer pageId, Integer pageSize, String cid) {
+    public JsonObject nineList(Integer pageId, Integer pageSize, String cid) {
         return restTemplate
                 .getForObject(String.format(NINE_LIST,
-                        cid, pageId, pageSize), JSONObject.class);
+                        cid, pageId, pageSize), JsonObject.class);
     }
 }

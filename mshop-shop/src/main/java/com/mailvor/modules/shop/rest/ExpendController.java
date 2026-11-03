@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.shop.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.api.MshopException;
 import com.mailvor.modules.aop.ForbidSubmit;
 import com.mailvor.modules.logging.aop.log.Log;
@@ -12,8 +14,6 @@ import com.mailvor.modules.shop.rest.param.MwExpendEditParam;
 import com.mailvor.modules.shop.rest.param.MwExpendParam;
 import com.mailvor.modules.shop.service.ExpendService;
 import com.mailvor.modules.shop.service.dto.MwExpendQueryCriteria;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +21,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 /**
  * @author huangyu
  * @date 2022-07-06
  */
-@Api(tags = "商城：额外支出管理")
+@Tag(name = "商城：额外支出管理")
 @RestController
 @RequestMapping("api")
 public class ExpendController {
@@ -36,7 +36,7 @@ public class ExpendController {
     private ExpendService expendService;
 
     @Log("查询额外支出")
-    @ApiOperation(value = "查询额外支出")
+    @Operation(summary = "查询额外支出")
     @GetMapping(value = "/mwExpend")
     @PreAuthorize("hasAnyRole('admin','EXPEND_ALL','EXPEND_SELECT')")
     public ResponseEntity getList(MwExpendQueryCriteria criteria,
@@ -46,7 +46,7 @@ public class ExpendController {
 
     @ForbidSubmit
     @Log("新增额外支出")
-    @ApiOperation(value = "新增额外支出")
+    @Operation(summary = "新增额外支出")
     @PostMapping(value = "/mwExpend")
     @PreAuthorize("hasAnyRole('admin','EXPEND_ALL','EXPEND_CREATE')")
     public ResponseEntity create(@Validated @RequestBody MwExpendParam body) {
@@ -61,7 +61,7 @@ public class ExpendController {
 
     @ForbidSubmit
     @Log("修改额外支出")
-    @ApiOperation(value = "修改额外支出")
+    @Operation(summary = "修改额外支出")
     @PutMapping(value = "/mwExpend")
     @PreAuthorize("hasAnyRole('admin','EXPEND_ALL','EXPEND_EDIT')")
     public ResponseEntity update(@Validated @RequestBody MwExpendEditParam body) {
@@ -81,7 +81,7 @@ public class ExpendController {
 
     @ForbidSubmit
     @Log("删除额外支出")
-    @ApiOperation(value = "删除额外支出")
+    @Operation(summary = "删除额外支出")
     @DeleteMapping(value = "/mwExpend/{id}")
     @PreAuthorize("hasAnyRole('admin','EXPEND_ALL','EXPEND_DELETE')")
     public ResponseEntity delete(@PathVariable Long id) {

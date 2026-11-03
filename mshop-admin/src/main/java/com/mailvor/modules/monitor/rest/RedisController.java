@@ -1,10 +1,10 @@
 package com.mailvor.modules.monitor.rest;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.aop.ForbidSubmit;
 import com.mailvor.modules.monitor.domain.vo.RedisVo;
 import com.mailvor.modules.monitor.service.RedisService;
-import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Zheng Jie
  * @date 2018-12-10
  */
-@Api(tags = "商城：redis缓存管理")
+@Tag(name = "商城：redis缓存管理")
 @RestController
 @RequestMapping("api")
 public class RedisController {

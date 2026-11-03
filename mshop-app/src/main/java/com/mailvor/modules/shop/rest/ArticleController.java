@@ -4,11 +4,11 @@
  */
 package com.mailvor.modules.shop.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.api.ApiResult;
 import com.mailvor.modules.mp.service.MwArticleService;
 import com.mailvor.modules.mp.vo.MwArticleQueryVo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @RequestMapping("/article")
-@Api(value = "文章模块", tags = "商城：文章模块")
+@Tag(name = "商城：文章模块")
 public class ArticleController {
 
     private final MwArticleService articleService;
@@ -42,7 +42,7 @@ public class ArticleController {
     * 获取文章文章详情
     */
     @GetMapping("/details/{id}")
-    @ApiOperation(value = "文章详情",notes = "文章详情")
+    @Operation(summary = "文章详情", description = "文章详情")
     public ApiResult<MwArticleQueryVo> getMwArticle(@PathVariable Integer id){
         MwArticleQueryVo mwArticleQueryVo = articleService.getDetail(id);
         articleService.incVisitNum(id);
@@ -53,7 +53,7 @@ public class ArticleController {
      * 文章列表
      */
     @GetMapping("/list")
-    @ApiOperation(value = "文章列表",notes = "文章列表")
+    @Operation(summary = "文章列表", description = "文章列表")
     public ApiResult<List<MwArticleQueryVo>> getMwArticlePageList(@RequestParam(value = "page",defaultValue = "1") int page,
                                                                   @RequestParam(value = "limit",defaultValue = "10") int limit){
         return ApiResult.resultPage(articleService.getList(page,limit),limit);

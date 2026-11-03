@@ -28,35 +28,116 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.18</version>
+        <version>4.1.2</version>
     </parent>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
-        <jedis.version>3.3.0</jedis.version>
-        <swagger.version>3.0.0</swagger.version>
-        <fastjson.version>1.2.83</fastjson.version>
-        <druid.version>1.2.9</druid.version>
-        <hutool.version>5.5.7</hutool.version>
-        <poi.version>4.1.2</poi.version>
+        <!-- JDK 25：用 release 而非 source/target，避免误用低版本 JDK 的 bootclasspath -->
+        <java.version>25</java.version>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
+        <!-- 覆盖 BOM 的 lombok 版本，JDK 25 必须 1.18.48+ -->
+        <lombok.version>1.18.48</lombok.version>
+        <!-- API 文档：springfox 在 Jakarta/Spring Boot 3+ 已不可用，改 springdoc + knife4j jakarta 版 -->
+        <springdoc.version>3.1.1</springdoc.version>
+        <knife4j.version>4.5.0</knife4j.version>
+        <!-- 持久层：Spring Boot 4 专用 starter -->
+        <mybatis-plus.version>3.5.17</mybatis-plus.version>
+        <pagehelper.version>2.1.1</pagehelper.version>
+        <httpclient4.version>4.5.14</httpclient4.version>
+        <httpcore4.version>4.4.16</httpcore4.version>
+        <druid.version>1.2.28</druid.version>
+        <hutool.version>5.8.48</hutool.version>
+        <poi.version>5.4.0</poi.version>
+        <jjwt.version>0.12.6</jjwt.version>
+        <jaxbApi.version>2.3.1</jaxbApi.version>
+        <junit.version>4.13.2</junit.version>
+        <!-- 默认仍不跑测试（保持原行为），需要时用 -DskipTests=false 打开 -->
+        <skipTests>true</skipTests>
         <commons-pool2.version>2.5.0</commons-pool2.version>
         <mapstruct.version>1.2.0.Final</mapstruct.version>
-        <swagger-annotations.version>1.5.21</swagger-annotations.version>
-        <swagger-models.version>1.5.24</swagger-models.version>
-        <github-xiaoymin.version>3.0.3</github-xiaoymin.version>
         <xerces.version>2.11.0</xerces.version>
         <javax.version>1</javax.version>
         <whvcse.version>1.6.2</whvcse.version>
         <bitwalker.version>1.21</bitwalker.version>
-        <validator.version>6.1.7.Final</validator.version>
-        <gson.version>2.8.9</gson.version>
         <aliyun.sms.version>2.0.16</aliyun.sms.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <!-- MP 3.5.17 把 PaginationInnerInterceptor 等依赖 JSqlParser 的插件拆到了独立坐标，
+                 starter 不再默认带入 -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-jsqlparser</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-4-starter</artifactId>
+                <version>${druid.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>${pagehelper.version}</version>
+            </dependency>
+            <!-- HttpClient 4 已从 Spring Boot 4 的 BOM 中移除（官方只管 httpclient5），
+                 但 48 处业务代码与部分厂商 SDK 仍依赖 HC4，此处显式锁版本 -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient4.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>${httpcore4.version}</version>
+            </dependency>
+            <!-- 厂商 jar（aspose-words / ysmp-java-sdk / pop-sdk）的字节码硬引用 javax.xml.bind，
+                 而 JDK 11+ 已移除 JAXB。jaxb-api 自带 DatatypeConverterImpl，足以满足
+                 base64/hex 转换与注解类加载；不引入 JAXB runtime，避免与 Spring Boot 4 的
+                 jakarta 栈冲突。若后续真要跑 XML 绑定，再单独评估 com.sun.xml.bind:jaxb-impl -->
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxbApi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+                <version>${knife4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <!-- Spring Boot 4 用 Jackson 3，官方 jjwt-jackson 会拖进 Jackson 2；
+                 项目已有 gson，改用 jjwt-gson 作为序列化后端 -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-gson</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.aliyun</groupId>
                 <artifactId>dysmsapi20170525</artifactId>
@@ -103,8 +184,7 @@
     <dependencies>
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus</artifactId>
-            <version>3.5.1</version>
+            <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -118,13 +198,13 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>${validator.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+        <!-- Spring Boot 4 将 spring-boot-starter-aop 重命名为 spring-boot-starter-aspectj -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
+            <artifactId>spring-boot-starter-aspectj</artifactId>
         </dependency>
         <!-- spring cache -->
         <dependency>
@@ -150,58 +230,15 @@
 <!--            <artifactId>commons-lang3</artifactId>-->
 <!--        </dependency>-->
 
-        <!-- RESTful APIs swagger2 -->
+        <!-- RESTful APIs: springdoc-openapi + knife4j (jakarta 版) -->
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>${swagger.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.swagger</groupId>
-                    <artifactId>swagger-annotations</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.swagger</groupId>
-                    <artifactId>swagger-models</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>${swagger.version}</version>
-        </dependency>
-<!--        <dependency>-->
-<!--            <groupId>io.swagger</groupId>-->
-<!--            <artifactId>swagger-annotations</artifactId>-->
-<!--            <version>${swagger-annotations.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>io.swagger</groupId>-->
-<!--            <artifactId>swagger-models</artifactId>-->
-<!--            <version>${swagger-models.version}</version>-->
-<!--        </dependency>-->
         <!--单应用-->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-spring-boot-starter</artifactId>
-            <version>${github-xiaoymin.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.swagger</groupId>
-                    <artifactId>swagger-models</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.swagger</groupId>
-                    <artifactId>swagger-annotations</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-models</artifactId>
-            <version>${swagger-models.version}</version>
-            <scope>compile</scope>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
         </dependency>
         <!--Mysql依赖包（Spring Boot 2.7.x 坐标由 mysql:mysql-connector-java 变更为 com.mysql:mysql-connector-j）-->
         <dependency>
@@ -212,8 +249,7 @@
         <!-- druid数据源驱动 -->
         <dependency>
             <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-starter</artifactId>
-            <version>${druid.version}</version>
+            <artifactId>druid-spring-boot-4-starter</artifactId>
         </dependency>
 
         <!--lombok插件-->
@@ -247,12 +283,7 @@
 <!--            <version>${xerces.version}</version>-->
 <!--        </dependency>-->
 
-        <!-- fastjson -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>${fastjson.version}</version>
-        </dependency>
+        <!-- fastjson 已移除，JSON 统一走 Jackson 3（com.mailvor.common.json.JsonUtil） -->
         <!--mapStruct依赖-->
 <!--        <dependency>-->
 <!--            <groupId>org.mapstruct</groupId>-->
@@ -283,7 +314,6 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>${gson.version}</version>
         </dependency>
         <!--由于>=jdk9中不再包含这个jar包,导致登陆报错,需手动引入-->
        <!-- <dependency>
@@ -294,18 +324,38 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- 打包时跳过测试 -->
+            <!-- JDK 25 编译配置：-parameters 供 Spring 参数名发现，annotationProcessorPaths 统一注解处理器顺序 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <!-- 打包时跳过测试；写成属性而不是硬编码 true，否则命令行无法跑单个测试 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
                 <configuration>
-                    <skip>true</skip>
+                    <skip>${skipTests}</skip>
                 </configuration>
             </plugin>
         </plugins>
@@ -324,7 +374,7 @@
         <pluginRepository>
             <id>public</id>
             <name>aliyun nexus</name>
-            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+            <url>https://maven.aliyun.com/repository/public</url>
             <releases>
                 <enabled>true</enabled>
             </releases>

@@ -5,15 +5,15 @@
 package com.mailvor.waimai.rest;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.TimedCache;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.api.ApiResult;
 import com.mailvor.modules.ele.EleService;
 import com.mailvor.modules.shop.service.MwSystemGroupDataService;
 import com.mailvor.modules.shop.service.dto.MwSystemGroupDataQueryCriteria;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ import static com.mailvor.modules.meituan.constants.MeituanConstants.MT_GROUP_NA
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "用户中心", tags = "用户:用户中心")
+@Tag(name = "用户:用户中心")
 public class EleController {
     private static TimedCache<String, Object> timedCache = CacheUtil.newTimedCache(30*60*1000);
 
@@ -46,12 +46,12 @@ public class EleController {
 
 
     @PostMapping("/ele/activity/code")
-    @ApiOperation(value = "会场转链",notes = "会场转链")
-    public ApiResult<Object> activityCode(@RequestBody JSONObject body) throws IOException {
+    @Operation(summary = "会场转链", description = "会场转链")
+    public ApiResult<Object> activityCode(@RequestBody JsonObject body) throws IOException {
         return ApiResult.ok(eleService.contentParse(body.getString("activityId"), body.getLong("uid")));
     }
 
-    @ApiOperation(value = "查询美团活动列表")
+    @Operation(summary = "查询美团活动列表")
     @GetMapping(value = "/ele/activity/list")
     public ApiResult<Object> getActivityList(@RequestParam(value = "page",defaultValue = "1") int page,
                                                 @RequestParam(value = "limit",defaultValue = "10") int limit) {

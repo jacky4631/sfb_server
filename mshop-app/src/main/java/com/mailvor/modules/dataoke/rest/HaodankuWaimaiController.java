@@ -1,7 +1,7 @@
 package com.mailvor.modules.dataoke.rest;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonArray;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.api.ApiResult;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.UserCheck;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @RestController
 @RequestMapping("/ku")
@@ -23,33 +23,33 @@ public class HaodankuWaimaiController {
     private KuService kuService;
     @GetMapping(value = "/waimai/list")
     public ApiResult meiTuanActivityList() {
-        JSONObject mList = kuService.meiTuanActivityList(1, 10).getJSONObject("data");
-        JSONArray mRed = mList.getJSONArray("red_activity");
+        JsonObject mList = kuService.meiTuanActivityList(1, 10).getJSONObject("data");
+        JsonArray mRed = mList.getJSONArray("red_activity");
         mRed.stream().forEach(o -> {
-            if(o instanceof JSONObject) {
-                ((JSONObject)o).put("type", 1);
+            if(o instanceof JsonObject) {
+                ((JsonObject)o).put("type", 1);
             }
         });
-        JSONArray mTime = mList.getJSONArray("time_activity");
+        JsonArray mTime = mList.getJSONArray("time_activity");
         mTime.stream().forEach(o -> {
-            if(o instanceof JSONObject) {
-                ((JSONObject)o).put("type", 1);
+            if(o instanceof JsonObject) {
+                ((JsonObject)o).put("type", 1);
             }
         });
-        JSONObject eList = kuService.eleActivityList(1, 10).getJSONObject("data");
-        JSONArray eRed = eList.getJSONArray("red_activity");
+        JsonObject eList = kuService.eleActivityList(1, 10).getJSONObject("data");
+        JsonArray eRed = eList.getJSONArray("red_activity");
         eRed.stream().forEach(o -> {
-            if(o instanceof JSONObject) {
-                ((JSONObject)o).put("type", 2);
+            if(o instanceof JsonObject) {
+                ((JsonObject)o).put("type", 2);
             }
         });
-        JSONArray eTime = eList.getJSONArray("time_activity");
+        JsonArray eTime = eList.getJSONArray("time_activity");
         eTime.stream().forEach(o -> {
-            if(o instanceof JSONObject) {
-                ((JSONObject)o).put("type", 2);
+            if(o instanceof JsonObject) {
+                ((JsonObject)o).put("type", 2);
             }
         });
-        JSONArray res = new JSONArray();
+        JsonArray res = new JsonArray();
         res.addAll(mRed);
         res.addAll(eRed);
         res.addAll(mTime);
@@ -58,7 +58,7 @@ public class HaodankuWaimaiController {
     }
     @UserCheck
     @GetMapping(value = "/waimai/word")
-    public JSONObject meiTuanWord(@RequestParam String activityId, @RequestParam Integer type) {
+    public JsonObject meiTuanWord(@RequestParam String activityId, @RequestParam Integer type) {
         //美团转链
         if(type == 1) {
             return kuService.meiTuanWord(activityId);
@@ -73,20 +73,20 @@ public class HaodankuWaimaiController {
     }
     @GetMapping(value = "/ele/list")
     public ApiResult eleActivityList() {
-        JSONObject eList = kuService.eleActivityList(1, 10).getJSONObject("data");
-        JSONArray eRed = eList.getJSONArray("red_activity");
+        JsonObject eList = kuService.eleActivityList(1, 10).getJSONObject("data");
+        JsonArray eRed = eList.getJSONArray("red_activity");
         eRed.stream().forEach(o -> {
-            if(o instanceof JSONObject) {
-                ((JSONObject)o).put("type", 2);
+            if(o instanceof JsonObject) {
+                ((JsonObject)o).put("type", 2);
             }
         });
-        JSONArray eTime = eList.getJSONArray("time_activity");
+        JsonArray eTime = eList.getJSONArray("time_activity");
         eTime.stream().forEach(o -> {
-            if(o instanceof JSONObject) {
-                ((JSONObject)o).put("type", 2);
+            if(o instanceof JsonObject) {
+                ((JsonObject)o).put("type", 2);
             }
         });
-        JSONArray res = new JSONArray();
+        JsonArray res = new JsonArray();
         res.addAll(eRed);
         res.addAll(eTime);
         return ApiResult.ok(res);

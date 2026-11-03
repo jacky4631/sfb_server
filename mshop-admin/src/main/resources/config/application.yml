@@ -15,6 +15,12 @@ spring:
     redis:
       repositories:
         enabled: false
+# springdoc 的开关与项目原有的 swagger.enabled 对齐，避免文档端点在关闭时仍可访问
+springdoc:
+  api-docs:
+    enabled: ${swagger.enabled:false}
+  swagger-ui:
+    enabled: ${swagger.enabled:false}
 task:
   pool:
     # 核心线程池大小
@@ -60,6 +66,9 @@ mshop:
 logging:
   level:
     com.mailvor: DEBUG
+    # 批量插入 SQL 注入器（CustomizedSqlInjector）启动时会给每个实体打一条拼好的 SQL，
+    # 属于调试残留；单独降到 INFO，其余 com.mailvor 包保留 DEBUG
+    com.mailvor.common.batch: INFO
     org.springframework.web: DEBUG
     com.github.binarywang.demo.wx.mp: DEBUG
     me.chanjar.weixin: DEBUG

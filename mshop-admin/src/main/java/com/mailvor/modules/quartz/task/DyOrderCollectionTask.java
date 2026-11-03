@@ -1,6 +1,6 @@
 package com.mailvor.modules.quartz.task;
 
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.mailvor.modules.tk.param.QueryDyParam;
 import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class DyOrderCollectionTask extends OrderTask{
         if(StringUtils.isEmpty(paramStr)) {
             param = new QueryDyParam();
         } else {
-            param = JSON.parseObject(paramStr, QueryDyParam.class);
+            param = JsonUtil.parseObject(paramStr, QueryDyParam.class);
         }
         if(StringUtils.isEmpty(param.getStart_time()) || StringUtils.isEmpty(param.getEnd_time())) {
             //2023-04-06 18:36:01

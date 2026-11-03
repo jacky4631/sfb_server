@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.shop.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -14,11 +16,9 @@ import com.mailvor.modules.aop.ForbidSubmit;
 import com.mailvor.modules.shop.domain.MwSystemGroupData;
 import com.mailvor.modules.shop.service.MwSystemGroupDataService;
 import com.mailvor.modules.shop.service.dto.MwSystemGroupDataQueryCriteria;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,7 +38,7 @@ import static com.mailvor.constant.ShopConstants.MSHOP_SECKILL_TIME;
  * @author huangyu
  * @date 2019-10-18
  */
-@Api(tags = "商城：数据配置管理")
+@Tag(name = "商城：数据配置管理")
 @RestController
 @RequestMapping("api")
 public class SystemGroupDataController {
@@ -50,7 +50,7 @@ public class SystemGroupDataController {
     }
 
     @Log("查询数据配置")
-    @ApiOperation(value = "查询数据配置")
+    @Operation(summary = "查询数据配置")
     @GetMapping(value = "/mwSystemGroupData")
     @PreAuthorize("hasAnyRole('admin','MWSYSTEMGROUPDATA_ALL','MWSYSTEMGROUPDATA_SELECT')")
     public ResponseEntity getMwSystemGroupDatas(MwSystemGroupDataQueryCriteria criteria,
@@ -64,12 +64,12 @@ public class SystemGroupDataController {
 
     @ForbidSubmit
     @Log("新增数据配置")
-    @ApiOperation(value = "新增数据配置")
+    @Operation(summary = "新增数据配置")
     @PostMapping(value = "/mwSystemGroupData")
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY, allEntries = true)
     @PreAuthorize("hasAnyRole('admin','MWSYSTEMGROUPDATA_ALL','MWSYSTEMGROUPDATA_CREATE')")
     public ResponseEntity create(@RequestBody String jsonStr) {
-        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        JsonObject jsonObject = JsonUtil.parseObject(jsonStr);
         this.checkParam(jsonObject);
 
         MwSystemGroupData mwSystemGroupData = new MwSystemGroupData();
@@ -95,12 +95,12 @@ public class SystemGroupDataController {
 
     @ForbidSubmit
     @Log("修改数据配置")
-    @ApiOperation(value = "修改数据配置")
+    @Operation(summary = "修改数据配置")
     @PutMapping(value = "/mwSystemGroupData")
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY, allEntries = true)
     @PreAuthorize("hasAnyRole('admin','MWSYSTEMGROUPDATA_ALL','MWSYSTEMGROUPDATA_EDIT')")
     public ResponseEntity update(@RequestBody String jsonStr) {
-        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        JsonObject jsonObject = JsonUtil.parseObject(jsonStr);
         this.checkParam(jsonObject);
 
         MwSystemGroupData mwSystemGroupData = new MwSystemGroupData();
@@ -141,7 +141,7 @@ public class SystemGroupDataController {
 
     @ForbidSubmit
     @Log("删除数据配置")
-    @ApiOperation(value = "删除数据配置")
+    @Operation(summary = "删除数据配置")
     @DeleteMapping(value = "/mwSystemGroupData/{id}")
     @PreAuthorize("hasAnyRole('admin','MWSYSTEMGROUPDATA_ALL','MWSYSTEMGROUPDATA_DELETE')")
     public ResponseEntity delete(@PathVariable Integer id) {
@@ -154,7 +154,7 @@ public class SystemGroupDataController {
      *
      * @param jsonObject
      */
-    private void checkParam(JSONObject jsonObject) {
+    private void checkParam(JsonObject jsonObject) {
         if (ObjectUtil.isNotNull(jsonObject.get("name"))) {
             if (StrUtil.isEmpty(jsonObject.getString("name"))) {
                 throw new BadRequestException("名称必须填写");

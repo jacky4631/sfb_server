@@ -1,6 +1,6 @@
 package com.mailvor.modules.pay.allinpay.syb.lib;
 
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.mailvor.modules.pay.allinpay.syb.SybConfig;
 
 import java.util.Map;
@@ -89,7 +89,7 @@ public class SybPayService {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map<String,String> handleResult(String result) throws Exception{
 		System.out.println("ret:"+result);
-		Map map = JSON.parseObject(result, Map.class);
+		Map map = JsonUtil.parseObject(result, Map.class);
 		if(map == null){
 			throw new Exception("返回数据错误");
 		}

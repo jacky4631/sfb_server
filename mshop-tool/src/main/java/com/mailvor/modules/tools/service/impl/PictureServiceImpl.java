@@ -4,10 +4,9 @@
  */
 package com.mailvor.modules.tools.service.impl;
 
+import com.mailvor.common.json.JsonObject;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.mailvor.common.service.impl.BaseServiceImpl;
 import com.mailvor.common.utils.QueryHelpPlus;
 import com.mailvor.dozer.service.IGenerator;
@@ -21,7 +20,7 @@ import com.mailvor.utils.FileUtil;
 import com.mailvor.utils.TranslatorUtil;
 import com.mailvor.utils.ValidationUtil;
 import com.mailvor.utils.MshopConstant;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,7 +30,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -126,11 +125,11 @@ public class PictureServiceImpl extends BaseServiceImpl<PictureMapper, Picture> 
                 .form(paramMap)
                 .timeout(20000)
                 .execute().body();
-        JSONObject jsonObject = JSONUtil.parseObj(result);
+        JsonObject jsonObject = JsonUtil.parseObject(result);
         if(!jsonObject.get(CODE).toString().equals(SUCCESS)){
             throw new BadRequestException(TranslatorUtil.translate(jsonObject.get(MSG).toString()));
         }
-        picture = JSON.parseObject(jsonObject.get("data").toString(), Picture.class);
+        picture = JsonUtil.parseObject(jsonObject.get("data").toString(), Picture.class);
         picture.setSize(FileUtil.getSize(Integer.parseInt(picture.getSize())));
         picture.setUsername(username);
         picture.setMd5code(FileUtil.getMd5(file));
@@ -170,8 +169,8 @@ public class PictureServiceImpl extends BaseServiceImpl<PictureMapper, Picture> 
                 .header("Authorization", token)
                 .timeout(20000)
                 .execute().body();
-        JSONObject jsonObject = JSONUtil.parseObj(result);
-        List<Picture> pictures = JSON.parseArray(jsonObject.get("data").toString(), Picture.class);
+        JsonObject jsonObject = JsonUtil.parseObject(result);
+        List<Picture> pictures = JsonUtil.parseArray(jsonObject.get("data").toString(), Picture.class);
         for (Picture picture : pictures) {
             if(this.getOne(new LambdaQueryWrapper<Picture>().eq(Picture::getUrl,picture.getUrl()))==null){
                 picture.setSize(FileUtil.getSize(Integer.parseInt(picture.getSize())));

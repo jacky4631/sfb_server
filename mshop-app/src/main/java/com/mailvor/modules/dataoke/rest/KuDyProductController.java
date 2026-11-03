@@ -8,7 +8,7 @@ import com.mailvor.modules.tk.param.GoodsListDyParam;
 import com.mailvor.modules.tk.service.KuService;
 import com.mailvor.modules.tk.vo.*;
 import org.springframework.web.bind.annotation.*;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 

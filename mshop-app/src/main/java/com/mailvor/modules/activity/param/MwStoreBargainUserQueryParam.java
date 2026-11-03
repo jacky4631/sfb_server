@@ -1,12 +1,11 @@
 package com.mailvor.modules.activity.param;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.mailvor.common.web.param.QueryParam;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * <p>
@@ -18,15 +17,15 @@ import javax.validation.constraints.NotBlank;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value="用户参与砍价表查询参数", description="用户参与砍价表查询参数")
+@Schema(description = "用户参与砍价表查询参数")
 public class MwStoreBargainUserQueryParam extends QueryParam {
     private static final long serialVersionUID = 1L;
 
     @NotBlank(message = "参数错误")
-    @ApiModelProperty(value = "砍价用户ID")
+    @Schema(description = "砍价用户ID")
     private String bargainUserUid;
 
-    @ApiModelProperty(value = "砍价产品ID")
+    @Schema(description = "砍价产品ID")
     private String bargainId;
 
 }

@@ -3,8 +3,8 @@ package com.mailvor.modules.pay.ysepay;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.api.MshopException;
 import com.mailvor.config.PayConfig;
 import com.mailvor.modules.pay.dto.PayChannelDto;
@@ -37,8 +37,8 @@ import com.yinsheng.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
@@ -60,7 +60,7 @@ public class YsePayService extends PayService{
 	private MwUserExtraService userExtraService;
 
 	public FrontCodePayRespCommand alipay(PayChannelDto certProfile, String orderId, String price) {
-		YsePayConfig yesConfig = JSON.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
+		YsePayConfig yesConfig = JsonUtil.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
 
 		// 先构建请求客户端
 		YinShengClient yinShengClient = new YinShengClient(ServiceEnum.WALLET_PAY_FRONT_CODE, YsPayConstant.ENV_PRD,
@@ -108,7 +108,7 @@ public class YsePayService extends PayService{
 			throw new MshopException("该银行卡已签约");
 		}
 
-		YsePayConfig yesConfig = JSON.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
+		YsePayConfig yesConfig = JsonUtil.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
 
 		//查询银行卡
 		QueryCardRespCommand cardResp = queryBankCard(yesConfig, bankNo);
@@ -183,7 +183,7 @@ public class YsePayService extends PayService{
 	 * @user ljt 2022年6月8日 下午2:25:48
 	 */
 	public void signProtocolConfirm(PayChannelDto certProfile, String requestNo, String code) {
-		YsePayConfig yesConfig = JSON.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
+		YsePayConfig yesConfig = JsonUtil.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
 		// 先构建请求客户端
 		// 先构建请求客户端
 		YinShengClient yinShengClient = new YinShengClient(ServiceEnum.WALLET_PROTOCOL_CONFIRM, YsPayConstant.ENV_PRD,
@@ -221,7 +221,7 @@ public class YsePayService extends PayService{
 	 * @user ljt 2022年6月8日 下午2:26:30
 	 */
 	public Map<String, Object> createProtocol(PayChannelDto certProfile, String orderId, String price, Long uid, String protocolNo) {
-		YsePayConfig yesConfig = JSON.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
+		YsePayConfig yesConfig = JsonUtil.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
 		// 先构建请求客户端
 		YinShengClient yinShengClient = new YinShengClient(ServiceEnum.WALLET_PROTOCOL_CREATE_ORDER, YsPayConstant.ENV_PRD,
 				yesConfig.getPrxPath(), yesConfig.getPrxPwd());
@@ -270,7 +270,7 @@ public class YsePayService extends PayService{
 	 * @user ljt 2022年6月8日 下午2:30:46
 	 */
 	public boolean fastPayMsgVerify(PayChannelDto certProfile, String paygateBizSn, String code) {
-		YsePayConfig yesConfig = JSON.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
+		YsePayConfig yesConfig = JsonUtil.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
 		// 先构建请求客户端
 		YinShengClient yinShengClient = new YinShengClient(ServiceEnum.WALLET_PROTOCOL_PAY_CONFIRM,
 				YsPayConstant.ENV_PRD, yesConfig.getPrxPath(), yesConfig.getPrxPwd());
@@ -299,7 +299,7 @@ public class YsePayService extends PayService{
 	 * @user ljt 2022年6月8日 下午2:37:02
 	 */
 	public void protocolPayResend(PayChannelDto certProfile, String paygateBizSn) {
-		YsePayConfig yesConfig = JSON.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
+		YsePayConfig yesConfig = JsonUtil.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
 		// 先构建请求客户端
 		YinShengClient yinShengClient = new YinShengClient(ServiceEnum.WALLET_PROTOCOL_PAY_CONFIRM_RESEND,
 				YsPayConstant.ENV_TEST, yesConfig.getPrxPath(), yesConfig.getPrxPwd());
@@ -323,7 +323,7 @@ public class YsePayService extends PayService{
 	 * @user ljt 2022年6月8日 下午2:38:01
 	 */
 	public void queryProtocol(PayChannelDto certProfile, String protocolNo) {
-		YsePayConfig yesConfig = JSON.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
+		YsePayConfig yesConfig = JsonUtil.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
 		// 先构建请求客户端
 		YinShengClient yinShengClient = new YinShengClient(ServiceEnum.WALLET_PROTOCOL_QUERY, YsPayConstant.ENV_PRD,
 				yesConfig.getPrxPath(), yesConfig.getPrxPwd());
@@ -346,7 +346,7 @@ public class YsePayService extends PayService{
 	 * @user ljt 2022年6月8日 上午11:34:01
 	 */
 	public void cancelProtocol(PayChannelDto certProfile, String protocolNo) {
-		YsePayConfig yesConfig = JSON.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
+		YsePayConfig yesConfig = JsonUtil.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
 		// 先构建请求客户端
 		YinShengClient yinShengClient = new YinShengClient(ServiceEnum.WALLET_PROTOCOL_CANCEL, YsPayConstant.ENV_PRD,
 				yesConfig.getPrxPath(), yesConfig.getPrxPwd());
@@ -437,7 +437,7 @@ public class YsePayService extends PayService{
 			params.put(name,valueStr);
 //			log.info("银盛回调参数name:{} value:{}", name, valueStr);
 		}
-		log.info("银盛回调参数{}", JSON.toJSONString(params));
+		log.info("银盛回调参数{}", JsonUtil.toJSONString(params));
 		if(!YsMpPayUtils.verifySign(params, YS_VALIDY_SIGN_PUBLIC_CER)) {
 			log.error("银盛回调验签失败");
 			return "fail";
@@ -447,7 +447,7 @@ public class YsePayService extends PayService{
 			log.error("银盛回调bizResponseJson为空");
 			return "fail";
 		}
-		JSONObject resJson = JSON.parseObject(bizResponseJson);
+		JsonObject resJson = JsonUtil.parseObject(bizResponseJson);
 		String requestNo = resJson.getString("requestNo");
 		int prefixLength = 8;
 		if(requestNo.length() <= prefixLength) {
@@ -480,7 +480,7 @@ public class YsePayService extends PayService{
 
 
 	public MwUserExtra walletRegister(PayChannelDto payChannel, Long uid, String name, String cardNo, String phone) {
-		YsePayConfig yseConfig = JSON.parseObject(payChannel.getCertProfile(), YsePayConfig.class);
+		YsePayConfig yseConfig = JsonUtil.parseObject(payChannel.getCertProfile(), YsePayConfig.class);
 		//先构建请求客户端
 		YinShengClient sofaClient = new YinShengClient(ServiceEnum.WALLET_REGISTER, YsPayConstant.ENV_PRD,
 				yseConfig.getPrxPath(), yseConfig.getPrxPwd());
@@ -556,7 +556,7 @@ public class YsePayService extends PayService{
 	 * @user linxl 2021年4月7日 下午1:02:17
 	 */
 	public BindCardRespCommand bindCard(PayChannelDto payChannel, String merchantNo, String bankNo, String phone) {
-		YsePayConfig ysePayConfig = JSON.parseObject(payChannel.getCertProfile(), YsePayConfig.class);
+		YsePayConfig ysePayConfig = JsonUtil.parseObject(payChannel.getCertProfile(), YsePayConfig.class);
 		//先构建请求客户端
 		YinShengClient sofaClient = new YinShengClient(ServiceEnum.WALLET_BIND_CARD, YsPayConstant.ENV_PRD,
 				ysePayConfig.getPrxPath(), ysePayConfig.getPrxPwd());
@@ -590,7 +590,7 @@ public class YsePayService extends PayService{
 	 * @user ljt 2022年6月15日 上午11:01:49
 	 */
 	public ConfirmVerifyRespCommand confirmVerify(PayChannelDto payChannel, String requestNo, String authSn, String code) {
-		YsePayConfig ysePayConfig = JSON.parseObject(payChannel.getCertProfile(), YsePayConfig.class);
+		YsePayConfig ysePayConfig = JsonUtil.parseObject(payChannel.getCertProfile(), YsePayConfig.class);
 		// 先构建请求客户端
 		YinShengClient yinShengClient = new YinShengClient(ServiceEnum.CONFIRM_VERIFY, YsPayConstant.ENV_PRD,
 				ysePayConfig.getPrxPath(), ysePayConfig.getPrxPwd());
@@ -649,7 +649,7 @@ public class YsePayService extends PayService{
 	 * @user ljt 2022年6月16日 上午9:54:36
 	 */
 	public void transferInner(PayChannelDto payChannel, String merchantNo, String extractPrice) {
-		YsePayConfig ysePayConfig = JSON.parseObject(payChannel.getCertProfile(), YsePayConfig.class);
+		YsePayConfig ysePayConfig = JsonUtil.parseObject(payChannel.getCertProfile(), YsePayConfig.class);
 		// 先构建请求客户端
 		YinShengClient yinShengClient = new YinShengClient(ServiceEnum.TRANSFER_INNER, YsPayConstant.ENV_PRD,
 				ysePayConfig.getPrxPath(), ysePayConfig.getPrxPwd());
@@ -681,7 +681,7 @@ public class YsePayService extends PayService{
 	 * @user linxl 2021年4月7日 下午1:02:17
 	 */
 	public WithdrawRespCommand withdraw(PayChannelDto certProfile, String extractId, String extractPrice, String merchantNo, String linkId) {
-		YsePayConfig ysePayConfig = JSON.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
+		YsePayConfig ysePayConfig = JsonUtil.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
 		//先构建请求客户端
 		YinShengClient sofaClient = new YinShengClient(ServiceEnum.WALLET_WITHDRAW, YsPayConstant.ENV_PRD,
 				ysePayConfig.getPrxPath(), ysePayConfig.getPrxPwd());
@@ -713,7 +713,7 @@ public class YsePayService extends PayService{
 	 * <p>账户余额查询</p>
 	 */
 	public AccountRespCommand queryAmount(PayChannelDto certProfile, String merchantNo) {
-		YsePayConfig ysePayConfig = JSON.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
+		YsePayConfig ysePayConfig = JsonUtil.parseObject(certProfile.getCertProfile(), YsePayConfig.class);
 		// 先构建请求客户端
 		YinShengClient yinShengClient = new YinShengClient(ServiceEnum.QUERY_AMOUNT, YsPayConstant.ENV_PRD,
 				ysePayConfig.getPrxPath(), ysePayConfig.getPrxPwd());

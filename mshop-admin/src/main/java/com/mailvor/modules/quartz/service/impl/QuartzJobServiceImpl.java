@@ -16,13 +16,14 @@ import com.mailvor.modules.quartz.service.mapper.QuartzJobMapper;
 import com.mailvor.modules.quartz.utils.QuartzManage;
 import com.mailvor.utils.FileUtil;
 import com.github.pagehelper.PageInfo;
+import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -122,7 +123,7 @@ public class QuartzJobServiceImpl extends BaseServiceImpl<QuartzJobMapper, Quart
 
     @Override
     public boolean save(QuartzJob quartzJob) {
-        boolean saved = retBool(baseMapper.insert(quartzJob));
+        boolean saved = SqlHelper.retBool(baseMapper.insert(quartzJob));
         quartzManage.addJob(quartzJob);
         return saved;
     }
@@ -130,7 +131,7 @@ public class QuartzJobServiceImpl extends BaseServiceImpl<QuartzJobMapper, Quart
     @Override
     public boolean updateById(QuartzJob quartzJob) {
         quartzManage.updateJobCron(quartzJob);
-        return retBool(baseMapper.updateById(quartzJob));
+        return SqlHelper.retBool(baseMapper.updateById(quartzJob));
     }
 
     /**

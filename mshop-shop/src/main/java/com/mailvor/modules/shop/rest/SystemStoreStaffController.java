@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.shop.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.aop.ForbidSubmit;
@@ -14,8 +16,6 @@ import com.mailvor.modules.shop.service.MwSystemStoreStaffService;
 import com.mailvor.modules.shop.service.dto.MwSystemStoreStaffDto;
 import com.mailvor.modules.shop.service.dto.MwSystemStoreStaffQueryCriteria;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ import java.util.Arrays;
 * @author huangyu
 * @date 2020-03-22
 */
-@Api(tags = "商城：门店店员管理")
+@Tag(name = "商城：门店店员管理")
 @RestController
 @RequestMapping("/api/mwSystemStoreStaff")
 public class SystemStoreStaffController {
@@ -55,7 +55,7 @@ public class SystemStoreStaffController {
     }
 
     @Log("导出数据")
-    @ApiOperation("导出数据")
+    @Operation(summary = "导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('mwSystemStoreStaff:list')")
     public void download(HttpServletResponse response, MwSystemStoreStaffQueryCriteria criteria) throws IOException {
@@ -64,7 +64,7 @@ public class SystemStoreStaffController {
 
     @GetMapping
     @Log("查询门店店员")
-    @ApiOperation("查询门店店员")
+    @Operation(summary = "查询门店店员")
     @PreAuthorize("@el.check('mwSystemStoreStaff:list')")
     public ResponseEntity<Object> getMwSystemStoreStaffs(MwSystemStoreStaffQueryCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(mwSystemStoreStaffService.queryAll(criteria,pageable),HttpStatus.OK);
@@ -72,7 +72,7 @@ public class SystemStoreStaffController {
 
     @PostMapping
     @Log("新增门店店员")
-    @ApiOperation("新增门店店员")
+    @Operation(summary = "新增门店店员")
     @PreAuthorize("@el.check('mwSystemStoreStaff:add')")
     public ResponseEntity<Object> create(@Validated @RequestBody MwSystemStoreStaff resources){
         MwSystemStore systemStore = mwSystemStoreService.getOne(Wrappers.<MwSystemStore>lambdaQuery()
@@ -83,7 +83,7 @@ public class SystemStoreStaffController {
 
     @PutMapping
     @Log("修改门店店员")
-    @ApiOperation("修改门店店员")
+    @Operation(summary = "修改门店店员")
     @PreAuthorize("@el.check('mwSystemStoreStaff:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody MwSystemStoreStaff resources){
         MwSystemStore systemStore = mwSystemStoreService.getOne(Wrappers.<MwSystemStore>lambdaQuery()
@@ -95,7 +95,7 @@ public class SystemStoreStaffController {
 
     @ForbidSubmit
     @Log("删除门店店员")
-    @ApiOperation("删除门店店员")
+    @Operation(summary = "删除门店店员")
     @PreAuthorize("@el.check('mwSystemStoreStaff:del')")
     @DeleteMapping
     public ResponseEntity<Object> deleteAll(@RequestBody Integer[] ids) {

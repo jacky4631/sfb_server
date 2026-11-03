@@ -4,13 +4,13 @@
  */
 package com.mailvor.modules.wechat.rest.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.binarywang.wx.miniapp.bean.live.WxMaLiveResult;
 import com.mailvor.api.ApiResult;
 import com.mailvor.modules.mp.service.MwWechatLiveService;
 import com.mailvor.modules.mp.service.dto.MwWechatLiveQueryCriteria;
 import com.mailvor.modules.mp.vo.WechatLiveVo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +22,7 @@ import java.util.List;
 * @date 2020-08-10
 */
 @AllArgsConstructor
-@Api(tags = "wxlive管理")
+@Tag(name = "wxlive管理")
 @RestController
 @RequestMapping
 public class WechatLiveController {
@@ -31,12 +31,12 @@ public class WechatLiveController {
 
 
     @GetMapping("mwWechatLive")
-    @ApiOperation("查询所有直播间")
+    @Operation(summary = "查询所有直播间")
     public ApiResult<WechatLiveVo> getmwWechatLives(MwWechatLiveQueryCriteria criteria, Pageable pageable){
         return ApiResult.ok(mwWechatLiveService.queryAll(criteria,pageable));
     }
     @GetMapping("mwWechatLive/getLiveReplay/{id}")
-    @ApiOperation("获取直播回放")
+    @Operation(summary = "获取直播回放")
     public ApiResult<List<WxMaLiveResult.LiveReplay>>  getLiveReplay(@PathVariable Integer id){
         return ApiResult.ok(mwWechatLiveService.getLiveReplay(id));
     }

@@ -4,7 +4,7 @@
  */
 package com.mailvor.modules.services;
 
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.modules.product.service.MwStoreProductRelationService;
 import com.mailvor.modules.tk.service.DataokeService;
@@ -32,7 +32,7 @@ public class TkRelationService {
     public void saveJdRelation(String itemUrl) {
         MwUser user = LocalUser.getUser();
         if(user != null) {
-            JSONObject parseUrl = service.parseUrlJD(itemUrl);
+            JsonObject parseUrl = service.parseUrlJD(itemUrl);
             if(parseUrl.getInteger("code") == 0) {
                 relationService.saveOrUpdateRelation(parseUrl.getJSONObject("data").getString("skuId"), user.getUid(), "jd");
 

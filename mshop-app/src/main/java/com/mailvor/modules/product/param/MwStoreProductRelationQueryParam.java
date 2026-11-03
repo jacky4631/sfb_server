@@ -1,11 +1,10 @@
 package com.mailvor.modules.product.param;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * <p>
@@ -17,25 +16,25 @@ import javax.validation.constraints.NotBlank;
  */
 @Getter
 @Setter
-@ApiModel("查询参数对象")
+@Schema(description = "查询参数对象")
 public class MwStoreProductRelationQueryParam {
 
     @NotBlank(message = "参数有误")
-    @ApiModelProperty(value = "商品id",required=true)
+    @Schema(description = "商品id", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
-    @ApiModelProperty(value = "淘宝商品id，只有category为tb时存在")
+    @Schema(description = "淘宝商品id，只有category为tb时存在")
     private String originalId;
 
-    @ApiModelProperty(value = "商品分类,tb jd pdd vip dy")
+    @Schema(description = "商品分类,tb jd pdd vip dy")
     private String category = "tb";
 
-    @ApiModelProperty(value = "商品图片地址")
+    @Schema(description = "商品图片地址")
     private String img;
-    @ApiModelProperty(value = "商品标题")
+    @Schema(description = "商品标题")
     private String title;
-    @ApiModelProperty(value = "原始价格")
+    @Schema(description = "原始价格")
     private String startPrice;
-    @ApiModelProperty(value = "真实价格")
+    @Schema(description = "真实价格")
     private String endPrice;
 }

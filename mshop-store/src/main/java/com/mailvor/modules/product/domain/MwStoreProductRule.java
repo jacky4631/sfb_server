@@ -7,15 +7,15 @@ package com.mailvor.modules.product.domain;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import com.mailvor.domain.BaseDomain;
-import com.alibaba.fastjson.JSONArray;
+import com.mailvor.common.json.JsonArray;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
+import com.mailvor.common.json.JsonTypeHandler;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
 * @author huangyu
@@ -35,9 +35,9 @@ public class MwStoreProductRule extends BaseDomain {
 
 
     /** 规格值 */
-    @TableField(typeHandler = FastjsonTypeHandler.class)
+    @TableField(typeHandler = JsonTypeHandler.class)
     @NotNull(message = "规格名称/值必填")
-    private JSONArray ruleValue;
+    private JsonArray ruleValue;
 
 
 

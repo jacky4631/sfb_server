@@ -9,7 +9,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.pagehelper.PageInfo;
 import com.mailvor.api.MshopException;
@@ -59,8 +59,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
@@ -324,7 +324,7 @@ public class MwUserExtractServiceImpl extends BaseServiceImpl<MwUserExtractMappe
         MwExtractConfigDto appConfig = generator.convert(param, MwExtractConfigDto.class);
         appConfig.setExtractMin(param.getMinPrice().toString());
         appConfig.setExtractMax(param.getMaxPrice().toString());
-        appExtractConfig.setValue(JSON.toJSONString(appConfig));
+        appExtractConfig.setValue(JsonUtil.toJSONString(appConfig));
         redisUtils.set(TkUtil.getMixedPlatformKey(EXTRACT_CONFIG), appConfig);
 
         //保存
@@ -492,7 +492,7 @@ public class MwUserExtractServiceImpl extends BaseServiceImpl<MwUserExtractMappe
         userExtract.setStatus(resources.getStatus());
         userExtract.setFailTime(resources.getFailTime());
         this.saveOrUpdate(userExtract);
-        log.info("1.用户提现申请完成:{}",JSON.toJSONString(userExtract));
+        log.info("1.用户提现申请完成:{}",JsonUtil.toJSONString(userExtract));
     }
 
     @Async
@@ -503,7 +503,7 @@ public class MwUserExtractServiceImpl extends BaseServiceImpl<MwUserExtractMappe
                 doExtract(userExtract);
                 Thread.sleep(1000);
             }catch (Exception e) {
-                log.error("用户{}提现失败:{}", JSON.toJSONString(userExtract), e.getMessage());
+                log.error("用户{}提现失败:{}", JsonUtil.toJSONString(userExtract), e.getMessage());
             }
 
         }

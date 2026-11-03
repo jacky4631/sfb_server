@@ -1,7 +1,7 @@
 package com.mailvor.modules.quartz.task;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.jd.open.api.sdk.domain.kplunion.OrderService.response.query.OrderRowQueryResult;
 import com.jd.open.api.sdk.domain.kplunion.OrderService.response.query.OrderRowResp;
 import com.mailvor.dozer.service.IGenerator;
@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -181,7 +181,7 @@ public class OrderTask {
 
             // 只同步当前站点(siteId)的订单，避免同一联盟账号下其他站点的订单混入
             Long siteId = parseSiteId();
-            List<MailvorJdOrder> orders = JSON.parseArray(JSON.toJSONString(resps), MailvorJdOrder.class)
+            List<MailvorJdOrder> orders = JsonUtil.parseArray(JsonUtil.toJSONString(resps), MailvorJdOrder.class)
                     .stream()
                     .filter(order -> siteId == null || Objects.equals(order.getSiteId(), siteId))
                     .collect(Collectors.toList());
@@ -348,7 +348,7 @@ public class OrderTask {
                     return;
                 }
                 try{
-                    JSONObject obj = JSON.parseObject(customParams);
+                    JsonObject obj = JsonUtil.parseObject(customParams);
                     Long uid = Long.parseLong(obj.getString(pddConfig.getParamPrefix()));
                     if(uid != null && uid > 0) {
                         pddOrder.setUid(uid);
@@ -389,7 +389,7 @@ public class OrderTask {
                     RedisUtil.setFeeUid(uid);
                 }
                 if(!CollectionUtils.isEmpty(vipOrder.getDetailList())) {
-                    VipOrderDetailDto vipOrderDetailDto = JSON.parseObject(JSON.toJSONString(vipOrder.getDetailList().get(0)), VipOrderDetailDto.class);
+                    VipOrderDetailDto vipOrderDetailDto = JsonUtil.parseObject(JsonUtil.toJSONString(vipOrder.getDetailList().get(0)), VipOrderDetailDto.class);
                     Double rate = Double.parseDouble(vipOrderDetailDto.getCommissionRate());
                     vipOrder.setCommissionRate(rate);
                 }

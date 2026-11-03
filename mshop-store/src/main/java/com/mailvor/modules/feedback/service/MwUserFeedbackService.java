@@ -11,7 +11,7 @@ import com.mailvor.modules.feedback.service.dto.MwUserFeedbackQueryCriteria;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 /**
 * @author wangjun
 * @date 2024-05-27

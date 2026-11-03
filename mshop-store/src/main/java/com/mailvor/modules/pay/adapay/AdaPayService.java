@@ -1,7 +1,7 @@
 package com.mailvor.modules.pay.adapay;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.huifu.adapay.Adapay;
 import com.huifu.adapay.core.AdapayCore;
 import com.huifu.adapay.core.exception.BaseAdaPayException;
@@ -19,9 +19,9 @@ import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
@@ -36,7 +36,7 @@ public class AdaPayService extends PayService{
 
     public Map<String, Object> alipay(HttpServletRequest request, PayChannelDto certProfile, String orderId, String price) throws Exception{
         String ip = IpUtil.getIpAddress(request);
-        AdaPayConfig config = JSON.parseObject(certProfile.getCertProfile(), AdaPayConfig.class);
+        AdaPayConfig config = JsonUtil.parseObject(certProfile.getCertProfile(), AdaPayConfig.class);
         //校验商户是否初始化
         if(Adapay.getConfig(config.getMerchantKey()) == null) {
             addMerConfig(config);
@@ -72,7 +72,7 @@ public class AdaPayService extends PayService{
 
         String error_code = (String) payment.get("error_code");
         if (null != error_code) {
-            log.info("创建支付返回参数：" + JSON.toJSONString(payment));
+            log.info("创建支付返回参数：" + JsonUtil.toJSONString(payment));
 
             String error_msg = (String) payment.get("error_msg");
             log.info("error_code:" + error_code + "............." + error_msg);
@@ -84,7 +84,7 @@ public class AdaPayService extends PayService{
 
 
     public Map<String, Object> bankPay(PayChannelDto certProfile, String orderId, String price,Long uid) {
-        AdaPayConfig config = JSON.parseObject(certProfile.getCertProfile(), AdaPayConfig.class);
+        AdaPayConfig config = JsonUtil.parseObject(certProfile.getCertProfile(), AdaPayConfig.class);
         //校验商户是否初始化
         if(Adapay.getConfig(config.getMerchantKey()) == null) {
             addMerConfig(config);
@@ -117,7 +117,7 @@ public class AdaPayService extends PayService{
 
         String error_code = (String) payment.get("error_code");
         if (null != error_code) {
-            log.info("创建支付返回参数：" + JSON.toJSONString(payment));
+            log.info("创建支付返回参数：" + JsonUtil.toJSONString(payment));
 
             String error_msg = (String) payment.get("error_msg");
             log.info("error_code:" + error_code + "............." + error_msg);
@@ -137,7 +137,7 @@ public class AdaPayService extends PayService{
             log.info("汇付Adapay回调data:{} sign:{} type:{}", data, sign, type);
             if(verifySign(data, sign, type)){
                 //验签成功逻辑
-                JSONObject dataObj = JSON.parseObject(data);
+                JsonObject dataObj = JsonUtil.parseObject(data);
                 String orderId = dataObj.getString("order_no");
 
                 MwUserRecharge recharge = userRechargeService.getRecharge(orderId);
@@ -167,7 +167,7 @@ public class AdaPayService extends PayService{
     }
 
     public Map<String, Object> extract(MwUserCardQueryVo card, MwUserExtract userExtract, PayChannelDto certProfile) throws Exception{
-        AdaPayConfig config = JSON.parseObject(certProfile.getCertProfile(), AdaPayConfig.class);
+        AdaPayConfig config = JsonUtil.parseObject(certProfile.getCertProfile(), AdaPayConfig.class);
         //校验商户是否初始化
         if(Adapay.getConfig(config.getMerchantKey()) == null) {
             addMerConfig(config);
@@ -192,7 +192,7 @@ public class AdaPayService extends PayService{
         String error_code = (String) extractMap.get("error_code");
 
         if (null != error_code) {
-            log.info("创建支付返回参数：" + JSON.toJSONString(extractMap));
+            log.info("创建支付返回参数：" + JsonUtil.toJSONString(extractMap));
 
             String error_msg = (String) extractMap.get("error_msg");
             log.info("error_code:" + error_code + "............." + error_msg);
@@ -205,9 +205,9 @@ public class AdaPayService extends PayService{
         Map<String, Object> memberParams = new  HashMap<>(2);
         memberParams.put("member_id", member_id);
         memberParams.put("app_id", app_id);
-        System.out.println("查询用户，请求参数：" + JSON.toJSONString(memberParams));
+        System.out.println("查询用户，请求参数：" + JsonUtil.toJSONString(memberParams));
         Map<String, Object> member = Member.query(memberParams, merchantKey);
-        System.out.println("查询用户，返回参数：" + JSON.toJSONString(member));
+        System.out.println("查询用户，返回参数：" + JsonUtil.toJSONString(member));
 
 
         System.out.println("=======execute queryMember end=======");
@@ -226,9 +226,9 @@ public class AdaPayService extends PayService{
         Map<String, Object> memberParams = new  HashMap<String, Object>(2);
         memberParams.put("member_id", memId);
         memberParams.put("app_id",appId);
-        System.out.println("创建用户，请求参数：" + JSON.toJSONString(memberParams));
+        System.out.println("创建用户，请求参数：" + JsonUtil.toJSONString(memberParams));
         Map<String, Object> member = Member.create(memberParams, merchantKey);
-        System.out.println("创建用户，返回参数：" + JSON.toJSONString(member));
+        System.out.println("创建用户，返回参数：" + JsonUtil.toJSONString(member));
         System.out.println("=======execute CreateMember end=======");
 
         return member;
@@ -255,9 +255,9 @@ public class AdaPayService extends PayService{
         settleCountParams.put("app_id", appId);
         settleCountParams.put("channel", "bank_account");
         settleCountParams.put("account_info", accountInfo);
-        System.out.println("创建结算账户，请求参数：" + JSON.toJSONString(settleCountParams));
+        System.out.println("创建结算账户，请求参数：" + JsonUtil.toJSONString(settleCountParams));
         Map<String, Object> settleCount = SettleAccount.create(settleCountParams, merchantKey);
-        System.out.println("创建结算账户，返回参数：" + JSON.toJSONString(settleCount));
+        System.out.println("创建结算账户，返回参数：" + JsonUtil.toJSONString(settleCount));
         System.out.println("=======execute Create SettleAccount end=======");
 
         return settleCount;
@@ -288,7 +288,7 @@ public class AdaPayService extends PayService{
             balanceParam.put("pay_mode", "delay");
 
             Map<String, Object> paymentResult = AdapayCommon.requestAdapay(balanceParam, merchantKey);
-            log.info("汇付延时分账创建余额提现请求:{} 返回:{}", JSON.toJSONString(balanceParam), JSON.toJSONString(paymentResult));
+            log.info("汇付延时分账创建余额提现请求:{} 返回:{}", JsonUtil.toJSONString(balanceParam), JsonUtil.toJSONString(paymentResult));
             if("failed".equals(paymentResult.get("status"))) {
                 return paymentResult;
             }
@@ -308,7 +308,7 @@ public class AdaPayService extends PayService{
             confirmParams.put("div_members", memberList);
 
             confirmResult = AdapayCommon.requestAdapay(confirmParams, merchantKey);
-            log.info("汇付延时分账创建余额提现确认请求:{} 返回:{}", JSON.toJSONString(confirmParams), JSON.toJSONString(confirmResult));
+            log.info("汇付延时分账创建余额提现确认请求:{} 返回:{}", JsonUtil.toJSONString(confirmParams), JsonUtil.toJSONString(confirmResult));
 
         } else {
             //创建余额提现
@@ -328,9 +328,9 @@ public class AdaPayService extends PayService{
             divMember.put("amount", price);
             divMember.put("fee_flag", "Y");
             memberList.add(divMember);
-            balanceParam.put("div_members", JSON.toJSONString(memberList));
+            balanceParam.put("div_members", JsonUtil.toJSONString(memberList));
             confirmResult = AdapayCommon.requestAdapay(balanceParam, merchantKey);
-            log.info("汇付实时分账创建余额提现请求:{} 返回:{}", JSON.toJSONString(balanceParam), JSON.toJSONString(confirmResult));
+            log.info("汇付实时分账创建余额提现请求:{} 返回:{}", JsonUtil.toJSONString(balanceParam), JsonUtil.toJSONString(confirmResult));
 
         }
 

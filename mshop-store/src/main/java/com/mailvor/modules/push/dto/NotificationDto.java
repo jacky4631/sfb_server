@@ -1,11 +1,11 @@
 package com.mailvor.modules.push.dto;
 
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import lombok.Data;
 
 @Data
 public class NotificationDto {
     private String alert;
-    private JSONObject android = new JSONObject();
-    private JSONObject ios = new JSONObject();
+    private JsonObject android = new JsonObject();
+    private JsonObject ios = new JsonObject();
 }

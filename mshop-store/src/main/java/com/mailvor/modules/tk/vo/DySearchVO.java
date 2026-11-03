@@ -1,6 +1,6 @@
 package com.mailvor.modules.tk.vo;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -11,58 +11,58 @@ import lombok.Data;
 @Data
 public class DySearchVO {
 
-    @JSONField(name = "product_id")
+    @JsonProperty("product_id")
     @Schema(description = "商品id")
     private String goodsId;
 
-    @JSONField(name = "product_title")
+    @JsonProperty("product_title")
     @Schema(description = "商品标题")
     private String title;
     @Schema(description = "商品短标题")
     private String dtitle;
 
-    @JSONField(name = "sales")
+    @JsonProperty("sales")
     @Schema(description = "销量")
     private String sales;
 
     @Schema(description = "平台 tb tm jd pdd dy vip mt")
     private String platform = "dy";
 
-    @JSONField(name = "shop_name")
+    @JsonProperty("shop_name")
     @Schema(description = "店铺名称")
     private String shopName;
 
-    @JSONField(name = "item_pic")
+    @JsonProperty("item_pic")
     @Schema(description = "商品预览图")
     private String img;
 
 
-    @JSONField(name = "price")
+    @JsonProperty("price")
     @Schema(description = "原价")
     private Double startPrice;
 
 
-    @JSONField(name = "end_price")
+    @JsonProperty("end_price")
     @Schema(description = "现价")
     private Double endPrice;
 
-    @JSONField(name = "dymoney")
+    @JsonProperty("dymoney")
     @Schema(description = "佣金")
     private Double fee;
-    @JSONField(name = "dyrates")
+    @JsonProperty("dyrates")
     @Schema(description = "佣金比例")
     private Double feeRatio;
 
-    @JSONField(name = "coupon_price")
+    @JsonProperty("coupon_price")
     @Schema(description = "优惠券金额")
     private Double coupon;
 
 
-    @JSONField(name = "cate_name")
+    @JsonProperty("cate_name")
     @Schema(description = "分类名称")
     private String cateName;
 
-    @JSONField(name = "detail_url")
+    @JsonProperty("detail_url")
     @Schema(description = "商品链接")
     private String itemUrl;
 }

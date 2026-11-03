@@ -12,10 +12,6 @@
     <artifactId>mshop-admin</artifactId>
     <name>管理后台API模块</name>
 
-    <properties>
-        <jjwt.version>0.10.6</jjwt.version>
-    </properties>
-
     <dependencies>
         <!--    代码生成模块    -->
         <dependency>
@@ -40,27 +36,21 @@
         </dependency>
 
 
-        <!--jwt-->
+        <!--jwt：0.9.1 拆为 api/impl/序列化后端三件套；序列化用 gson而非 jackson，避开 Spring Boot 4 的 Jackson 3 与 jjwt-jackson 的 Jackson 2 双栈-->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
-            <version>0.9.1</version>
+            <artifactId>jjwt-api</artifactId>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>io.jsonwebtoken</groupId>-->
-        <!--            <artifactId>jjwt-api</artifactId>-->
-        <!--            <version>${jjwt.version}</version>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>io.jsonwebtoken</groupId>-->
-        <!--            <artifactId>jjwt-impl</artifactId>-->
-        <!--            <version>${jjwt.version}</version>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>io.jsonwebtoken</groupId>-->
-        <!--            <artifactId>jjwt-jackson</artifactId>-->
-        <!--            <version>${jjwt.version}</version>-->
-        <!--        </dependency>-->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-gson</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
         <!-- quartz -->
         <dependency>
@@ -91,27 +81,8 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
         </dependency>
-        <!--解决Handler dispatch failed;nested exception is java.lang.NoClassDefFoundError: javax/xml/bind/DatatypeConverter-->
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>2.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-            <version>2.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>1.1.1</version>
-        </dependency>
+        <!-- jaxb-api/jaxb-impl/jaxb-core/activation 原为修 jjwt 0.9.1 的 javax.xml.bind.DatatypeConverter 缺失，
+             jjwt 0.12.6 不再需要，且 javax.* JAXB 在 JDK 25 上已无对应模块，删除 -->
     </dependencies>
 
     <build>

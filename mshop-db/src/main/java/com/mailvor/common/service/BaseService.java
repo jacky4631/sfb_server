@@ -4,7 +4,7 @@
  */
 package com.mailvor.common.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.spring.service.IService;
 
 
 public interface BaseService<T> extends IService<T> {

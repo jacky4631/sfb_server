@@ -2,7 +2,7 @@
 
 苏分宝是一套包含 **Flutter APP、运营管理后台和 Java 服务端** 的淘客系统，围绕商品查券、推广转链、订单采集、佣金结算、分销与提现开展业务。
 
-本仓库为开源版 Java 服务端 `sfb_server`，包含管理端 API、APP API、核心业务模块与订单采集任务。当前使用 **Java 8 + Spring Boot 2.6.7**，与商业版服务端的环境要求分别说明。
+本仓库为开源版 Java 服务端 `sfb_server`，包含管理端 API、APP API、核心业务模块与订单采集任务。当前使用 **Java 25 + Spring Boot 4.1.2**，与商业版服务端的环境要求分别说明。
 
 开源版功能按当前 `sfb_admin`、`sfb_server`、`sfb` 三个项目整理；商业版能力与交付范围参照官方文档。
 
@@ -68,11 +68,11 @@
 | --- | --- | --- |
 | 管理端 | Vue 3.5、Element Plus 2、Vite 5、Pinia、Vue Router 4；建议 Node.js 20+ | Vue 3、Element Plus、Node.js 20+ |
 | APP | 本次升级验证使用 Flutter 3.47.3 / Dart 3.13.3；约束为 Flutter ≥ 3.44、Dart ≥ 3.12 | Flutter 3.47.3 / Dart 3.13.3 |
-| 服务端 | Java 8、Spring Boot 2.6.7、MyBatis Plus | Java 25、Spring Boot 4.1.1 |
+| 服务端 | Java 25、Spring Boot 4.1.2、MyBatis Plus 3.5.17 | Java 25、Spring Boot 4.1.1 |
 | 数据存储 | MySQL 5.7、Redis | MySQL 5.7+、Redis |
 | 小程序 / 鸿蒙 | 本 README 对应的三个开源仓库未包含独立交付端 | uni-app 小程序；鸿蒙使用独立 Flutter-OH 工具链，详见对应文档 |
 
-当前开源 APP 最低支持 **Android 7.0（API 24）/ iOS 15**。Android 构建配置为 AGP 8.11.1、Gradle 8.14、Kotlin 2.3.20、JDK 17；iOS 本地构建需要 macOS 与 Xcode。APP 的 Android JDK 与服务端 Java 8 是两套构建环境。
+当前开源 APP 最低支持 **Android 7.0（API 24）/ iOS 15**。Android 构建配置为 AGP 8.11.1、Gradle 8.14、Kotlin 2.3.20、JDK 17；iOS 本地构建需要 macOS 与 Xcode。APP 的 Android JDK 17 与服务端 Java 25 是两套构建环境。
 
 ## 服务端模块
 
@@ -104,7 +104,7 @@ sfb_server/
 
 ### 1. 准备环境与 SQL
 
-- 使用 **JDK 8** 与兼容 Java 8 的 Maven，执行 `java -version`、`mvn -v` 核对实际 Java 环境。
+- 使用 **JDK 25** 与 Maven 3.9+，执行 `java -version`、`mvn -v` 核对实际 Java 环境（`mvn -v` 里的 Java version 必须是 25，否则编译会报字节码版本错误）。
 - 准备 MySQL 和 Redis，从[SQL 获取页面](https://www.mailvor.com/02.开源版本/01.开发文档/10.db-get.html)取得初始化脚本并导入。
 - 拉取完整仓库，保留根目录 `lib/`，Maven 配置会引用其中的第三方 JAR。
 
@@ -160,6 +160,18 @@ java -jar mshop-app/target/mshop-app-5.1.0.jar --spring.profiles.active=dev
 | Maven 提示缺少第三方 SDK | 根目录 `lib/` 是否完整；美团 / 易宝依赖处理见 [lib/README.md](lib/README.md) |
 | Redis 超时导致接口变慢 | Redis 连通性与延迟、服务端命令超时、是否发生断线重连；App 的 HTTP 超时是另一层配置 |
 | 管理端或 APP 请求地址不正确 | 管理服务为 `8001/admin`，APP 服务为 `8008/api`，注意代理与客户端前缀 |
+
+## 从 Java 8 / Spring Boot 2.7 升级到 Java 25 / Spring Boot 4.1
+
+升级设计与实测记录见 [docs/superpowers/specs/2026-11-03-jdk25-springboot4-upgrade-design.md](docs/superpowers/specs/2026-11-03-jdk25-springboot4-upgrade-design.md)。存量环境升级时需要注意：
+
+| 变更 | 影响 | 处理 |
+| --- | --- | --- |
+| jjwt 0.9.1 → 0.12.6，签名密钥改为 `jwt.base64-secret` | 升级切流时已签发的后台 token 全部失效 | 管理员重新登录一次；APP 端使用独立机制，不受影响 |
+| Redis 值序列化器由 fastjson 改为 Jackson 3 | 旧格式缓存条目读不通时会当未命中处理 | 由 `CacheErrorHandler` 记日志并回源查库，上线初期关注数据库压力；新值写入后逐步收敛 |
+| 接口文档由 springfox 换为 springdoc + knife4j（jakarta 版） | 文档端点从 `/v2/api-docs` 变为 `/v3/api-docs` | 无需处理；`swagger.enabled=false` 时文档仍不对外暴露 |
+| JSON 统一为 Jackson 3，fastjson 从业务代码移除 | 日期、null 字段、Long 精度等序列化语义容易静默变化 | `JsonUtil` 已对齐 fastjson 语义，`JacksonConfig` 恢复 `Date` 为 epoch 毫秒输出，并有单测锁定 |
+| 实体/DTO 转换从 Dozer 换为 hutool `BeanUtil` | 泛型元素类型不同的嵌套集合转换行为有差异 | 回归测试重点覆盖 `IGenerator.convert()` 相关流程 |
 
 ## 文档与演示
 

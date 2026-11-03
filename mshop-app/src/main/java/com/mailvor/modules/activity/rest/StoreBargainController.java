@@ -4,6 +4,10 @@
  */
 package com.mailvor.modules.activity.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -34,10 +38,6 @@ import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.service.MwUserService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Maps;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,7 +64,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping
-@Api(value = "砍价商品", tags = "营销:砍价商品")
+@Tag(name = "营销:砍价商品")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @SuppressWarnings("unchecked")
 public class StoreBargainController {
@@ -86,11 +86,11 @@ public class StoreBargainController {
      * 砍价产品列表
      */
     @GetMapping("/bargain/list")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "页码,默认为1", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "limit", value = "页大小,默认为10", paramType = "query", dataType = "int")
+    @Parameters({
+            @Parameter(name = "page", description = "页码,默认为1"),
+            @Parameter(name = "limit", description = "页大小,默认为10")
     })
-    @ApiOperation(value = "砍价产品列表",notes = "砍价产品列表")
+    @Operation(summary = "砍价产品列表", description = "砍价产品列表")
     public ApiResult<Object> getMwStoreBargainPageList(@RequestParam(value = "page",defaultValue = "1") int page,
                                                        @RequestParam(value = "limit",defaultValue = "10") int limit){
 
@@ -103,7 +103,7 @@ public class StoreBargainController {
     @AppLog(value = "查看砍价产品", type = 1)
     @AuthCheck
     @GetMapping("/bargain/detail/{id}")
-    @ApiOperation(value = "砍价详情",notes = "砍价详情",response = MwStoreBargainQueryVo.class)
+    @Operation(summary = "砍价详情", description = "砍价详情")
     public ApiResult<BargainVo> getMwStoreBargain(@PathVariable Long id){
         if(ObjectUtil.isNull(id)) {
             throw new MshopException("参数错误");
@@ -118,7 +118,7 @@ public class StoreBargainController {
     @AppLog(value = "砍价详情统计", type = 1)
     @AuthCheck
     @PostMapping("/bargain/help/count")
-    @ApiOperation(value = "砍价详情统计",notes = "砍价详情统计")
+    @Operation(summary = "砍价详情统计", description = "砍价详情统计")
     public ApiResult<BargainCountVo> helpCount(@Validated @RequestBody MwStoreBargainUserHelpQueryParam param){
         Long bargainId = Long.valueOf(param.getBargainId());
         Long bargainUserUid = Long.valueOf(param.getBargainUserUid());
@@ -130,7 +130,7 @@ public class StoreBargainController {
      * 砍价顶部统计
      */
     @PostMapping("/bargain/share")
-    @ApiOperation(value = "砍价顶部统计",notes = "砍价顶部统计")
+    @Operation(summary = "砍价顶部统计", description = "砍价顶部统计")
     public ApiResult<TopCountVo> topCount(@Validated @RequestBody BargainShareParam param){
         Long bargainId = null;
         if(NumberUtil.isNumber(param.getBargainId())) {
@@ -146,7 +146,7 @@ public class StoreBargainController {
     @NoRepeatSubmit
     @AuthCheck
     @PostMapping("/bargain/start")
-    @ApiOperation(value = "参与砍价",notes = "参与砍价")
+    @Operation(summary = "参与砍价", description = "参与砍价")
     public ApiResult<Boolean> start(@Validated @RequestBody BargainShareParam param){
         Long bargainId = null;
         if(NumberUtil.isNumber(param.getBargainId())) {
@@ -164,7 +164,7 @@ public class StoreBargainController {
     @NoRepeatSubmit
     @AuthCheck
     @PostMapping("/bargain/help")
-    @ApiOperation(value = "帮助好友砍价",notes = "帮助好友砍价")
+    @Operation(summary = "帮助好友砍价", description = "帮助好友砍价")
     public ApiResult<Map<String,Object>> help(@Validated @RequestBody MwStoreBargainUserHelpQueryParam param){
         Long bargainId = Long.valueOf(param.getBargainId());
         Long bargainUserUid = Long.valueOf(param.getBargainUserUid());
@@ -187,7 +187,7 @@ public class StoreBargainController {
      */
     @AuthCheck
     @PostMapping("/bargain/help/price")
-    @ApiOperation(value = "获取砍掉金额",notes = "获取砍掉金额")
+    @Operation(summary = "获取砍掉金额", description = "获取砍掉金额")
     public ApiResult<Map<String,Object>> price(@Validated @RequestBody MwStoreBargainUserHelpQueryParam param){
         Long bargainId = Long.valueOf(param.getBargainId());
         Long bargainUserUid = Long.valueOf(param.getBargainUserUid());
@@ -216,7 +216,7 @@ public class StoreBargainController {
      * 好友帮
      */
     @PostMapping("/bargain/help/list")
-    @ApiOperation(value = "好友帮",notes = "好友帮")
+    @Operation(summary = "好友帮", description = "好友帮")
     public ApiResult<List<MwStoreBargainUserHelpQueryVo>> helpList(@Validated @RequestBody MwStoreBargainUserHelpQueryParam param){
         Long bargainId = Long.valueOf(param.getBargainId());
         Long bargainUserUid = Long.valueOf(param.getBargainUserUid());
@@ -228,7 +228,7 @@ public class StoreBargainController {
      * 获取开启砍价用户信息
      */
     @PostMapping("/bargain/start/user")
-    @ApiOperation(value = "获取开启砍价用户信息",notes = "获取开启砍价用户信息")
+    @Operation(summary = "获取开启砍价用户信息", description = "获取开启砍价用户信息")
     public ApiResult<Object> startUser(@Validated @RequestBody MwStoreBargainUserQueryParam param){
         Long bargainUserUid = Long.valueOf(param.getBargainUserUid());
         return ApiResult.ok(userService.getMwUserById(bargainUserUid));
@@ -239,7 +239,7 @@ public class StoreBargainController {
      */
     @AuthCheck
     @PostMapping("/bargain/poster")
-    @ApiOperation(value = "砍价海报",notes = "砍价海报")
+    @Operation(summary = "砍价海报", description = "砍价海报")
     public ApiResult<Map<String,Object>> poster(@Validated @RequestBody BargainShareParam param){
         Long bargainId = Long.valueOf(param.getBargainId());
         String siteUrl = systemConfigService.getData(SystemConfigConstants.SITE_URL);
@@ -263,11 +263,11 @@ public class StoreBargainController {
      */
     @AuthCheck
     @GetMapping("/bargain/user/list")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "页码,默认为1", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "limit", value = "页大小,默认为10", paramType = "query", dataType = "int")
+    @Parameters({
+            @Parameter(name = "page", description = "页码,默认为1"),
+            @Parameter(name = "limit", description = "页大小,默认为10")
     })
-    @ApiOperation(value = "砍价列表(已参与)",notes = "砍价列表(已参与)")
+    @Operation(summary = "砍价列表(已参与)", description = "砍价列表(已参与)")
     public ApiResult<List<MwStoreBargainUserQueryVo>> bargainUserList(
                                              @RequestParam(value = "page",defaultValue = "1") int page,
                                              @RequestParam(value = "limit",defaultValue = "10") int limit){
@@ -286,7 +286,7 @@ public class StoreBargainController {
     @AppLog(value = "取消砍价", type = 1)
     @AuthCheck
     @PostMapping("/bargain/user/cancel")
-    @ApiOperation(value = "砍价取消",notes = "砍价取消")
+    @Operation(summary = "砍价取消", description = "砍价取消")
     public ApiResult<Boolean> bargainCancel(@Validated @RequestBody BargainShareParam param){
         Long bargainId = Long.valueOf(param.getBargainId());
         Long uid = LocalUser.getUser().getUid();

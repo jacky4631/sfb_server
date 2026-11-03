@@ -1,6 +1,6 @@
 package com.mailvor.modules.cart.param;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -12,7 +12,7 @@ import lombok.Data;
  * @date 2019-10-25
  */
 @Data
-@ApiModel(value="MwStoreCartQueryParam对象", description="购物车表查询参数")
+@Schema(description = "购物车表查询参数")
 public class MwStoreCartQueryParam {
     private static final long serialVersionUID = 1L;
 

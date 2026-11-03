@@ -1,10 +1,10 @@
 package com.mailvor.modules.activity.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * @ClassName BargainShareParam
@@ -16,9 +16,9 @@ import javax.validation.constraints.NotBlank;
 public class BargainShareParam {
 
     @NotBlank(message = "参数有误")
-    @ApiModelProperty(value = "砍价产品ID")
+    @Schema(description = "砍价产品ID")
     private String bargainId;
 
-    @ApiModelProperty(value = "来源")
+    @Schema(description = "来源")
     private String from;
 }

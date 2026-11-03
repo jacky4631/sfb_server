@@ -8,10 +8,10 @@ import cn.hutool.http.HttpUtil;
 import com.mailvor.enums.ShipperCodeEnum;
 import com.mailvor.modules.tools.express.dao.ExpressInfo;
 import com.mailvor.modules.tools.express.config.ExpressProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mailvor.common.json.JsonUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Base64Utils;
+import java.util.Base64;
 
 import java.io.Serializable;
 import java.net.URLEncoder;
@@ -65,8 +65,7 @@ public class ExpressService implements Serializable {
     public ExpressInfo getExpressInfo(String OrderCode, String ShipperCode, String LogisticCode, String lastFourNumber) {
         try {
             String result = getOrderTracesByJson(OrderCode,ShipperCode, LogisticCode,lastFourNumber);
-            ObjectMapper objMap = new ObjectMapper();
-            ExpressInfo ei = objMap.readValue(result, ExpressInfo.class);
+            ExpressInfo ei = JsonUtil.parseObject(result, ExpressInfo.class);
             ei.setShipperName(getVendorName(ShipperCode));
             return ei;
         } catch (Exception e) {
@@ -146,7 +145,8 @@ public class ExpressService implements Serializable {
         byte[] src;
         try {
             src = MD5(content, charset).getBytes(charset);
-            return Base64Utils.encodeToString(src);
+            // Spring 6 移除了 Base64Utils，改用 JDK 自带实现
+            return Base64.getEncoder().encodeToString(src);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

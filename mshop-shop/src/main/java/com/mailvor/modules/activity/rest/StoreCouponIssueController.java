@@ -4,13 +4,13 @@
  */
 package com.mailvor.modules.activity.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.activity.domain.MwStoreCouponIssue;
 import com.mailvor.modules.activity.service.MwStoreCouponIssueService;
 import com.mailvor.modules.activity.service.dto.MwStoreCouponIssueQueryCriteria;
 import com.mailvor.modules.aop.ForbidSubmit;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 * @author huangyu
 * @date 2019-11-09
 */
-@Api(tags = "商城：优惠券发布管理")
+@Tag(name = "商城：优惠券发布管理")
 @RestController
 @RequestMapping("api")
 public class StoreCouponIssueController {
@@ -41,7 +41,7 @@ public class StoreCouponIssueController {
     }
 
     @Log("查询已发布")
-    @ApiOperation(value = "查询已发布")
+    @Operation(summary = "查询已发布")
     @GetMapping(value = "/mwStoreCouponIssue")
     @PreAuthorize("@el.check('admin','MWSTORECOUPONISSUE_ALL','MWSTORECOUPONISSUE_SELECT')")
     public ResponseEntity getMwStoreCouponIssues(MwStoreCouponIssueQueryCriteria criteria, Pageable pageable){
@@ -49,7 +49,7 @@ public class StoreCouponIssueController {
     }
 
     @Log("发布")
-    @ApiOperation(value = "发布")
+    @Operation(summary = "发布")
     @PostMapping(value = "/mwStoreCouponIssue")
     @PreAuthorize("@el.check('admin','MWSTORECOUPONISSUE_ALL','MWSTORECOUPONISSUE_CREATE')")
     public ResponseEntity create(@Validated @RequestBody MwStoreCouponIssue resources){
@@ -60,7 +60,7 @@ public class StoreCouponIssueController {
     }
 
     @Log("修改状态")
-    @ApiOperation(value = "修改状态")
+    @Operation(summary = "修改状态")
     @PutMapping(value = "/mwStoreCouponIssue")
     @PreAuthorize("@el.check('admin','MWSTORECOUPONISSUE_ALL','MWSTORECOUPONISSUE_EDIT')")
     public ResponseEntity update(@Validated @RequestBody MwStoreCouponIssue resources){
@@ -70,7 +70,7 @@ public class StoreCouponIssueController {
 
     @ForbidSubmit
     @Log("删除")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     @DeleteMapping(value = "/mwStoreCouponIssue/{id}")
     @PreAuthorize("@el.check('admin','MWSTORECOUPONISSUE_ALL','MWSTORECOUPONISSUE_DELETE')")
     public ResponseEntity delete(@PathVariable Integer id){

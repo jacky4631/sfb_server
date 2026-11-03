@@ -1,10 +1,10 @@
 package com.mailvor.modules.product.domain;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.mailvor.domain.BaseDomain;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,28 +32,28 @@ public class MwStoreProductRelation extends BaseDomain {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @ApiModelProperty(value = "用户ID")
+    @Schema(description = "用户ID")
     private Long uid;
 
-    @ApiModelProperty(value = "商品ID")
+    @Schema(description = "商品ID")
     private String productId;
 
-    @ApiModelProperty(value = "淘宝完整商品ID")
+    @Schema(description = "淘宝完整商品ID")
     private String originalProductId;
 
-    @ApiModelProperty(value = "类型(收藏(collect）、点赞(like)、足迹(foot))")
+    @Schema(description = "类型(收藏(collect）、点赞(like)、足迹(foot))")
     private String type;
 
-    @ApiModelProperty(value = "商品分类,tb jd pdd vip dy")
+    @Schema(description = "商品分类,tb jd pdd vip dy")
     private String category;
 
-    @ApiModelProperty(value = "商品图片地址")
+    @Schema(description = "商品图片地址")
     private String img;
-    @ApiModelProperty(value = "商品标题")
+    @Schema(description = "商品标题")
     private String title;
-    @ApiModelProperty(value = "原始价格")
+    @Schema(description = "原始价格")
     private String startPrice;
-    @ApiModelProperty(value = "真实价格")
+    @Schema(description = "真实价格")
     private String endPrice;
 
 

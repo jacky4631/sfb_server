@@ -4,12 +4,14 @@
  */
 package com.mailvor.modules.user.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.img.ImgUtil;
 import cn.hutool.crypto.digest.MD5;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.api.ApiResult;
 import com.mailvor.api.MshopException;
 import com.mailvor.common.bean.LocalUser;
@@ -31,15 +33,13 @@ import com.mailvor.modules.utils.AesUtil;
 import com.mailvor.modules.utils.IDCardUtil;
 import com.mailvor.utils.ImgCompressUtil;
 import com.mailvor.utils.StringUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import javax.imageio.ImageIO;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -57,7 +57,7 @@ import java.util.*;
 @Slf4j
 @RestController
 @RequestMapping("/user")
-@Api(tags = "上传用户身份信息")
+@Tag(name = "上传用户身份信息")
 public class UserCardController {
 
     @Resource
@@ -84,7 +84,7 @@ public class UserCardController {
      * type 1=身份证正面 2=身份证反面 3=合同 4=签名
      * angle 翻转的角度
      * */
-    @ApiOperation("上传用户身份信息")
+    @Operation(summary = "上传用户身份信息")
     @AuthCheck
     @PostMapping(value = "/card/upload")
     public ApiResult<Object> upload(@RequestPart MultipartFile file,
@@ -141,15 +141,15 @@ public class UserCardController {
         //识别用户身份信息
         filename = filename.replaceAll(regEx,"");
         filename = URLEncoder.encode(filename, "UTF-8");
-        JSONObject json = alipayConfigService.cardOCR(aliPayService.getAlipayConfig(),ocrType, filename, bytes);
-        JSONObject res = json.getJSONObject("datadigital_fincloud_generalsaas_ocr_server_detect_response");
+        JsonObject json = alipayConfigService.cardOCR(aliPayService.getAlipayConfig(),ocrType, filename, bytes);
+        JsonObject res = json.getJSONObject("datadigital_fincloud_generalsaas_ocr_server_detect_response");
         log.info("用户uid: {} {}身份识别结果: {}", user.getUid(), ocrType, res.toJSONString());
         String code = res.getString("code");
         //code ==10000成功 同时要判断是否为空
         if(!"10000".equals(code)) {
             throw new MshopException("无法正确识别身份信息");
         }
-        JSONObject ocrData = res.getJSONObject("ocr_data");
+        JsonObject ocrData = res.getJSONObject("ocr_data");
         MwUserCard card = new MwUserCard();
         card.setUid(user.getUid());
         String url = null;
@@ -188,7 +188,7 @@ public class UserCardController {
             filename = uid + "_B_" + System.currentTimeMillis() + fileSuffix;
             String expiryDate = ocrData.getString("expiry_date");
             if(StringUtils.isBlank(expiryDate)) {
-                throw new MshopException("无法正确识别身份信息:" + JSON.toJSONString(ocrData));
+                throw new MshopException("无法正确识别身份信息:" + JsonUtil.toJSONString(ocrData));
             }
             //校验身份证是否过期
             if(checkCardExpired(expiryDate)) {
@@ -227,7 +227,7 @@ public class UserCardController {
 
     @AuthCheck
     @GetMapping("/card")
-    @ApiOperation(value = "获取用户信息",notes = "获取用户信息",response = MwUserCardQueryVo.class)
+    @Operation(summary = "获取用户信息", description = "获取用户信息")
     public ApiResult<Object> userInfo(@RequestParam(required = false) Long uid){
         Long checkUid;
         if(uid != null && uid > 0) {
@@ -240,14 +240,14 @@ public class UserCardController {
 
 //    @AuthCheck
 //    @GetMapping("/card/bin")
-//    @ApiOperation(value = "银行卡识别",notes = "银行卡识别",response = CardBinDto.class)
+//    @Operation(summary = "银行卡识别", description = "银行卡识别")
 //    public ApiResult<CardBinDto> cardBin(@RequestParam String card){
 //        return ApiResult.ok(yeePayService.getCardBin(card));
 //    }
 
 //    @AuthCheck
 //    @GetMapping("/card/list")
-//    @ApiOperation(value = "银行卡列表",notes = "银行卡列表",response = UserCardDto.class)
+//    @Operation(summary = "银行卡列表", description = "银行卡列表")
 //    public ApiResult<List> cardList(){
 //        MwUserCard userCard = cardService.getById(LocalUser.getUser().getUid());
 //
@@ -272,7 +272,7 @@ public class UserCardController {
 
     @AuthCheck
     @PostMapping("/card/bind")
-    @ApiOperation(value = "银行卡绑定",notes = "银行卡绑定",response = CardBinDto.class)
+    @Operation(summary = "银行卡绑定", description = "银行卡绑定")
     public ApiResult<Map> cardBind(@Valid @RequestBody CardBindParam param){
         //todo
 //        Map map = yeePayService.bindCard(param.getNo());

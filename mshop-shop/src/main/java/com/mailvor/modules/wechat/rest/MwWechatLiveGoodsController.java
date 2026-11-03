@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.wechat.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.aop.ForbidSubmit;
@@ -11,8 +13,6 @@ import com.mailvor.modules.mp.domain.MwWechatLiveGoods;
 import com.mailvor.modules.mp.service.MwWechatLiveGoodsService;
 import com.mailvor.modules.mp.service.dto.MwWechatLiveGoodsDto;
 import com.mailvor.modules.mp.service.dto.MwWechatLiveGoodsQueryCriteria;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -36,7 +36,7 @@ import java.util.Arrays;
 * @date 2020-08-11
 */
 @AllArgsConstructor
-@Api(tags = "微信：直播间商品管理")
+@Tag(name = "微信：直播间商品管理")
 @RestController
 @RequestMapping("/api/mwWechatLiveGoods")
 public class MwWechatLiveGoodsController {
@@ -45,7 +45,7 @@ public class MwWechatLiveGoodsController {
     private final IGenerator generator;
 
     @Log("导出数据")
-    @ApiOperation("导出数据")
+    @Operation(summary = "导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','mwWechatLiveGoods:list')")
     public void download(HttpServletResponse response, MwWechatLiveGoodsQueryCriteria criteria) throws IOException {
@@ -54,7 +54,7 @@ public class MwWechatLiveGoodsController {
 
     @GetMapping
     @Log("查询mwWechatLiveGoods")
-    @ApiOperation("查询mwWechatLiveGoods")
+    @Operation(summary = "查询mwWechatLiveGoods")
     @PreAuthorize("@el.check('admin','mwWechatLiveGoods:list')")
     public ResponseEntity<Object> getMwWechatLiveGoodss(MwWechatLiveGoodsQueryCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(mwWechatLiveGoodsService.queryAll(criteria,pageable),HttpStatus.OK);
@@ -63,7 +63,7 @@ public class MwWechatLiveGoodsController {
     @ForbidSubmit
     @PostMapping
     @Log("新增mwWechatLiveGoods")
-    @ApiOperation("新增mwWechatLiveGoods")
+    @Operation(summary = "新增mwWechatLiveGoods")
     @PreAuthorize("@el.check('admin','mwWechatLiveGoods:add')")
     public ResponseEntity<Object> create(@Validated @RequestBody MwWechatLiveGoods resources){
         return new ResponseEntity<>(mwWechatLiveGoodsService.saveGoods(resources),HttpStatus.CREATED);
@@ -72,7 +72,7 @@ public class MwWechatLiveGoodsController {
     @ForbidSubmit
     @PutMapping
     @Log("修改mwWechatLiveGoods")
-    @ApiOperation("修改mwWechatLiveGoods")
+    @Operation(summary = "修改mwWechatLiveGoods")
     @PreAuthorize("@el.check('admin','mwWechatLiveGoods:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody MwWechatLiveGoods resources){
         mwWechatLiveGoodsService.updateGoods(resources);
@@ -81,7 +81,7 @@ public class MwWechatLiveGoodsController {
 
     @ForbidSubmit
     @Log("删除mwWechatLiveGoods")
-    @ApiOperation("删除mwWechatLiveGoods")
+    @Operation(summary = "删除mwWechatLiveGoods")
     @PreAuthorize("@el.check('admin','mwWechatLiveGoods:del')")
     @DeleteMapping
     public ResponseEntity<Object> deleteAll(@RequestBody Long[] ids) {
@@ -91,7 +91,7 @@ public class MwWechatLiveGoodsController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation("同步数据")
+    @Operation(summary = "同步数据")
     @PostMapping("/synchro")
     public ResponseEntity<Object> synchroWxOlLiveGoods(@RequestBody Integer[] ids) {
         mwWechatLiveGoodsService.synchroWxOlLive(Arrays.asList(ids));

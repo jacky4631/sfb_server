@@ -23,7 +23,7 @@ import com.pdd.pop.sdk.http.api.pop.response.PddDdkRpPromUrlGenerateResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Collections;
 import java.util.List;
 

@@ -27,7 +27,7 @@ import com.mailvor.modules.template.service.dto.MwShippingTemplatesDto;
 import com.mailvor.modules.template.service.dto.MwShippingTemplatesQueryCriteria;
 import com.mailvor.modules.template.service.mapper.MwShippingTemplatesMapper;
 import com.mailvor.utils.FileUtil;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
@@ -36,7 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -75,8 +75,8 @@ public class MwShippingTemplatesServiceImpl extends BaseServiceImpl<MwShippingTe
         }
         MwShippingTemplates shippingTemplates = new MwShippingTemplates();
         BeanUtil.copyProperties(shippingTemplatesDto,shippingTemplates);
-        shippingTemplates.setRegionInfo(JSON.toJSONString(shippingTemplatesDto.getRegionInfo()));
-        shippingTemplates.setAppointInfo(JSON.toJSONString(shippingTemplatesDto.getAppointInfo()));
+        shippingTemplates.setRegionInfo(JsonUtil.toJSONString(shippingTemplatesDto.getRegionInfo()));
+        shippingTemplates.setAppointInfo(JsonUtil.toJSONString(shippingTemplatesDto.getAppointInfo()));
         if(id != null && id > 0){
             shippingTemplates.setId(id);
             this.updateById(shippingTemplates);

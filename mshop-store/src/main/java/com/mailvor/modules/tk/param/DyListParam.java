@@ -4,8 +4,7 @@
  */
 package com.mailvor.modules.tk.param;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -17,17 +16,17 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value="MwGoodQueryParam对象", description="商品表查询参数")
+@Schema(description = "商品表查询参数")
 public class DyListParam extends BaseParam {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "类别")
+    @Schema(description = "类别")
     private Integer cateId = 0;
 
-    @ApiModelProperty(value = "分类ID")
+    @Schema(description = "分类ID")
     private Integer searchType = 0;
 
-    @ApiModelProperty(value = "分类ID")
+    @Schema(description = "分类ID")
     private Integer firstCid = null;
 
 

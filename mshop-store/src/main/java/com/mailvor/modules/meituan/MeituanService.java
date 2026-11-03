@@ -1,8 +1,8 @@
 package com.mailvor.modules.meituan;
 
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonArray;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.modules.meituan.param.MeituanBaseParam;
 import com.mailvor.modules.meituan.param.MeituanGoodsParam;
 import com.mailvor.modules.meituan.param.MeituanLinkParam;
@@ -15,7 +15,7 @@ import com.mailvor.modules.meituan.utils.MeituanSidUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.*;
 
 
@@ -31,7 +31,7 @@ public class MeituanService {
     @Resource
     private MeituanClient meituanClient;
 
-    public JSONObject goodsList(MeituanGoodsParam param){
+    public JsonObject goodsList(MeituanGoodsParam param){
         //请求path，不同的接口修改为对应的接口，以下只是一个接口
         String path = "/cps_open/common/api/v1/query_coupon";
         try {
@@ -46,13 +46,13 @@ public class MeituanService {
         //请求path，不同的接口修改为对应的接口，以下只是一个接口
         String path = "/cps_open/common/api/v1/query_order";
         try {
-            JSONObject res = requestMeituan(param, path);
+            JsonObject res = requestMeituan(param, path);
             if(res != null && Integer.valueOf(0).equals(res.getInteger("code"))) {
-                JSONObject data = res.getJSONObject("data");
+                JsonObject data = res.getJSONObject("data");
                 if(data != null && Integer.valueOf(0).equals(data.getInteger("code"))) {
-                    JSONArray dataList = data.getJSONArray("dataList");
+                    JsonArray dataList = data.getJSONArray("dataList");
                     if(dataList == null) {
-                        dataList = new JSONArray();
+                        dataList = new JsonArray();
                     }
                     MtResVo resVo = new MtResVo();
                     resVo.setCode(200);
@@ -61,7 +61,7 @@ public class MeituanService {
                     dataVo.setPositionIndex(data.getString("scrollId"));
                     ArrayList<MailvorMtOrder> records = new ArrayList<>(dataList.size());
                     for(Object obj : dataList) {
-                        JSONObject dataObj = (JSONObject) obj;
+                        JsonObject dataObj = (JsonObject) obj;
                         String sid = dataObj.getString("sid");
                         Long uid = MeituanSidUtil.parse(sid);
                         if (uid == null) {
@@ -117,7 +117,7 @@ public class MeituanService {
         }
     }
 
-    public JSONObject getCode(MeituanLinkParam param, Long uid) throws Exception {
+    public JsonObject getCode(MeituanLinkParam param, Long uid) throws Exception {
         //请求path，不同的接口修改为对应的接口，以下只是一个接口
         String path = "/cps_open/common/api/v1/get_referral_link";
         param.setSid(MeituanSidUtil.build(uid));
@@ -125,7 +125,7 @@ public class MeituanService {
     }
 
 
-    public JSONObject requestMeituan(MeituanBaseParam param, String path) throws Exception {
+    public JsonObject requestMeituan(MeituanBaseParam param, String path) throws Exception {
         return meituanClient.request(param, path);
     }
 }

@@ -4,16 +4,16 @@
  */
 package com.mailvor.modules.tools.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.modules.tools.service.AliOssService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 /**
  * 发送邮件
@@ -23,13 +23,13 @@ import javax.annotation.Resource;
 @Slf4j
 @RestController
 @RequestMapping("/api/alioss")
-@Api(tags = "工具：阿里OSS存储管理")
+@Tag(name = "工具：阿里OSS存储管理")
 public class AliOssController {
 
     @Resource
     private AliOssService ossService;
 
-    @ApiOperation("上传文件")
+    @Operation(summary = "上传文件")
     @PostMapping(value = "/upload")
     public ResponseEntity<Object> upload(@RequestParam MultipartFile file){
         String url = ossService.uploadFileAvatar(file);

@@ -1,7 +1,7 @@
 package com.mailvor.vip;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.modules.dataoke.rest.DataokeVipController;
 import com.mailvor.modules.tk.param.GoodsListVipParam;
@@ -33,7 +33,7 @@ public class VipProductContractTest {
 
     @Test
     public void listNormalizesFieldsAndUsesCurrentUser() {
-        VipSearchListVO result = JSON.parseObject("{\"code\":0,\"data\":{\"total\":1,\"goodsInfoList\":[{\"goodsId\":\"123\",\"goodsName\":\"羊毛衫\",\"vipPrice\":199.9,\"marketPrice\":599,\"commission\":12,\"storeInfo\":{\"storeName\":\"品牌店\"}}]}}", VipSearchListVO.class);
+        VipSearchListVO result = JsonUtil.parseObject("{\"code\":0,\"data\":{\"total\":1,\"goodsInfoList\":[{\"goodsId\":\"123\",\"goodsName\":\"羊毛衫\",\"vipPrice\":199.9,\"marketPrice\":599,\"commission\":12,\"storeInfo\":{\"storeName\":\"品牌店\"}}]}}", VipSearchListVO.class);
         GoodsListVipParam param = new GoodsListVipParam();
         param.setOpenId("untrusted-client-id");
         when(service.goodsListVip(param)).thenReturn(result);
@@ -50,10 +50,10 @@ public class VipProductContractTest {
     @Test
     public void postSearchPreservesSpecialCharactersAndJsonBody() throws Exception {
         when(service.vipGoodsSearch(any(GoodsSearchVipParam.class))).thenReturn(
-                JSONObject.parseObject("{\"code\":0,\"data\":{\"total\":0,\"goodsInfoList\":[]}}"));
+                JsonUtil.parseObject("{\"code\":0,\"data\":{\"total\":0,\"goodsInfoList\":[]}}"));
         MockMvc mvc = MockMvcBuilders.standaloneSetup(controller()).build();
         String keyword = "100%羊毛 + 大衣&秋冬";
-        JSONObject body = new JSONObject();
+        JsonObject body = new JsonObject();
         body.put("keyword", keyword);
         body.put("page", 2);
         body.put("fieldName", "PRICE");
@@ -71,7 +71,7 @@ public class VipProductContractTest {
     public void detailReturnsOneProductAndCouponMetadata() {
         VipGoodsDetailDataVo result = new VipGoodsDetailDataVo();
         result.setCode(0);
-        result.setGoods(JSON.parseObject("{\"goodsId\":\"123\",\"goodsName\":\"衬衫\",\"vipPrice\":129.9,\"marketPrice\":399,\"couponInfo\":{\"fav\":20},\"destUrl\":\"https://example.com/item\",\"adCode\":\"ad-123\"}", VipGoodsDetailVO.class));
+        result.setGoods(JsonUtil.parseObject("{\"goodsId\":\"123\",\"goodsName\":\"衬衫\",\"vipPrice\":129.9,\"marketPrice\":399,\"couponInfo\":{\"fav\":20},\"destUrl\":\"https://example.com/item\",\"adCode\":\"ad-123\"}", VipGoodsDetailVO.class));
         when(service.goodsDetailVIP("123", "0")).thenReturn(result);
         Map<String, Object> data = controller().getGoodsDetail("123").getData();
         assertEquals("衬衫", data.get("title"));
@@ -96,12 +96,12 @@ public class VipProductContractTest {
         LocalUser.set(user, 4);
         VipWordCodeVO result = new VipWordCodeVO();
         result.setCode(0);
-        result.setWord(JSON.parseObject("{\"deeplinkUrl\":\"vipshop://item\",\"longUrl\":\"https://example.com/item\",\"vipWxUrl\":\"pages/item\"}", VipWordVO.class));
-        when(service.goodsWordVIP(eq("https://example.com/item"), eq("42"), any(JSONObject.class))).thenReturn(result);
+        result.setWord(JsonUtil.parseObject("{\"deeplinkUrl\":\"vipshop://item\",\"longUrl\":\"https://example.com/item\",\"vipWxUrl\":\"pages/item\"}", VipWordVO.class));
+        when(service.goodsWordVIP(eq("https://example.com/item"), eq("42"), any(JsonObject.class))).thenReturn(result);
         Map<String, Object> word = controller().goodsWord("https://example.com/item", "ad-123").getData();
         assertEquals("vipshop://item", word.get("link"));
         assertEquals("pages/item", word.get("wechatPath"));
-        ArgumentCaptor<JSONObject> request = ArgumentCaptor.forClass(JSONObject.class);
+        ArgumentCaptor<JsonObject> request = ArgumentCaptor.forClass(JsonObject.class);
         verify(service).goodsWordVIP(eq("https://example.com/item"), eq("42"), request.capture());
         assertEquals("42", request.getValue().getString("openId"));
         assertEquals("ad-123", request.getValue().getString("adCode"));
@@ -109,7 +109,7 @@ public class VipProductContractTest {
 
     @Test(expected = IllegalStateException.class)
     public void missingPromotionIsNotReportedAsSuccess() {
-        when(service.goodsWordVIP(anyString(), anyString(), any(JSONObject.class))).thenReturn(new VipWordCodeVO());
+        when(service.goodsWordVIP(anyString(), anyString(), any(JsonObject.class))).thenReturn(new VipWordCodeVO());
         controller().goodsWord("https://example.com/item", "ad");
     }
 }

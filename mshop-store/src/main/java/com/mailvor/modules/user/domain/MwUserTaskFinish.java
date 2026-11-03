@@ -1,11 +1,11 @@
 package com.mailvor.modules.user.domain;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.mailvor.domain.BaseDomain;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -26,13 +26,13 @@ public class MwUserTaskFinish extends BaseDomain {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    @ApiModelProperty(value = "任务id")
+    @Schema(description = "任务id")
     private Integer taskId;
 
-    @ApiModelProperty(value = "用户id")
+    @Schema(description = "用户id")
     private Long uid;
 
-    @ApiModelProperty(value = "是否有效")
+    @Schema(description = "是否有效")
     private Integer status;
 
 

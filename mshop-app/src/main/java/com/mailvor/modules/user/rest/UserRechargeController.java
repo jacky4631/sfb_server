@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.user.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -33,8 +35,8 @@ import com.mailvor.modules.user.param.RechargeResultParam;
 import com.mailvor.modules.user.service.MwSystemUserLevelService;
 import com.mailvor.modules.user.service.MwUserRechargeService;
 import com.mailvor.modules.mp.service.WeixinPayService;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.github.binarywang.wxpay.bean.order.WxPayAppOrderResult;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
 import com.github.binarywang.wxpay.bean.order.WxPayMwebOrderResult;
@@ -42,14 +44,12 @@ import com.mailvor.modules.user.service.dto.UserLevelDto;
 import com.mailvor.modules.user.vo.MwSystemUserLevelQueryVo;
 import com.mailvor.utils.OrderUtil;
 import com.mailvor.utils.RedisUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -68,7 +68,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "用户充值", tags = "用户:用户充值")
+@Tag(name = "用户:用户充值")
 public class UserRechargeController {
 
     private final MwUserRechargeService userRechargeService;
@@ -84,7 +84,7 @@ public class UserRechargeController {
      * 充值方案
      */
     @GetMapping("/recharge/index")
-    @ApiOperation(value = "充值方案",notes = "充值方案",response = ApiResult.class)
+    @Operation(summary = "充值方案", description = "充值方案")
     public ApiResult<Object> getWays(){
         MwSystemGroupDataQueryCriteria queryCriteria = new MwSystemGroupDataQueryCriteria();
         queryCriteria.setGroupName(ShopConstants.MSHOP_RECHARGE_PRICE_WAYS);
@@ -94,7 +94,7 @@ public class UserRechargeController {
         List<MwSystemGroupDataVo> systemGroupDataVoList = mwSystemGroupDataList.stream().map(s->{
             MwSystemGroupDataVo systemGroupDataVo = new MwSystemGroupDataVo();
             BeanUtil.copyProperties(s,systemGroupDataVo,"value");
-            systemGroupDataVo.setValue(JSON.parseObject(s.getValue()));
+            systemGroupDataVo.setValue(JsonUtil.parseObject(s.getValue()));
             return systemGroupDataVo;
         }).collect(Collectors.toList());
 
@@ -109,7 +109,7 @@ public class UserRechargeController {
     @AppLog(value = "公众号充值", type = 1)
     @AuthCheck
     @PostMapping("/recharge/wechat")
-    @ApiOperation(value = "公众号充值/H5充值",notes = "公众号充值/H5充值",response = ApiResult.class)
+    @Operation(summary = "公众号充值/H5充值", description = "公众号充值/H5充值")
     public ApiResult<Map<String,Object>> add(@Valid @RequestBody RechargeParam param){
         MwUser user = LocalUser.getUser();
 
@@ -120,7 +120,7 @@ public class UserRechargeController {
             throw new MshopException("充值方案不存在");
         }
 
-        JSONObject jsonObject = JSON.parseObject(systemGroupData.getValue());
+        JsonObject jsonObject = JsonUtil.parseObject(systemGroupData.getValue());
         String price = jsonObject.getString("price");
         String orderSn = userRechargeService
                 .addRecharge(user,price, PayTypeEnum.WEIXIN.getValue(),
@@ -181,7 +181,7 @@ public class UserRechargeController {
     @AppLog(value = "微信app充值", type = 1)
     @AuthCheck
     @PostMapping("/recharge/app/wechat")
-    @ApiOperation(value = "app充值",notes = "app充值",response = ApiResult.class)
+    @Operation(summary = "app充值", description = "app充值")
     public ApiResult<Map<String,Object>> wechatPay(@Valid @RequestBody RechargeParam param){
         Map<String,Object> map = new LinkedHashMap<>();
         map.put("type",param.getFrom());
@@ -205,7 +205,7 @@ public class UserRechargeController {
 
     @AppLog(value = "支付宝app充值", type = 1)
     @AuthCheck
-    @ApiOperation("支付宝支付")
+    @Operation(summary = "支付宝支付")
     @PostMapping(value = "/recharge/app/alipay")
     public ApiResult<String> aliPay(@Valid @RequestBody RechargeParam param) throws Exception{
         Map<String,String> map = recharge(param, PayTypeEnum.ALI.getValue());
@@ -216,14 +216,14 @@ public class UserRechargeController {
         trade.setOutTradeNo(map.get("orderSn"));
         trade.setSubject("加盟星选会员");
         trade.setBody("加盟星选会员");
-        log.info("加盟星选会员{}", JSON.toJSONString(trade));
+        log.info("加盟星选会员{}", JsonUtil.toJSONString(trade));
         String payUrl = alipayConfigService.toPayAsApp(alipay,trade);
         return ApiResult.ok(payUrl);
     }
 
     @AppLog(value = "ios充值", type = 1)
     @AuthCheck
-    @ApiOperation("IOS支付")
+    @Operation(summary = "IOS支付")
     @PostMapping(value = "/recharge/app/ios")
     public ApiResult<Map<String,String>> iosPay(@Valid @RequestBody RechargeParam param) throws Exception{
         Map<String,String> map = recharge(param, PayTypeEnum.IOS.getValue());
@@ -239,7 +239,7 @@ public class UserRechargeController {
         UserLevelDto userLevelDto = systemUserLevelService.getLevelInfo(param.getPlatform());
         MwSystemUserLevelQueryVo userLevelQueryVo = userLevelDto.getList().stream().filter(mwSystemUserLevelQueryVo -> mwSystemUserLevelQueryVo.getRechargeId().equals(param.getRecharId())).findFirst().orElse(null);
 
-        JSONObject jsonObject = JSON.parseObject(systemGroupData.getValue());
+        JsonObject jsonObject = JsonUtil.parseObject(systemGroupData.getValue());
         String price = jsonObject.getString("price");
         String orderSn = userRechargeService.addRecharge(
                 user,price,rechargeType, userLevelQueryVo.getGrade(), param.getPlatform(), param.getRecharId(), 0L);
@@ -252,7 +252,7 @@ public class UserRechargeController {
 
     @AuthCheck
     @PostMapping("/recharge/coupon")
-    @ApiOperation(value = "获取当前会员支付优惠金额",notes = "获取当前会员支付优惠金额")
+    @Operation(summary = "获取当前会员支付优惠金额", description = "获取当前会员支付优惠金额")
     public ApiResult<Object> payCoupon(@Valid @RequestBody RechargeCouponParam param){
         MwUser mwUser = LocalUser.getUser();
 
@@ -265,7 +265,7 @@ public class UserRechargeController {
             if(systemGroupData == null) {
                 throw new MshopException("充值方案不存在");
             }
-            JSONObject jsonObject = JSON.parseObject(systemGroupData.getValue());
+            JsonObject jsonObject = JsonUtil.parseObject(systemGroupData.getValue());
             String price = jsonObject.getString("price");
             Double priceD = Double.parseDouble(price);
             Double scale = OrderUtil.randomNumber(1,3);
@@ -281,7 +281,7 @@ public class UserRechargeController {
 
     @AuthCheck
     @PostMapping("/recharge/result")
-    @ApiOperation(value = "记录银行卡支付结果",notes = "记录银行卡支付结果")
+    @Operation(summary = "记录银行卡支付结果", description = "记录银行卡支付结果")
     public ApiResult<Object> rechargeResult(@Valid @RequestBody RechargeResultParam param){
         MwUserRecharge recharge = userRechargeService.getOne(Wrappers.<MwUserRecharge>lambdaQuery()
                 .eq(MwUserRecharge::getOrderId, param.getOrderId()));

@@ -4,23 +4,22 @@
  */
 package com.mailvor.modules.tk.param;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
 
 
 @Data
-@ApiModel("查询参数对象")
+@Schema(description = "查询参数对象")
 public class BaseParam implements Serializable{
     private static final long serialVersionUID = -3263921252635611410L;
 
-    @ApiModelProperty(value = "页码,默认为1")
+    @Schema(description = "页码,默认为1")
 	private Integer pageId =1;
-	@ApiModelProperty(value = "页大小,默认为10")
+	@Schema(description = "页大小,默认为10")
 	private Integer pageSize = 10;
-    @ApiModelProperty(value = "搜索字符串")
+    @Schema(description = "搜索字符串")
     private String keyword;
 
 }

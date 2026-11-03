@@ -4,7 +4,7 @@
  */
 package com.mailvor.modules.mp.error;
 
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * </pre>
  *
  */
-@Api(tags = "商城：异常统一处理")
+@Tag(name = "商城：异常统一处理")
 @Controller
 @RequestMapping("/error")
 public class ErrorController {

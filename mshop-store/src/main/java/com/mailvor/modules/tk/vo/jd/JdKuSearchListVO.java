@@ -4,7 +4,7 @@
  */
 package com.mailvor.modules.tk.vo.jd;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -24,7 +24,7 @@ public class JdKuSearchListVO {
     @Schema(description = "商品数据")
     private List<JdKuGoodsDetailVO> data;
 
-    @JSONField(name = "min_id")
+    @JsonProperty("min_id")
     @Schema(description = "下一页id")
     private String minId;
 

@@ -9,6 +9,13 @@ import org.springframework.util.StringUtils;
 
 public class MysqlInsertOrUpdateBath extends AbstractMethod {
 
+    /**
+     * MP 3.5.17 移除了 AbstractMethod 的无参构造，方法名必须在构造器传入。
+     */
+    public MysqlInsertOrUpdateBath() {
+        super("mysqlInsertOrUpdateBath");
+    }
+
     @Override
     public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
         final String sql = "<script>insert into %s %s values %s ON DUPLICATE KEY UPDATE %s</script>";

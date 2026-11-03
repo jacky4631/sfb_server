@@ -1,8 +1,7 @@
 package com.mailvor.modules.tk.vo;
 
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -17,19 +16,19 @@ import java.util.List;
  * @author shenji
  */
 @Data
-@ApiModel(value = "GoodsSearchDataVo对象", description = "大淘客搜索商品数据")
+@Schema(description = "大淘客搜索商品数据")
 public class GoodsSearchDataVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "商品总数")
+    @Schema(description = "商品总数")
     private Integer totalNum;
 
-    @ApiModelProperty(value = "分页id，翻页时传入下一页")
+    @Schema(description = "分页id，翻页时传入下一页")
     private String pageId;
 
-    @ApiModelProperty(value = "商品列表")
+    @Schema(description = "商品列表")
     private List<GoodsSearchVo> list;
 
-    @ApiModelProperty(value = "搜索结果商品所包含的所有品牌信息")
+    @Schema(description = "搜索结果商品所包含的所有品牌信息")
     private List<GoodsBrandVo> brandList;
 }

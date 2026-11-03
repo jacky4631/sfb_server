@@ -1,9 +1,9 @@
 package com.mailvor.modules.user.rest.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Data
 public class BankExtractParam implements Serializable {
     @NotNull(message = "提现金额不能为空")
-    @ApiModelProperty(value = "提现金额")
+    @Schema(description = "提现金额")
     private BigDecimal price;
 
 

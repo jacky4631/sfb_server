@@ -1,6 +1,6 @@
 package com.mailvor.modules.quartz.task;
 
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.mailvor.modules.tk.param.QueryVipParam;
 import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ public class VipOrderCollectionTask extends OrderTask{
         if(StringUtils.isEmpty(paramStr)) {
             param = new QueryVipParam();
         } else {
-            param = JSON.parseObject(paramStr, QueryVipParam.class);
+            param = JsonUtil.parseObject(paramStr, QueryVipParam.class);
         }
         if(StringUtils.isEmpty(param.getOrderTimeStart()) || StringUtils.isEmpty(param.getOrderTimeEnd())) {
             long end = System.currentTimeMillis();

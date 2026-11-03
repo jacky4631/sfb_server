@@ -4,7 +4,7 @@ import com.mailvor.modules.user.service.MwUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 /**
  * 会员过期任务

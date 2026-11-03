@@ -1,5 +1,9 @@
 package com.mailvor.sales.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mailvor.api.ApiResult;
@@ -16,10 +20,6 @@ import com.mailvor.modules.sales.service.StoreAfterSalesService;
 import com.mailvor.modules.sales.service.StoreAfterSalesStatusService;
 import com.mailvor.modules.sales.service.vo.StoreAfterSalesVo;
 import com.mailvor.modules.sales.service.vo.MwStoreOrderCartInfoVo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "售后记录", tags = "用户:售后记录")
+@Tag(name = "用户:售后记录")
 public class StoreAfterSalesController {
 
     @Autowired
@@ -48,7 +48,7 @@ public class StoreAfterSalesController {
 
     @AuthCheck
     @PostMapping("/applyForAfterSales")
-    @ApiOperation(value = "申请售后", notes = "申请售后")
+    @Operation(summary = "申请售后", description = "申请售后")
     public ApiResult<Boolean> applyForAfterSales(@RequestBody StoreAfterSalesParam storeAfterSalesParam) {
         storeAfterSalesService.applyForAfterSales(LocalUser.getUser().getUid(), LocalUser.getUser().getNickname(), storeAfterSalesParam);
         return ApiResult.ok();
@@ -56,7 +56,7 @@ public class StoreAfterSalesController {
 
     @AuthCheck
     @GetMapping("/applyForAfterSales/{key}")
-    @ApiOperation(value = "查询订单详情", notes = "查询订单详情")
+    @Operation(summary = "查询订单详情", description = "查询订单详情")
     public ApiResult<List<MwStoreOrderCartInfoVo>> checkOrderDetails(@PathVariable String key) {
         return ApiResult.ok(storeAfterSalesService.checkOrderDetails(key));
     }
@@ -64,7 +64,7 @@ public class StoreAfterSalesController {
     @AppLog(value = "查看售后列表", type = 1)
     @AuthCheck
     @GetMapping("/storeAfterSales/list")
-    @ApiOperation(value = "售后列表", notes = "售后列表")
+    @Operation(summary = "售后列表", description = "售后列表")
     public ApiResult<Object> salesList(@RequestParam(value = "type", defaultValue = "0") int type,
                                        @RequestParam(value = "page", defaultValue = "1") int page,
                                        @RequestParam(value = "limit", defaultValue = "10") int limit) {
@@ -78,10 +78,10 @@ public class StoreAfterSalesController {
     @AppLog(value = "查看售後详情", type = 1)
     @AuthCheck
     @GetMapping("/store/detail/{key}/{id}")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "key", value = "唯一的key", paramType = "query", dataType = "string")
+    @Parameters({
+            @Parameter(name = "key", description = "唯一的key")
     })
-    @ApiOperation(value = "订单详情", notes = "订单详情")
+    @Operation(summary = "订单详情", description = "订单详情")
     public ApiResult<StoreAfterSalesVo> detail(@PathVariable String key, @PathVariable Long id) {
         Long uid = LocalUser.getUser().getUid();
         if (StrUtil.isEmpty(key)) {
@@ -95,10 +95,10 @@ public class StoreAfterSalesController {
     @AppLog(value = "通过订单号搜索", type = 1)
     @AuthCheck
     @GetMapping("/store/detail/{key}")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "key", value = "唯一的key", paramType = "query", dataType = "string")
+    @Parameters({
+            @Parameter(name = "key", description = "唯一的key")
     })
-    @ApiOperation(value = "订单详情", notes = "订单详情")
+    @Operation(summary = "订单详情", description = "订单详情")
     public ApiResult<List<StoreAfterSalesVo>> detail(@PathVariable String key) {
         Long uid = LocalUser.getUser().getUid();
         if (StrUtil.isEmpty(key)) {
@@ -117,10 +117,10 @@ public class StoreAfterSalesController {
     @AppLog(value = "撤销申请", type = 1)
     @AuthCheck
     @GetMapping("/revoke/{key}/{id}")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "key", value = "订单号", paramType = "query", dataType = "string")
+    @Parameters({
+            @Parameter(name = "key", description = "订单号")
     })
-    @ApiOperation(value = "撤销申请", notes = "撤销申请")
+    @Operation(summary = "撤销申请", description = "撤销申请")
     public ApiResult<Boolean> revoke(@PathVariable String key, @PathVariable Long id) {
         Long uid = LocalUser.getUser().getUid();
         if (StrUtil.isEmpty(key)) {
@@ -130,7 +130,7 @@ public class StoreAfterSalesController {
         return ApiResult.ok(revoke);
     }
 
-    @ApiOperation(value = "查询快递")
+    @Operation(summary = "查询快递")
     @GetMapping(value = "/mwExpress")
     public ApiResult<List<MwExpress>> getMwExpresss(MwExpressQueryCriteria criteria) {
         return ApiResult.ok(mwExpressService.queryAll(criteria));
@@ -139,13 +139,13 @@ public class StoreAfterSalesController {
     @AppLog(value = "添加物流信息", type = 1)
     @AuthCheck
     @PostMapping("/addLogisticsInformation")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "code", value = "快递公司编码", paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "name", value = "快递公司名称", paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "postalCode", value = "快递编号", paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "orderCode", value = "订单编号", paramType = "query", dataType = "string")
+    @Parameters({
+            @Parameter(name = "code", description = "快递公司编码"),
+            @Parameter(name = "name", description = "快递公司名称"),
+            @Parameter(name = "postalCode", description = "快递编号"),
+            @Parameter(name = "orderCode", description = "订单编号")
     })
-    @ApiOperation(value = "添加物流信息", notes = "添加物流信息")
+    @Operation(summary = "添加物流信息", description = "添加物流信息")
     public ApiResult<Boolean> addLogisticsInformation(@RequestParam String code, @RequestParam String name, @RequestParam String postalCode, @RequestParam String orderCode) {
         Long uid = LocalUser.getUser().getUid();
         if (StrUtil.isEmpty(code) || StrUtil.isEmpty(name) || StrUtil.isEmpty(postalCode)) {
@@ -158,10 +158,10 @@ public class StoreAfterSalesController {
     @AppLog(value = "删除售后订单", type = 1)
     @AuthCheck
     @DeleteMapping("/deleteAfterSalesOrder")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "orderCode", value = "订单编码", paramType = "query", dataType = "string")
+    @Parameters({
+            @Parameter(name = "orderCode", description = "订单编码")
     })
-    @ApiOperation(value = "删除售后订单", notes = "删除售后订单")
+    @Operation(summary = "删除售后订单", description = "删除售后订单")
     public ApiResult<Boolean> deleteAfterSalesOrder(@RequestParam String orderCode, @RequestParam Long id) {
         Long uid = LocalUser.getUser().getUid();
         if (StrUtil.isEmpty(orderCode) || ObjectUtil.isEmpty(id)) {

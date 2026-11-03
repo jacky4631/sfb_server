@@ -1,5 +1,6 @@
 package com.mailvor.modules.customer.rest;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.StrUtil;
 import com.mailvor.annotation.AnonymousAccess;
 import com.mailvor.constant.ShopConstants;
@@ -8,8 +9,7 @@ import com.mailvor.modules.mp.config.WxMpConfiguration;
 import com.mailvor.utils.RecodeUtil;
 import com.mailvor.utils.RedisUtil;
 import com.mailvor.utils.RedisUtils;
-import com.alibaba.fastjson.JSONObject;
-import io.swagger.annotations.Api;
+import com.mailvor.common.json.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.api.WxConsts;
@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
 
 /**
@@ -34,7 +34,7 @@ import java.net.URLEncoder;
  * @date 2020-03-21
  */
 @Slf4j
-@Api(tags = "微信：基础信息")
+@Tag(name = "微信：基础信息")
 @Controller
 @RequestMapping("/api/wxmp")
 @AllArgsConstructor
@@ -106,7 +106,7 @@ public class QrCodeController {
         String openId = RedisUtil.get("qrCode:" + key);
         if (openId != null) {
             String[] str = openId.split(":");
-            JSONObject json = new JSONObject();
+            JsonObject json = new JsonObject();
             json.put("openId", str[0]);
             json.put("nickName", str[1]);
             return new ResponseEntity(json, HttpStatus.OK);

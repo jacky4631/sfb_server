@@ -7,8 +7,8 @@
  */
 package com.mailvor.modules.tools.express.dao;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Auto-generated: 2018-07-19 22:27:22
@@ -19,11 +19,11 @@ import io.swagger.annotations.ApiModelProperty;
 public class Traces {
 
     @JsonProperty("AcceptStation")
-    @ApiModelProperty(value = "描述")
+    @Schema(description = "描述")
     private String AcceptStation;
 
     @JsonProperty("AcceptTime")
-    @ApiModelProperty(value = "时间")
+    @Schema(description = "时间")
     private String AcceptTime;
 
     public String getAcceptStation() {

@@ -1,6 +1,6 @@
 package com.mailvor.modules.tk.vo;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -11,14 +11,14 @@ import lombok.Data;
 @Data
 public class DyWordGoodsVO {
 
-    @JSONField(name = "dy_zlink")
+    @JsonProperty("dy_zlink")
     @Schema(description = "转链过后的链接")
     private String link;
 
-    @JSONField(name = "dy_deeplink")
+    @JsonProperty("dy_deeplink")
     @Schema(description = "转链过后的链接")
     private String longLink;
-    @JSONField(name = "dy_password")
+    @JsonProperty("dy_password")
     @Schema(description = "短口令")
     private String tpwd;
 

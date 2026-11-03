@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.tools.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.StrUtil;
 import com.mailvor.api.MshopException;
 import com.mailvor.constant.ShopConstants;
@@ -14,8 +16,6 @@ import com.mailvor.modules.tools.service.dto.LocalStorageDto;
 import com.mailvor.modules.tools.service.LocalStorageService;
 import com.mailvor.modules.tools.service.QiNiuService;
 import com.mailvor.utils.RedisUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +34,7 @@ import java.util.Map;
  * @author huangyu
  * @date 2020-01-09
  */
-@Api(tags = "工具：上传文件管理")
+@Tag(name = "工具：上传文件管理")
 @RestController
 @RequestMapping("/api/upload")
 @Slf4j
@@ -54,7 +54,7 @@ public class UploadController {
     }
 
 
-    @ApiOperation("上传文件")
+    @Operation(summary = "上传文件")
     @PostMapping
     public ResponseEntity<Object> create(@RequestParam(defaultValue = "") String name,
                                          @RequestParam(defaultValue = "") String type,

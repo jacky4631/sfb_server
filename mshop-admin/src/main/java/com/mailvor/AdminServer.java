@@ -6,12 +6,11 @@ package com.mailvor;
 
 import com.mailvor.annotation.AnonymousAccess;
 import com.mailvor.utils.SpringContextHolder;
-import com.binarywang.spring.starter.wxjava.miniapp.config.WxMaAutoConfiguration;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
-import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
+import org.springframework.boot.tomcat.servlet.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.servlet.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -24,7 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @EnableAsync
 @RestController
-@SpringBootApplication(exclude = {WxMaAutoConfiguration.class})
+// wx-java-miniapp starter 4.3.0 只靠 spring.factories 注册自动配置，Spring Boot 4 下本就不会生效，
+// 而 exclude 非自动配置类会直接抛 IllegalStateException，因此去掉 exclude 与 import；
+// 小程序相关 bean 由 mshop-mp 自己的 WxMaConfiguration 提供
+@SpringBootApplication
 @EnableTransactionManagement
 @MapperScan(basePackages ={"com.mailvor.modules.*.service.mapper", "com.mailvor.config"})
 public class AdminServer {

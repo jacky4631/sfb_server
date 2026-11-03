@@ -15,8 +15,8 @@ import com.mailvor.modules.shop.service.dto.MwSystemGroupDataDto;
 import com.mailvor.modules.shop.service.dto.MwSystemGroupDataQueryCriteria;
 import com.mailvor.modules.shop.service.mapper.SystemGroupDataMapper;
 import com.mailvor.utils.FileUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,17 +51,17 @@ public class MwSystemGroupDataServiceImpl extends BaseServiceImpl<SystemGroupDat
      */
     @Override
     //@Cacheable(value = "mshop:configDatas",key = "#name")
-    public List<JSONObject> getDatas(String name) {
+    public List<JsonObject> getDatas(String name) {
         List<MwSystemGroupData> systemGroupDatas = this.baseMapper
                 .selectList(Wrappers.<MwSystemGroupData>lambdaQuery()
                         .eq(MwSystemGroupData::getGroupName,name)
                         .eq(MwSystemGroupData::getStatus,CommonEnum.SHOW_STATUS_1.getValue())
                         .orderByDesc(MwSystemGroupData::getSort));
 
-        List<JSONObject> list = systemGroupDatas
+        List<JsonObject> list = systemGroupDatas
                 .stream()
                 .map(MwSystemGroupData::getValue)
-                .map(JSONObject::parseObject)
+                .map(JsonObject::parseObject)
                 .collect(Collectors.toList());
 
         return list;
@@ -80,7 +80,7 @@ public class MwSystemGroupDataServiceImpl extends BaseServiceImpl<SystemGroupDat
         for (MwSystemGroupData systemGroupData : page.getList()) {
 
             MwSystemGroupDataDto systemGroupDataDTO = generator.convert(systemGroupData, MwSystemGroupDataDto.class);
-            systemGroupDataDTO.setMap(JSON.parseObject(systemGroupData.getValue()));
+            systemGroupDataDTO.setMap(JsonUtil.parseObject(systemGroupData.getValue()));
             systemGroupDataDTOS.add(systemGroupDataDTO);
         }
         map.put("content",systemGroupDataDTOS);
@@ -118,10 +118,10 @@ public class MwSystemGroupDataServiceImpl extends BaseServiceImpl<SystemGroupDat
         getPage(pageable);
         PageInfo<MwSystemGroupData> page = new PageInfo<>(queryAll(criteria));
         Map<String, Object> map = new LinkedHashMap<>(2);
-        List<JSONObject> systemGroupDataDTOS = new ArrayList<>();
+        List<JsonObject> systemGroupDataDTOS = new ArrayList<>();
         Date now = new Date();
         for (MwSystemGroupData systemGroupData : page.getList()) {
-            JSONObject data = JSON.parseObject(systemGroupData.getValue());
+            JsonObject data = JsonUtil.parseObject(systemGroupData.getValue());
             Date endTime = data.getDate("endTime");
             //如果当前时间大于等于结束时间 排除
             if(endTime != null && DateUtil.compare(now, endTime)>=0) {

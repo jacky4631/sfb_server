@@ -4,10 +4,12 @@
  */
 package com.mailvor.modules.pay.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.api.ApiResult;
 import com.mailvor.api.MshopException;
 import com.mailvor.common.bean.LocalUser;
@@ -47,15 +49,13 @@ import com.mailvor.utils.StringUtils;
 import com.yinsheng.command.QueryBankListRespCommand;
 import com.yinsheng.command.QueryCardRespCommand;
 import com.yinsheng.command.scancode.FrontCodePayRespCommand;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
@@ -74,7 +74,7 @@ import static com.mailvor.constant.SystemConfigConstants.PAY_CONFIG;
  */
 @Slf4j
 @RestController
-@Api(value = "用户充值", tags = "用户:用户充值")
+@Tag(name = "用户:用户充值")
 public class PayController {
     @Resource
     private MwUserRechargeService userRechargeService;
@@ -128,7 +128,7 @@ public class PayController {
      * */
     @AppLog(value = "app支付", type = 1)
     @AuthCheck
-    @ApiOperation("app支付")
+    @Operation(summary = "app支付")
     @Transactional
     @PostMapping(value = "/pay/channel")
     public ApiResult<Map<String, Object>> aliPay(@Valid @RequestBody PayChannelParam param, HttpServletRequest request) throws Exception{
@@ -189,43 +189,43 @@ public class PayController {
             switch (PayChannelEnum.toKey(key)) {
                 case ADAPAY:
                     Map<String,Object> adaPayRes = adaPayService.alipay(request, payChannel, orderId, price);
-                    log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(adaPayRes));
+                    log.info("param: {}  res: {}", JsonUtil.toJSONString(param), JsonUtil.toJSONString(adaPayRes));
                     if("failed".equals(adaPayRes.get("status"))) {
                         //todo
                     } else {
                         data.put("payInfo", "alipays://platformapi/startapp?saId=10000007&qrcode="
-                                + ((JSONObject)adaPayRes.get("expend")).get("pay_info").toString());
+                                + ((JsonObject)adaPayRes.get("expend")).get("pay_info").toString());
                     }
                     break;
                 case ALLINPAY:
                     Map<String,String> res = sybService.alipay(payChannel, orderId, price);
-                    log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(res));
+                    log.info("param: {}  res: {}", JsonUtil.toJSONString(param), JsonUtil.toJSONString(res));
                     data.put("payInfo", res.get("payinfo"));
                     break;
                 case ALIPAY:
                     Map<String,String> alipayRes = aliPayService.alipay(payChannel, orderId, price);
-                    log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(alipayRes));
+                    log.info("param: {}  res: {}", JsonUtil.toJSONString(param), JsonUtil.toJSONString(alipayRes));
                     data.put("payInfo", alipayRes.get("payInfo"));
                     break;
                 case ALIPAY_WEB:
                     Map<String,String> alipayWebRes = aliPayService.alipayWeb(payChannel, orderId, price);
-                    log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(alipayWebRes));
+                    log.info("param: {}  res: {}", JsonUtil.toJSONString(param), JsonUtil.toJSONString(alipayWebRes));
                     data.put("payInfo", alipayWebRes.get("payInfo"));
                     break;
                 case WECHATPAY:
                     Map<String, Object> wechatPayRes = wechatPayService.pay(payChannel, orderId, price);
-                    log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(wechatPayRes));
+                    log.info("param: {}  res: {}", JsonUtil.toJSONString(param), JsonUtil.toJSONString(wechatPayRes));
                     data = wechatPayRes;
                     break;
                 case YEEPAY_BANK:
 //                    MwUser payUser = userService.getById(loginUser.getUid());
 //                    Map<String, Object> yeeBankRes = yeePayService.bankPay(payChannel, orderId, price,payUser.getPhone(),cardQueryVo, param.getType());
-//                    log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(yeeBankRes));
+//                    log.info("param: {}  res: {}", JsonUtil.toJSONString(param), JsonUtil.toJSONString(yeeBankRes));
 //                    data = yeeBankRes;
                     break;
                 case ADAPAY_BANK:
                     Map<String, Object> adaBankRes = adaPayService.bankPay(payChannel, orderId, price,loginUser.getUid());
-                    log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(adaBankRes));
+                    log.info("param: {}  res: {}", JsonUtil.toJSONString(param), JsonUtil.toJSONString(adaBankRes));
                     data = adaBankRes;
                     break;
                 case YSEPAY_BANK_BIND:
@@ -237,13 +237,13 @@ public class PayController {
                         throw new MshopException("银行卡未签约");
                     }
                     Map<String, Object> ysePayRes = ysePayService.createProtocol(payChannel, orderId, price,loginUser.getUid(),userBank.getProtocolNo());
-                    log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(ysePayRes));
+                    log.info("param: {}  res: {}", JsonUtil.toJSONString(param), JsonUtil.toJSONString(ysePayRes));
                     bankService.setDefault(loginUser.getUid(), userBank.getId());
                     data = ysePayRes;
                     break;
                 case YSEPAY:
                     FrontCodePayRespCommand yseAliPay = ysePayService.alipay(payChannel, orderId, price);
-                    log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(yseAliPay));
+                    log.info("param: {}  res: {}", JsonUtil.toJSONString(param), JsonUtil.toJSONString(yseAliPay));
                     data.put("payInfo", "alipays://platformapi/startapp?saId=10000007&qrcode=" + yseAliPay.getQrCode());
                     break;
                 case iOSPAY:
@@ -262,7 +262,7 @@ public class PayController {
     }
     @AppLog(value = "支付请求短信确认", type = 1)
     @AuthCheck
-    @ApiOperation("支付请求短信确认")
+    @Operation(summary = "支付请求短信确认")
     @Transactional
     @PostMapping(value = "/pay/confirm")
     public ApiResult<Map<String, Object>> payConfirm(@Valid @RequestBody PayConfirmParam param) {
@@ -275,7 +275,7 @@ public class PayController {
         switch (PayChannelEnum.toKey(key)) {
             case YSEPAY_BANK_BIND:
                 boolean ysePayConfirm = ysePayService.fastPayMsgVerify(payChannel, param.getBizSn(), param.getCode());
-                log.info("payConfirm param: {}  res: {}", JSON.toJSONString(param), ysePayConfirm);
+                log.info("payConfirm param: {}  res: {}", JsonUtil.toJSONString(param), ysePayConfirm);
                 data.put("confirm", ysePayConfirm);
                 break;
         }
@@ -313,7 +313,7 @@ public class PayController {
         BigDecimal priceB = BigDecimal.ZERO;
         if(type == 0) {
             //正式加盟
-            JSONObject jsonObject = JSON.parseObject(systemGroupData.getValue());
+            JsonObject jsonObject = JsonUtil.parseObject(systemGroupData.getValue());
             String price = jsonObject.getString("price");
             //计算优惠信息
             BigDecimal coupon = BigDecimal.ZERO;
@@ -347,7 +347,7 @@ public class PayController {
 
     @AuthCheck
     @GetMapping("/pay/bind")
-    @ApiOperation(value = "绑定支付渠道",notes = "绑定支付渠道",response = MwUserCardQueryVo.class)
+    @Operation(summary = "绑定支付渠道", description = "绑定支付渠道")
     public ApiResult<String> bindChannel(@RequestParam Integer payType){
 
         // payType "支付类型 0=邀请一人升送1年 1=支付宝 2=微信 3=银行卡 其他未定义")
@@ -369,7 +369,7 @@ public class PayController {
     @AppLog(value = "用户支付配置", type = 1)
     @AuthCheck
     @GetMapping("/pay/config")
-    @ApiOperation(value = "用户支付配置",notes = "用户支付配置")
+    @Operation(summary = "用户支付配置", description = "用户支付配置")
     public ApiResult<PayConfigDto> extractConfig(){
         return ApiResult.ok(systemConfigService.getAppPayConfig());
     }
@@ -377,7 +377,7 @@ public class PayController {
     @AppLog(value = "银行卡绑定签约", type = 1)
     @AuthCheck
     @PostMapping("/pay/bank/bind")
-    @ApiOperation(value = "银行卡绑定签约",notes = "银行卡绑定签约")
+    @Operation(summary = "银行卡绑定签约", description = "银行卡绑定签约")
     public ApiResult payBankBind(@Valid @RequestBody PayBankBindParam param) throws Exception {
         if(!StringUtils.isPhone(param.getPhone())) {
             throw new MshopException("不是正确的手机号");
@@ -397,7 +397,7 @@ public class PayController {
         switch (PayChannelEnum.toKey(key)) {
             case YSEPAY_BANK_BIND:
                 String requestNo = ysePayService.signProtocol(payChannel, param.getPhone(), userCard, param.getBankNo());
-                log.info("payBankBind param: {}  res: {}", JSON.toJSONString(param), requestNo);
+                log.info("payBankBind param: {}  res: {}", JsonUtil.toJSONString(param), requestNo);
                 data.put("requestNo", requestNo);
                 break;
         }
@@ -406,7 +406,7 @@ public class PayController {
     @AppLog(value = "银行卡绑定签约短信确认", type = 1)
     @AuthCheck
     @PostMapping("/pay/bank/bind/confirm")
-    @ApiOperation(value = "银行卡绑定签约短信确认",notes = "银行卡绑定签约短信确认")
+    @Operation(summary = "银行卡绑定签约短信确认", description = "银行卡绑定签约短信确认")
     public ApiResult payBankBindConfirm(@Valid @RequestBody PayBankBindConfirmParam param){
         MwUser loginUser = LocalUser.getUser();
         PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), param.getPayType());
@@ -418,25 +418,25 @@ public class PayController {
         switch (PayChannelEnum.toKey(key)) {
             case YSEPAY_BANK_BIND:
                 ysePayService.signProtocolConfirm(payChannel, param.getRequestNo(), param.getCode());
-                log.info("payBankBind param: {}", JSON.toJSONString(param));
+                log.info("payBankBind param: {}", JsonUtil.toJSONString(param));
                 break;
         }
         return ApiResult.ok();
 
     }
 
-    protected JSONObject getPayConfig() {
+    protected JsonObject getPayConfig() {
         Object appObj = redisUtil.get(PAY_CONFIG + "_" + PAY_NAME);
         if(appObj == null) {
             appObj = redisUtil.get(PAY_CONFIG);
         }
-        return (JSONObject) appObj;
+        return (JsonObject) appObj;
     }
 
     @AppLog(value = "查询银行卡信息", type = 1)
     @AuthCheck
     @GetMapping("/pay/bank/info")
-    @ApiOperation(value = "查询银行卡信息",notes = "查询银行卡信息")
+    @Operation(summary = "查询银行卡信息", description = "查询银行卡信息")
     public ApiResult payBankInfo(@RequestParam String bankNo){
         MwUser loginUser = LocalUser.getUser();
         PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), 4);
@@ -448,7 +448,7 @@ public class PayController {
         switch (PayChannelEnum.toKey(key)) {
             case YSEPAY_BANK_BIND:
 
-                YsePayConfig yesConfig = JSON.parseObject(payChannel.getCertProfile(), YsePayConfig.class);
+                YsePayConfig yesConfig = JsonUtil.parseObject(payChannel.getCertProfile(), YsePayConfig.class);
                 //查询银行卡
                 QueryCardRespCommand cardResp = ysePayService.queryBankCard(yesConfig, bankNo);
                 return ApiResult.ok(cardResp);
@@ -459,7 +459,7 @@ public class PayController {
     @AppLog(value = "查询支持的银行卡列表", type = 1)
     @AuthCheck
     @GetMapping("/pay/bank/support")
-    @ApiOperation(value = "查询支持的银行卡列表",notes = "查询支持的银行卡列表")
+    @Operation(summary = "查询支持的银行卡列表", description = "查询支持的银行卡列表")
     public ApiResult payBankBindConfirm(){
         MwUser loginUser = LocalUser.getUser();
         PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), 4);
@@ -471,7 +471,7 @@ public class PayController {
         switch (PayChannelEnum.toKey(key)) {
             case YSEPAY_BANK_BIND:
 
-                YsePayConfig yesConfig = JSON.parseObject(payChannel.getCertProfile(), YsePayConfig.class);
+                YsePayConfig yesConfig = JsonUtil.parseObject(payChannel.getCertProfile(), YsePayConfig.class);
                 //查询银行卡
                 QueryBankListRespCommand cardResp = ysePayService.queryBankList(yesConfig);
                 return ApiResult.ok(cardResp.getBankList());

@@ -4,8 +4,8 @@
  */
 package com.mailvor.modules.mp.handler;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mailvor.modules.mp.builder.TextBuilder;
 import com.mailvor.modules.tk.param.ParseContentParam;
@@ -23,7 +23,7 @@ import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
@@ -60,7 +60,7 @@ public class MsgHandler extends AbstractHandler {
             e.printStackTrace();
         }
 
-        log.info("微信用户信息：{}", JSON.toJSONString(wxMessage));
+        log.info("微信用户信息：{}", JsonUtil.toJSONString(wxMessage));
         String openId = wxMessage.getFromUser();
 //        AuthService.wechatAppLogin
 
@@ -93,7 +93,7 @@ public class MsgHandler extends AbstractHandler {
                     .eq(MwUser::getWechatOpenId, openId), false);
             //todo 如果是抖音和唯品会 mixParse 需要直接转链
             TkParseCodeVO res = service.mixParse(new ParseContentParam(content), findUser);
-            log.info("查券识别结果 {}", res == null ? "空" : JSON.toJSONString(res));
+            log.info("查券识别结果 {}", res == null ? "空" : JsonUtil.toJSONString(res));
             //解析查券结果 //解析内容 名字为空或者 状态不是3 4 5 说明是无券商品，弹出全网搜索
             if(res != null && res.getData() != null) {
                 TkParseVO data = res.getData();
@@ -165,7 +165,7 @@ public class MsgHandler extends AbstractHandler {
 //        checked = MsgHandler.checkOrder("22090607a084633");
 //        System.out.println(checked);
         MsgHandler msgHandler = new MsgHandler();
-        JSONObject res = JSONObject.parseObject("{\"msg\":\"成功\",\"cache\":false,\"code\":0,\"data\":{\"kuaiZhanUrl\":\"https://07mls.kuaizhan.com/?_s=pIVeE1\",\"commissionRate\":40.02,\"schemaPromotionShortUrl\":\"\",\"originalPrice\":89.9,\"actualPrice\":29.9,\"itemLink\":\"https://s.click.taobao.com/1ciwdQu\",\"errorCode\":0,\"shopName\":\"\",\"activityStartTime\":\"\",\"subErrorCode\":0,\"couponId\":\"ed18491d942b49b6819ed222393dab05\",\"haiTao\":0,\"plusCommissionRate\":0,\"parseStatus\":3,\"monthSales\":30000,\"skuName\":\"\",\"activityId\":\"\",\"couponLink\":\"https://uland.taobao.com/quan/detail?sellerId=210785179&activityId=ed18491d942b49b6819ed222393dab05\",\"itemName\":\"【南京同仁堂】官方旗舰店正品暴汗足丸男女通用买一送一盒包邮\",\"cpaRewardAmount\":\"\",\"couponStartTime\":\"2022-11-16 00:00:00\",\"plusCommissionAmount\":0,\"mainPic\":\"https://img.alicdn.com/imgextra/i1/210785179/O1CN01kY8bNG1o820G3zwdW_!!210785179.jpg\",\"marketMainPic\":\"https://sr.ffquan.cn/dtk_www_855587/20220914/ccgu295emv7haelvutv00.jpg\",\"tchaoshi\":0,\"tmall\":0,\"skuId\":\"\",\"dataType\":\"goods\",\"subErrorMsg\":\"\",\"sensitiveWords\":0,\"url\":\"\",\"errorMsg\":\"\",\"couponEndTime\":\"2022-11-22 23:59:59\",\"couponTotalCount\":100000,\"itemId\":\"7yK9WzP7y7u4t7dMq9Fnk8CMtV-ZrGpqKAIA36V9WkpCR9\",\"activityEndTime\":\"\",\"originContent\":\"17￥ CZ0001 JUeddcPrDOI￥ https://m.tb.cn/h.UhgeYCM  【南京同仁堂】官方旗舰店正品暴汗足丸男女通用买一送一盒包邮\",\"parsedContent\":\"17￥ CZ0001 JUeddcPrDOI￥ https://m.tb.cn/h.UhgeYCM  【南京同仁堂】官方旗舰店正品暴汗足丸男女通用买一送一盒包邮\",\"promotionShortUrl\":\"https://s.click.taobao.com/1ciwdQu\",\"couponReceiveNum\":0,\"couponPrice\":60,\"platType\":\"taobao\",\"longTpwd\":\"49￥ CZ0001 otnEdcPIGwe￥ https://m.tb.cn/h.US5ngTw  【南京同仁堂】官方旗舰店正品暴汗足丸男女通用买一送一盒包邮\",\"commissionAmount\":11.96,\"tpwd\":\"0￥otnEdcPIGwe￥/\"},\"requestId\":\"60df9ecf3fbb7a678b22662134b0ca08\",\"time\":1668606208147657}");
+        JsonObject res = JsonUtil.parseObject("{\"msg\":\"成功\",\"cache\":false,\"code\":0,\"data\":{\"kuaiZhanUrl\":\"https://07mls.kuaizhan.com/?_s=pIVeE1\",\"commissionRate\":40.02,\"schemaPromotionShortUrl\":\"\",\"originalPrice\":89.9,\"actualPrice\":29.9,\"itemLink\":\"https://s.click.taobao.com/1ciwdQu\",\"errorCode\":0,\"shopName\":\"\",\"activityStartTime\":\"\",\"subErrorCode\":0,\"couponId\":\"ed18491d942b49b6819ed222393dab05\",\"haiTao\":0,\"plusCommissionRate\":0,\"parseStatus\":3,\"monthSales\":30000,\"skuName\":\"\",\"activityId\":\"\",\"couponLink\":\"https://uland.taobao.com/quan/detail?sellerId=210785179&activityId=ed18491d942b49b6819ed222393dab05\",\"itemName\":\"【南京同仁堂】官方旗舰店正品暴汗足丸男女通用买一送一盒包邮\",\"cpaRewardAmount\":\"\",\"couponStartTime\":\"2022-11-16 00:00:00\",\"plusCommissionAmount\":0,\"mainPic\":\"https://img.alicdn.com/imgextra/i1/210785179/O1CN01kY8bNG1o820G3zwdW_!!210785179.jpg\",\"marketMainPic\":\"https://sr.ffquan.cn/dtk_www_855587/20220914/ccgu295emv7haelvutv00.jpg\",\"tchaoshi\":0,\"tmall\":0,\"skuId\":\"\",\"dataType\":\"goods\",\"subErrorMsg\":\"\",\"sensitiveWords\":0,\"url\":\"\",\"errorMsg\":\"\",\"couponEndTime\":\"2022-11-22 23:59:59\",\"couponTotalCount\":100000,\"itemId\":\"7yK9WzP7y7u4t7dMq9Fnk8CMtV-ZrGpqKAIA36V9WkpCR9\",\"activityEndTime\":\"\",\"originContent\":\"17￥ CZ0001 JUeddcPrDOI￥ https://m.tb.cn/h.UhgeYCM  【南京同仁堂】官方旗舰店正品暴汗足丸男女通用买一送一盒包邮\",\"parsedContent\":\"17￥ CZ0001 JUeddcPrDOI￥ https://m.tb.cn/h.UhgeYCM  【南京同仁堂】官方旗舰店正品暴汗足丸男女通用买一送一盒包邮\",\"promotionShortUrl\":\"https://s.click.taobao.com/1ciwdQu\",\"couponReceiveNum\":0,\"couponPrice\":60,\"platType\":\"taobao\",\"longTpwd\":\"49￥ CZ0001 otnEdcPIGwe￥ https://m.tb.cn/h.US5ngTw  【南京同仁堂】官方旗舰店正品暴汗足丸男女通用买一送一盒包邮\",\"commissionAmount\":11.96,\"tpwd\":\"0￥otnEdcPIGwe￥/\"},\"requestId\":\"60df9ecf3fbb7a678b22662134b0ca08\",\"time\":1668606208147657}");
 
 //        String con = msgHandler.getParsedContent(res.getJSONObject("data"), null);
 //        System.out.println(con);

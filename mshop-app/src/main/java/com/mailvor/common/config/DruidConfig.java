@@ -3,7 +3,7 @@ package com.mailvor.common.config;
 import com.mailvor.common.config.datasource.DynamicDataSource;
 import com.mailvor.enums.DataSourceType;
 import com.alibaba.druid.pool.DruidDataSource;
-import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
+import com.alibaba.druid.spring.boot4.autoconfigure.DruidDataSourceBuilder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;

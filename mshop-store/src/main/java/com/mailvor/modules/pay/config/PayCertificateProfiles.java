@@ -1,8 +1,8 @@
 package com.mailvor.modules.pay.config;
 
 import cn.hutool.crypto.asymmetric.RSA;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.api.MshopException;
 import com.mailvor.modules.utils.RsaUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -54,8 +54,8 @@ public class PayCertificateProfiles {
      * 曾导致用旧私钥签名却上报新证书的 app_cert_sn，支付宝返回 isv.invalid-signature。
      * 这里统一成驼峰字段：驼峰值优先，旧值只在驼峰缺失或空白时回填，随后删除旧键。
      */
-    public JSONObject normalize(JSONObject profile) {
-        JSONObject canonical = new JSONObject(true);
+    public JsonObject normalize(JsonObject profile) {
+        JsonObject canonical = new JsonObject();
         for (Map.Entry<String, Object> entry : profile.entrySet()) {
             canonical.put(entry.getKey().trim(), entry.getValue());
         }
@@ -71,7 +71,7 @@ public class PayCertificateProfiles {
     public String normalizeProfile(String profile) {
         if (StringUtils.isBlank(profile)) return profile;
         try {
-            return normalize(JSON.parseObject(profile)).toJSONString();
+            return normalize(JsonUtil.parseObject(profile)).toJSONString();
         } catch (Exception e) {
             return profile;
         }
@@ -85,10 +85,10 @@ public class PayCertificateProfiles {
         return "alipay".equals(key) || "alipayweb".equals(key) || "wechatpay".equals(key);
     }
 
-    private JSONObject decrypt(byte[] encrypted) {
-        if (encrypted == null || encrypted.length == 0) return new JSONObject();
+    private JsonObject decrypt(byte[] encrypted) {
+        if (encrypted == null || encrypted.length == 0) return new JsonObject();
         try {
-            JSONObject profile = JSON.parseObject(RsaUtil.decrypt(new String(encrypted, StandardCharsets.UTF_8), KEY_RSA_PRIVATE));
+            JsonObject profile = JsonUtil.parseObject(RsaUtil.decrypt(new String(encrypted, StandardCharsets.UTF_8), KEY_RSA_PRIVATE));
             if (profile == null) throw new IllegalArgumentException();
             return normalize(profile);
         } catch (Exception e) {
@@ -96,10 +96,10 @@ public class PayCertificateProfiles {
         }
     }
 
-    public JSONObject metadata(String channelKey, byte[] encrypted) {
-        JSONObject profile = decrypt(encrypted);
-        JSONObject result = new JSONObject();
-        JSONObject fields = new JSONObject();
+    public JsonObject metadata(String channelKey, byte[] encrypted) {
+        JsonObject profile = decrypt(encrypted);
+        JsonObject result = new JsonObject();
+        JsonObject fields = new JsonObject();
         for (String field : PUBLIC_FIELDS) if (profile.containsKey(field)) fields.put(field, profile.get(field));
         if (!fields.containsKey("mode") && channelKey != null && channelKey.startsWith("alipay")) {
             fields.put("mode", !present(profile, "appCertContent") && !present(profile, "appPublicCert") && present(profile, "publicKey") ? 1 : 2);
@@ -116,8 +116,8 @@ public class PayCertificateProfiles {
     /** 空白字段表示不替换；每次使用数据库最新内容合并，避免覆盖未编辑的私钥。 */
     public byte[] prepare(String channelKey, byte[] existing, String encryptedPatch, boolean merge) {
         if (StringUtils.isBlank(encryptedPatch)) return existing;
-        JSONObject patch = decrypt(encryptedPatch.getBytes(StandardCharsets.UTF_8));
-        JSONObject profile = merge ? decrypt(existing) : new JSONObject();
+        JsonObject patch = decrypt(encryptedPatch.getBytes(StandardCharsets.UTF_8));
+        JsonObject profile = merge ? decrypt(existing) : new JsonObject();
         if (merge && !nativeChannel(channelKey)) throw new MshopException("该支付通道请使用高级 JSON 配置");
         for (String field : patch.keySet()) {
             if (merge && !PUBLIC_FIELDS.contains(field) && !SECRET_FIELDS.contains(field)) {
@@ -135,7 +135,7 @@ public class PayCertificateProfiles {
         return encrypt(profile);
     }
 
-    private byte[] encrypt(JSONObject profile) {
+    private byte[] encrypt(JsonObject profile) {
         try {
             RSAPrivateCrtKey key = (RSAPrivateCrtKey) new RSA(KEY_RSA_PRIVATE, null).getPrivateKey();
             byte[] publicKey = KeyFactory.getInstance("RSA")
@@ -151,15 +151,15 @@ public class PayCertificateProfiles {
         }
     }
 
-    private boolean present(JSONObject profile, String field) { return StringUtils.isNotBlank(profile.getString(field)); }
-    private void require(JSONObject profile, String field, String label) {
+    private boolean present(JsonObject profile, String field) { return StringUtils.isNotBlank(profile.getString(field)); }
+    private void require(JsonObject profile, String field, String label) {
         if (!present(profile, field)) throw new MshopException("请配置" + label);
     }
-    private void requireCertificate(JSONObject profile, String field, String label) {
+    private void requireCertificate(JsonObject profile, String field, String label) {
         if (!present(profile, field) && !present(profile, LEGACY.get(field))) throw new MshopException("请上传" + label);
     }
 
-    private void validate(String channelKey, JSONObject profile, JSONObject patch) {
+    private void validate(String channelKey, JsonObject profile, JsonObject patch) {
         require(profile, "appId", "应用 APPID");
         if (channelKey.startsWith("alipay")) {
             if (profile.getInteger("mode") == null) {

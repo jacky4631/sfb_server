@@ -4,7 +4,7 @@
  */
 package com.mailvor.modules.tk.domain;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,68 +22,68 @@ import java.util.Date;
 @NoArgsConstructor
 public class MailvorEleKuOrder {
     /** 子订单号 */
-    @JSONField(name = "trade_id")
+    @JsonProperty("trade_id")
     private String tradeId;
     /** 父订单号 */
-    @JSONField(name = "trade_parent_id")
+    @JsonProperty("trade_parent_id")
     private String tradeParentId;
 
     /** 下单时间 */
-    @JSONField(name = "paid_time")
+    @JsonProperty("paid_time")
     private Long paidTime;
 
     /** 下单时间 */
-    @JSONField(name = "create_time")
+    @JsonProperty("create_time")
     private Long createTime;
 
     /** 订单金额 */
-    @JSONField(name = "pay_price")
+    @JsonProperty("pay_price")
     private Double payPrice;
 
 
     /** 商品标题 */
-    @JSONField(name = "item_title")
+    @JsonProperty("item_title")
     private String itemTitle;
     /** 商品主图 */
-    @JSONField(name = "item_img")
+    @JsonProperty("item_img")
     private String itemImg;
 
 
     /** 订单状态：1已付款、2已结算、3已退款、4已收货
      */
-    @JSONField(name = "order_status")
+    @JsonProperty("order_status")
     private Integer orderStatus;
 
     /** 结算状态：0待结算、1已结算、2订单无效
      */
-    @JSONField(name = "settled_status")
+    @JsonProperty("settled_status")
     private Integer settledStatus;
     /** 结算时间 */
-    @JSONField(name = "earning_time")
+    @JsonProperty("earning_time")
     private Long earningTime;
     /** 店铺名称 */
-    @JSONField(name = "shop_name")
+    @JsonProperty("shop_name")
     private String shopName;
 
     /** 渠道信息 */
-    @JSONField(name = "channel_code")
+    @JsonProperty("channel_code")
     private String channelCode;
     /** 预估佣金*/
-    @JSONField(name = "predict_money")
+    @JsonProperty("predict_money")
     private Double predictMoney;
 
 
     /** 实际佣金 */
-    @JSONField(name = "actual_money")
+    @JsonProperty("actual_money")
     private Double actualMoney;
 
     /** 店铺ID */
-    @JSONField(name = "shop_id")
+    @JsonProperty("shop_id")
     private Integer shopId;
 
 
     /** 订单更新时间*/
-    @JSONField(name = "update_time")
+    @JsonProperty("update_time")
     private Long updateTime;
 
 

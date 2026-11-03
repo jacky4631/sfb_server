@@ -7,8 +7,8 @@ package com.mailvor.utils;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.enums.PlatformEnum;
 import com.mailvor.enums.ShopCommonEnum;
 
@@ -343,7 +343,7 @@ public class OrderUtil {
             return 0L;
         }
         try{
-            JSONObject obj = JSON.parseObject(param);
+            JsonObject obj = JsonUtil.parseObject(param);
             return Long.parseLong(obj.getString("uid"));
 
         }catch (Exception e) {

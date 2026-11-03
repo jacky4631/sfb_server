@@ -4,10 +4,12 @@
  */
 package com.mailvor.modules.wechat.rest.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.binarywang.wx.miniapp.api.WxMaService;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonArray;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.annotation.AnonymousAccess;
 import com.mailvor.api.ApiResult;
 import com.mailvor.api.BusinessException;
@@ -24,8 +26,6 @@ import com.mailvor.utils.OrderUtil;
 import com.mailvor.utils.RedisUtils;
 import com.mailvor.utils.ShopKeyUtils;
 import com.mailvor.utils.StringUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxJsapiSignature;
@@ -37,8 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.LinkedHashMap;
@@ -52,7 +52,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "微信模块", tags = "微信:微信模块")
+@Tag(name = "微信:微信模块")
 public class WechatController {
 
     private final MwSystemConfigService systemConfigService;
@@ -62,7 +62,7 @@ public class WechatController {
      * 微信分享配置
      */
     @GetMapping("/share")
-    @ApiOperation(value = "微信分享配置",notes = "微信分享配置")
+    @Operation(summary = "微信分享配置", description = "微信分享配置")
     public ApiResult<Map<String,Object>> share() {
         Map<String,Object> map = new LinkedHashMap<>();
         map.put("img",systemConfigService.getData(SystemConfigConstants.WECHAT_SHARE_IMG));
@@ -77,7 +77,7 @@ public class WechatController {
      * jssdk配置
      */
     @GetMapping("/wechat/config")
-    @ApiOperation(value = "jssdk配置",notes = "jssdk配置")
+    @Operation(summary = "jssdk配置", description = "jssdk配置")
     public ApiResult<Map<String,Object>> jsConfig(HttpServletRequest request) throws WxErrorException {
         WxMpService wxService = WxMpConfiguration.getWxMpService();
         String url = request.getParameter("url");
@@ -100,7 +100,7 @@ public class WechatController {
      * 微信小程序接口能力配置
      */
     @GetMapping("/wxapp/config")
-    @ApiOperation(value = "微信小程序接口能力配置",notes = "微信小程序接口能力配置",produces = "text/plain;charset=utf-8")
+    @Operation(summary = "微信小程序接口能力配置", description = "微信小程序接口能力配置")
     public String wxAppConfig(@RequestParam(value = "signature") String signature,
                                                      @RequestParam(value = "timestamp") String timestamp,
                                                      @RequestParam(value = "nonce") String nonce,
@@ -117,7 +117,7 @@ public class WechatController {
      * 微信验证消息
      */
     @GetMapping( value = "/wechat/serve",produces = "text/plain;charset=utf-8")
-    @ApiOperation(value = "微信验证消息",notes = "微信验证消息")
+    @Operation(summary = "微信验证消息", description = "微信验证消息")
     public String authGet(@RequestParam(name = "signature", required = false) String signature,
                           @RequestParam(name = "timestamp", required = false) String timestamp,
                           @RequestParam(name = "nonce", required = false) String nonce,
@@ -139,7 +139,7 @@ public class WechatController {
      *微信获取消息
      */
     @PostMapping("/wechat/serve")
-    @ApiOperation(value = "微信获取消息",notes = "微信获取消息")
+    @Operation(summary = "微信获取消息", description = "微信获取消息")
     public void post(@RequestBody String requestBody,
                        @RequestParam("signature") String signature,
                        @RequestParam("timestamp") String timestamp,
@@ -193,7 +193,7 @@ public class WechatController {
         return null;
     }
     @GetMapping( value = "/wechat/id")
-    @ApiOperation(value = "获取微信公众号id",notes = "获取微信公众号id")
+    @Operation(summary = "获取微信公众号id", description = "获取微信公众号id")
     public ApiResult getWechatId(){
         return ApiResult.ok(redisUtils.getY(ShopKeyUtils.getWechatAppId()));
 

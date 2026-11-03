@@ -1,6 +1,7 @@
 package com.mailvor.modules.shanyan.utils;
 
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.utils.StringUtils;
 import okhttp3.*;
 
@@ -44,7 +45,7 @@ public class OkHttpUtil {
     /**
      * token置换手机号后台接口
      */
-    public static JSONObject postRequest(String url, Map<String, String> params) {
+    public static JsonObject postRequest(String url, Map<String, String> params) {
         try {
             FormBody.Builder builder = new FormBody.Builder();
             for (Map.Entry<String, String> m : params.entrySet()) {
@@ -57,7 +58,7 @@ public class OkHttpUtil {
                 String content = response.body().string();
                 //System.out.println("response:"+content);
                 if (StringUtils.isNotBlank(content)) {
-                    JSONObject jsonObject = JSONObject.parseObject(content);
+                    JsonObject jsonObject = JsonUtil.parseObject(content);
                     return jsonObject;
                 }
             }

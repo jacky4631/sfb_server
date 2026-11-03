@@ -1,7 +1,7 @@
 package com.mailvor.modules.order.vo;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.mailvor.modules.order.service.dto.ProductDto;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -20,25 +20,25 @@ import java.io.Serializable;
 public class OrderCartInfoVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "订单ID")
+    @Schema(description = "订单ID")
     private String orderId;
 
-    @ApiModelProperty(value = "商品ID")
+    @Schema(description = "商品ID")
     private Long productId;
 
-    @ApiModelProperty(value = "购物车数量")
+    @Schema(description = "购物车数量")
     private Integer cartNum;
 
-    @ApiModelProperty(value = "拼团产品ID")
+    @Schema(description = "拼团产品ID")
     private Long combinationId;
 
-    @ApiModelProperty(value = "秒杀产品ID")
+    @Schema(description = "秒杀产品ID")
     private Long seckillId;
 
-    @ApiModelProperty(value = "砍价产品ID")
+    @Schema(description = "砍价产品ID")
     private Long bargainId;
 
-    @ApiModelProperty(value = "产品信息")
+    @Schema(description = "产品信息")
     private ProductDto productInfo;
 
 

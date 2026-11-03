@@ -4,12 +4,12 @@
  */
 package com.mailvor.modules.activity.domain;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import com.mailvor.domain.BaseDomain;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -23,17 +23,17 @@ import lombok.EqualsAndHashCode;
 public class MwStoreCouponIssueUser extends BaseDomain {
 
     @TableId
-    @ApiModelProperty(value = "优惠券前台用户领取记录ID")
+    @Schema(description = "优惠券前台用户领取记录ID")
     private Long id;
 
 
     /** 领取优惠券用户ID */
-    @ApiModelProperty(value = "领取优惠券用户ID")
+    @Schema(description = "领取优惠券用户ID")
     private Long uid;
 
 
     /** 优惠券前台领取ID */
-    @ApiModelProperty(value = "优惠券前台领取ID")
+    @Schema(description = "优惠券前台领取ID")
     private Integer issueCouponId;
 
 

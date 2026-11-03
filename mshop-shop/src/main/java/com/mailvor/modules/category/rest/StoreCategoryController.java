@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.category.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.StrUtil;
 import com.mailvor.api.MshopException;
 import com.mailvor.constant.ShopConstants;
@@ -15,8 +17,6 @@ import com.mailvor.modules.category.service.dto.MwStoreCategoryDto;
 import com.mailvor.modules.category.service.dto.MwStoreCategoryQueryCriteria;
 import com.mailvor.modules.product.domain.MwStoreProduct;
 import com.mailvor.modules.product.service.MwStoreProductService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
@@ -40,7 +40,7 @@ import java.util.List;
 * @author huangyu
 * @date 2019-10-03
 */
-@Api(tags = "商城：商品分类管理")
+@Tag(name = "商城：商品分类管理")
 @RestController
 @RequestMapping("api")
 public class StoreCategoryController {
@@ -57,7 +57,7 @@ public class StoreCategoryController {
     }
 
     @Log("导出数据")
-    @ApiOperation("导出数据")
+    @Operation(summary = "导出数据")
     @GetMapping(value = "/mwStoreCategory/download")
     @PreAuthorize("@el.check('admin','MWSTORECATEGORY_SELECT')")
     public void download(HttpServletResponse response, MwStoreCategoryQueryCriteria criteria) throws IOException {
@@ -66,7 +66,7 @@ public class StoreCategoryController {
 
 
     @Log("查询商品分类")
-    @ApiOperation(value = "查询商品分类")
+    @Operation(summary = "查询商品分类")
     @GetMapping(value = "/mwStoreCategory")
     @PreAuthorize("hasAnyRole('admin','MWSTORECATEGORY_ALL','MWSTORECATEGORY_SELECT')")
     public ResponseEntity getMwStoreCategorys(MwStoreCategoryQueryCriteria criteria, Pageable pageable){
@@ -76,7 +76,7 @@ public class StoreCategoryController {
 
     @ForbidSubmit
     @Log("新增商品分类")
-    @ApiOperation(value = "新增商品分类")
+    @Operation(summary = "新增商品分类")
     @PostMapping(value = "/mwStoreCategory")
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY,allEntries = true)
     @PreAuthorize("hasAnyRole('admin','MWSTORECATEGORY_ALL','MWSTORECATEGORY_CREATE')")
@@ -95,7 +95,7 @@ public class StoreCategoryController {
 
     @ForbidSubmit
     @Log("修改商品分类")
-    @ApiOperation(value = "修改商品分类")
+    @Operation(summary = "修改商品分类")
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY,allEntries = true)
     @PutMapping(value = "/mwStoreCategory")
     @PreAuthorize("hasAnyRole('admin','MWSTORECATEGORY_ALL','MWSTORECATEGORY_EDIT')")
@@ -120,7 +120,7 @@ public class StoreCategoryController {
 
     @ForbidSubmit
     @Log("删除商品分类")
-    @ApiOperation(value = "删除商品分类")
+    @Operation(summary = "删除商品分类")
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY,allEntries = true)
     @DeleteMapping(value = "/mwStoreCategory/{id}")
     @PreAuthorize("hasAnyRole('admin','MWSTORECATEGORY_ALL','MWSTORECATEGORY_DELETE')")

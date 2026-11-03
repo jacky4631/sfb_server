@@ -2,7 +2,7 @@ package com.mailvor.modules.dataoke.rest;
 
 import cn.hutool.core.codec.Base64Encoder;
 import cn.hutool.core.date.DateUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.api.MshopException;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.AuthCheck;
@@ -32,7 +32,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -86,7 +86,7 @@ public class DataokeController {
     }
 
     @GetMapping(value = "/goods/list")
-    public JSONObject getGoodList(GoodsListParam goodQueryParam) {
+    public JsonObject getGoodList(GoodsListParam goodQueryParam) {
 
         return service.goodsList(goodQueryParam);
     }
@@ -97,13 +97,13 @@ public class DataokeController {
         return service.goodsSearch(goodQueryParam);
     }
     @GetMapping(value = "/goods/detail")
-    public JSONObject getGoodsDetail(String goodsId) {
+    public JsonObject getGoodsDetail(String goodsId) {
 
         return service.goodsDetail(goodsId);
     }
 
     @GetMapping(value = "/goods/comment/list")
-    public JSONObject getCommentList(GoodsCommentParam param) {
+    public JsonObject getCommentList(GoodsCommentParam param) {
 
         return service.getCommentList(param);
     }
@@ -118,7 +118,7 @@ public class DataokeController {
      */
     @UserCheck
     @GetMapping(value = "/goods/word")
-    public JSONObject goodsWord(String goodsId, @RequestParam(required = false) String type,
+    public JsonObject goodsWord(String goodsId, @RequestParam(required = false) String type,
                                 @RequestParam(required = false) Long uid) {
 
         String pid = tbConfig.getChannelPid();
@@ -139,7 +139,7 @@ public class DataokeController {
             channelId = userUnion.getTbPid();
         }
 
-        JSONObject resVo = service.goodsWord(goodsId, pid, channelId);
+        JsonObject resVo = service.goodsWord(goodsId, pid, channelId);
 
         return resVo;
 
@@ -152,11 +152,11 @@ public class DataokeController {
     }
 
     @GetMapping(value = "/goods/category")
-    public JSONObject getCategory() {
-        JSONObject homeCategory = null;
+    public JsonObject getCategory() {
+        JsonObject homeCategory = null;
         boolean cacheAvailable = true;
         try {
-            homeCategory = (JSONObject) redisUtils.getCache(HOME_DATA_CATEGORY_TB);
+            homeCategory = (JsonObject) redisUtils.getCache(HOME_DATA_CATEGORY_TB);
         } catch (DataAccessException e) {
             cacheAvailable = false;
             log.warn("首页分类缓存读取失败，改从上游接口获取", e);
@@ -172,27 +172,27 @@ public class DataokeController {
     }
 
     @GetMapping(value = "/topic/list")
-    public JSONObject getTopic() {
+    public JsonObject getTopic() {
 
         return service.getTopic();
     }
 
     @GetMapping(value = "/banner/list")
-    public JSONObject getBanner() {
+    public JsonObject getBanner() {
 
         return service.getBanner();
     }
 
 
     @GetMapping(value = "/activity/list")
-    public JSONObject getTbActivityList(TbActivityListParam param) {
+    public JsonObject getTbActivityList(TbActivityListParam param) {
 
         return service.getTbActivityList(param);
     }
 
     @UserCheck
     @GetMapping(value = "/activity/parse")
-    public JSONObject parseTbActivityList(TbActivityParseParam param) {
+    public JsonObject parseTbActivityList(TbActivityParseParam param) {
         MwUser mwUser = LocalUser.getUser();
         //获取pid为了实现自动追单
         if(mwUser != null) {
@@ -214,25 +214,25 @@ public class DataokeController {
     }
 
     @GetMapping(value = "/goods/similar/list")
-    public JSONObject getGoodSimilarList(@RequestParam String id, @RequestParam(defaultValue = "10") String size) {
+    public JsonObject getGoodSimilarList(@RequestParam String id, @RequestParam(defaultValue = "10") String size) {
 
         return service.goodsSimilarList(id, size);
     }
 
     @GetMapping(value = "/ddq")
-    public JSONObject ddq(@RequestParam String roundTime) {
+    public JsonObject ddq(@RequestParam String roundTime) {
 
         return service.ddq(roundTime);
     }
 
     @GetMapping(value = "/ranking/list")
-    public JSONObject rankingList(RankingListParam param) {
+    public JsonObject rankingList(RankingListParam param) {
         return service.rankingList(param);
     }
 
     @UserCheck
     @GetMapping(value = "/shop/convert")
-    public JSONObject shopConvert(String shopId, String shopName) {
+    public JsonObject shopConvert(String shopId, String shopName) {
 
         MwUser mwUser = LocalUser.getUser();
         //获取pid为了实现自动追单
@@ -250,27 +250,27 @@ public class DataokeController {
     }
 
     @GetMapping(value = "/brand/list")
-    public JSONObject getBrandList(Integer cid, Integer pageId) {
+    public JsonObject getBrandList(Integer cid, Integer pageId) {
         if(cid == 0) {
             return restTemplate
                     .getForObject(String.format("https://cmscg.dataoke.com/cms-v2/brand-list?page=%s&page_size=10",
-                            pageId), JSONObject.class);
+                            pageId), JsonObject.class);
         }
         return service.getBrandList(cid, pageId);
     }
 
     @GetMapping(value = "/brand/goods/list")
-    public JSONObject getBrandGoodsList(String brandId, Integer pageId, Integer pageSize) {
+    public JsonObject getBrandGoodsList(String brandId, Integer pageId, Integer pageSize) {
 
         return service.getBrandGoodsList(brandId, pageId, pageSize);
     }
     @UserCheck
     @GetMapping(value = "/tlj/goods/list")
-    public JSONObject getZeroGoodList(GoodsListParam goodQueryParam) throws ApiException {
+    public JsonObject getZeroGoodList(GoodsListParam goodQueryParam) throws ApiException {
         goodQueryParam.setPriceUpperLimit("5");
         goodQueryParam.setCommissionRateLowerLimit("30");
         goodQueryParam.setCouponPriceLowerLimit("4");
-        JSONObject res = service.goodsList(goodQueryParam);
+        JsonObject res = service.goodsList(goodQueryParam);
         //如果是第一页 并且已登录 查看已领取的商品
 
         if(goodQueryParam.getPageId() == 1 && LocalUser.getUser() != null) {
@@ -279,8 +279,8 @@ public class DataokeController {
             if(userUnion != null) {
                 getUse(userUnion);
                 if(userUnion.getTljData() != null && !CollectionUtils.isEmpty(userUnion.getTljData().getData())){
-                    for(JSONObject data : userUnion.getTljData().getData()) {
-                        JSONObject detail = data.getJSONObject("detail");
+                    for(JsonObject data : userUnion.getTljData().getData()) {
+                        JsonObject detail = data.getJSONObject("detail");
                         //表明淘礼金已经发送，可能未领取 未使用
                         detail.put("tljSend", true);
                         boolean tljGet = data.getDoubleValue("get_rate")==100;
@@ -309,7 +309,7 @@ public class DataokeController {
      */
     @AuthCheck
     @GetMapping(value = "/tlj/goods/word")
-    public JSONObject tljGoodsWord(String goodsId) throws ApiException {
+    public JsonObject tljGoodsWord(String goodsId) throws ApiException {
 
         Long uid = LocalUser.getUser().getUid();
         MwUserUnion userUnion = userUnionService.getOne(uid);
@@ -325,16 +325,16 @@ public class DataokeController {
         //如果淘礼金领取次数=1 需要校验用户粉丝是否大于1，才能领取
         //如果淘礼金领取次数=0
         if(userUnion.getTljCount() >= 2) {
-            JSONObject useData = getUse(userUnion);
+            JsonObject useData = getUse(userUnion);
             //如果已经使用，返回错误
-            JSONObject data = useData.getJSONObject(goodsId);
+            JsonObject data = useData.getJSONObject(goodsId);
             if(data != null && data.getBooleanValue("use")) {
                 throw new MshopException("已经超过补贴次数");
             }
         } else if (userUnion.getTljCount() == 1) {
             //如果已经使用 提示邀请好友 如果还没使用，允许使用
-            JSONObject useData = getUse(userUnion);
-            JSONObject data = useData.getJSONObject(goodsId);
+            JsonObject useData = getUse(userUnion);
+            JsonObject data = useData.getJSONObject(goodsId);
             //如果不是同一个商品，提示邀请好友
             if(data == null) {
                 Long count = userService.getSpreadCount(uid, ShopCommonEnum.GRADE_0.getValue());
@@ -361,12 +361,12 @@ public class DataokeController {
         Object redisData = redisUtils.get(tljKey);
         String sendUrl = null;
         if(redisData != null) {
-            JSONObject tljObj = (JSONObject) redisData;
+            JsonObject tljObj = (JsonObject) redisData;
             sendUrl = tljObj.getString("send_url");
         } else {
 
-            JSONObject detail = service.goodsDetail(goodsId);
-            JSONObject data = detail.getJSONObject("data");
+            JsonObject detail = service.goodsDetail(goodsId);
+            JsonObject data = detail.getJSONObject("data");
             double startPrice = data.getDoubleValue("originalPrice");
             double couponPrice = data.getDoubleValue("couponPrice");
             double tljPrice = startPrice - couponPrice - 1;
@@ -374,13 +374,13 @@ public class DataokeController {
             if(tljPrice > 10 || tljPrice < 1) {
                 throw new MshopException("该商品不支持淘礼金");
             }
-            JSONObject tljObj = tkService.createTlj(goodsId, tljPrice);
-            JSONObject tljRes = tljObj.getJSONObject("tbk_dg_vegas_tlj_create_response").getJSONObject("result");
+            JsonObject tljObj = tkService.createTlj(goodsId, tljPrice);
+            JsonObject tljRes = tljObj.getJSONObject("tbk_dg_vegas_tlj_create_response").getJSONObject("result");
             boolean success = tljRes.getBooleanValue("success");
             if(!success) {
                 throw new MshopException("淘礼金领取失败，请换商品重试");
             }
-            JSONObject tljData = tljRes.getJSONObject("model");
+            JsonObject tljData = tljRes.getJSONObject("model");
             sendUrl = tljData.getString("send_url");
             tljData.put("goodsId", goodsId);
             tljData.put("detail", data);
@@ -391,7 +391,7 @@ public class DataokeController {
             TljDataDto tljDataDto = userUnion.getTljData();
             if(tljDataDto == null) {
                 tljDataDto = new TljDataDto();
-                List<JSONObject> tljIds = new ArrayList<>();
+                List<JsonObject> tljIds = new ArrayList<>();
                 tljDataDto.setData(tljIds);
                 userUnion.setTljData(tljDataDto);
             }
@@ -400,7 +400,7 @@ public class DataokeController {
             redisUtils.set(tljKey, tljData, 24*3600);
         }
 
-        JSONObject resVo = new JSONObject();
+        JsonObject resVo = new JsonObject();
         resVo.put("code", 0);
         resVo.put("url", sendUrl);
         return resVo;
@@ -409,7 +409,7 @@ public class DataokeController {
 
     @AuthCheck
     @GetMapping(value = "/tlj/use")
-    public JSONObject getTljUse() throws ApiException {
+    public JsonObject getTljUse() throws ApiException {
 
         Long uid = LocalUser.getUser().getUid();
         MwUserUnion userUnion = userUnionService.getOne(uid);
@@ -417,33 +417,33 @@ public class DataokeController {
 
     }
 
-    protected JSONObject getUse(MwUserUnion userUnion) throws ApiException {
-        JSONObject resVo = new JSONObject();
+    protected JsonObject getUse(MwUserUnion userUnion) throws ApiException {
+        JsonObject resVo = new JsonObject();
         resVo.put("code", 0);
         resVo.put("canBuy", true);
         if(userUnion.getTljData() == null) {
             return resVo;
         }
-        List<JSONObject> tljDataList = userUnion.getTljData().getData();
+        List<JsonObject> tljDataList = userUnion.getTljData().getData();
 
         boolean shouldSave = false;
-        for(JSONObject data : tljDataList) {
+        for(JsonObject data : tljDataList) {
             String tljId = data.getString("rights_id");
             double useRate = data.getDoubleValue("use_rate");
             double getRate = data.getDoubleValue("get_rate");
             //如果领取并且使用 直接返回
-            JSONObject rate = new JSONObject();
+            JsonObject rate = new JsonObject();
             if(useRate == 100 && getRate == 100) {
                 rate.put("use", true);
                 rate.put("get", true);
                 resVo.put(data.getString("goodsId"), rate);
             } else {
                 shouldSave = true;
-                JSONObject tljUse = tkService.getTljUse(tljId);
+                JsonObject tljUse = tkService.getTljUse(tljId);
 
-                JSONObject tljRes = tljUse.getJSONObject("tbk_dg_vegas_tlj_report_response");
+                JsonObject tljRes = tljUse.getJSONObject("tbk_dg_vegas_tlj_report_response");
                 if(tljRes.getBooleanValue("result_success")) {
-                    JSONObject extra = tljRes.getJSONObject("model").getJSONObject("extra");
+                    JsonObject extra = tljRes.getJSONObject("model").getJSONObject("extra");
                     //因为每个用户指领取一个，所以比例只要领了比例就是100
                     //只要领取比例是100，就代表无法再次领取其他商品
                     useRate = extra.getDouble("use_rate");

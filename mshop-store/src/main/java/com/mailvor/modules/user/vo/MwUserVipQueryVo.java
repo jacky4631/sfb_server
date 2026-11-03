@@ -1,9 +1,8 @@
 package com.mailvor.modules.user.vo;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -19,28 +18,28 @@ import java.util.Date;
  * @date 2019-10-16
  */
 @Data
-@ApiModel(value = "MwUserVipQueryVo对象", description = "用户表查询参数")
+@Schema(description = "用户表查询参数")
 public class MwUserVipQueryVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "用户id")
+    @Schema(description = "用户id")
     private Long uid;
 
-    @ApiModelProperty(value = "等级")
+    @Schema(description = "等级")
     private Integer level;
     private Integer levelPdd;
     private Integer levelJd;
     private Integer levelDy;
     private Integer levelVip;
 
-    @ApiModelProperty(value = "等级名")
+    @Schema(description = "等级名")
     private String levelName;
     private String levelNamePdd;
     private String levelNameJd;
     private String levelNameDy;
     private String levelNameVip;
 
-    @ApiModelProperty(value = "佣金比例")
+    @Schema(description = "佣金比例")
     private Double discount;
     private Double discountPdd;
     private Double discountJd;

@@ -4,6 +4,10 @@
  */
 package com.mailvor.modules.coupon.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.NumberUtil;
 import com.mailvor.api.ApiResult;
 import com.mailvor.api.MshopException;
@@ -17,10 +21,6 @@ import com.mailvor.modules.activity.vo.StoreCouponUserVo;
 import com.mailvor.modules.activity.vo.MwStoreCouponIssueQueryVo;
 import com.mailvor.modules.activity.vo.MwStoreCouponUserQueryVo;
 import com.mailvor.modules.coupon.param.MwStoreCouponQueryParam;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@Api(value = "优惠券", tags = "营销:优惠券")
+@Tag(name = "营销:优惠券")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CouponController {
 
@@ -57,13 +57,13 @@ public class CouponController {
      */
     @AuthCheck
     @GetMapping("/coupons")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "页码,默认为1", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "limit", value = "页大小,默认为10", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "productId", value = "产品ID", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "type", value = "优惠券类型 0通用券 1商品券 2内部券", paramType = "query", dataType = "int")
+    @Parameters({
+            @Parameter(name = "page", description = "页码,默认为1"),
+            @Parameter(name = "limit", description = "页大小,默认为10"),
+            @Parameter(name = "productId", description = "产品ID"),
+            @Parameter(name = "type", description = "优惠券类型 0通用券 1商品券 2内部券")
     })
-    @ApiOperation(value = "可领取优惠券列表",notes = "可领取优惠券列表")
+    @Operation(summary = "可领取优惠券列表", description = "可领取优惠券列表")
     public ApiResult<List<MwStoreCouponIssueQueryVo>> getList(@RequestParam(value = "page",defaultValue = "1") int page,
                                                               @RequestParam(value = "limit",defaultValue = "10") int limit,
                                                               @RequestParam(value = "productId",required = false) Long productId,
@@ -79,7 +79,7 @@ public class CouponController {
     @NoRepeatSubmit
     @AuthCheck
     @PostMapping("/coupon/receive")
-    @ApiOperation(value = "领取优惠券",notes = "领取优惠券")
+    @Operation(summary = "领取优惠券", description = "领取优惠券")
     public ApiResult<Boolean> receive(@Validated @RequestBody MwStoreCouponQueryParam param){
         Long uid = LocalUser.getUser().getUid();
         if(!NumberUtil.isNumber(param.getCouponId())){
@@ -96,7 +96,7 @@ public class CouponController {
     @AppLog(value = "查看已领取优惠券", type = 1)
     @AuthCheck
     @GetMapping("/coupons/user/{type}")
-    @ApiOperation(value = "用户已领取优惠券",notes = "用户已领取优惠券")
+    @Operation(summary = "用户已领取优惠券", description = "用户已领取优惠券")
     public ApiResult<List<MwStoreCouponUserQueryVo>> getUserList(){
         Long uid = LocalUser.getUser().getUid();
         List<MwStoreCouponUserQueryVo> list = storeCouponUserService.getUserCoupon(uid);
@@ -109,7 +109,7 @@ public class CouponController {
     @AppLog(value = "用户已领取优惠券pc", type = 1)
     @AuthCheck
     @GetMapping("/coupons/user/pc/{type}")
-    @ApiOperation(value = "用户已领取优惠券pc",notes = "用户已领取优惠券pc")
+    @Operation(summary = "用户已领取优惠券pc", description = "用户已领取优惠券pc")
     public ApiResult<Object> getUserPCList(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "limit", defaultValue = "10") int limit, @PathVariable(value = "type") Integer type){
@@ -125,10 +125,10 @@ public class CouponController {
      */
     @AuthCheck
     @GetMapping("/coupons/order/{cartIds}")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "cartIds", value = "购物车ID,多个用,分割", paramType = "query", dataType = "int")
+    @Parameters({
+            @Parameter(name = "cartIds", description = "购物车ID,多个用,分割")
     })
-    @ApiOperation(value = "优惠券订单获取",notes = "优惠券订单获取")
+    @Operation(summary = "优惠券订单获取", description = "优惠券订单获取")
     public ApiResult<List<StoreCouponUserVo>> orderCoupon(@PathVariable String cartIds){
         Long uid = LocalUser.getUser().getUid();
         return ApiResult.ok(storeCouponUserService.beUsableCouponList(uid,cartIds));

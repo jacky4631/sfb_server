@@ -9,7 +9,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -60,8 +60,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -796,7 +796,7 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
                 .collect(toList());
 
         for (String cartInfo : cartInfos){
-            MwStoreCartQueryVo cart = JSON.parseObject(cartInfo, MwStoreCartQueryVo.class);
+            MwStoreCartQueryVo cart = JsonUtil.parseObject(cartInfo, MwStoreCartQueryVo.class);
 
             MwStoreProductQueryVo storeProductVO = cart.getProductInfo();
             //产品是否单独分销
@@ -1235,7 +1235,7 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
         if(feeLogOpt == null) {
             feeLogOpt = FeeUtil.initFeeLogOpt(uid);
         }
-        List<MwUserFeeLog> feeLogs = JSON.parseArray(feeLogOpt.getTt(), MwUserFeeLog.class).stream().filter(feeLog -> feeLog.getCid().equals(1)).collect(toList());
+        List<MwUserFeeLog> feeLogs = JsonUtil.parseArray(feeLogOpt.getTt(), MwUserFeeLog.class).stream().filter(feeLog -> feeLog.getCid().equals(1)).collect(toList());
         BigDecimal minToday = BigDecimal.ZERO;
         BigDecimal maxToday = BigDecimal.ZERO;
         for(MwUserFeeLog feeLog : feeLogs) {
@@ -1253,7 +1253,7 @@ public class MwUserServiceImpl extends BaseServiceImpl<UserMapper, MwUser> imple
             }
         }
         //本月
-        List<MwUserFeeLog> feeMonthLogs = JSON.parseArray(feeLogOpt.getTm(), MwUserFeeLog.class).stream().filter(feeLog -> feeLog.getCid().equals(1)).collect(toList());
+        List<MwUserFeeLog> feeMonthLogs = JsonUtil.parseArray(feeLogOpt.getTm(), MwUserFeeLog.class).stream().filter(feeLog -> feeLog.getCid().equals(1)).collect(toList());
         BigDecimal minMonth = BigDecimal.ZERO;
         BigDecimal maxMonth = BigDecimal.ZERO;
         for(MwUserFeeLog feeLog : feeMonthLogs) {

@@ -4,10 +4,10 @@
  */
 package com.mailvor.modules.user.vo;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -19,7 +19,7 @@ import java.util.Date;
 */
 
 @Data
-@ApiModel(value = "MwUserCardQueryVo对象", description = "用户表查询参数")
+@Schema(description = "用户表查询参数")
 public class MwUserCardQueryVo implements Serializable {
     private static final long serialVersionUID = 1L;
     /** 用户id */

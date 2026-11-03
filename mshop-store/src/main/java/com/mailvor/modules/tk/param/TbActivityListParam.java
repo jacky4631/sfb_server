@@ -4,8 +4,7 @@
  */
 package com.mailvor.modules.tk.param;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -17,11 +16,11 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value="GoodsTbTopicListParam", description="官方活动参数")
+@Schema(description = "官方活动参数")
 public class TbActivityListParam extends BaseParam {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "输出的端口类型：0.全部（默认），1.PC，2.无线")
+    @Schema(description = "输出的端口类型：0.全部（默认），1.PC，2.无线")
     private Integer type;
 
 }

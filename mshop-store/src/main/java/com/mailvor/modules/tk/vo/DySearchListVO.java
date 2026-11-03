@@ -1,6 +1,6 @@
 package com.mailvor.modules.tk.vo;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -17,7 +17,7 @@ public class DySearchListVO {
     private String msg;
     @Schema(description = "商品码")
     private Integer code;
-    @JSONField(name = "min_id")
+    @JsonProperty("min_id")
     @Schema(description = "翻页时建议填写前页返回的min_id值")
     private Integer minId;
     @Schema(description = "商品数据")

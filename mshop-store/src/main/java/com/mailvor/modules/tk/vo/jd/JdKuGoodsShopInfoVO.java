@@ -4,7 +4,7 @@
  */
 package com.mailvor.modules.tk.vo.jd;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,7 +46,7 @@ public class JdKuGoodsShopInfoVO {
     @Schema(description = "售后服务评分")
     private String afterServiceScore;
 
-    @JSONField(name = "shopName")
+    @JsonProperty("shopName")
     @Schema(description = "店铺名称")
     private String shopName;
 

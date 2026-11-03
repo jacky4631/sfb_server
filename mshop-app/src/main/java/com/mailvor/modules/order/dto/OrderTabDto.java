@@ -1,6 +1,6 @@
 package com.mailvor.modules.order.dto;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,10 +18,10 @@ import java.io.Serializable;
 @Builder
 public class OrderTabDto implements Serializable {
 
-    @ApiModelProperty(value = "标题")
+    @Schema(description = "标题")
     private String title;
 
-    @ApiModelProperty(value = "是否含有红包")
+    @Schema(description = "是否含有红包")
     private Boolean hasHb;
 
 }

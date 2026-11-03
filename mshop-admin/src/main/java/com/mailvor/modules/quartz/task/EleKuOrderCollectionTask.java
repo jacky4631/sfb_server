@@ -1,7 +1,7 @@
 package com.mailvor.modules.quartz.task;
 
 import cn.hutool.core.date.DateUtil;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.mailvor.modules.tk.param.QueryEleKuParam;
 import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ public class EleKuOrderCollectionTask extends OrderTask{
         if(StringUtils.isEmpty(paramStr)) {
             param = new QueryEleKuParam();
         } else {
-            param = JSON.parseObject(paramStr, QueryEleKuParam.class);
+            param = JsonUtil.parseObject(paramStr, QueryEleKuParam.class);
         }
         if(param.getStart() == null || param.getEnd() == null) {
             //2023-04-06 18:36:01

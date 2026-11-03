@@ -1,7 +1,7 @@
 package com.mailvor.modules.user.param;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.mailvor.common.web.param.QueryParam;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value="MwUserBillQueryParam对象", description="用户账单表查询参数")
+@Schema(description = "用户账单表查询参数")
 public class MwUserBillQueryParam extends QueryParam {
     private static final long serialVersionUID = 1L;
 

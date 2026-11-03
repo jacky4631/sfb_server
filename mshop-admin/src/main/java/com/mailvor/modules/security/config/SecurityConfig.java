@@ -7,20 +7,21 @@ package com.mailvor.modules.security.config;
 import com.mailvor.annotation.AnonymousAccess;
 import com.mailvor.modules.security.security.JwtAccessDeniedHandler;
 import com.mailvor.modules.security.security.JwtAuthenticationEntryPoint;
-import com.mailvor.modules.security.security.TokenConfigurer;
+import com.mailvor.modules.security.security.TokenFilter;
 import com.mailvor.modules.security.security.TokenUtil;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.method.HandlerMethod;
@@ -36,8 +37,8 @@ import java.util.Set;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
+public class SecurityConfig {
 
     private final TokenUtil tokenUtil;
     private final CorsFilter corsFilter;
@@ -65,8 +66,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
-    @Override
-    protected void configure(HttpSecurity httpSecurity) throws Exception {
+    /**
+     * Spring Security 6 移除了 WebSecurityConfigurerAdapter，改为声明 SecurityFilterChain bean；
+     * 原 TokenConfigurer（SecurityConfigurerAdapter）只剩“把 TokenFilter 插到用户名密码过滤器之前”，
+     * 直接 addFilterBefore 即可，Configurer 类删除。
+     */
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         // 搜寻匿名标记 url： @AnonymousAccess
         Map<RequestMappingInfo, HandlerMethod> handlerMethodMap = applicationContext.getBean(RequestMappingHandlerMapping.class).getHandlerMethods();
         Set<String> anonymousUrls = new HashSet<>();
@@ -74,65 +80,65 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             HandlerMethod handlerMethod = infoEntry.getValue();
             AnonymousAccess anonymousAccess = handlerMethod.getMethodAnnotation(AnonymousAccess.class);
             if (null != anonymousAccess) {
-                anonymousUrls.addAll(infoEntry.getKey().getPatternsCondition().getPatterns());
+                // Spring 6 起 PathPatternParser 是默认匹配策略，getPatternsCondition() 会返回 null，
+                // 统一用 getPatternValues()
+                anonymousUrls.addAll(infoEntry.getKey().getPatternValues());
             }
         }
         httpSecurity
                 // 禁用 CSRF
-                .csrf().disable()
+                .csrf(csrf -> csrf.disable())
                 .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
                 // 授权异常
-                .exceptionHandling()
-                .authenticationEntryPoint(authenticationErrorHandler)
-                .accessDeniedHandler(jwtAccessDeniedHandler)
-
-                // 防止iframe 造成跨域
-                .and()
-                .headers()
-                .frameOptions()
-                .disable()
-
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(authenticationErrorHandler)
+                        .accessDeniedHandler(jwtAccessDeniedHandler))
                 // 不创建会话
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-
-                .and()
-                .authorizeRequests()
-                // 静态资源等等
-                .antMatchers(
-                        HttpMethod.GET,
-                        "/*.html",
-                        "/**/*.html",
-                        "/**/*.css",
-                        "/**/*.js",
-                        "/webSocket/**"
-                ).permitAll()
-                // swagger 文档
-                .antMatchers("/swagger-ui.html").permitAll()
-                .antMatchers("/swagger-resources/**").permitAll()
-                .antMatchers("/webjars/**").permitAll()
-                .antMatchers("/*/api-docs").permitAll()
-                .antMatchers("/v2/api-docs-ext").permitAll()
-                //.antMatchers("/api/wxmp/**").permitAll()
-
-                // 文件
-                .antMatchers("/avatar/**").permitAll()
-                .antMatchers("/file/**").permitAll()
-                // 阿里巴巴 druid
-                .antMatchers("/druid/**").permitAll()
-                .antMatchers("/api/canvas/**").permitAll()
-                // 放行OPTIONS请求
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                // 自定义匿名访问所有url放行 ： 允许匿名和带权限以及登录用户访问
-                .antMatchers(anonymousUrls.toArray(new String[0])).permitAll()
-                // 所有请求都需要认证
-                .anyRequest().authenticated()
-                .and().apply(securityConfigurerAdapter());
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // 防止 iframe 造成跨域
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+                .authorizeHttpRequests(requests -> requests
+                        // 放行 OPTIONS 请求（跳域预检）
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // 静态资源等等
+                        .requestMatchers(HttpMethod.GET,
+                                "/*.html",
+                                "/**/*.html",
+                                "/**/*.css",
+                                "/**/*.js",
+                                "/webSocket/**")
+                        .permitAll()
+                        // 文件
+                        .requestMatchers("/avatar/**", "/file/**").permitAll()
+                        // 自定义匿名访问所有url放行 ： 允许匿名和带权限以及登录用户访问
+                        .requestMatchers(anonymousUrls.toArray(new String[0])).permitAll()
+                        // 所有请求都需要认证
+                        .anyRequest().authenticated());
+        // 添加登陆认证
+        httpSecurity.addFilterBefore(new TokenFilter(tokenUtil), UsernamePasswordAuthenticationFilter.class);
+        return httpSecurity.build();
     }
 
-    private TokenConfigurer securityConfigurerAdapter() {
-        return new TokenConfigurer(tokenUtil);
+    /**
+     * swagger / knife4j / druid 等文档与监控资源完全绕过过滤链。
+     * <p>
+     * 原实现用 {@code antMatchers} 写在 authorizeRequests 链里；Spring 6 之后
+     * {@code WebSecurity.ignoring()} 只能通过 WebSecurityCustomizer 声明，
+     * 且这些路径含 {@code /**} 这类 Ant 风格模式，交给 requestMatchers 会被
+     * PathPatternParser 拒绝，所以放在 ignoring 里。
+     */
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().requestMatchers(
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/swagger-resources/**",
+                "/v3/api-docs/**",
+                "/v2/api-docs",
+                "/v2/api-docs-ext",
+                "/doc.html",
+                "/webjars/**",
+                "/druid/**",
+                "/api/canvas/**");
     }
 }

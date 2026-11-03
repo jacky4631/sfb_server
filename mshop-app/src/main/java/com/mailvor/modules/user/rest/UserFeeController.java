@@ -5,6 +5,8 @@
 package com.mailvor.modules.user.rest;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.api.ApiResult;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.AuthCheck;
@@ -13,8 +15,6 @@ import com.mailvor.modules.user.service.MwUserFeeLogOptService;
 import com.mailvor.modules.user.service.MwUserService;
 import com.mailvor.modules.user.vo.UserFeeQueryVo;
 import com.mailvor.utils.RedisUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "用户预估收益", tags = "用户:用户预估收益")
+@Tag(name = "用户:用户预估收益")
 public class UserFeeController {
     private final MwUserService mwUserService;
     private final MwUserFeeLogOptService feeLogOptService;
@@ -44,7 +44,7 @@ public class UserFeeController {
 
     @AuthCheck
     @GetMapping("/userfee")
-    @ApiOperation(value = "获取用户预估收益",notes = "获取用户预估收益",response = UserFeeQueryVo.class)
+    @Operation(summary = "获取用户预估收益", description = "获取用户预估收益")
     public ApiResult<Object> userFee(){
         MwUser mwUser = LocalUser.getUser();
         return ApiResult.ok(mwUserService.userFeeInfo(mwUser));
@@ -52,7 +52,7 @@ public class UserFeeController {
 
     @AuthCheck
     @GetMapping("/userfeedetail")
-    @ApiOperation(value = "获取用户详细预估收益",notes = "获取用户详细预估收益",response = Map.class)
+    @Operation(summary = "获取用户详细预估收益", description = "获取用户详细预估收益")
     public ApiResult<Object> userFeeDetail(@RequestParam(value = "type",defaultValue = "1") int type,
                                            @RequestParam(value = "cid",defaultValue = "1") int cid,
                                            @RequestParam(value = "uid") Long uid){

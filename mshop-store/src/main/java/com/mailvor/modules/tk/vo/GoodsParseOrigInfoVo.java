@@ -1,8 +1,7 @@
 package com.mailvor.modules.tk.vo;
 
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -14,36 +13,36 @@ import java.io.Serializable;
  *
  */
 @Data
-@ApiModel(value = "ParseContentOrigInfoVo", description = "淘口令")
+@Schema(description = "淘口令")
 public class GoodsParseOrigInfoVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "商品标题")
+    @Schema(description = "商品标题")
     private String title;
-    @ApiModelProperty(value = "店铺名")
+    @Schema(description = "店铺名")
     private String shopName;
-    @ApiModelProperty(value = "店铺LOGO图")
+    @Schema(description = "店铺LOGO图")
     private String shopLogo;
 
-    @ApiModelProperty(value = "商品主图")
+    @Schema(description = "商品主图")
     private String image;
-    @ApiModelProperty(value = "券开始时间")
+    @Schema(description = "券开始时间")
     private String startTime;
 
-    @ApiModelProperty(value = "券结束时间")
+    @Schema(description = "券结束时间")
     private String endTime;
-    @ApiModelProperty(value = "券金额")
+    @Schema(description = "券金额")
     private String amount;
-    @ApiModelProperty(value = "券门槛金额")
+    @Schema(description = "券门槛金额")
     private String startFee;
 
-    @ApiModelProperty(value = "商品价格")
+    @Schema(description = "商品价格")
     private String price;
-    @ApiModelProperty(value = "券ID")
+    @Schema(description = "券ID")
     private String activityId;
-    @ApiModelProperty(value = "PID")
+    @Schema(description = "PID")
     private String pid;
-    @ApiModelProperty(value = "券状态。0:可用; 非0:不可用")
+    @Schema(description = "券状态。0:可用; 非0:不可用")
     private String status;
 
     public String getTitle() {

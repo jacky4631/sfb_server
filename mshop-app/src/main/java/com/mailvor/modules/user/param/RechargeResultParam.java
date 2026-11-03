@@ -1,9 +1,9 @@
 package com.mailvor.modules.user.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -15,9 +15,9 @@ import java.io.Serializable;
 public class RechargeResultParam implements Serializable {
 
     @NotBlank(message = "订单号不能为空")
-    @ApiModelProperty(value = "订单号")
+    @Schema(description = "订单号")
     private String orderId;
     @NotBlank(message = "充值结果不能为空")
-    @ApiModelProperty(value = "充值结果")
+    @Schema(description = "充值结果")
     private String result;
 }

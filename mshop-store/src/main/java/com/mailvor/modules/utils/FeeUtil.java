@@ -1,7 +1,7 @@
 package com.mailvor.modules.utils;
 
 import cn.hutool.core.util.NumberUtil;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.mailvor.enums.PlatformEnum;
 import com.mailvor.modules.shop.domain.MwSystemUserLevel;
 import com.mailvor.modules.user.domain.MwUser;
@@ -175,15 +175,15 @@ public class FeeUtil {
     public static List<MwUserFeeLog> getCurrentLog(Integer type, MwUserFeeLogOpt logOpt) {
         switch (type){
             case 1:
-                return JSON.parseArray(logOpt.getTt(), MwUserFeeLog.class);
+                return JsonUtil.parseArray(logOpt.getTt(), MwUserFeeLog.class);
             case 6:
-                return JSON.parseArray(logOpt.getTs(), MwUserFeeLog.class);
+                return JsonUtil.parseArray(logOpt.getTs(), MwUserFeeLog.class);
             case 3:
-                return JSON.parseArray(logOpt.getTm(), MwUserFeeLog.class);
+                return JsonUtil.parseArray(logOpt.getTm(), MwUserFeeLog.class);
             case 4:
-                return JSON.parseArray(logOpt.getTl(), MwUserFeeLog.class);
+                return JsonUtil.parseArray(logOpt.getTl(), MwUserFeeLog.class);
         }
-        return JSON.parseArray(logOpt.getTt(), MwUserFeeLog.class);
+        return JsonUtil.parseArray(logOpt.getTt(), MwUserFeeLog.class);
     }
 
     public static List<MwUserFeeLog> getLogs(Integer type, Integer cid, List<MwUserFeeLogOpt> oneOpts) {
@@ -204,7 +204,7 @@ public class FeeUtil {
 
     public static void setFeeOptData(MwUserFeeLogOpt feeLogOpt, Integer type, Map<String, MwUserFeeLog> optLogMap) {
         //根据类型设置预估数据
-        String opsStr = JSON.toJSONString(optLogMap.values());
+        String opsStr = JsonUtil.toJSONString(optLogMap.values());
         switch (type) {
             case 1:
                 feeLogOpt.setTt(opsStr);

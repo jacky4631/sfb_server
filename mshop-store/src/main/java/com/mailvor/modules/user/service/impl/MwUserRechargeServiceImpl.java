@@ -7,7 +7,7 @@ package com.mailvor.modules.user.service.impl;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.pagehelper.PageInfo;
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
@@ -56,11 +56,11 @@ public class MwUserRechargeServiceImpl extends BaseServiceImpl<UserRechargeMappe
     @Override
     public void updateRecharge(MwUserRecharge userRecharge) {
 
-        log.info("更新订单1:{}", JSON.toJSONString(userRecharge));
+        log.info("更新订单1:{}", JsonUtil.toJSONString(userRecharge));
         //修改状态
         rechargeMapper.updatePaid(userRecharge.getOrderId(), OrderInfoEnum.PAY_STATUS_1.getValue(), new Date());
 
-        log.info("更新订单2:{}", JSON.toJSONString(getById(userRecharge.getId())));
+        log.info("更新订单2:{}", JsonUtil.toJSONString(getById(userRecharge.getId())));
 
     }
 

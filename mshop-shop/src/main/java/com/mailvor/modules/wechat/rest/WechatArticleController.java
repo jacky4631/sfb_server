@@ -4,14 +4,14 @@
  */
 package com.mailvor.modules.wechat.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.modules.aop.ForbidSubmit;
 import com.mailvor.modules.services.WechatArticleService;
 import com.mailvor.modules.mp.domain.MwArticle;
 import com.mailvor.modules.mp.service.MwArticleService;
 import com.mailvor.modules.mp.service.dto.MwArticleDto;
 import com.mailvor.modules.mp.service.dto.MwArticleQueryCriteria;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 * @author huangyu
 * @date 2019-10-07
 */
-@Api(tags = "微信：微信图文管理")
+@Tag(name = "微信：微信图文管理")
 @RestController
 @RequestMapping("api")
 public class WechatArticleController {
@@ -44,14 +44,14 @@ public class WechatArticleController {
         this.wechatArticleService = wechatArticleService;
     }
 
-    @ApiOperation(value = "查询单条信息")
+    @Operation(summary = "查询单条信息")
     @GetMapping(value = "/mwArticle/info/{id}")
     @PreAuthorize("hasAnyRole('admin','MWARTICLE_ALL','MWARTICLE_GET')")
     public ResponseEntity getInfo(@PathVariable Integer id){
         return new ResponseEntity<>(mwArticleService.getById(id),HttpStatus.OK);
     }
 
-    @ApiOperation(value = "查询")
+    @Operation(summary = "查询")
     @GetMapping(value = "/mwArticle")
     @PreAuthorize("hasAnyRole('admin','MWARTICLE_ALL','MWARTICLE_SELECT')")
     public ResponseEntity getMwArticles(MwArticleQueryCriteria criteria, Pageable pageable){
@@ -59,7 +59,7 @@ public class WechatArticleController {
     }
 
 
-    @ApiOperation(value = "新增")
+    @Operation(summary = "新增")
     @PostMapping(value = "/mwArticle")
     @PreAuthorize("hasAnyRole('admin','MWARTICLE_ALL','MWARTICLE_CREATE')")
     public ResponseEntity create(@Validated @RequestBody MwArticle resources){
@@ -67,7 +67,7 @@ public class WechatArticleController {
     }
 
 
-    @ApiOperation(value = "修改")
+    @Operation(summary = "修改")
     @PutMapping(value = "/mwArticle")
     @PreAuthorize("hasAnyRole('admin','MWARTICLE_ALL','MWARTICLE_EDIT')")
     public ResponseEntity update(@Validated @RequestBody MwArticle resources){
@@ -76,7 +76,7 @@ public class WechatArticleController {
     }
 
     @ForbidSubmit
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     @DeleteMapping(value = "/mwArticle/{id}")
     @PreAuthorize("hasAnyRole('admin','MWARTICLE_ALL','MWARTICLE_DELETE')")
     public ResponseEntity delete(@PathVariable Integer id){
@@ -85,7 +85,7 @@ public class WechatArticleController {
     }
 
     @ForbidSubmit
-    @ApiOperation(value = "发布文章")
+    @Operation(summary = "发布文章")
     @GetMapping(value = "/mwArticle/publish/{id}")
     @PreAuthorize("hasAnyRole('admin','MWARTICLE_ALL','MWARTICLE_DELETE')")
     public ResponseEntity publish(@PathVariable Integer id)  throws Exception{

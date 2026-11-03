@@ -11,7 +11,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.mailvor.domain.BaseDomain;
 import lombok.*;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
 /**

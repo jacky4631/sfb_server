@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.security.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mailvor.modules.logging.aop.log.Log;
@@ -11,8 +13,6 @@ import com.mailvor.modules.aop.ForbidSubmit;
 import com.mailvor.modules.security.service.OnlineUserService;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.service.MwUserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping("/auth/online")
-@Api(tags = "系统：在线用户管理")
+@Tag(name = "系统：在线用户管理")
 public class OnlineController {
 
     @Resource
@@ -46,7 +46,7 @@ public class OnlineController {
     @Resource
     private MwUserService userService;
 
-    @ApiOperation("查询在线用户")
+    @Operation(summary = "查询在线用户")
     @GetMapping
     @PreAuthorize("@el.check('auth_online')")
     public ResponseEntity<Object> getAll(@RequestParam(value = "filter",defaultValue = "") String filter,
@@ -56,7 +56,7 @@ public class OnlineController {
     }
 
     @Log("导出数据")
-    @ApiOperation("导出数据")
+    @Operation(summary = "导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check()")
     public void download(HttpServletResponse response,
@@ -66,7 +66,7 @@ public class OnlineController {
     }
 
     @ForbidSubmit
-    @ApiOperation("踢出用户")
+    @Operation(summary = "踢出用户")
     @DeleteMapping
     @PreAuthorize("@el.check()")
     public ResponseEntity<Object> delete(@RequestBody Set<String> keys) throws Exception {
@@ -77,7 +77,7 @@ public class OnlineController {
     }
 
     @ForbidSubmit
-    @ApiOperation("踢出移动端用户")
+    @Operation(summary = "踢出移动端用户")
     @PostMapping("/delete" )
     @PreAuthorize("@el.check()")
     public ResponseEntity<Object> deletet(@RequestBody Set<String> keys) throws Exception {
@@ -89,7 +89,7 @@ public class OnlineController {
 
 
     @ForbidSubmit
-    @ApiOperation("踢出一个月未登录的用户")
+    @Operation(summary = "踢出一个月未登录的用户")
     @PostMapping("/deletes" )
     @PreAuthorize("@el.check()")
     public ResponseEntity<Object> deleteOneMonth() throws Exception {

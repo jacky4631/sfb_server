@@ -4,14 +4,14 @@
  */
 package com.mailvor.modules.wechat.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.ObjectUtil;
 import com.mailvor.modules.aop.ForbidSubmit;
 import com.mailvor.modules.mp.domain.MwWechatReply;
 import com.mailvor.modules.mp.service.MwWechatReplyService;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 * @author huangyu
 * @date 2019-10-10
 */
-@Api(tags = "微信：微信回复管理")
+@Tag(name = "微信：微信回复管理")
 @RestController
 @RequestMapping("api")
 public class WechatReplyController {
@@ -36,7 +36,7 @@ public class WechatReplyController {
         this.mwWechatReplyService = mwWechatReplyService;
     }
 
-    @ApiOperation(value = "查询")
+    @Operation(summary = "查询")
     @GetMapping(value = "/mwWechatReply")
     @PreAuthorize("@el.check('admin','MWWECHATREPLY_ALL','MWWECHATREPLY_SELECT')")
     public ResponseEntity getMwWechatReplys(){
@@ -45,11 +45,11 @@ public class WechatReplyController {
 
 
     @ForbidSubmit
-    @ApiOperation(value = "新增自动回复")
+    @Operation(summary = "新增自动回复")
     @PostMapping(value = "/mwWechatReply")
     @PreAuthorize("@el.check('admin','MWWECHATREPLY_ALL','MWWECHATREPLY_CREATE')")
     public ResponseEntity create(@RequestBody String jsonStr){
-        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        JsonObject jsonObject = JsonUtil.parseObject(jsonStr);
         MwWechatReply mwWechatReply = new MwWechatReply();
         MwWechatReply isExist = mwWechatReplyService.isExist(jsonObject.get("key").toString());
         mwWechatReply.setKey(jsonObject.get("key").toString());

@@ -4,13 +4,13 @@
  */
 package com.mailvor.modules.shop.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.aop.ForbidSubmit;
 import com.mailvor.modules.order.domain.MwExpress;
 import com.mailvor.modules.order.service.MwExpressService;
 import com.mailvor.modules.order.service.dto.MwExpressQueryCriteria;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 * @author huangyu
 * @date 2019-12-12
 */
-@Api(tags = "商城：快递管理")
+@Tag(name = "商城：快递管理")
 @RestController
 @RequestMapping("api")
 public class ExpressController {
@@ -42,7 +42,7 @@ public class ExpressController {
     }
 
     @Log("查询快递")
-    @ApiOperation(value = "查询快递")
+    @Operation(summary = "查询快递")
     @GetMapping(value = "/mwExpress")
     @PreAuthorize("hasAnyRole('admin','MWEXPRESS_ALL','MWEXPRESS_SELECT')")
     public ResponseEntity getMwExpresss(MwExpressQueryCriteria criteria, Pageable pageable){
@@ -51,7 +51,7 @@ public class ExpressController {
 
     @ForbidSubmit
     @Log("新增快递")
-    @ApiOperation(value = "新增快递")
+    @Operation(summary = "新增快递")
     @PostMapping(value = "/mwExpress")
     @PreAuthorize("hasAnyRole('admin','MWEXPRESS_ALL','MWEXPRESS_CREATE')")
     public ResponseEntity create(@Validated @RequestBody MwExpress resources){
@@ -60,7 +60,7 @@ public class ExpressController {
 
     @ForbidSubmit
     @Log("修改快递")
-    @ApiOperation(value = "修改快递")
+    @Operation(summary = "修改快递")
     @PutMapping(value = "/mwExpress")
     @PreAuthorize("hasAnyRole('admin','MWEXPRESS_ALL','MWEXPRESS_EDIT')")
     public ResponseEntity update(@Validated @RequestBody MwExpress resources){
@@ -70,7 +70,7 @@ public class ExpressController {
 
     @ForbidSubmit
     @Log("删除快递")
-    @ApiOperation(value = "删除快递")
+    @Operation(summary = "删除快递")
     @DeleteMapping(value = "/mwExpress/{id}")
     @PreAuthorize("hasAnyRole('admin','MWEXPRESS_ALL','MWEXPRESS_DELETE')")
     public ResponseEntity delete(@PathVariable Integer id){

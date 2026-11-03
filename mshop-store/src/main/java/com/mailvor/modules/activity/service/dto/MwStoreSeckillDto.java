@@ -4,10 +4,10 @@
  */
 package com.mailvor.modules.activity.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.mailvor.modules.product.service.dto.FromatDetailDto;
 import com.mailvor.modules.product.service.dto.ProductFormatDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -53,19 +53,19 @@ public class MwStoreSeckillDto implements Serializable {
     private BigDecimal giveIntegral;
 
     /** 秒杀价 */
-    @ApiModelProperty(value = "秒杀价")
+    @Schema(description = "秒杀价")
     private BigDecimal price;
 
     /** 原价 */
-    @ApiModelProperty(value = "原价")
+    @Schema(description = "原价")
     private BigDecimal otPrice;
 
     /** 成本 */
-    @ApiModelProperty(value = "成本")
+    @Schema(description = "成本")
     private BigDecimal cost;
 
     /** 销量 */
-    @ApiModelProperty(value = "秒杀销量")
+    @Schema(description = "秒杀销量")
     private Integer sales;
 
     // 排序

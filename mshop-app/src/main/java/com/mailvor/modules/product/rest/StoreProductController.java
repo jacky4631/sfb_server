@@ -5,6 +5,10 @@
 package com.mailvor.modules.product.rest;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -42,10 +46,6 @@ import com.mailvor.modules.tk.service.*;
 import com.mailvor.modules.tk.service.dto.*;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.service.MwUserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +73,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @RestController
-@Api(value = "产品模块", tags = "商城：产品模块")
+@Tag(name = "商城：产品模块")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StoreProductController {
 
@@ -100,10 +100,10 @@ public class StoreProductController {
      * 获取首页更多产品
      */
     @GetMapping("/groom/list/{type}")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "type", value = "类型：1精品推荐，2热门榜单，3首发新品，4促销单品", paramType = "query", dataType = "int")
+    @Parameters({
+            @Parameter(name = "type", description = "类型：1精品推荐，2热门榜单，3首发新品，4促销单品")
     })
-    @ApiOperation(value = "获取首页更多产品",notes = "获取首页更多产品")
+    @Operation(summary = "获取首页更多产品", description = "获取首页更多产品")
     public ApiResult<Map<String,Object>> moreGoodsList(@PathVariable Integer type){
         Map<String,Object> map = new LinkedHashMap<>();
         // 精品推荐
@@ -127,7 +127,7 @@ public class StoreProductController {
      * 获取产品列表
      */
     @GetMapping("/products")
-    @ApiOperation(value = "商品列表",notes = "商品列表")
+    @Operation(summary = "商品列表", description = "商品列表")
     public ApiResult<List<MwStoreProductQueryVo>> goodsList(MwStoreProductQueryParam productQueryParam){
         return ApiResult.ok(storeProductService.getGoodsList(productQueryParam));
     }
@@ -136,7 +136,7 @@ public class StoreProductController {
      * 为你推荐
      */
     @GetMapping("/product/hot")
-    @ApiOperation(value = "为你推荐",notes = "为你推荐")
+    @Operation(summary = "为你推荐", description = "为你推荐")
     public ApiResult<List<MwStoreProductQueryVo>> productRecommend(MwStoreProductQueryParam queryParam){
         return ApiResult.ok(storeProductService.getList(queryParam.getPage(), queryParam.getLimit(),
                 ShopCommonEnum.IS_STATUS_1.getValue()));
@@ -148,10 +148,10 @@ public class StoreProductController {
     @AppLog(value = "商品详情海报", type = 1)
     @AuthCheck
     @GetMapping("/product/poster/{id}")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "商品ID", paramType = "query", dataType = "int")
+    @Parameters({
+            @Parameter(name = "id", description = "商品ID")
     })
-    @ApiOperation(value = "商品详情海报",notes = "商品详情海报")
+    @Operation(summary = "商品详情海报", description = "商品详情海报")
     public ApiResult<String> prodoctPoster(@PathVariable Integer id,@RequestParam(value = "from",defaultValue = "h5") String from) throws IOException, FontFormatException {
         MwUser userInfo = LocalUser.getUser();
 
@@ -220,13 +220,13 @@ public class StoreProductController {
     //@AppLog(value = "普通商品详情", type = 1)
     //@AuthCheck
     @GetMapping("/product/detail/{id}")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "商品ID", paramType = "query", dataType = "long",required = true),
-            @ApiImplicitParam(name = "latitude", value = "纬度", paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "longitude", value = "经度", paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "from", value = "来自:", paramType = "query", dataType = "string")
+    @Parameters({
+            @Parameter(name = "id", description = "商品ID", required = true),
+            @Parameter(name = "latitude", description = "纬度"),
+            @Parameter(name = "longitude", description = "经度"),
+            @Parameter(name = "from", description = "来自:")
     })
-    @ApiOperation(value = "普通商品详情",notes = "普通商品详情")
+    @Operation(summary = "普通商品详情", description = "普通商品详情")
     public ApiResult<ProductVo> detail(@PathVariable long id,
                                        @RequestParam(value = "",required=false) String latitude,
                                        @RequestParam(value = "",required=false) String longitude,
@@ -244,7 +244,7 @@ public class StoreProductController {
     @NoRepeatSubmit
     @AuthCheck
     @PostMapping("/collect/add")
-    @ApiOperation(value = "添加收藏",notes = "添加收藏")
+    @Operation(summary = "添加收藏", description = "添加收藏")
     public ApiResult<Boolean> collectAdd(@Validated @RequestBody MwStoreProductRelationQueryParam param){
         long uid = LocalUser.getUser().getUid();
         productRelationService.addProductRelation(param.getId(),uid,param.getCategory(),
@@ -259,7 +259,7 @@ public class StoreProductController {
     @NoRepeatSubmit
     @AuthCheck
     @PostMapping("/collect/del")
-    @ApiOperation(value = "取消收藏",notes = "取消收藏")
+    @Operation(summary = "取消收藏", description = "取消收藏")
     public ApiResult<Boolean> collectDel(@Validated @RequestBody MwStoreProductRelationQueryParam param){
         long uid = LocalUser.getUser().getUid();
         productRelationService.delProductRelation(param.getId(), uid);
@@ -271,7 +271,7 @@ public class StoreProductController {
     @AppLog(value = "获取商品是否收藏", type = 1)
     @AuthCheck
     @GetMapping("/collect")
-    @ApiOperation(value = "获取商品是否收藏",notes = "获取商品是否收藏")
+    @Operation(summary = "获取商品是否收藏", description = "获取商品是否收藏")
     public ApiResult<Boolean> collect(String id){
         long uid = LocalUser.getUser().getUid();
         boolean relation = productRelationService.isProductRelation(id,
@@ -285,7 +285,7 @@ public class StoreProductController {
     @NoRepeatSubmit
     @AuthCheck
     @PostMapping("/collect/addFoot")
-    @ApiOperation(value = "添加足迹",notes = "添加足迹")
+    @Operation(summary = "添加足迹", description = "添加足迹")
     public ApiResult<Boolean> footAdd(@Validated @RequestBody MwStoreProductRelationQueryParam param){
         long uid = LocalUser.getUser().getUid();
         productRelationService.addProductFoot(param.getId(),uid,param.getCategory(),
@@ -299,7 +299,7 @@ public class StoreProductController {
     @NoRepeatSubmit
     @AuthCheck
     @DeleteMapping("/collect/delFoot")
-    @ApiOperation(value = "删除足跡",notes = "删除足跡")
+    @Operation(summary = "删除足跡", description = "删除足跡")
     public ApiResult<Boolean> collectDelFoot(@Validated @RequestBody CollectDelFootParam param){
         if (CollectionUtil.isEmpty(param.getIds())){
             throw new MshopException("参数非法");
@@ -312,13 +312,13 @@ public class StoreProductController {
      * 获取产品评论
      */
     @GetMapping("/reply/list/{id}")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "商品ID", paramType = "query", dataType = "long",required = true),
-            @ApiImplicitParam(name = "type", value = "评论分数类型", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "page", value = "页码,默认为1", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "limit", value = "页大小,默认为10", paramType = "query", dataType = "int")
+    @Parameters({
+            @Parameter(name = "id", description = "商品ID", required = true),
+            @Parameter(name = "type", description = "评论分数类型"),
+            @Parameter(name = "page", description = "页码,默认为1"),
+            @Parameter(name = "limit", description = "页大小,默认为10")
     })
-    @ApiOperation(value = "获取产品评论",notes = "获取产品评论")
+    @Operation(summary = "获取产品评论", description = "获取产品评论")
     public ApiResult<List<MwStoreProductReplyQueryVo>> replyList(@PathVariable Long id,
                                                                  @RequestParam(value = "type",defaultValue = "0") int type,
                                                                  @RequestParam(value = "page",defaultValue = "1") int page,
@@ -330,10 +330,10 @@ public class StoreProductController {
      * 获取产品评论数据
      */
     @GetMapping("/reply/config/{id}")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "商品ID", paramType = "query", dataType = "int")
+    @Parameters({
+            @Parameter(name = "id", description = "商品ID")
     })
-    @ApiOperation(value = "获取产品评论数据",notes = "获取产品评论数据")
+    @Operation(summary = "获取产品评论数据", description = "获取产品评论数据")
     public ApiResult<ReplyCountVo> replyCount(@PathVariable Integer id){
         return ApiResult.ok(replyService.getReplyCount(id));
     }
@@ -343,7 +343,7 @@ public class StoreProductController {
      */
     @AuthCheck
     @GetMapping("/tao/orders")
-    @ApiOperation(value = "商品列表",notes = "商品列表")
+    @Operation(summary = "商品列表", description = "商品列表")
     public ResponseEntity<PageResult<MailvorTbOrderDto>> tbOrders(MailvorTbOrderQueryCriteria criteria, Pageable pageable){
         boolean hasChild = initCriteria(criteria);
         if(!hasChild) {
@@ -356,7 +356,7 @@ public class StoreProductController {
      */
     @AuthCheck
     @GetMapping("/jd/orders")
-    @ApiOperation(value = "商品列表",notes = "商品列表")
+    @Operation(summary = "商品列表", description = "商品列表")
     public ResponseEntity<PageResult<MailvorJdOrderDto>> jdOrders(MailvorJdOrderQueryCriteria criteria, Pageable pageable){
         boolean hasChild = initCriteria(criteria);
         if(!hasChild) {
@@ -369,7 +369,7 @@ public class StoreProductController {
      */
     @AuthCheck
     @GetMapping("/pdd/orders")
-    @ApiOperation(value = "商品列表",notes = "商品列表")
+    @Operation(summary = "商品列表", description = "商品列表")
     public ResponseEntity<PageResult<MailvorPddOrderDto>> pddOrders(MailvorPddOrderQueryCriteria criteria, Pageable pageable){
         boolean hasChild = initCriteria(criteria);
         if(!hasChild) {
@@ -382,7 +382,7 @@ public class StoreProductController {
      */
     @AuthCheck
     @GetMapping("/vip/orders")
-    @ApiOperation(value = "商品列表",notes = "商品列表")
+    @Operation(summary = "商品列表", description = "商品列表")
     public ResponseEntity<PageResult<MailvorVipOrderDto>> vipOrders(MailvorVipOrderQueryCriteria criteria, Pageable pageable){
         boolean hasChild = initCriteria(criteria);
         if(!hasChild) {
@@ -395,7 +395,7 @@ public class StoreProductController {
      */
     @AuthCheck
     @GetMapping("/dy/orders")
-    @ApiOperation(value = "抖音订单列表",notes = "抖音订单列表")
+    @Operation(summary = "抖音订单列表", description = "抖音订单列表")
     public ResponseEntity<PageResult<MailvorDyOrderDto>> dyOrders(MailvorDyOrderQueryCriteria criteria, Pageable pageable){
         boolean hasChild = initCriteria(criteria);
         if(!hasChild) {
@@ -409,7 +409,7 @@ public class StoreProductController {
      */
     @AuthCheck
     @GetMapping("/mt/orders")
-    @ApiOperation(value = "美团商品列表",notes = "美团商品列表")
+    @Operation(summary = "美团商品列表", description = "美团商品列表")
     public ResponseEntity<PageResult<MailvorMtOrder>> mtOrders(MailvorMtOrderQueryCriteria criteria, Pageable pageable){
         boolean hasChild = initCriteria(criteria);
         if(!hasChild) {

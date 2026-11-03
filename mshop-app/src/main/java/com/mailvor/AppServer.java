@@ -1,11 +1,10 @@
 package com.mailvor;
 
 import com.mailvor.utils.SpringContextHolder;
-import com.binarywang.spring.starter.wxjava.miniapp.config.WxMaAutoConfiguration;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -19,7 +18,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableCaching
 @MapperScan(basePackages ={"com.mailvor.modules.*.service.mapper", "com.mailvor.config"})
-@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class , WxMaAutoConfiguration.class})
+// wx-java-miniapp starter 4.3.0 只靠 spring.factories 注册自动配置，Spring Boot 4 下本就不会生效，
+// 而 exclude 非自动配置类会直接抛 IllegalStateException，因此只保留 DataSourceAutoConfiguration
+@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
 public class AppServer {
 
     public static void main(String[] args) {

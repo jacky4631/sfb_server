@@ -1,7 +1,6 @@
 package com.mailvor.modules.activity.vo;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -17,29 +16,29 @@ import java.util.Date;
  * @date 2019-12-21
  */
 @Data
-@ApiModel(value = "MwStoreBargainUserQueryVo对象", description = "用户参与砍价表查询参数")
+@Schema(description = "用户参与砍价表查询参数")
 public class MwStoreBargainUserQueryVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "用户参与砍价表ID")
+    @Schema(description = "用户参与砍价表ID")
     private Long id;
 
-    @ApiModelProperty(value = "用户ID")
+    @Schema(description = "用户ID")
     private Long uid;
 
-    @ApiModelProperty(value = "砍价产品id")
+    @Schema(description = "砍价产品id")
     private Long bargainId;
 
-    @ApiModelProperty(value = "砍价的最低价")
+    @Schema(description = "砍价的最低价")
     private BigDecimal bargainPriceMin;
 
-    @ApiModelProperty(value = "砍价金额")
+    @Schema(description = "砍价金额")
     private BigDecimal bargainPrice;
 
-    @ApiModelProperty(value = "砍掉的价格")
+    @Schema(description = "砍掉的价格")
     private BigDecimal price;
 
-    @ApiModelProperty(value = "状态 1参与中 2 活动结束参与失败 3活动结束参与成功")
+    @Schema(description = "状态 1参与中 2 活动结束参与失败 3活动结束参与成功")
     private Integer status;
 
 

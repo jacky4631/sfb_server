@@ -5,19 +5,21 @@ import com.mailvor.modules.security.config.SecurityProperties;
 import com.mailvor.modules.security.security.vo.JwtUser;
 import com.mailvor.utils.RedisUtils;
 import com.mailvor.utils.StringUtils;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.google.gson.Gson;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Base64;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
+import javax.crypto.SecretKey;
 import java.util.Date;
 
 /**
@@ -47,6 +49,19 @@ public class TokenUtil {
      * 用户信息缓存前缀
      */
     private static final String REDIS_PREFIX_USER = "user-details:";
+
+    /**
+     * jjwt 0.12 要求签名密钥满足算法声明的密钥长度（HS512 至少 64 字节），
+     * 旧配置里的 jwt.secret 只有几个字节，无法再直接用；这里改用 jwt.base64-secret。
+     * 注意：签名密钥一变，升级前已签发的 token 会全部失效，需要重新登录。
+     */
+    private SecretKey secretKey;
+
+    @PostConstruct
+    public void initSecretKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(properties.getBase64Secret());
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+    }
 
     /**
      * redis repository
@@ -88,10 +103,12 @@ public class TokenUtil {
     private Claims getClaimsFromToken(String token) {
         Claims claims;
         try {
+            // jjwt 0.12：parser() -> verifyWith() -> build() -> parseSignedClaims() -> getPayload()
             claims = Jwts.parser()
-                    .setSigningKey(properties.getSecret())
-                    .parseClaimsJws(token)
-                    .getBody();
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
         } catch (Exception e) {
             LOGGER.warn("getClaimsFromToken exception", e);
             claims = null;
@@ -128,11 +145,10 @@ public class TokenUtil {
      */
 
     public String generateToken(UserDetails userDetails) {
-        String secret=properties.getSecret();
         String token = Jwts.builder()
-                .setSubject(userDetails.getUsername())
-                .setExpiration(generateExpired())
-                .signWith(SignatureAlgorithm.HS512, secret)
+                .subject(userDetails.getUsername())
+                .expiration(generateExpired())
+                .signWith(secretKey, Jwts.SIG.HS512)
                 .compact();
 
         String key = REDIS_PREFIX_AUTH + userDetails.getUsername() + ":" + token;
@@ -227,12 +243,5 @@ public class TokenUtil {
             return requestHeader.substring(7);
         }
         return null;
-    }
-
-    public static void main(String[] args) {
-        String key = Base64.getEncoder().encodeToString("123".getBytes());
-        Claims claims = Jwts.parser().setSigningKey(key)
-                .parseClaimsJws("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJhZG1pbiIsInNjb3BlIjpbImFwcCIsIndyaXRlIl0sInVpbiI6MSwiZXhwIjoxNTc1MDE1ODgzLCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiXSwianRpIjoiYjdiYjQ1NTQtNTQ4OS00YTg5LWI3NjQtNzNjODI0YzljNGMyIiwiY2xpZW50X2lkIjoibHZoYWliYW8ifQ.x7QZxRAR1wuX_YNLi6EzRJ1iaKr1rIEUgjtYF0oSx5k").getBody();
-        System.out.println(JSON.toJSONString(claims));
     }
 }

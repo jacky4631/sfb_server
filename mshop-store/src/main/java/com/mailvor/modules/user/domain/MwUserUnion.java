@@ -7,7 +7,7 @@ package com.mailvor.modules.user.domain;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import com.baomidou.mybatisplus.annotation.*;
-import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
+import com.mailvor.common.json.JsonTypeHandler;
 import com.mailvor.domain.BaseDeleteDomain;
 import com.mailvor.modules.user.service.dto.TljDataDto;
 import com.mailvor.modules.user.service.dto.WechatUserDto;
@@ -33,7 +33,7 @@ public class MwUserUnion extends BaseDeleteDomain {
     /** 用户id */
     private Long uid;
 
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String openId;
 
     /**
@@ -42,7 +42,7 @@ public class MwUserUnion extends BaseDeleteDomain {
     private String name;
 
 
-    @TableField(typeHandler = FastjsonTypeHandler.class,updateStrategy = FieldStrategy.IGNORED)
+    @TableField(typeHandler = JsonTypeHandler.class,updateStrategy = FieldStrategy.ALWAYS)
     private WechatUserDto wxProfile;
 
 
@@ -50,7 +50,7 @@ public class MwUserUnion extends BaseDeleteDomain {
     private String tbPid;
     /**淘礼金领取次数*/
     private Integer tljCount;
-    @TableField(typeHandler = FastjsonTypeHandler.class,updateStrategy = FieldStrategy.IGNORED)
+    @TableField(typeHandler = JsonTypeHandler.class,updateStrategy = FieldStrategy.ALWAYS)
     private TljDataDto tljData;
 
     public void copy(MwUserUnion source){

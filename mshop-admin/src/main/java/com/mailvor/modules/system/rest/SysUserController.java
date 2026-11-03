@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.system.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
 import com.mailvor.config.DataScope;
@@ -23,8 +25,6 @@ import com.mailvor.modules.system.service.dto.UserQueryCriteria;
 import com.mailvor.modules.tools.domain.VerificationCode;
 import com.mailvor.modules.tools.service.VerificationCodeService;
 import com.mailvor.utils.*;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -45,8 +45,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
  * @author mazhongjun
  * @date 2018-11-23
  */
-@Api(tags = "系统：用户管理")
+@Tag(name = "系统：用户管理")
 @RestController
 @RequestMapping("/api/users")
 public class SysUserController {
@@ -86,7 +86,7 @@ public class SysUserController {
     }
 
     @Log("导出用户数据")
-    @ApiOperation("导出用户数据")
+    @Operation(summary = "导出用户数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','user:list')")
     public void download(HttpServletResponse response, UserQueryCriteria criteria) throws IOException {
@@ -94,7 +94,7 @@ public class SysUserController {
     }
 
     @Log("查询用户")
-    @ApiOperation("查询用户")
+    @Operation(summary = "查询用户")
     @GetMapping
     @PreAuthorize("@el.check('admin','user:list')")
     public ResponseEntity<Object> getUsers(UserQueryCriteria criteria, Pageable pageable){
@@ -129,7 +129,7 @@ public class SysUserController {
 
     @ForbidSubmit
     @Log("新增用户")
-    @ApiOperation("新增用户")
+    @Operation(summary = "新增用户")
     @PostMapping
     @PreAuthorize("@el.check('admin','user:add')")
     public ResponseEntity<Object> create(@Validated @RequestBody User resources){
@@ -143,7 +143,7 @@ public class SysUserController {
 
     @ForbidSubmit
     @Log("修改用户")
-    @ApiOperation("修改用户")
+    @Operation(summary = "修改用户")
     @PutMapping
     @PreAuthorize("@el.check('admin','user:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody User resources){
@@ -154,7 +154,7 @@ public class SysUserController {
 
     @ForbidSubmit
     @Log("修改用户：个人中心")
-    @ApiOperation("修改用户：个人中心")
+    @Operation(summary = "修改用户：个人中心")
     @PutMapping(value = "center")
     public ResponseEntity<Object> center(@Validated(User.Update.class) @RequestBody User resources){
         UserDto userDto = userService.findByName(SecurityUtils.getUsername());
@@ -166,7 +166,7 @@ public class SysUserController {
     }
     @ForbidSubmit
     @Log("删除用户")
-    @ApiOperation("删除用户")
+    @Operation(summary = "删除用户")
     @DeleteMapping
     @PreAuthorize("@el.check('admin','user:del')")
     public ResponseEntity<Object> delete(@RequestBody Set<Long> ids){
@@ -183,7 +183,7 @@ public class SysUserController {
     }
 
     @ForbidSubmit
-    @ApiOperation("修改密码")
+    @Operation(summary = "修改密码")
     @PostMapping(value = "/updatePass")
     public ResponseEntity<Object> updatePass(@RequestBody UserPassVo passVo){
         // 密码解密
@@ -202,7 +202,7 @@ public class SysUserController {
     }
 
     @ForbidSubmit
-    @ApiOperation("修改头像")
+    @Operation(summary = "修改头像")
     @PostMapping(value = "/updateAvatar")
     public ResponseEntity<Object> updateAvatar(@RequestParam MultipartFile file){
         userService.updateAvatar(file);
@@ -211,7 +211,7 @@ public class SysUserController {
 
     @ForbidSubmit
     @Log("修改邮箱")
-    @ApiOperation("修改邮箱")
+    @Operation(summary = "修改邮箱")
     @PostMapping(value = "/updateEmail/{code}")
     public ResponseEntity<Object> updateEmail(@PathVariable String code,@RequestBody User user){
         // 密码解密

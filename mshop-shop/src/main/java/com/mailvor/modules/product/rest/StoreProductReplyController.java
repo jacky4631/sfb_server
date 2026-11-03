@@ -4,14 +4,14 @@
  */
 package com.mailvor.modules.product.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.enums.ShopCommonEnum;
 import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.aop.ForbidSubmit;
 import com.mailvor.modules.product.domain.MwStoreProductReply;
 import com.mailvor.modules.product.service.MwStoreProductReplyService;
 import com.mailvor.modules.product.service.dto.MwStoreProductReplyQueryCriteria;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +31,7 @@ import java.util.Date;
 * @author huangyu
 * @date 2019-11-03
 */
-@Api(tags = "商城：评论管理")
+@Tag(name = "商城：评论管理")
 @RestController
 @RequestMapping("api")
 public class StoreProductReplyController {
@@ -44,7 +44,7 @@ public class StoreProductReplyController {
     }
 
     @Log("查询")
-    @ApiOperation(value = "查询")
+    @Operation(summary = "查询")
     @GetMapping(value = "/mwStoreProductReply")
     @PreAuthorize("hasAnyRole('admin','MWSTOREPRODUCTREPLY_ALL','MWSTOREPRODUCTREPLY_SELECT')")
     public ResponseEntity getMwStoreProductReplys(MwStoreProductReplyQueryCriteria criteria, Pageable pageable){
@@ -54,7 +54,7 @@ public class StoreProductReplyController {
 
 
     @Log("修改")
-    @ApiOperation(value = "修改")
+    @Operation(summary = "修改")
     @PutMapping(value = "/mwStoreProductReply")
     @PreAuthorize("hasAnyRole('admin','MWSTOREPRODUCTREPLY_ALL','MWSTOREPRODUCTREPLY_EDIT')")
     public ResponseEntity update(@Validated @RequestBody MwStoreProductReply resources){
@@ -66,7 +66,7 @@ public class StoreProductReplyController {
 
     @ForbidSubmit
     @Log("删除")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     @DeleteMapping(value = "/mwStoreProductReply/{id}")
     @PreAuthorize("hasAnyRole('admin','MWSTOREPRODUCTREPLY_ALL','MWSTOREPRODUCTREPLY_DELETE')")
     public ResponseEntity delete(@PathVariable Long id){

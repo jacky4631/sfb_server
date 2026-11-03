@@ -1,7 +1,7 @@
 package com.mailvor.regression;
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONArray;
+import com.mailvor.common.json.JsonObject;
+import com.mailvor.common.json.JsonArray;
 import com.mailvor.modules.dataoke.rest.HaodankuController;
 import com.mailvor.modules.tk.service.KuService;
 import org.springframework.web.client.RestTemplate;
@@ -41,7 +41,7 @@ public class RedisCacheFallbackTest {
 
     @Test
     public void categoryCacheHitDoesNotCallUpstream() {
-        JSONObject cached = new JSONObject();
+        JsonObject cached = new JsonObject();
         when(redis.getCache(HOME_DATA_CATEGORY_TB)).thenReturn(cached);
         assertSame(cached, categoryController().getCategory());
         verifyNoInteractions(upstream);
@@ -49,7 +49,7 @@ public class RedisCacheFallbackTest {
 
     @Test
     public void categoryCacheTimeoutUsesUpstreamWithoutRetryingRedis() {
-        JSONObject response = new JSONObject();
+        JsonObject response = new JsonObject();
         when(redis.getCache(HOME_DATA_CATEGORY_TB)).thenThrow(new QueryTimeoutException("timeout"));
         when(upstream.getCategory()).thenReturn(response);
         assertSame(response, categoryController().getCategory());
@@ -58,7 +58,7 @@ public class RedisCacheFallbackTest {
 
     @Test
     public void categoryCacheMissKeepsExistingCacheLifetime() {
-        JSONObject response = new JSONObject();
+        JsonObject response = new JsonObject();
         when(upstream.getCategory()).thenReturn(response);
         assertSame(response, categoryController().getCategory());
         verify(redis).setCache(HOME_DATA_CATEGORY_TB, response, 24 * 3600);
@@ -153,14 +153,14 @@ public class RedisCacheFallbackTest {
         ReflectionTestUtils.setField(controller, "restTemplate", rest);
         ReflectionTestUtils.setField(controller, "kuService", ku);
         when(ku.getKuCid()).thenReturn("test-cid");
-        JSONArray banners = new JSONArray();
-        JSONArray tiles = new JSONArray();
-        JSONObject payload = new JSONObject();
+        JsonArray banners = new JsonArray();
+        JsonArray tiles = new JsonArray();
+        JsonObject payload = new JsonObject();
         payload.put("banners", banners);
         payload.put("tile_long", tiles);
-        JSONObject response = new JSONObject();
+        JsonObject response = new JsonObject();
         response.put("data", payload);
-        when(rest.getForObject(anyString(), eq(JSONObject.class))).thenReturn(response);
+        when(rest.getForObject(anyString(), eq(JsonObject.class))).thenReturn(response);
         assertSame(banners, controller.banners());
         assertSame(tiles, controller.tiles());
     }

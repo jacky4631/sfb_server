@@ -1,6 +1,6 @@
 package com.mailvor.modules.tk.vo.vip;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -11,14 +11,14 @@ import lombok.Data;
 @Data
 public class VipWordVO {
 
-    @JSONField(name = "deeplinkUrl")
+    @JsonProperty("deeplinkUrl")
     @Schema(description = "转链过后的链接")
     private String link;
 
-    @JSONField(name = "longUrl")
+    @JsonProperty("longUrl")
     @Schema(description = "转链过后的链接")
     private String longLink;
-    @JSONField(name = "vipWxUrl")
+    @JsonProperty("vipWxUrl")
     @Schema(description = "微信小程序路径")
     private String wechatPath;
 

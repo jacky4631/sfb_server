@@ -16,8 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
@@ -168,7 +168,8 @@ public class OnlineUserService {
      * @throws Exception /
      */
     public void kickOutT(String key) throws Exception {
-        String[] split = StrUtil.split(key, StrUtil.COLON);
+        // hutool 5.8 的 StrUtil.split 返回 List，这里需要数组，改用 splitToArray（语义与原 5.5 一致）
+        String[] split = StrUtil.splitToArray(key, ':');
         String keyt = ShopConstants.MSHOP_APP_LOGIN_USER + split[0] + StrUtil.COLON + EncryptUtils.desDecrypt(split[1]);
         redisUtils.del(keyt);
 

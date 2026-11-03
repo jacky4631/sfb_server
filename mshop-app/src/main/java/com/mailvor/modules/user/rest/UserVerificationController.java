@@ -4,9 +4,11 @@
  */
 package com.mailvor.modules.user.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.crypto.digest.MD5;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.api.ApiResult;
 import com.mailvor.api.MshopException;
 import com.mailvor.common.bean.LocalUser;
@@ -23,8 +25,6 @@ import com.mailvor.modules.utils.AesUtil;
 import com.mailvor.modules.utils.RsaUtil;
 import com.mailvor.utils.ShopUtil;
 import com.mailvor.utils.StringUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +34,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-import javax.validation.Valid;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import java.util.Date;
 
 /**
@@ -49,7 +49,7 @@ import java.util.Date;
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "用户认证", tags = "用户:用户认证")
+@Tag(name = "用户:用户认证")
 public class UserVerificationController {
     private final AlipayConfigService alipayConfigService;
     private final AliPayService aliPayService;
@@ -66,9 +66,9 @@ public class UserVerificationController {
 
     @AppLog(value = "支付宝人脸认证", type = 1)
     @AuthCheck
-    @ApiOperation("支付宝人脸认证")
+    @Operation(summary = "支付宝人脸认证")
     @PostMapping(value = "/user/face")
-    public ApiResult<JSONObject> faceVerification(@Valid @RequestBody FaceParam param) throws Exception{
+    public ApiResult<JsonObject> faceVerification(@Valid @RequestBody FaceParam param) throws Exception{
         Long uid = LocalUser.getUser().getUid();
         MwUserCard card = cardService.getById(uid);
         if(card == null) {
@@ -86,17 +86,17 @@ public class UserVerificationController {
 
         AlipayConfig alipay = aliPayService.getAlipayConfig();
 
-        JSONObject payUrl = alipayConfigService.faceVerification(alipay, cardName, cardNo, phone);
+        JsonObject payUrl = alipayConfigService.faceVerification(alipay, cardName, cardNo, phone);
         return ApiResult.ok(payUrl.getJSONObject("datadigital_fincloud_generalsaas_face_verification_initialize_response"));
     }
     @AppLog(value = "支付宝人脸认证结果查询", type = 1)
     @AuthCheck
-    @ApiOperation("支付宝人脸认证结果查询")
+    @Operation(summary = "支付宝人脸认证结果查询")
     @PostMapping(value = "/user/face/result")
     @Transactional
-    public ApiResult<JSONObject> faceVerificationResult(@RequestBody String str) throws Exception{
+    public ApiResult<JsonObject> faceVerificationResult(@RequestBody String str) throws Exception{
         String dec = RsaUtil.decrypt(str, privateKey);
-        JSONObject param = JSON.parseObject(dec);
+        JsonObject param = JsonUtil.parseObject(dec);
 
         String phone = param.getString("phone");
         if(avatarPath.startsWith("sfb")) {
@@ -112,13 +112,13 @@ public class UserVerificationController {
         Long uid = LocalUser.getUser().getUid();
         AlipayConfig alipay = aliPayService.getAlipayConfig();
 
-        JSONObject payUrl = alipayConfigService.faceVerificationResult(alipay, param.getString("certifyId"));
+        JsonObject payUrl = alipayConfigService.faceVerificationResult(alipay, param.getString("certifyId"));
 
         //打印需要移除alive_phone字段 数据量太大
         String payUrlStr = payUrl.toJSONString();
         log.info("用户uid:{} 人脸识别结果: {}", uid, payUrlStr.substring(0, payUrlStr.indexOf("alive_photo")));
         //TODO 验证是否成功
-        JSONObject res = payUrl.getJSONObject("datadigital_fincloud_generalsaas_face_verification_query_response");
+        JsonObject res = payUrl.getJSONObject("datadigital_fincloud_generalsaas_face_verification_query_response");
         if("10000".equals(res.getString("code"))) {
             //4 人脸路径
             String path = uid.toString() + "/4/";

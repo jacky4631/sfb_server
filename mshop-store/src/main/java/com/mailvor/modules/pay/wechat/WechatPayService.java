@@ -1,7 +1,7 @@
 package com.mailvor.modules.pay.wechat;
 
 import cn.hutool.core.util.NumberUtil;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.alipay.api.AlipayApiException;
 import com.github.binarywang.wxpay.bean.entpay.EntPayRequest;
 import com.github.binarywang.wxpay.bean.entpay.EntPayResult;
@@ -155,7 +155,7 @@ public class WechatPayService extends PayService {
     }
 
     public WxPayService getWxPayService(PayChannelDto channelDto) {
-        WechatPayConfig config = JSON.parseObject(channelDto.getCertProfile(), WechatPayConfig.class);
+        WechatPayConfig config = JsonUtil.parseObject(channelDto.getCertProfile(), WechatPayConfig.class);
         return getPayService(config);
     }
 

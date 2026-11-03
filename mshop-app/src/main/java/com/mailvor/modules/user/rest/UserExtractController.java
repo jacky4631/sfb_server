@@ -5,7 +5,9 @@
 package com.mailvor.modules.user.rest;
 
 
-import com.alibaba.fastjson.JSON;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import com.mailvor.common.json.JsonUtil;
 import com.mailvor.api.ApiResult;
 import com.mailvor.api.MshopException;
 import com.mailvor.common.aop.NoRepeatSubmit;
@@ -36,8 +38,6 @@ import com.mailvor.utils.RedisUtils;
 import com.mailvor.utils.StringUtils;
 import com.yinsheng.command.smsVerify.ConfirmVerifyRespCommand;
 import com.yinsheng.command.wallet.BindCardRespCommand;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,9 +45,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -63,7 +63,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@Api(value = "用户提现", tags = "用户:用户提现")
+@Tag(name = "用户:用户提现")
 public class UserExtractController {
     @Resource
     private MwUserExtractService userExtractService;
@@ -94,7 +94,7 @@ public class UserExtractController {
      */
     @AuthCheck
     @GetMapping("/extract/bank")
-    @ApiOperation(value = "提现参数",notes = "提现参数")
+    @Operation(summary = "提现参数", description = "提现参数")
     public ApiResult<Object> bank(){
         MwUser mwUser = LocalUser.getUser();
         Map<String,Object> map = new LinkedHashMap<>();
@@ -107,7 +107,7 @@ public class UserExtractController {
     @AppLog(value = "用户提现配置", type = 1)
     @AuthCheck
     @GetMapping("/extract/config")
-    @ApiOperation(value = "用户提现配置",notes = "用户提现配置")
+    @Operation(summary = "用户提现配置", description = "用户提现配置")
     public ApiResult<MwExtractConfigDto> extractConfig(){
         MwExtractConfigDto obj = systemConfigService.getAppExtractConfig();
         return ApiResult.ok(obj);
@@ -119,7 +119,7 @@ public class UserExtractController {
     @AuthCheck
     @NoRepeatSubmit
     @PostMapping("/extract/cash")
-    @ApiOperation(value = "用户提现",notes = "用户提现")
+    @Operation(summary = "用户提现", description = "用户提现")
     public ApiResult<String> addMwUserExtract(HttpServletRequest request, @Valid @RequestBody UserExtParam param){
         if("bank".equals(param.getExtractType())) {
             if(param.getBankId() == null) {
@@ -149,7 +149,7 @@ public class UserExtractController {
     @AppLog(value = "提现列表", type = 1)
     @AuthCheck
     @GetMapping("/extract/list")
-    @ApiOperation(value = "提现列表",notes = "提现列表")
+    @Operation(summary = "提现列表", description = "提现列表")
     public ApiResult<Map> getMwUserExtractList(Pageable pageable){
         MwUser mwUser = LocalUser.getUser();
         MwUserExtractQueryCriteria criteria = new MwUserExtractQueryCriteria();
@@ -162,7 +162,7 @@ public class UserExtractController {
     @AppLog(value = "提现绑卡", type = 1)
     @AuthCheck
     @PostMapping("/extract/bank/bind")
-    @ApiOperation(value = "提现绑卡",notes = "提现绑卡")
+    @Operation(summary = "提现绑卡", description = "提现绑卡")
     public ApiResult extractBankBind(@Valid @RequestBody ExtractBankBindParam param) {
         if(param.getBankId() == null && !StringUtils.isPhone(param.getPhone())) {
             throw new MshopException("不是正确的手机号");
@@ -206,7 +206,7 @@ public class UserExtractController {
         switch (PayChannelEnum.toKey(key)) {
             case YSEPAY_BANK_BIND:
                 BindCardRespCommand resp = ysePayService.bindCard(payChannel, userExtra.getMerchantNo(), param.getBankNo(), param.getPhone());
-                log.info("extractBankBind param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(resp));
+                log.info("extractBankBind param: {}  res: {}", JsonUtil.toJSONString(param), JsonUtil.toJSONString(resp));
                 data.put("requestNo", resp.getRequestNo());
                 data.put("authSn", resp.getAuthSn());
                 MwUserBank userBank = userBankService.findOne(uid, param.getBankNo());
@@ -227,7 +227,7 @@ public class UserExtractController {
     @AppLog(value = "提现绑卡短信确认", type = 1)
     @AuthCheck
     @PostMapping("/extract/bank/bind/confirm")
-    @ApiOperation(value = "提现绑卡短信确认",notes = "提现绑卡短信确认")
+    @Operation(summary = "提现绑卡短信确认", description = "提现绑卡短信确认")
     public ApiResult extractBankBindConfirm(@Valid @RequestBody ExtractBankBindConfirmParam param){
         MwUser loginUser = LocalUser.getUser();
         PayChannelDto payChannel = payChannelService.channelDto(loginUser.getUid(), 4);
@@ -257,7 +257,7 @@ public class UserExtractController {
                 }
                 userBankService.updateById(userBank);
 
-                log.info("payBankBind param: {}", JSON.toJSONString(param));
+                log.info("payBankBind param: {}", JsonUtil.toJSONString(param));
                 break;
         }
         return ApiResult.ok();

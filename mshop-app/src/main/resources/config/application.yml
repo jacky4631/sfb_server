@@ -32,6 +32,14 @@ spring:
 #        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
 #    open-in-view: true
 
+# springdoc 的开关与项目原有的 swagger.enabled 对齐（本模块 swagger.enabled=false，
+# 沿用旧行为：不对外暴露接口文档）
+springdoc:
+  api-docs:
+    enabled: ${swagger.enabled:false}
+  swagger-ui:
+    enabled: ${swagger.enabled:false}
+
 #密码加密传输，前端公钥加密，后端私钥解密
 rsa:
   private_key: MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBANiJ80YuMP/sgu6MI95MCHRqdXN7/ZC/rkz1GlxTq5jqQnrsYMR1NnB5kiH4TecAVlD14sX7fk2eH1bZ0Q59sl/3j2wrp5Wg7wT5QvVMwHdCkyzquaDousMIM0E7sJ23TmaWf6UCAsVsOk57eHvonG+3MLNP8jkRSQ2QdAFAJxk3AgMBAAECgYAFnD1jWhsG5nfV+meLgOjPK1rzrQi60VyQveD692gAxEEIsksni+nnLB8vJiHOlGGoI1bGzmdNV4V0WJxkBbmzWpoUN/JaoAXdzBAzNeHdgMiTxg6TtqdY8pyOmJVlDX17/ts4PbrWmhFWWzOYPhusQs9cE5BJsLalg5Kv/FNbgQJBAPwSCyCAm372nY7a7ncVu0xUO4FK6/ISsOGQVADz22P5Ezry8WjRtbfmbmkJlf5KLbIfdJJpHb4xGrwWZ1gprNcCQQDb6huwAOXfjzJbVIlinxEyij3nuJ3ckJyPV6nQ5roM/t0bI+eewgxAP06nGHFEfeydGKZT8dm9yOnAIfbtNwqhAkActVFfGkabZyr6oiSWm3sBbnZ4ezf0EfzjM7TdhuhtsmhmRlUIQxoXH79jZxwWIgyiRMLaCe7BQoZw9Xw/pj9xAkBJXO0FpxcIoHW1IBuA6f3LtXB3aBBJr3h7HUyKYx44DaHnVvAC90ss97GebroCllukAMAkCu+Pr4HDVdFRS2ZhAkEA0TBO0SWtabiiHoAHrADX3qbMosq3lOEPTRHBNk+/P+E/tGE+FD13Hj9XplNGjTDfv43zZ4h3s6cV1n2QtBsy5g==
@@ -70,6 +78,9 @@ mybatis-plus:
 logging:
   level:
     com.mailvor: DEBUG
+    # 批量插入 SQL 注入器（CustomizedSqlInjector）启动时会给每个实体打一条拼好的 SQL，
+    # 属于调试残留；单独降到 INFO，其余 com.mailvor 包保留 DEBUG
+    com.mailvor.common.batch: INFO
     org.springframework.web: DEBUG
     com.github.binarywang.demo.wx.mp: DEBUG
     me.chanjar.weixin: DEBUG

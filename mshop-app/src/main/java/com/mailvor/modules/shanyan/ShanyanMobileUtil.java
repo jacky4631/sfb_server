@@ -1,6 +1,7 @@
 package com.mailvor.modules.shanyan;
 
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.modules.shanyan.config.ShanyanConfig;
 import com.mailvor.modules.shanyan.utils.AESUtils;
 import com.mailvor.modules.shanyan.utils.MD5;
@@ -32,13 +33,13 @@ public class ShanyanMobileUtil {
             params.put("token", token);
             params.put("appId", appId);
             params.put("sign", SignUtils.getSign(params, appKey));
-            JSONObject jsonObject = OkHttpUtil.postRequest(config.getLoginUrl(), params);
+            JsonObject jsonObject = OkHttpUtil.postRequest(config.getLoginUrl(), params);
             if (null != jsonObject) {
                 //返回码 200000为成功
                 String code = jsonObject.getString("code");
                 if ("200000".equals(code)) {
                     String dataStr = jsonObject.getString("data");
-                    JSONObject dataObj = JSONObject.parseObject(dataStr);
+                    JsonObject dataObj = JsonUtil.parseObject(dataStr);
                     String mobile = dataObj.getString("mobileName");
                     String key = MD5.getMD5Code(appKey);
                     //解密后的手机号码

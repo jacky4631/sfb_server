@@ -11,30 +11,29 @@
     <name>MyBatisPlus模块</name>
     <artifactId>mshop-db</artifactId>
 
-    <properties>
-        <jjwt.version>0.10.6</jjwt.version>
-        <mybatis-plus-boot-starter.version>3.5.1</mybatis-plus-boot-starter.version>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>${mybatis-plus-boot-starter.version}</version>
+            <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
+        </dependency>
+        <!-- 分页/防全表更新等 InnerInterceptor 在 MP 3.5.17 里属于独立坐标 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.github.pagehelper/pagehelper-spring-boot-starter -->
+        <!-- 分页：用 pagehelper starter（2.1.1 已提供 AutoConfiguration.imports，兼容 Spring Boot 4），
+             但排除它带进 mybatis-spring-boot-starter——那套自动配置会与 MyBatis-Plus 争抢 SqlSessionFactory。
+             实测：自己 new PageInterceptor 注册（无论声明成 Interceptor bean 还是 ConfigurationCustomizer）
+             都不会让 SQL 出现 LIMIT，而 starter 是直接往已建好的 Configuration 上 addInterceptor，能正常生效。 -->
         <dependency>
             <groupId>com.github.pagehelper</groupId>
             <artifactId>pagehelper-spring-boot-starter</artifactId>
-            <version>1.4.2</version>
+            <version>${pagehelper.version}</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>mybatis-spring</artifactId>
-                    <groupId>org.mybatis</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>mybatis</artifactId>
-                    <groupId>org.mybatis</groupId>
+                    <groupId>org.mybatis.spring.boot</groupId>
+                    <artifactId>mybatis-spring-boot-starter</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

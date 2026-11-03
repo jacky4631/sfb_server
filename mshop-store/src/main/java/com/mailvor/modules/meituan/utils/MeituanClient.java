@@ -1,7 +1,7 @@
 package com.mailvor.modules.meituan.utils;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.modules.meituan.config.MeituanConfig;
 import com.mailvor.modules.meituan.param.MeituanBaseParam;
 import org.apache.commons.lang3.StringUtils;
@@ -10,7 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
@@ -27,12 +27,12 @@ public class MeituanClient {
     @Resource
     private RestTemplate restTemplate;
 
-    public JSONObject request(MeituanBaseParam param, String path) {
+    public JsonObject request(MeituanBaseParam param, String path) {
         if (StringUtils.isBlank(meituanConfig.getAppKey())
                 || StringUtils.isBlank(meituanConfig.getAppSecret())) {
             throw new IllegalStateException("请先配置美团 appKey 和 appSecret");
         }
-        byte[] body = JSON.toJSONString(param).getBytes(StandardCharsets.UTF_8);
+        byte[] body = JsonUtil.toJSONString(param).getBytes(StandardCharsets.UTF_8);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", "application/json");
         headers.set("Content-Type", "application/json; charset=UTF-8");
@@ -54,7 +54,7 @@ public class MeituanClient {
             throw new IllegalStateException("美团请求签名失败", e);
         }
         String response = restTemplate.postForObject(HOST + path, new HttpEntity<>(body, headers), String.class);
-        JSONObject result = JSON.parseObject(response);
+        JsonObject result = JsonUtil.parseObject(response);
         if (result == null) {
             throw new IllegalStateException("美团接口返回为空");
         }

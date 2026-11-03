@@ -1,11 +1,10 @@
 package com.mailvor.modules.activity.domain;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.mailvor.domain.BaseDomain;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,25 +26,25 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel(value = "MwStoreBargainUserHelp对象", description = "砍价用户帮助表")
+@Schema(description = "砍价用户帮助表")
 public class MwStoreBargainUserHelp extends BaseDomain {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "砍价用户帮助表ID")
+    @Schema(description = "砍价用户帮助表ID")
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @ApiModelProperty(value = "帮助的用户id")
+    @Schema(description = "帮助的用户id")
     private Long uid;
 
-    @ApiModelProperty(value = "砍价产品ID")
+    @Schema(description = "砍价产品ID")
     private Long bargainId;
 
-    @ApiModelProperty(value = "用户参与砍价表id")
+    @Schema(description = "用户参与砍价表id")
     private Long bargainUserId;
 
-    @ApiModelProperty(value = "帮助砍价多少金额")
+    @Schema(description = "帮助砍价多少金额")
     private BigDecimal price;
 
 }

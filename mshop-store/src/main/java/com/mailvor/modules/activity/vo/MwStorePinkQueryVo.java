@@ -1,7 +1,6 @@
 package com.mailvor.modules.activity.vo;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -17,56 +16,56 @@ import java.util.Date;
  * @date 2019-11-19
  */
 @Data
-@ApiModel(value = "MwStorePinkQueryVo对象", description = "拼团表查询参数")
+@Schema(description = "拼团表查询参数")
 public class MwStorePinkQueryVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
 
-    @ApiModelProperty(value = "用户id")
+    @Schema(description = "用户id")
     private Long uid;
 
-    @ApiModelProperty(value = "用户昵称")
+    @Schema(description = "用户昵称")
     private String nickname;
 
-    @ApiModelProperty(value = "用户头像")
+    @Schema(description = "用户头像")
     private String avatar;
 
-    @ApiModelProperty(value = "订单id 生成")
+    @Schema(description = "订单id 生成")
     private String orderId;
 
-    @ApiModelProperty(value = "订单id  数据库")
+    @Schema(description = "订单id  数据库")
     private Integer orderIdKey;
 
-    @ApiModelProperty(value = "购买商品个数")
+    @Schema(description = "购买商品个数")
     private Integer totalNum;
 
-    @ApiModelProperty(value = "购买总金额")
+    @Schema(description = "购买总金额")
     private BigDecimal totalPrice;
 
-    @ApiModelProperty(value = "拼团产品id")
+    @Schema(description = "拼团产品id")
     private Long cid;
 
-    @ApiModelProperty(value = "产品id")
+    @Schema(description = "产品id")
     private Long pid;
 
-    @ApiModelProperty(value = "拼团总人数")
+    @Schema(description = "拼团总人数")
     private Integer people;
 
-    @ApiModelProperty(value = "拼团产品单价")
+    @Schema(description = "拼团产品单价")
     private BigDecimal price;
 
-    @ApiModelProperty(value = "开始时间")
+    @Schema(description = "开始时间")
     private Date createTime;
 
-    @ApiModelProperty(value = "结束时间")
+    @Schema(description = "结束时间")
     private Date stopTime;
 
-    @ApiModelProperty(value = "团长id 0为团长")
+    @Schema(description = "团长id 0为团长")
     private Long kId;
 
 
-    @ApiModelProperty(value = "状态1进行中2已完成3未完成")
+    @Schema(description = "状态1进行中2已完成3未完成")
     private Integer status;
 
 }

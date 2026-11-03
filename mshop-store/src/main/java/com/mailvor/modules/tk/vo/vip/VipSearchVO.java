@@ -1,6 +1,6 @@
 package com.mailvor.modules.tk.vo.vip;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -11,17 +11,17 @@ import lombok.Data;
 @Data
 public class VipSearchVO {
 
-    @JSONField(name = "goodsId")
+    @JsonProperty("goodsId")
     @Schema(description = "商品id")
     private String goodsId;
 
-    @JSONField(name = "goodsName")
+    @JsonProperty("goodsName")
     @Schema(description = "商品标题")
     private String title;
     @Schema(description = "商品短标题")
     private String dtitle;
 
-    @JSONField(name = "productSales")
+    @JsonProperty("productSales")
     @Schema(description = "销量")
     private String sales;
 
@@ -29,28 +29,28 @@ public class VipSearchVO {
     private String platform = "vip";
 
 
-//    @JSONField(name = "storeInfo.$storeName")
+//    @JsonProperty("storeInfo.$storeName")
     @Schema(description = "店铺名称")
     private String shopName;
 
-    @JSONField(name = "goodsMainPicture")
+    @JsonProperty("goodsMainPicture")
     @Schema(description = "商品预览图")
     private String img;
 
 
-    @JSONField(name = "marketPrice")
+    @JsonProperty("marketPrice")
     @Schema(description = "原价")
     private Double startPrice;
 
 
-    @JSONField(name = "vipPrice")
+    @JsonProperty("vipPrice")
     @Schema(description = "现价")
     private Double endPrice;
 
-    @JSONField(name = "commission")
+    @JsonProperty("commission")
     @Schema(description = "佣金")
     private Double fee;
-    @JSONField(name = "commissionRate")
+    @JsonProperty("commissionRate")
     @Schema(description = "佣金比例")
     private Double feeRatio;
 

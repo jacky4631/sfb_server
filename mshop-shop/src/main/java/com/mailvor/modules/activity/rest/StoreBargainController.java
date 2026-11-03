@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.activity.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.ObjectUtil;
 import com.mailvor.api.MshopException;
 import com.mailvor.modules.logging.aop.log.Log;
@@ -11,8 +13,6 @@ import com.mailvor.modules.activity.domain.MwStoreBargain;
 import com.mailvor.modules.activity.service.MwStoreBargainService;
 import com.mailvor.modules.activity.service.dto.MwStoreBargainQueryCriteria;
 import com.mailvor.modules.aop.ForbidSubmit;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 * @author huangyu
 * @date 2019-12-22
 */
-@Api(tags = "商城：砍价管理")
+@Tag(name = "商城：砍价管理")
 @RestController
 @RequestMapping("api")
 public class StoreBargainController {
@@ -42,7 +42,7 @@ public class StoreBargainController {
     }
 
     @Log("查询砍价")
-    @ApiOperation(value = "查询砍价")
+    @Operation(summary = "查询砍价")
     @GetMapping(value = "/mwStoreBargain")
     @PreAuthorize("hasAnyRole('admin','MWSTOREBARGAIN_ALL','MWSTOREBARGAIN_SELECT')")
     public ResponseEntity getMwStoreBargains(MwStoreBargainQueryCriteria criteria, Pageable pageable){
@@ -52,7 +52,7 @@ public class StoreBargainController {
 
 
     @Log("修改砍价")
-    @ApiOperation(value = "修改砍价")
+    @Operation(summary = "修改砍价")
     @PutMapping(value = "/mwStoreBargain")
     @PreAuthorize("hasAnyRole('admin','MWSTOREBARGAIN_ALL','MWSTOREBARGAIN_EDIT')")
     public ResponseEntity update(@Validated @RequestBody MwStoreBargain resources){
@@ -72,7 +72,7 @@ public class StoreBargainController {
 
     @ForbidSubmit
     @Log("删除砍价")
-    @ApiOperation(value = "删除砍价")
+    @Operation(summary = "删除砍价")
     @DeleteMapping(value = "/mwStoreBargain/{id}")
     @PreAuthorize("hasAnyRole('admin','MWSTOREBARGAIN_ALL','MWSTOREBARGAIN_DELETE')")
     public ResponseEntity delete(@PathVariable Long id){

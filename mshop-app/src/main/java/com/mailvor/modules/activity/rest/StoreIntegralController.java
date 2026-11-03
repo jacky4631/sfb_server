@@ -1,11 +1,11 @@
 package com.mailvor.modules.activity.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.api.ApiResult;
 import com.mailvor.modules.product.param.MwStoreProductQueryParam;
 import com.mailvor.modules.product.service.MwStoreProductService;
 import com.mailvor.modules.product.vo.MwStoreProductQueryVo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping
-@Api(value = "积分兑换", tags = "营销:积分兑换")
+@Tag(name = "营销:积分兑换")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StoreIntegralController {
 
@@ -32,7 +32,7 @@ public class StoreIntegralController {
      * 获取积分产品列表
      */
     @GetMapping("/products/integral")
-    @ApiOperation(value = "获取积分产品列表",notes = "获取积分产品列表")
+    @Operation(summary = "获取积分产品列表", description = "获取积分产品列表")
     public ApiResult<List<MwStoreProductQueryVo>> goodsList(MwStoreProductQueryParam productQueryParam){
         return ApiResult.ok(storeProductService.getGoodsList(productQueryParam));
     }

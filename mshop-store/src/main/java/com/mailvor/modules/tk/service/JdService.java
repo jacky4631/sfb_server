@@ -4,7 +4,7 @@
  */
 package com.mailvor.modules.tk.service;
 
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.jd.open.api.sdk.DefaultJdClient;
 import com.jd.open.api.sdk.JdClient;
 import com.jd.open.api.sdk.domain.kplunion.GoodsService.request.query.BigFieldGoodsReq;
@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Arrays;
 
 /**
@@ -165,14 +165,14 @@ public class JdService {
 //        request.setRankGoodsReq(rankGoodsReq);
 //        request.setVersion("1.0");
 //        UnionOpenGoodsRankQueryResponse response = client.execute(request);
-//        System.out.println(JSON.toJSONString(response.getQueryResult()));
+//        System.out.println(JsonUtil.toJSONString(response.getQueryResult()));
 
 //        UnionOpenGoodsBigfieldQueryRequest request=new UnionOpenGoodsBigfieldQueryRequest();
 //        BigFieldGoodsReq goodsReq=new BigFieldGoodsReq();
 //        goodsReq.setItemIds(Arrays.asList("28HYqoPfcmj38vCmWNacVosZ_3bnREOCd6cyii0Eb7l").toArray(new String[0]));
 //        request.setGoodsReq(goodsReq);
 //        request.setVersion("1.0");
-//        System.out.println(JSON.toJSONString(client.execute(request).getQueryResult()));
+//        System.out.println(JsonUtil.toJSONString(client.execute(request).getQueryResult()));
 
 //        UnionOpenPromotionCommonGetRequest request=new UnionOpenPromotionCommonGetRequest();
 //        PromotionCodeReq promotionCodeReq=new PromotionCodeReq();
@@ -183,7 +183,7 @@ public class JdService {
 //        promotionCodeReq.setSceneId(1);
 //        request.setPromotionCodeReq(promotionCodeReq);
 //        request.setVersion("1.0");
-//        System.out.println(JSON.toJSONString(client.execute(request).getGetResult()));
+//        System.out.println(JsonUtil.toJSONString(client.execute(request).getGetResult()));
 
         UnionOpenOrderRowQueryRequest request=new UnionOpenOrderRowQueryRequest();
         OrderRowReq orderReq=new OrderRowReq();
@@ -195,6 +195,6 @@ public class JdService {
         request.setOrderReq(orderReq);
         request.setVersion("1.0");
         UnionOpenOrderRowQueryResponse response=client.execute(request);
-        System.out.println(JSON.toJSONString(response.getQueryResult()));
+        System.out.println(JsonUtil.toJSONString(response.getQueryResult()));
     }
 }

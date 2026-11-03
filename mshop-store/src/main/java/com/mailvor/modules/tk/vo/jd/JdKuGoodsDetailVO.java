@@ -4,7 +4,7 @@
  */
 package com.mailvor.modules.tk.vo.jd;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -114,81 +114,81 @@ public class JdKuGoodsDetailVO {
      *   } ]
      * }
      * */
-    @JSONField(name = "itemid")
+    @JsonProperty("itemid")
     @Schema(description = "商品id")
     private String goodsId;
-    @JSONField(name = "couponurl")
+    @JsonProperty("couponurl")
     @Schema(description = "优惠券链接")
     private String couponLink;
 
-    @JSONField(name = "shop_info")
+    @JsonProperty("shop_info")
     @Schema(description = "店铺信息")
     private JdKuGoodsShopInfoVO shopInfo;
 
-    @JSONField(name = "commission_info")
+    @JsonProperty("commission_info")
     @Schema(description = "佣金信息")
     private JdKuGoodsCommissionInfoVO commissionInfo;
 
-    @JSONField(name = "category_info")
+    @JsonProperty("category_info")
     @Schema(description = "分类信息")
     private JdKuGoodsCateInfoVO cateInfo;
 
-    @JSONField(name = "goodsname")
+    @JsonProperty("goodsname")
     @Schema(description = "商品标题")
     private String title;
 
-    @JSONField(name = "itemsale")
+    @JsonProperty("itemsale")
     @Schema(description = "销量")
     private String sales;
-    @JSONField(name = "comments")
+    @JsonProperty("comments")
     @Schema(description = "评论数")
     private String comments;
 
-    @JSONField(name = "shopname")
+    @JsonProperty("shopname")
     @Schema(description = "店铺名称")
     private String shopName;
 
-    @JSONField(name = "itempic")
+    @JsonProperty("itempic")
     @Schema(description = "商品预览图")
     private String img;
 
-    @JSONField(name = "itemprice")
+    @JsonProperty("itemprice")
     @Schema(description = "原价")
     private Double startPrice;
 
-    @JSONField(name = "itemendprice")
+    @JsonProperty("itemendprice")
     @Schema(description = "现价")
     private Double endPrice;
 
-    @JSONField(name = "commission")
+    @JsonProperty("commission")
     @Schema(description = "佣金")
     private Double fee;
 
-    @JSONField(name = "commissionshare")
+    @JsonProperty("commissionshare")
     @Schema(description = "佣金比例")
     private Double feeRatio;
 
-    @JSONField(name = "couponmoney")
+    @JsonProperty("couponmoney")
     @Schema(description = "优惠券金额")
     private Double coupon;
 
-    @JSONField(name = "couponstarttime")
+    @JsonProperty("couponstarttime")
     @Schema(description = "优惠券开始时间")
     private String couponStart;
 
-    @JSONField(name = "couponendtime")
+    @JsonProperty("couponendtime")
     @Schema(description = "优惠券结束时间")
     private String couponEnd;
 
-    @JSONField(name = "good_comments_share")
+    @JsonProperty("good_comments_share")
     @Schema(description = "好评率")
     private String goodsCommentShare;
 
-    @JSONField(name = "shoptype")
+    @JsonProperty("shoptype")
     @Schema(description = "京东自营 1=是 0=否")
     private String owner;
 
-    @JSONField(name = "jd_image")
+    @JsonProperty("jd_image")
     @Schema(description = "商品详情图")
     private String details;
 

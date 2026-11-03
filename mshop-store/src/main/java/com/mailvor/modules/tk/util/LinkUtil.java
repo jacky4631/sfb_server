@@ -1,8 +1,8 @@
 package com.mailvor.modules.tk.util;
 
 import cn.hutool.core.util.ReUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.modules.tk.vo.DySearchVO;
 import com.mailvor.modules.tk.vo.GoodsParseVo;
 import com.mailvor.modules.tk.vo.TkParseVO;
@@ -164,7 +164,7 @@ public class LinkUtil {
         }
         dyLink = URLDecoder.decode(dyLink, "UTF-8");
         String dyAddiStr = dyLink.substring(dyLink.indexOf("request_additions=") + "request_additions=".length());
-        JSONObject dyAddi = JSON.parseObject(dyAddiStr);
+        JsonObject dyAddi = JsonUtil.parseObject(dyAddiStr);
         String goodsId = dyAddi.getString("product_id");
         return goodsId;
     }
@@ -202,8 +202,8 @@ public class LinkUtil {
                 .shortPwd(detail.getShortTpwd())
                 .build();
     }
-    public static JSONObject parseDyDetail(JSONObject dyDetail, String goodsId, String origContent, String dyPassword) {
-        JSONObject dyData = new JSONObject();
+    public static JsonObject parseDyDetail(JsonObject dyDetail, String goodsId, String origContent, String dyPassword) {
+        JsonObject dyData = new JsonObject();
         dyData.put("parseStatus", 3);
         dyData.put("originContent", origContent);
         dyData.put("platType", "dy");
@@ -234,8 +234,8 @@ public class LinkUtil {
     }
 
 
-    public static JSONObject parseVipDetail(VipGoodsDetailVO vipDetail, String goodsId, String origContent, String buyLink) {
-        JSONObject dyData = new JSONObject();
+    public static JsonObject parseVipDetail(VipGoodsDetailVO vipDetail, String goodsId, String origContent, String buyLink) {
+        JsonObject dyData = new JsonObject();
         Double origPrice = vipDetail.getStartPrice();
         Double actPrice = vipDetail.getEndPrice();
         dyData.put("parseStatus", 3);

@@ -8,9 +8,9 @@ package com.mailvor.modules.tk.service;
 import com.mailvor.modules.tk.config.KuCmsAddress;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonArray;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.modules.shop.service.MwSystemConfigService;
 import com.mailvor.modules.tk.constants.TkConstants;
 import com.mailvor.modules.tk.param.GoodsListDyParam;
@@ -36,7 +36,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -145,13 +145,13 @@ public class KuService {
         String sign = SignMD5Util.MD5(key.toString()).toUpperCase();
 
         map.put("sign",sign);
-        JSONObject jsonObject = new JSONObject();
+        JsonObject jsonObject = new JsonObject();
         for (Map.Entry<String, String> entry : map.entrySet()) {
             jsonObject.put(entry.getKey(), entry.getValue());
         }
         String jsonStr = jsonObject.toJSONString();
         log.info("提交的JSOn字符串:"+jsonStr);
-        TkParseCodeVO codeVO = JSON.parseObject(convertUnicodeToCh(HttpUtil.post(KU_API_V3, jsonStr.toString())), TkParseCodeVO.class);
+        TkParseCodeVO codeVO = JsonUtil.parseObject(convertUnicodeToCh(HttpUtil.post(KU_API_V3, jsonStr.toString())), TkParseCodeVO.class);
         if(codeVO.getCode() == 200) {
             codeVO.setCode(0);
             //京东goodsId为空，需要使用skuId替换
@@ -164,7 +164,7 @@ public class KuService {
 
     }
 
-    public JSONObject shortLink(String link) throws UnsupportedEncodingException {
+    public JsonObject shortLink(String link) throws UnsupportedEncodingException {
         /**
          * 获取时间
          */
@@ -186,14 +186,14 @@ public class KuService {
         String sign = SignMD5Util.MD5(key.toString()).toUpperCase();
 
         map.put("sign",sign);
-        JSONObject jsonObject = new JSONObject();
+        JsonObject jsonObject = new JsonObject();
         for (Map.Entry<String, String> entry : map.entrySet()) {
             jsonObject.put(entry.getKey(), entry.getValue());
         }
         String jsonStr = jsonObject.toJSONString();
         log.info("转短链 提交的jsonn字符串:"+jsonStr);
 
-        return JSON.parseObject(convertUnicodeToCh(HttpUtils.doPost(KU_API_V3, jsonStr.toString()))).getJSONObject("data");
+        return JsonUtil.parseObject(convertUnicodeToCh(HttpUtils.doPost(KU_API_V3, jsonStr.toString()))).getJSONObject("data");
 
     }
     /**
@@ -216,7 +216,7 @@ public class KuService {
 
 
 
-    public JSONObject localLife(String platform, String channel) {
+    public JsonObject localLife(String platform, String channel) {
 
         StringBuilder sb = new StringBuilder();
         sb.append("apikey=");
@@ -233,11 +233,11 @@ public class KuService {
                 LOCAL_LIFE_API,
                 requestParam,
                 String.class);
-        return JSON.parseObject(re.getBody());
+        return JsonUtil.parseObject(re.getBody());
     }
 
 
-    public JSONObject localLifeOrder(int page, int size, long startTime, long endTime, int platform) {
+    public JsonObject localLifeOrder(int page, int size, long startTime, long endTime, int platform) {
 
         StringBuilder sb = new StringBuilder();
         sb.append("apikey=");
@@ -260,12 +260,12 @@ public class KuService {
                 LOCAL_LIFE_ORDER_API,
                 requestParam,
                 String.class);
-        return JSON.parseObject(re.getBody());
+        return JsonUtil.parseObject(re.getBody());
     }
 
 
 
-    public JSONObject meiTuanActivityList(int page, int size) {
+    public JsonObject meiTuanActivityList(int page, int size) {
 
         StringBuilder sb = new StringBuilder();
         sb.append("apikey=");
@@ -281,11 +281,11 @@ public class KuService {
         ResponseEntity<String> re = restTemplate.getForEntity(
                 MEITUAN_ACTIVITY_LIST_API + "?" + sb,
                 String.class);
-        return JSON.parseObject(re.getBody());
+        return JsonUtil.parseObject(re.getBody());
     }
 
 
-    public JSONObject meiTuanWord(String activityId) {
+    public JsonObject meiTuanWord(String activityId) {
 
         StringBuilder sb = new StringBuilder();
         sb.append("apikey=");
@@ -302,11 +302,11 @@ public class KuService {
                 MEITUAN_ACTIVITY_WORD_API,
                 requestParam,
                 String.class);
-        return JSON.parseObject(re.getBody());
+        return JsonUtil.parseObject(re.getBody());
     }
 
 
-    public JSONObject eleActivityList(int page, int size) {
+    public JsonObject eleActivityList(int page, int size) {
 
         StringBuilder sb = new StringBuilder();
         sb.append("apikey=");
@@ -318,11 +318,11 @@ public class KuService {
         ResponseEntity<String> re = restTemplate.getForEntity(
                 ELE_ACTIVITY_LIST_API + "?" + sb,
                 String.class);
-        return JSON.parseObject(re.getBody());
+        return JsonUtil.parseObject(re.getBody());
     }
 
 
-    public JSONObject eleWord(String activityId, Long uid) {
+    public JsonObject eleWord(String activityId, Long uid) {
 
         StringBuilder sb = new StringBuilder();
         sb.append("apikey=");
@@ -339,7 +339,7 @@ public class KuService {
                 ELE_ACTIVITY_WORD_API,
                 requestParam,
                 String.class);
-        return JSON.parseObject(re.getBody());
+        return JsonUtil.parseObject(re.getBody());
     }
 
 
@@ -364,7 +364,7 @@ public class KuService {
                 ELE_ACTIVITY_ORDER_API,
                 requestParam,
                 String.class);
-        return JSON.parseObject(re.getBody(), EleKuResVo.class);
+        return JsonUtil.parseObject(re.getBody(), EleKuResVo.class);
     }
     /**
      * Dy life list json object.
@@ -379,7 +379,7 @@ public class KuService {
      * @param latitude   纬度
      * @return the json object
      */
-    public JSONObject dyLifeList(int page, int size, String cityCode, String categoryId, Integer sort, String keyword, Double longitude, Double latitude) {
+    public JsonObject dyLifeList(int page, int size, String cityCode, String categoryId, Integer sort, String keyword, Double longitude, Double latitude) {
         StringBuilder sb = new StringBuilder();
         sb.append(KU_API_BASE);
         sb.append("/dy_life_list?");
@@ -413,14 +413,14 @@ public class KuService {
             sb.append("&latitude=");
             sb.append(latitude);
         }
-        ResponseEntity<JSONObject> re = restTemplate.getForEntity(
+        ResponseEntity<JsonObject> re = restTemplate.getForEntity(
                 sb.toString(),
-                JSONObject.class);
+                JsonObject.class);
         return re.getBody();
     }
 
 
-    public JSONObject dyLifeWord(String id, String channel) {
+    public JsonObject dyLifeWord(String id, String channel) {
 
         StringBuilder sb = new StringBuilder();
         sb.append("apikey=");
@@ -433,10 +433,10 @@ public class KuService {
         // 以表单的方式提交
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         HttpEntity<String> requestParam = new HttpEntity<>(sb.toString(),headers);
-        ResponseEntity<JSONObject> re = restTemplate.postForEntity(
+        ResponseEntity<JsonObject> re = restTemplate.postForEntity(
                 KU_API_BASE+"/dy_life_share",
                 requestParam,
-                JSONObject.class);
+                JsonObject.class);
         return re.getBody();
     }
 
@@ -444,15 +444,15 @@ public class KuService {
         String data = HttpRequest
                 .get(KU_API_BASE + "/dy_life_city")
                 .execute().body();
-        return JSON.parseObject(data, DyLifeCityDto.class);
+        return JsonUtil.parseObject(data, DyLifeCityDto.class);
     }
 
     public DyLifeCityDto dyLifeCategoryList() {
-        return JSON.parseObject(DY_LIFE_CATE_STR, DyLifeCityDto.class);
+        return JsonUtil.parseObject(DY_LIFE_CATE_STR, DyLifeCityDto.class);
 //        String data = HttpRequest
 //                .get(KU_API_BASE + "/dy_life_category")
 //                .execute().body();
-//        return JSON.parseObject(data, DyLifeCityDto.class);
+//        return JsonUtil.parseObject(data, DyLifeCityDto.class);
     }
 
 
@@ -479,12 +479,13 @@ public class KuService {
                 KU_API_BASE+"/dy_order_list",
                 requestParam,
                 String.class);
-        return JSON.parseObject(re.getBody(), DyKuResVo.class);
+        return JsonUtil.parseObject(re.getBody(), DyKuResVo.class);
     }
 
     public DySearchListVO dyProductList(GoodsListDyParam param) {
+        // Spring 7 移除了 fromHttpUrl，也没有 ofHttp，统一用 fromUriString
         org.springframework.web.util.UriComponentsBuilder url = org.springframework.web.util.UriComponentsBuilder
-                .fromHttpUrl("https://api.cmspro.haodanku.com/douyin/item/getListsByDy")
+                .fromUriString("https://api.cmspro.haodanku.com/douyin/item/getListsByDy")
                 .queryParam("min_id", param.getPageId())
                 .queryParam("back", param.getPageSize())
                 .queryParam("cid", getKuCid());
@@ -493,7 +494,7 @@ public class KuService {
         if (param.getSort() != null) url.queryParam("sort", param.getSort());
         java.net.URI uri = url.encode().buildAndExpand(Collections.singletonMap("keyword", param.getKeyword())).toUri();
         ResponseEntity<String> re = restTemplate.getForEntity(uri, String.class);
-        DyCmsListVO cmsListVO = JSON.parseObject(re.getBody(), DyCmsListVO.class);
+        DyCmsListVO cmsListVO = JsonUtil.parseObject(re.getBody(), DyCmsListVO.class);
         DySearchListVO searchListVO = new DySearchListVO();
         searchListVO.setCode(cmsListVO.getCode());
         searchListVO.setMsg(cmsListVO.getMsg());
@@ -510,7 +511,7 @@ public class KuService {
                 itemId, getKuCid());
         ResponseEntity<String> re = restTemplate.getForEntity(url, String.class);
 
-        DyCmsGoodsDetailDataVo dataVo = JSON.parseObject(re.getBody(), DyCmsGoodsDetailDataVo.class);
+        DyCmsGoodsDetailDataVo dataVo = JsonUtil.parseObject(re.getBody(), DyCmsGoodsDetailDataVo.class);
         DyGoodsDetailDataVo res = new DyGoodsDetailDataVo();
         res.setCode(dataVo.getCode());
         res.setDetail(dataVo.getData());
@@ -536,25 +537,25 @@ public class KuService {
                 "https://api.cmspro.haodanku.com/douyin/douyin/getItemsLink",
                 requestParam,
                 String.class);
-        return JSON.parseObject(re.getBody(), DyWordGoodsDataVO.class);
+        return JsonUtil.parseObject(re.getBody(), DyWordGoodsDataVO.class);
     }
 
     public DyCateDataVO dyProductCateList() {
         // Read JSON as text so Spring/Jackson cannot leave nested LinkedHashMaps
-        // inside a Fastjson JSONObject and break category-item casts.
+        // inside a Fastjson JsonObject and break category-item casts.
         ResponseEntity<String> response = restTemplate.getForEntity(
                 "https://api.cmspro.haodanku.com/duohaodan/index/category?type=9&cid=" + getKuCid(), String.class);
-        JSONObject body = JSON.parseObject(response.getBody());
+        JsonObject body = JsonUtil.parseObject(response.getBody());
         if (body == null || (!Integer.valueOf(0).equals(body.getInteger("code")) &&
                 !Integer.valueOf(200).equals(body.getInteger("code")))) {
             throw new IllegalStateException(body == null ? "抖音分类查询失败" : body.getString("msg"));
         }
-        JSONObject payload = body.getJSONObject("data");
-        JSONArray categories = payload == null ? null : payload.getJSONArray("category");
+        JsonObject payload = body.getJSONObject("data");
+        JsonArray categories = payload == null ? null : payload.getJSONArray("category");
         if (categories == null) throw new IllegalStateException("抖音分类响应缺少分类列表");
         List<DyCateVO> data = new ArrayList<>(categories.size());
         for (int i = 0; i < categories.size(); i++) {
-            JSONObject category = categories.getJSONObject(i);
+            JsonObject category = categories.getJSONObject(i);
             if (category == null || category.getInteger("id") == null ||
                     StringUtils.isBlank(category.getString("name"))) continue;
             DyCateVO item = new DyCateVO();
@@ -568,7 +569,7 @@ public class KuService {
         return result;
     }
 
-    public JSONObject getCateList(Integer type, Integer labelId) {
+    public JsonObject getCateList(Integer type, Integer labelId) {
         StringBuilder sb = new StringBuilder();
         sb.append(KU_API_BASE);
         sb.append("/category_list?");
@@ -581,9 +582,9 @@ public class KuService {
             sb.append(labelId);
         }
 
-        ResponseEntity<JSONObject> re = restTemplate.getForEntity(
+        ResponseEntity<JsonObject> re = restTemplate.getForEntity(
                 sb.toString(),
-                JSONObject.class);
+                JsonObject.class);
         return re.getBody();
     }
 
@@ -606,7 +607,7 @@ public class KuService {
         return KuCmsAddress.parse(url);
     }
 
-    public JSONObject coudanList(Integer page, Integer size, String search) {
+    public JsonObject coudanList(Integer page, Integer size, String search) {
 
         StringBuilder sb = new StringBuilder();
         sb.append(COUDAN_API);
@@ -621,9 +622,9 @@ public class KuService {
             sb.append(search);
         }
 
-        ResponseEntity<JSONObject> re = restTemplate.getForEntity(
+        ResponseEntity<JsonObject> re = restTemplate.getForEntity(
                 sb.toString(),
-                JSONObject.class);
+                JsonObject.class);
         return re.getBody();
     }
 
@@ -671,7 +672,7 @@ public class KuService {
         }
         ResponseEntity<String> re = restTemplate.getForEntity("http://v3.api.haodanku.com/jd_goods_search?" + sb, String.class);
 
-        JdKuSearchListVO listVO = JSON.parseObject(re.getBody(), JdKuSearchListVO.class);
+        JdKuSearchListVO listVO = JsonUtil.parseObject(re.getBody(), JdKuSearchListVO.class);
         return listVO;
     }
 

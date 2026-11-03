@@ -5,6 +5,8 @@
 package com.mailvor.modules.update.rest;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mailvor.annotation.AnonymousAccess;
 import com.mailvor.api.ApiResult;
@@ -13,13 +15,11 @@ import com.mailvor.modules.shop.domain.MwAppVersion;
 import com.mailvor.modules.shop.service.MwAppVersionService;
 import com.mailvor.modules.utils.TkUtil;
 import com.mailvor.utils.RedisUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import static com.mailvor.config.PayConfig.PAY_NAME;
 import static com.mailvor.constant.SystemConfigConstants.UPDATE_CONFIG;
@@ -34,7 +34,7 @@ import static com.mailvor.constant.SystemConfigConstants.UPDATE_CONFIG;
  */
 @Slf4j
 @RestController
-@Api(value = "app更新", tags = "APP:app更新")
+@Tag(name = "APP:app更新")
 public class UpdateController {
     @Resource
     private RedisUtils redisUtils;
@@ -45,7 +45,7 @@ public class UpdateController {
     @AnonymousAccess
     @AppLog(value = "app更新配置", type = 1)
     @GetMapping("/update/config")
-    @ApiOperation(value = "app更新配置",notes = "app更新配置")
+    @Operation(summary = "app更新配置", description = "app更新配置")
     public ApiResult<MwAppVersion> updateConfig(){
         MwAppVersion appVersion;
 

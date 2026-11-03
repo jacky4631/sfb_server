@@ -4,12 +4,12 @@
  */
 package com.mailvor.modules.tools.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.tools.domain.EmailConfig;
 import com.mailvor.modules.tools.domain.vo.EmailVo;
 import com.mailvor.modules.tools.service.EmailConfigService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("api/email")
-@Api(tags = "工具：邮件管理")
+@Tag(name = "工具：邮件管理")
 public class EmailController {
 
     private final EmailConfigService emailService;
@@ -43,7 +43,7 @@ public class EmailController {
 
     @Log("配置邮件")
     @PutMapping
-    @ApiOperation("配置邮件")
+    @Operation(summary = "配置邮件")
     public ResponseEntity<Object> emailConfig(@Validated @RequestBody EmailConfig emailConfig){
         emailService.update(emailConfig,emailService.find());
         return new ResponseEntity<>(HttpStatus.OK);
@@ -51,7 +51,7 @@ public class EmailController {
 
     @Log("发送邮件")
     @PostMapping
-    @ApiOperation("发送邮件")
+    @Operation(summary = "发送邮件")
     public ResponseEntity<Object> send(@Validated @RequestBody EmailVo emailVo) throws Exception {
         emailService.send(emailVo,emailService.find());
         return new ResponseEntity<>(HttpStatus.OK);

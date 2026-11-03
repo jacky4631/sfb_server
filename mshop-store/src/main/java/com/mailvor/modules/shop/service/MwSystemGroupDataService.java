@@ -8,10 +8,10 @@ import com.mailvor.common.service.BaseService;
 import com.mailvor.modules.shop.domain.MwSystemGroupData;
 import com.mailvor.modules.shop.service.dto.MwSystemGroupDataDto;
 import com.mailvor.modules.shop.service.dto.MwSystemGroupDataQueryCriteria;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import org.springframework.data.domain.Pageable;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +27,7 @@ public interface MwSystemGroupDataService extends BaseService<MwSystemGroupData>
      * @param name 配置名称
      * @return List
      */
-    List<JSONObject> getDatas(String name);
+    List<JsonObject> getDatas(String name);
 
     /**
     * 查询数据分页

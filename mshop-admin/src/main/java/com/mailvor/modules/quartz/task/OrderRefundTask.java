@@ -1,6 +1,6 @@
 package com.mailvor.modules.quartz.task;
 
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.mailvor.modules.order.service.SuStoreOrderService;
 import com.mailvor.modules.tk.domain.*;
 import com.mailvor.modules.tk.service.*;
@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 /**
@@ -45,7 +45,7 @@ public class OrderRefundTask {
         if(StringUtils.isEmpty(paramStr) || "{}".equals(paramStr)) {
             param = new OrderRefundParam();
         } else {
-            param = JSON.parseObject(paramStr, OrderRefundParam.class);
+            param = JsonUtil.parseObject(paramStr, OrderRefundParam.class);
         }
         List<MailvorTbOrder> tbOrders = orderService.getRefundAndBindOrderList(param.getPrior());
 

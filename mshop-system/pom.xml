@@ -30,22 +30,7 @@
             <artifactId>wx-java-miniapp-spring-boot-starter</artifactId>
             <version>${weixin-java.version}</version>
         </dependency>
-        <dependency>
-            <groupId>net.sf.dozer</groupId>
-            <artifactId>dozer-spring</artifactId>
-            <version>5.5.1</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.dozer</groupId>
-            <artifactId>dozer</artifactId>
-            <version>5.5.1</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jcl-over-slf4j</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        <!-- dozer 5.5.1 已停维且依赖 javax，项目内无实际使用（唯一消费方 EJBGenerator 的 @Bean 已被注释），删除 -->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
@@ -72,6 +57,12 @@
             <version>11.10.0.0</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/../lib/aspose-words-18.6.jar</systemPath>
+        </dependency>
+        <!-- aspose-words / ysmp-java-sdk-core / pop-sdk 的字节码引用 javax.xml.bind，JDK 11+ 已移除 JAXB，
+             由本模块统一带入 jaxb-api（mshop-store 通过依赖链传递获得） -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.itextpdf/itextpdf -->
         <dependency>

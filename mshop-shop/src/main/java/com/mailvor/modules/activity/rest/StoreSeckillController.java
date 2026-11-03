@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.activity.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.mailvor.constant.ShopConstants;
@@ -23,12 +25,10 @@ import com.mailvor.modules.product.service.MwStoreProductRuleService;
 import com.mailvor.modules.product.service.dto.ProductFormatDto;
 import com.mailvor.modules.template.domain.MwShippingTemplates;
 import com.mailvor.modules.template.service.MwShippingTemplatesService;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  * @author huangyu
  * @date 2019-12-14
  */
-@Api(tags = "商城：秒杀管理")
+@Tag(name = "商城：秒杀管理")
 @RestController
 @RequestMapping("api")
 public class StoreSeckillController {
@@ -69,7 +69,7 @@ public class StoreSeckillController {
     }
 
     @Log("列表")
-    @ApiOperation(value = "列表")
+    @Operation(summary = "列表")
     @GetMapping(value = "/mwStoreSeckill")
     @PreAuthorize("hasAnyRole('admin','MWSTORESECKILL_ALL','MWSTORESECKILL_SELECT')")
     public ResponseEntity getMwStoreSeckills(MwStoreSeckillQueryCriteria criteria, Pageable pageable) {
@@ -79,7 +79,7 @@ public class StoreSeckillController {
 
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY, allEntries = true)
     @Log("发布")
-    @ApiOperation(value = "发布")
+    @Operation(summary = "发布")
     @PutMapping(value = "/mwStoreSeckill")
     @PreAuthorize("hasAnyRole('admin','MWSTORESECKILL_ALL','MWSTORESECKILL_EDIT')")
     public ResponseEntity update(@Validated @RequestBody MwStoreSeckill resources){
@@ -94,7 +94,7 @@ public class StoreSeckillController {
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY, allEntries = true)
     @ForbidSubmit
     @Log("删除")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     @DeleteMapping(value = "/mwStoreSeckill/{id}")
     @PreAuthorize("hasAnyRole('admin','MWSTORESECKILL_ALL','MWSTORESECKILL_DELETE')")
     public ResponseEntity delete(@PathVariable Long id) {
@@ -104,14 +104,14 @@ public class StoreSeckillController {
 
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY, allEntries = true)
     @Log("新增秒杀")
-    @ApiOperation(value = "新增秒杀")
+    @Operation(summary = "新增秒杀")
     @PostMapping(value = "/mwStoreSeckill")
     @PreAuthorize("hasAnyRole('admin','MWSTORESECKILL_ALL','MWSTORESECKILL_EDIT')")
     public ResponseEntity add(@Validated @RequestBody MwStoreSeckillDto resources) {
         return new ResponseEntity<>(mwStoreSeckillService.saveSeckill(resources), HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "获取商品信息")
+    @Operation(summary = "获取商品信息")
     @GetMapping(value = "/mwStoreSecKill/info/{id}")
     public ResponseEntity info(@PathVariable Long id) {
         Map<String, Object> map = new LinkedHashMap<>(3);
@@ -136,7 +136,7 @@ public class StoreSeckillController {
         MwStoreProductAttrResult storeProductAttrResult = mwStoreProductAttrResultService
                 .getOne(Wrappers.<MwStoreProductAttrResult>lambdaQuery()
                         .eq(MwStoreProductAttrResult::getProductId, mwStoreSeckill.getProductId()).last("limit 1"));
-        JSONObject result = JSON.parseObject(storeProductAttrResult.getResult());
+        JsonObject result = JsonUtil.parseObject(storeProductAttrResult.getResult());
 
         List<MwStoreProductAttrValue> attrValues = storeProductAttrValueService.list(new LambdaQueryWrapper<MwStoreProductAttrValue>().eq(MwStoreProductAttrValue::getProductId, mwStoreSeckill.getProductId()));
         List<ProductFormatDto> productFormatDtos = attrValues.stream().map(i -> {
@@ -164,7 +164,7 @@ public class StoreSeckillController {
      * @param productDto
      * @param result
      */
-    private void productFormat(MwStoreSeckillDto productDto, JSONObject result) {
+    private void productFormat(MwStoreSeckillDto productDto, JsonObject result) {
         Map<String, Object> mapAttr = (Map<String, Object>) result.getObject("value", ArrayList.class).get(0);
         ProductFormatDto productFormatDto = ProductFormatDto.builder()
                 .pic(mapAttr.get("pic").toString())

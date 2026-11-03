@@ -4,9 +4,11 @@
  */
 package com.mailvor.modules.pay.rest;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonArray;
+import com.mailvor.common.json.JsonObject;
 import com.alipay.api.AlipayApiException;
 import com.mailvor.annotation.AnonymousAccess;
 import com.mailvor.api.ApiResult;
@@ -26,8 +28,6 @@ import com.mailvor.modules.user.service.MwUserService;
 import com.mailvor.utils.OrderUtil;
 import com.mailvor.utils.StringUtils;
 import com.yinsheng.utils.YsChannelClientException;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +37,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -50,7 +50,7 @@ import java.io.IOException;
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "支付回调", tags = "支付:回调模块")
+@Tag(name = "支付:回调模块")
 public class PayNotifyController {
 
     // 沙盒环境
@@ -89,7 +89,7 @@ public class PayNotifyController {
      */
     @AnonymousAccess
     @PostMapping("/pay/notify/syb")
-    @ApiOperation(value = "充值回调",notes = "充值回调")
+    @Operation(summary = "充值回调", description = "充值回调")
     @Transactional
     public void notify(HttpServletRequest request, HttpServletResponse response) throws IOException {
         sybService.notify(request, response);
@@ -97,14 +97,14 @@ public class PayNotifyController {
 
     @AnonymousAccess
     @PostMapping("/pay/notify/ada")
-    @ApiOperation(value = "汇付充值回调",notes = "汇付充值回调")
+    @Operation(summary = "汇付充值回调", description = "汇付充值回调")
     @Transactional
     public void adaPayNotify(HttpServletRequest request, HttpServletResponse response) throws IOException {
         adaPayService.notify(request, response);
     }
     @AnonymousAccess
     @PostMapping("/pay/notify/ali")
-    @ApiOperation(value = "支付宝充值回调",notes = "支付宝充值回调")
+    @Operation(summary = "支付宝充值回调", description = "支付宝充值回调")
     @Transactional
     public String aliPayNotify(HttpServletRequest request) throws IOException, AlipayApiException {
         return aliPayService.notify(request);
@@ -115,7 +115,7 @@ public class PayNotifyController {
      */
     @AnonymousAccess
     @PostMapping("/pay/notify/wechat")
-    @ApiOperation(value = "微信APP支付回调",notes = "微信APP支付回调")
+    @Operation(summary = "微信APP支付回调", description = "微信APP支付回调")
     public String wechatNotify(@RequestBody String xmlData) throws AlipayApiException, IOException {
         return wechatPayService.notify(AppFromEnum.APP, xmlData);
 
@@ -123,23 +123,23 @@ public class PayNotifyController {
 
 //    @AnonymousAccess
 //    @PostMapping("/pay/notify/yee")
-//    @ApiOperation(value = "易宝充值回调",notes = "易宝充值回调")
+//    @Operation(summary = "易宝充值回调", description = "易宝充值回调")
 //    public String yeePayNotify(HttpServletRequest request) throws IOException {
 //        return yeePayService.notify(request);
 //    }
 
     @AnonymousAccess
     @PostMapping("/pay/notify/yse")
-    @ApiOperation(value = "银盛充值回调",notes = "银盛充值回调")
+    @Operation(summary = "银盛充值回调", description = "银盛充值回调")
     public String ysePayNotify(HttpServletRequest request) throws YsChannelClientException {
         return ysePayService.notify(request);
     }
 
     @AnonymousAccess
     @PostMapping("/ios/notify")
-    @ApiOperation(value = "ios回调",notes = "ios回调")
-    public ApiResult iosNotify(@RequestBody JSONObject body) {
-        log.info("body:{}", JSON.toJSONString(body));
+    @Operation(summary = "ios回调", description = "ios回调")
+    public ApiResult iosNotify(@RequestBody JsonObject body) {
+        log.info("body:{}", JsonUtil.toJSONString(body));
         String orderSn = body.getString("orderSn");
         String receipt = body.getString("receipt");
         if(StringUtils.isBlank(orderSn) || StringUtils.isBlank(receipt)) {
@@ -162,13 +162,13 @@ public class PayNotifyController {
         } else {
             verifyUrl = url_sandbox;
         }
-        JSONObject obj = new JSONObject();
+        JsonObject obj = new JsonObject();
         obj.put("receipt-data", receipt);
         obj.put("password", "c3d6eace374c4f038c5d2c8df42b3793");
-        JSONObject job = restTemplate.postForObject(verifyUrl, obj, JSONObject.class);
+        JsonObject job = restTemplate.postForObject(verifyUrl, obj, JsonObject.class);
 
         if (job != null) {
-            log.info("job:{}", JSON.toJSONString(job));
+            log.info("job:{}", JsonUtil.toJSONString(job));
             String states = job.getString("status");
 //21000 App Store无法读取你提供的JSON数据
 //21002 收据数据不符合格式
@@ -182,14 +182,14 @@ public class PayNotifyController {
                 log.debug("是沙盒环境，应沙盒测试，否则执行下面");
                 // 是沙盒环境，应沙盒测试，否则执行下面
                 // 2.再沙盒测试  发送平台验证
-                job = restTemplate.postForObject(url_sandbox, obj, JSONObject.class);
+                job = restTemplate.postForObject(url_sandbox, obj, JsonObject.class);
                 log.debug("3，沙盒环境验证返回的json字符串=" + job.toString());
                 states = job.getString("status");
             }
             if ("0".equals(states)) { // 前端所提供的收据是有效的    验证成功
                 log.debug("前端所提供的收据是有效的    验证成功");
-                JSONObject r_receipt = job.getObject("receipt", JSONObject.class);
-                JSONArray in_app = r_receipt.getObject("in_app",JSONArray.class);
+                JsonObject r_receipt = job.getObject("receipt", JsonObject.class);
+                JsonArray in_app = r_receipt.getObject("in_app",JsonArray.class);
 
                 /**
                  * in_app说明：
@@ -213,13 +213,13 @@ public class PayNotifyController {
                     } else {
                         productId = OrderUtil.getIosProductId(userRecharge.getPlatform(), userRecharge.getGrade());
                     }
-                    Object findProduct = in_app.stream().filter(inAppObj-> productId.equals(((JSONObject)inAppObj).getString("product_id"))).findFirst().orElse(null);
+                    Object findProduct = in_app.stream().filter(inAppObj-> productId.equals(((JsonObject)inAppObj).getString("product_id"))).findFirst().orElse(null);
 
                     //判断product_id，看返回的product_id与实际的充值金额是不是一致，防止骗单
                     if(findProduct == null){
                         throw new MshopException("该订单非法");
                     }
-                    JSONObject o = (JSONObject) findProduct;
+                    JsonObject o = (JsonObject) findProduct;
                     log.info("订单参数: {}", o.toJSONString());
 
                     //将订单更改为已支付

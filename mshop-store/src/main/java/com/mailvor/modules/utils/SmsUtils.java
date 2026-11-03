@@ -5,7 +5,7 @@
 package com.mailvor.modules.utils;
 
 
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.aliyun.dysmsapi20170525.Client;
 import com.aliyun.dysmsapi20170525.models.SendSmsRequest;
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
@@ -64,16 +64,16 @@ public class SmsUtils {
         RuntimeOptions runtime = new RuntimeOptions();
         try {
             SendSmsResponse response = client.sendSmsWithOptions(sendSmsRequest, runtime);
-            log.info("手机 {} 发送验证码 返回{}", phoneNumbers, JSON.toJSONString(response.getBody()));
+            log.info("手机 {} 发送验证码 返回{}", phoneNumbers, JsonUtil.toJSONString(response.getBody()));
         } catch (TeaException error) {
             // 如有需要，请打印 error
-            log.info("手机 {} 发送验证码 返回错误1{}", phoneNumbers, JSON.toJSONString(error));
+            log.info("手机 {} 发送验证码 返回错误1{}", phoneNumbers, JsonUtil.toJSONString(error));
             com.aliyun.teautil.Common.assertAsString(error.message);
         } catch (Exception _error) {
             TeaException error = new TeaException(_error.getMessage(), _error);
             // 如有需要，请打印 error
             com.aliyun.teautil.Common.assertAsString(error.message);
-            log.info("手机 {} 发送验证码 返回错误2{}", phoneNumbers, JSON.toJSONString(_error));
+            log.info("手机 {} 发送验证码 返回错误2{}", phoneNumbers, JsonUtil.toJSONString(_error));
         }
 
     }

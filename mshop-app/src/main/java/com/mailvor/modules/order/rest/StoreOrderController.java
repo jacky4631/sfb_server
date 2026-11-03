@@ -4,6 +4,10 @@
  */
 package com.mailvor.modules.order.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -45,10 +49,6 @@ import com.mailvor.modules.tools.express.dao.ExpressInfo;
 import com.mailvor.modules.user.config.AppDataConfig;
 import com.mailvor.modules.user.domain.MwUser;
 import com.vdurmont.emoji.EmojiParser;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +56,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.validation.Valid;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -75,7 +75,7 @@ import static com.mailvor.config.PayConfig.PAY_NAME;
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "订单模块", tags = "商城：订单模块")
+@Tag(name = "商城：订单模块")
 public class StoreOrderController {
 
     private final MwStoreOrderService storeOrderService;
@@ -119,7 +119,7 @@ public class StoreOrderController {
     @AppLog(value = "订单确认", type = 1)
     @AuthCheck
     @PostMapping("/order/confirm")
-    @ApiOperation(value = "订单确认", notes = "订单确认")
+    @Operation(summary = "订单确认", description = "订单确认")
     public ApiResult<ConfirmOrderVo> confirm(@Validated @RequestBody ConfirmOrderParam param) {
         MwUser mwUser = LocalUser.getUser();
         return ApiResult.ok(storeOrderService.confirmOrder(mwUser, param.getGoodsId()));
@@ -134,7 +134,7 @@ public class StoreOrderController {
     @AuthCheck
     @NoRepeatSubmit
     @PostMapping("/order/create")
-    @ApiOperation(value = "订单创建", notes = "订单创建")
+    @Operation(summary = "订单创建", description = "订单创建")
     public ApiResult<Map<String, Object>> create(@Valid @RequestBody OrderParam param) {
         MwUser mwUser = LocalUser.getUser();
         ComputeOrderParam computeOrderParam = new ComputeOrderParam();
@@ -182,7 +182,7 @@ public class StoreOrderController {
     @AppLog(value = "订单支付", type = 1)
     @AuthCheck
     @PostMapping("/order/pay")
-    @ApiOperation(value = "订单支付", notes = "订单支付")
+    @Operation(summary = "订单支付", description = "订单支付")
     public ApiResult<Map<String, Object>> pay(@Valid @RequestBody PayParam param) {
         Map<String, Object> map = new LinkedHashMap<>();
         Long uid = LocalUser.getUser().getUid();
@@ -218,12 +218,12 @@ public class StoreOrderController {
     @AppLog(value = "查看订单列表", type = 1)
     @AuthCheck
     @GetMapping("/order/list")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "type", value = "商品状态,-1全部 默认为0未支付 1待发货 2待收货 3待评价 4已完成 5退款中 6已退款 7退款", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "page", value = "页码,默认为1", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "limit", value = "页大小,默认为10", paramType = "query", dataType = "int")
+    @Parameters({
+            @Parameter(name = "type", description = "商品状态,-1全部 默认为0未支付 1待发货 2待收货 3待评价 4已完成 5退款中 6已退款 7退款"),
+            @Parameter(name = "page", description = "页码,默认为1"),
+            @Parameter(name = "limit", description = "页大小,默认为10")
     })
-    @ApiOperation(value = "订单列表", notes = "订单列表")
+    @Operation(summary = "订单列表", description = "订单列表")
     public ApiResult<Object> orderList(@RequestParam(value = "type", defaultValue = "-1") int type,
                                        @RequestParam(value = "page", defaultValue = "1") int page,
                                        @RequestParam(value = "limit", defaultValue = "10") int limit) {
@@ -242,10 +242,10 @@ public class StoreOrderController {
     @AppLog(value = "查看订单详情", type = 1)
     @AuthCheck
     @GetMapping("/order/detail/{key}")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "key", value = "唯一的key", paramType = "query", dataType = "string")
+    @Parameters({
+            @Parameter(name = "key", description = "唯一的key")
     })
-    @ApiOperation(value = "订单详情", notes = "订单详情")
+    @Operation(summary = "订单详情", description = "订单详情")
     public ApiResult<MwStoreOrderQueryVo> detail(@PathVariable String key) {
         Long uid = LocalUser.getUser().getUid();
         if (StrUtil.isEmpty(key)) {
@@ -267,7 +267,7 @@ public class StoreOrderController {
     @AppLog(value = "订单收货", type = 1)
     @AuthCheck
     @PostMapping("/order/take")
-    @ApiOperation(value = "订单收货", notes = "订单收货")
+    @Operation(summary = "订单收货", description = "订单收货")
     public ApiResult<Boolean> orderTake(@Validated @RequestBody DoOrderParam param) {
         Long uid = LocalUser.getUser().getUid();
         storeOrderService.takeOrder(param.getUni(), uid);
@@ -278,7 +278,7 @@ public class StoreOrderController {
      * 订单产品信息
      */
     @PostMapping("/order/product")
-    @ApiOperation(value = "订单产品信息", notes = "订单产品信息")
+    @Operation(summary = "订单产品信息", description = "订单产品信息")
     public ApiResult<OrderCartInfoVo> product(@Validated @RequestBody ProductOrderParam param) {
         return ApiResult.ok(orderSupplyService.getProductOrder(param.getUnique()));
     }
@@ -290,7 +290,7 @@ public class StoreOrderController {
     @AuthCheck
     @NoRepeatSubmit
     @PostMapping("/order/comment")
-    @ApiOperation(value = "订单评价", notes = "订单评价")
+    @Operation(summary = "订单评价", description = "订单评价")
     public ApiResult<Boolean> comment(@Valid @RequestBody ProductReplyParam param) {
         MwUser user = LocalUser.getUser();
         MwStoreOrderCartInfo orderCartInfo = storeOrderCartInfoService
@@ -314,7 +314,7 @@ public class StoreOrderController {
     @AuthCheck
     @NoRepeatSubmit
     @PostMapping("/order/comments")
-    @ApiOperation(value = "订单评价", notes = "订单评价")
+    @Operation(summary = "订单评价", description = "订单评价")
     public ApiResult<Boolean> comments(@Valid @RequestBody List<ProductReplyParam> param) {
         MwUser user = LocalUser.getUser();
         if (param.size() > 0) {
@@ -343,7 +343,7 @@ public class StoreOrderController {
     @AppLog(value = "订单删除", type = 1)
     @AuthCheck
     @PostMapping("/order/del")
-    @ApiOperation(value = "订单删除", notes = "订单删除")
+    @Operation(summary = "订单删除", description = "订单删除")
     public ApiResult<Boolean> orderDel(@Validated @RequestBody DoOrderParam param) {
         Long uid = LocalUser.getUser().getUid();
         storeOrderService.removeOrder(param.getUni(), uid);
@@ -354,7 +354,7 @@ public class StoreOrderController {
      * 订单退款理由
      */
     @GetMapping("/order/refund/reason")
-    @ApiOperation(value = "订单退款理由", notes = "订单退款理由")
+    @Operation(summary = "订单退款理由", description = "订单退款理由")
     public ApiResult<Object> refundReason() {
         ArrayList<String> list = new ArrayList<>();
         list.add("收货地址填错了");
@@ -374,7 +374,7 @@ public class StoreOrderController {
     @NoRepeatSubmit
     @AuthCheck
     @PostMapping("/order/refund/verify")
-    @ApiOperation(value = "订单退款审核", notes = "订单退款审核")
+    @Operation(summary = "订单退款审核", description = "订单退款审核")
     public ApiResult<Boolean> refundVerify(@RequestBody RefundParam param) {
         Long uid = LocalUser.getUser().getUid();
         storeOrderService.orderApplyRefund(param.getRefundReasonWapExplain(),
@@ -391,7 +391,7 @@ public class StoreOrderController {
     @NoRepeatSubmit
     @AuthCheck
     @PostMapping("/order/cancel")
-    @ApiOperation(value = "订单取消", notes = "订单取消")
+    @Operation(summary = "订单取消", description = "订单取消")
     public ApiResult<Boolean> cancelOrder(@Validated @RequestBody HandleOrderParam param) {
         Long uid = LocalUser.getUser().getUid();
         MwStoreOrderQueryVo orderInfo = storeOrderService.getOrderInfo(param.getId(), uid);
@@ -411,7 +411,7 @@ public class StoreOrderController {
      */
     @AuthCheck
     @PostMapping("/order/express")
-    @ApiOperation(value = "获取物流信息", notes = "获取物流信息")
+    @Operation(summary = "获取物流信息", description = "获取物流信息")
     public ApiResult<ExpressInfo> express(@RequestBody ExpressParam expressInfoDo) {
 
         //顺丰轨迹查询处理
@@ -436,7 +436,7 @@ public class StoreOrderController {
 
     @AuthCheck
     @GetMapping("/order/getSubscribeTemplate")
-    @ApiOperation(value = "获取订阅消息模板ID", notes = "获取订阅消息模板ID")
+    @Operation(summary = "获取订阅消息模板ID", description = "获取订阅消息模板ID")
     public ApiResult<List<String>> getSubscribeTemplate() {
         List<MwWechatTemplate> mwWechatTemplate = mwWechatTemplateService.lambdaQuery()
                 .eq(MwWechatTemplate::getType, "subscribe")
@@ -446,7 +446,7 @@ public class StoreOrderController {
     }
     @AuthCheck
     @GetMapping("/order/tab/first")
-    @ApiOperation(value = "订单中心tab", notes = "订单中心tab")
+    @Operation(summary = "订单中心tab", description = "订单中心tab")
     public ApiResult<List<OrderTabFirstDto>> getOrderTabFirst() {
         List<OrderTabFirstDto> tabs = new ArrayList<>();
 
@@ -463,7 +463,7 @@ public class StoreOrderController {
     }
     @AuthCheck
     @GetMapping("/order/tab")
-    @ApiOperation(value = "订单中心tab", notes = "订单中心tab")
+    @Operation(summary = "订单中心tab", description = "订单中心tab")
     public ApiResult<List<OrderTabDto>> getOrderTab(@RequestParam(required = false) Integer level,
                                                     @RequestParam(required = false) Integer innerType) {
         Long uid = LocalUser.getUser().getUid();
@@ -500,7 +500,7 @@ public class StoreOrderController {
     @NoRepeatSubmit(lockTime = 2)
     @AuthCheck
     @PostMapping("/order/submit")
-    @ApiOperation(value = "提交订单", notes = "提交订单")
+    @Operation(summary = "提交订单", description = "提交订单")
     public ApiResult submitOrder(@Validated @RequestBody SubmitOrderParam param) throws ExecutionException, InterruptedException {
         MwUser mwUser = LocalUser.getUser();
         tkService.submitOrder(param.getOrderId(), mwUser.getUid(), true);

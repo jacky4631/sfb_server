@@ -1,6 +1,5 @@
 package com.mailvor.modules.user.service.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.mailvor.modules.user.domain.MwUserFeeLog;
 import lombok.Data;
 

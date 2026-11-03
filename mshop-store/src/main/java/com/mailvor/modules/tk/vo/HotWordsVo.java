@@ -1,8 +1,7 @@
 package com.mailvor.modules.tk.vo;
 
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -18,10 +17,10 @@ import java.io.Serializable;
  */
 @AllArgsConstructor
 @Data
-@ApiModel(value = "PddNavVo", description = "商品表查询参数")
+@Schema(description = "商品表查询参数")
 public class HotWordsVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "关键词")
+    @Schema(description = "关键词")
     private String keyword;
 }

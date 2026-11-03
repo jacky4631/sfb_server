@@ -1,8 +1,7 @@
 package com.mailvor.modules.tk.vo;
 
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -16,14 +15,14 @@ import java.io.Serializable;
  * @date 2019-10-19
  */
 @Data
-@ApiModel(value = "DataokeResVo", description = "接口返回参数")
+@Schema(description = "接口返回参数")
 public class DataokeResVo<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "code")
+    @Schema(description = "code")
     private Integer code;
 
-    @ApiModelProperty(value = "msg")
+    @Schema(description = "msg")
     private String msg;
 
     private T data;

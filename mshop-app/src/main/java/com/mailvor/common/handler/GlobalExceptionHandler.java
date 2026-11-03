@@ -14,7 +14,7 @@ import com.mailvor.api.MshopException;
 import com.mailvor.common.bean.RequestDetail;
 import com.mailvor.common.util.RequestDetailThreadLocal;
 import com.mailvor.exception.BadLimitRequestException;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
         if(!list.isEmpty()) {
             msg = list.get(0);
         }
-        log.error(getApiCodeString(ApiCode.PARAMETER_EXCEPTION) + ":" + JSON.toJSONString(list));
+        log.error(getApiCodeString(ApiCode.PARAMETER_EXCEPTION) + ":" + JsonUtil.toJSONString(list));
         return ApiResult.fail(ApiCode.PARAMETER_EXCEPTION.getCode(), msg);
     }
 

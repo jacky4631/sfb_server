@@ -4,12 +4,12 @@
  */
 package com.mailvor.modules.product.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.annotation.AnonymousAccess;
 import com.mailvor.api.ApiResult;
 import com.mailvor.modules.category.service.MwStoreCategoryService;
 import com.mailvor.utils.CateDTO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@Api(value = "商品分类", tags = "商城：商品分类")
+@Tag(name = "商城：商品分类")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StoreCategoryController {
 
@@ -40,7 +40,7 @@ public class StoreCategoryController {
      */
     @AnonymousAccess
     @GetMapping("/category")
-    @ApiOperation(value = "商品分类列表",notes = "商品分类列表")
+    @Operation(summary = "商品分类列表", description = "商品分类列表")
     public ApiResult<List<CateDTO>> getMwStoreCategoryPageList(){
         return ApiResult.ok(mwStoreCategoryService.getList());
     }

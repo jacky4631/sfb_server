@@ -4,8 +4,8 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mailvor.api.MshopException;
@@ -46,7 +46,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -148,7 +148,7 @@ public class TkService {
                 PddSearchVO pddSearchVO = pddSearchListVO.getData().getList().get(0);
                 res.setCode(0);
                 res.setData(LinkUtil.parsePddDetail(pddSearchVO, content));
-                log.info("查券返回结果 {}", JSON.toJSONString(res));
+                log.info("查券返回结果 {}", JsonUtil.toJSONString(res));
                 return res;
             }
         } else if (ClipboardParseUtil.getJdPattern().matcher(content).find()) {
@@ -251,7 +251,7 @@ public class TkService {
         if(res.getData() == null) {
             res.setData(TkParseVO.builder().originContent(content).build());
         }
-        log.info("查券返回结果 {}", JSON.toJSONString(res));
+        log.info("查券返回结果 {}", JsonUtil.toJSONString(res));
         return res;
     }
 
@@ -362,16 +362,16 @@ public class TkService {
         }
     }
 
-    protected JSONObject ku2Da(JSONObject kuObj, String origContent) {
+    protected JsonObject ku2Da(JsonObject kuObj, String origContent) {
         Integer code = kuObj.getInteger("code");
-        JSONObject daObj = new JSONObject();
-        JSONObject dataObj = new JSONObject();
+        JsonObject daObj = new JsonObject();
+        JsonObject dataObj = new JsonObject();
         daObj.put("status",200);
         daObj.put("msg","请求成功");
         daObj.put("data",dataObj);
         dataObj.put("originContent", origContent);
         if(code == 200) {
-            JSONObject data = kuObj.getJSONObject("data");
+            JsonObject data = kuObj.getJSONObject("data");
             String startPriceStr = data.getString("item_price");
             if(StringUtils.isNotBlank(startPriceStr)) {
                 //查券成功;
@@ -406,7 +406,7 @@ public class TkService {
         return daObj;
     }
 
-    public JSONObject createTlj(String goodsId, Double tljMoney) throws ApiException {
+    public JsonObject createTlj(String goodsId, Double tljMoney) throws ApiException {
         // create Client
         TaobaoClient client = new DefaultTaobaoClient(tbConfig.getUrl(), tbConfig.getAppKey(), tbConfig.getAppSecret());
         TbkDgVegasTljCreateRequest req = new TbkDgVegasTljCreateRequest();
@@ -426,9 +426,9 @@ public class TkService {
         req.setAdzoneId(tbConfig.getAdZoneId());
         TbkDgVegasTljCreateResponse rsp = client.execute(req);
         log.info("淘礼金返回:{}", rsp.getBody());
-        return JSON.parseObject(rsp.getBody());
+        return JsonUtil.parseObject(rsp.getBody());
     }
-    public JSONObject getTljUse(String tljId) throws ApiException {
+    public JsonObject getTljUse(String tljId) throws ApiException {
         // create Client
         TaobaoClient client = new DefaultTaobaoClient(tbConfig.getUrl(), tbConfig.getAppKey(), tbConfig.getAppSecret());
         TbkDgVegasTljReportRequest req = new TbkDgVegasTljReportRequest();
@@ -436,7 +436,7 @@ public class TkService {
         req.setAdzoneId(tbConfig.getAdZoneId());
         TbkDgVegasTljReportResponse rsp = client.execute(req);
         log.info("淘礼金状态返回:{}", rsp.getBody());
-        return JSON.parseObject(rsp.getBody());
+        return JsonUtil.parseObject(rsp.getBody());
     }
 
 }

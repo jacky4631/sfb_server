@@ -5,8 +5,9 @@
 package com.mailvor.modules.mp.utils;
 
 
+import com.mailvor.common.json.JsonUtil;
 import com.mailvor.modules.user.service.dto.WechatUserDto;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 
 /**
  * @ClassName MshopUtils
@@ -15,6 +16,6 @@ import com.alibaba.fastjson.JSONObject;
  **/
 public class MshopUtils {
     public static WechatUserDto getWechtUser(String str) {
-        return JSONObject.parseObject(str,WechatUserDto.class);
+        return JsonUtil.parseObject(str,WechatUserDto.class);
     }
 }

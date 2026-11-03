@@ -9,11 +9,11 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
+import com.mailvor.common.json.JsonTypeHandler;
 import com.mailvor.modules.user.service.dto.GoodsInfoDto;
 import lombok.*;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -146,7 +146,7 @@ public class MailvorJdOrder extends TkOrder {
     private Long rid;
 
     /** 京东商品信息 */
-    @TableField(typeHandler = FastjsonTypeHandler.class)
+    @TableField(typeHandler = JsonTypeHandler.class)
     private GoodsInfoDto GoodsInfo;
 
     @TableField(exist = false)

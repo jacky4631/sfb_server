@@ -2,8 +2,8 @@ package com.mailvor.modules.tk.util;
 
 
 import cn.hutool.core.util.ReUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -224,13 +224,13 @@ public class HttpUtil {
         }
         dyLink = URLDecoder.decode(dyLink, "UTF-8");
         String dyAddiStr = dyLink.substring(dyLink.indexOf("request_additions=") + "request_additions=".length());
-        JSONObject dyAddi = JSON.parseObject(dyAddiStr);
+        JsonObject dyAddi = JsonUtil.parseObject(dyAddiStr);
         String goodsId = dyAddi.getString("product_id");
         return goodsId;
     }
 
-    public static JSONObject parseDyDetail(JSONObject dyDetail, String goodsId, String origContent, String dyPassword) {
-        JSONObject dyData = new JSONObject();
+    public static JsonObject parseDyDetail(JsonObject dyDetail, String goodsId, String origContent, String dyPassword) {
+        JsonObject dyData = new JsonObject();
         dyData.put("parseStatus", 3);
         dyData.put("originContent", origContent);
         dyData.put("platType", "dy");
@@ -261,8 +261,8 @@ public class HttpUtil {
     }
 
 
-    public static JSONObject parseVipDetail(JSONObject vipDetail, String goodsId, String origContent, String buyLink) {
-        JSONObject dyData = new JSONObject();
+    public static JsonObject parseVipDetail(JsonObject vipDetail, String goodsId, String origContent, String buyLink) {
+        JsonObject dyData = new JsonObject();
         Double origPrice = Double.parseDouble(vipDetail.getString("marketPrice"));
         Double actPrice = Double.parseDouble(vipDetail.getString("vipPrice"));
         dyData.put("parseStatus", 3);
@@ -282,8 +282,8 @@ public class HttpUtil {
     }
 
 
-    public static JSONObject parseVipKuDetail(JSONObject vipDetail, String goodsId, String origContent, String buyLink) {
-        JSONObject dyData = new JSONObject();
+    public static JsonObject parseVipKuDetail(JsonObject vipDetail, String goodsId, String origContent, String buyLink) {
+        JsonObject dyData = new JsonObject();
         dyData.put("originContent", origContent);
         dyData.put("plat_type", 5);
         dyData.put("itemId", goodsId);

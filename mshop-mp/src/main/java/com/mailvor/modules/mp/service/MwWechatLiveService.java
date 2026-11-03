@@ -15,7 +15,7 @@ import com.mailvor.modules.mp.domain.MwWechatLive;
 import me.chanjar.weixin.common.error.WxErrorException;
 import org.springframework.data.domain.Pageable;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 

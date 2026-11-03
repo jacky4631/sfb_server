@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.system.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.exception.BadRequestException;
 import com.mailvor.modules.logging.aop.log.Log;
@@ -12,8 +14,6 @@ import com.mailvor.modules.dict.domain.Dict;
 import com.mailvor.modules.dict.service.DictService;
 import com.mailvor.modules.dict.service.dto.DictDto;
 import com.mailvor.modules.dict.service.dto.DictQueryCriteria;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,14 +28,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
 * @author mazhongjun
 * @date 2019-04-10
 */
-@Api(tags = "系统：字典管理")
+@Tag(name = "系统：字典管理")
 @RestController
 @RequestMapping("/api/dict")
 public class DictController {
@@ -51,7 +51,7 @@ public class DictController {
     }
 
     @Log("导出字典数据")
-    @ApiOperation("导出字典数据")
+    @Operation(summary = "导出字典数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','dict:list')")
     public void download(HttpServletResponse response, DictQueryCriteria criteria) throws IOException {
@@ -59,7 +59,7 @@ public class DictController {
     }
 
     @Log("查询字典")
-    @ApiOperation("查询字典")
+    @Operation(summary = "查询字典")
     @GetMapping(value = "/all")
     @PreAuthorize("@el.check('admin','dict:list')")
     public ResponseEntity<Object> all(){
@@ -67,7 +67,7 @@ public class DictController {
     }
 
     @Log("查询字典")
-    @ApiOperation("查询字典")
+    @Operation(summary = "查询字典")
     @GetMapping
     @PreAuthorize("@el.check('admin','dict:list')")
     public ResponseEntity<Object> getDicts(DictQueryCriteria resources, Pageable pageable){
@@ -75,7 +75,7 @@ public class DictController {
     }
 
     @Log("新增字典")
-    @ApiOperation("新增字典")
+    @Operation(summary = "新增字典")
     @PostMapping
     @PreAuthorize("@el.check('admin','dict:add')")
     public ResponseEntity<Object> create(@Validated @RequestBody Dict resources){
@@ -87,7 +87,7 @@ public class DictController {
 
     @ForbidSubmit
     @Log("修改字典")
-    @ApiOperation("修改字典")
+    @Operation(summary = "修改字典")
     @PutMapping
     @PreAuthorize("@el.check('admin','dict:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody Dict resources){
@@ -97,7 +97,7 @@ public class DictController {
 
     @ForbidSubmit
     @Log("删除字典")
-    @ApiOperation("删除字典")
+    @Operation(summary = "删除字典")
     @DeleteMapping(value = "/{id}")
     @PreAuthorize("@el.check('admin','dict:del')")
     public ResponseEntity<Object> delete(@PathVariable Long id){

@@ -1,6 +1,6 @@
 package com.mailvor.modules.tk.vo.pdd;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -11,18 +11,18 @@ import lombok.Data;
 @Data
 public class PddSearchVO {
 
-    @JSONField(name = "goodsSign")
+    @JsonProperty("goodsSign")
     @Schema(description = "商品id")
     private String goodsId;
 
-    @JSONField(name = "goodsDesc")
+    @JsonProperty("goodsDesc")
     @Schema(description = "商品标题")
     private String title;
-    @JSONField(name = "goodsName")
+    @JsonProperty("goodsName")
     @Schema(description = "商品短标题")
     private String dtitle;
 
-    @JSONField(name = "salesTip")
+    @JsonProperty("salesTip")
     @Schema(description = "销量")
     private String sales;
 
@@ -30,31 +30,31 @@ public class PddSearchVO {
     private String platform = "pdd";
 
 
-    @JSONField(name = "mallName")
+    @JsonProperty("mallName")
     @Schema(description = "店铺名称")
     private String shopName;
 
-    @JSONField(name = "goodsImageUrl")
+    @JsonProperty("goodsImageUrl")
     @Schema(description = "商品预览图")
     private String img;
 
 
-    @JSONField(name = "minNormalPrice")
+    @JsonProperty("minNormalPrice")
     @Schema(description = "原价")
     private Double startPrice;
 
 
-    @JSONField(name = "minGroupPrice")
+    @JsonProperty("minGroupPrice")
     @Schema(description = "现价")
     private Double endPrice;
 
     @Schema(description = "佣金")
     private Double fee;
-    @JSONField(name = "promotionRate")
+    @JsonProperty("promotionRate")
     @Schema(description = "佣金比例")
     private Double feeRatio;
 
-    @JSONField(name = "couponDiscount")
+    @JsonProperty("couponDiscount")
     @Schema(description = "优惠券金额")
     private Double coupon;
 }

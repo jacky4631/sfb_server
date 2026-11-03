@@ -4,11 +4,13 @@
  */
 package com.mailvor.modules.security.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.annotation.AnonymousAccess;
 import com.mailvor.api.MshopException;
 import com.mailvor.constant.ShopConstants;
@@ -25,8 +27,6 @@ import com.mailvor.modules.utils.SmsUtils;
 import com.mailvor.utils.RedisUtils;
 import com.mailvor.utils.SecurityUtils;
 import com.mailvor.utils.StringUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -40,8 +40,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,7 +53,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/auth")
-@Api(tags = "系统：系统授权接口")
+@Tag(name = "系统：系统授权接口")
 public class AuthController {
 
     @Value("${loginCode.expiration}")
@@ -82,7 +82,7 @@ public class AuthController {
     @Resource
     private UserService userService;
     @Log("用户登录")
-    @ApiOperation("登录授权")
+    @Operation(summary = "登录授权")
     @AnonymousAccess
     @PostMapping(value = "/login")
     public ResponseEntity<Object> login(@Validated @RequestBody AuthUser authUser, HttpServletRequest request){
@@ -125,7 +125,7 @@ public class AuthController {
         return ResponseEntity.ok(authInfo);
     }
 
-    @ApiOperation("获取登录验证码开关")
+    @Operation(summary = "获取登录验证码开关")
     @AnonymousAccess
     @GetMapping(value = "/captchaEnable")
     public ResponseEntity<Object> getCaptchaEnable(){
@@ -134,7 +134,7 @@ public class AuthController {
         return ResponseEntity.ok(info);
     }
 
-    @ApiOperation("获取用户信息")
+    @Operation(summary = "获取用户信息")
     @GetMapping(value = "/info")
     public ResponseEntity<Object> getUserInfo(){
         JwtUser jwtUser = (JwtUser)userDetailsService.loadUserByUsername(SecurityUtils.getUsername());
@@ -142,7 +142,7 @@ public class AuthController {
     }
 
     @AnonymousAccess
-    @ApiOperation("获取验证码")
+    @Operation(summary = "获取验证码")
     @GetMapping(value = "/code")
     public ResponseEntity<Object> getCode(@RequestParam String username){
 
@@ -164,7 +164,7 @@ public class AuthController {
         redisUtils.set(codeKey, code, ShopConstants.MSHOP_SMS_REDIS_TIME);
 
         //发送阿里云短信
-        JSONObject json = new JSONObject();
+        JsonObject json = new JsonObject();
         json.put("code",code);
         try {
             smsUtils.sendSmsNow(user.getPhone(),json.toJSONString());
@@ -176,7 +176,7 @@ public class AuthController {
         return ResponseEntity.ok("发送成功至" + user.getPhone());
     }
 
-    @ApiOperation("退出登录")
+    @Operation(summary = "退出登录")
     @AnonymousAccess
     @DeleteMapping(value = "/logout")
     public ResponseEntity<Object> logout(HttpServletRequest request){

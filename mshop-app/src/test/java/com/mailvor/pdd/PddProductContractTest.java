@@ -1,7 +1,7 @@
 package com.mailvor.pdd;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.modules.dataoke.rest.DataokePDDController;
 import com.mailvor.modules.tk.config.PddConfig;
 import com.mailvor.modules.tk.param.GoodsListPddParam;
@@ -84,7 +84,7 @@ public class PddProductContractTest {
                 .map(call -> call.getArguments()[0]).filter(PddDdkGoodsPromotionUrlGenerateRequest.class::isInstance)
                 .findFirst().get();
         Map<String, String> params = request.getParamsMap();
-        assertEquals("42", JSON.parseObject(params.get("custom_parameters")).getString("uid"));
+        assertEquals("42", JsonUtil.parseObject(params.get("custom_parameters")).getString("uid"));
         assertTrue(params.get("goods_gen_url_param_list").contains("signed-product"));
         assertEquals("pid-test", params.get("p_id"));
     }
@@ -111,7 +111,7 @@ public class PddProductContractTest {
     public void listsReturnNormalizedFieldsAndPaginationSession() {
         DataokeService upstream = mock(DataokeService.class);
         GoodsListPddParam param = new GoodsListPddParam();
-        PddSearchListVO response = JSON.parseObject("{\"code\":0,\"data\":{\"totalCount\":1,\"listId\":\"session\",\"goodsList\":[{\"goodsSign\":\"sign\",\"goodsName\":\"名称\",\"minGroupPrice\":39.9,\"couponDiscount\":10}]}}", PddSearchListVO.class);
+        PddSearchListVO response = JsonUtil.parseObject("{\"code\":0,\"data\":{\"totalCount\":1,\"listId\":\"session\",\"goodsList\":[{\"goodsSign\":\"sign\",\"goodsName\":\"名称\",\"minGroupPrice\":39.9,\"couponDiscount\":10}]}}", PddSearchListVO.class);
         when(upstream.goodsListPdd(param)).thenReturn(response);
         DataokePDDController controller = new DataokePDDController();
         ReflectionTestUtils.setField(controller, "service", upstream);
@@ -128,7 +128,7 @@ public class PddProductContractTest {
     public void categoryCacheIsScopedByParentAndSorted() {
         DataokeService upstream = mock(DataokeService.class);
         RedisUtils cache = mock(RedisUtils.class);
-        when(upstream.goodsCatePdd(anyInt())).thenReturn(JSONObject.parseObject("{\"code\":0,\"data\":[{\"id\":2,\"name\":\"乙\"},{\"id\":1,\"name\":\"甲\"}]}"));
+        when(upstream.goodsCatePdd(anyInt())).thenReturn(JsonUtil.parseObject("{\"code\":0,\"data\":[{\"id\":2,\"name\":\"乙\"},{\"id\":1,\"name\":\"甲\"}]}"));
         DataokePDDController controller = new DataokePDDController();
         ReflectionTestUtils.setField(controller, "service", upstream);
         ReflectionTestUtils.setField(controller, "redisUtils", cache);

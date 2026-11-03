@@ -8,7 +8,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.api.MshopException;
 import com.mailvor.common.service.impl.BaseServiceImpl;
 import com.mailvor.constant.SystemConfigConstants;
@@ -43,7 +43,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
@@ -402,9 +402,9 @@ public class SuStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         if(order.getAdzoneId().equals(tbConfig.getAdZoneId())) {
             MwUserUnion userUnion = userUnionService.getOne(uid);
             if(userUnion != null && userUnion.getTljData() != null && !CollectionUtils.isEmpty(userUnion.getTljData().getData())) {
-                List<JSONObject> tljDataList = userUnion.getTljData().getData();
-                for(JSONObject data : tljDataList) {
-                    JSONObject detail = data.getJSONObject("detail");
+                List<JsonObject> tljDataList = userUnion.getTljData().getData();
+                for(JsonObject data : tljDataList) {
+                    JsonObject detail = data.getJSONObject("detail");
                     //这里使用商品title匹配 可能不精确 后期优化
                     String title = detail.getString("title");
                     if(title.equals(order.getItemTitle())) {

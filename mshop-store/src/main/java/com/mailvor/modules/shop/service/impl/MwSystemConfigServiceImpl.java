@@ -7,7 +7,7 @@ package com.mailvor.modules.shop.service.impl;
 import com.mailvor.modules.tk.config.KuCmsAddress;
 import com.mailvor.exception.BadRequestException;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.pagehelper.PageInfo;
 import com.mailvor.common.service.impl.BaseServiceImpl;
@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -142,7 +142,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
     public OrderCheckConfigDto getOrderCheckConfig() {
         String result = redisUtils.getY(ORDER_CHECK_CONFIG);
         if (StrUtil.isNotBlank(result)) {
-            return JSON.parseObject(result, OrderCheckConfigDto.class);
+            return JsonUtil.parseObject(result, OrderCheckConfigDto.class);
         }
         MwSystemConfig config = getOne(new LambdaQueryWrapper<MwSystemConfig>()
                 .eq(MwSystemConfig::getMenuName,ORDER_CHECK_CONFIG));
@@ -150,7 +150,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
             return new OrderCheckConfigDto();
         }
         redisUtils.set(ORDER_CHECK_CONFIG, config.getValue());
-        return JSON.parseObject(config.getValue(), OrderCheckConfigDto.class);
+        return JsonUtil.parseObject(config.getValue(), OrderCheckConfigDto.class);
     }
 
     @Override
@@ -166,7 +166,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
         if(config == null) {
             res = new HbUnlockConfig();
         } else {
-            res = JSON.parseObject(config.getValue(), HbUnlockConfig.class);
+            res = JsonUtil.parseObject(config.getValue(), HbUnlockConfig.class);
         }
         redisUtils.set(key, res);
         return res;
@@ -180,7 +180,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
             systemConfig = new MwSystemConfig();
             systemConfig.setMenuName(key);
         }
-        String value = JSON.toJSONString(param);
+        String value = JsonUtil.toJSONString(param);
         systemConfig.setValue(value);
         redisUtils.set(key, param);
         saveOrUpdate(systemConfig);
@@ -199,7 +199,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
         if(config == null) {
             configDto = new PayConfigDto();
         } else {
-            configDto = JSON.parseObject(config.getValue(), PayConfigDto.class);
+            configDto = JsonUtil.parseObject(config.getValue(), PayConfigDto.class);
         }
         redisUtils.set(key, configDto);
         return configDto;
@@ -215,7 +215,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
             config = new MwSystemConfig();
             config.setMenuName(key);
         }
-        config.setValue(JSON.toJSONString(configDTO));
+        config.setValue(JsonUtil.toJSONString(configDTO));
         saveOrUpdate(config);
         redisUtils.set(key, configDTO);
     }
@@ -233,7 +233,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
         if(config == null) {
             res = new MwExtractConfigDto();
         } else {
-            res = JSON.parseObject(config.getValue(), MwExtractConfigDto.class);
+            res = JsonUtil.parseObject(config.getValue(), MwExtractConfigDto.class);
         }
         redisUtils.set(key, res);
         return res;
@@ -256,7 +256,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
         if(config == null) {
             res = new AppDataConfig();
         } else {
-            res = JSON.parseObject(config.getValue(), AppDataConfig.class);
+            res = JsonUtil.parseObject(config.getValue(), AppDataConfig.class);
         }
         redisUtils.setCache(key, res, 0);
         return res;
@@ -276,7 +276,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
             systemConfig = new MwSystemConfig();
             systemConfig.setMenuName(key);
         }
-        systemConfig.setValue(JSON.toJSONString(param));
+        systemConfig.setValue(JsonUtil.toJSONString(param));
         TkConstants.kuCmsUrl = null;
         redisUtils.set(key, param);
         saveOrUpdate(systemConfig);
@@ -300,7 +300,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
         if(config == null || StrUtil.isBlank(config.getValue())) {
             res = Collections.EMPTY_LIST;
         } else {
-            res = JSON.parseObject(config.getValue(), List.class);
+            res = JsonUtil.parseObject(config.getValue(), List.class);
         }
         // 解析结果为空时归一为空集合，避免调用方 NPE
         if (res == null) {
@@ -318,7 +318,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
             systemConfig = new MwSystemConfig();
             systemConfig.setMenuName(key);
         }
-        systemConfig.setValue(JSON.toJSONString(images));
+        systemConfig.setValue(JsonUtil.toJSONString(images));
         redisUtils.setList(key, images);
         saveOrUpdate(systemConfig);
     }
@@ -343,7 +343,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
         if(config == null || StrUtil.isBlank(config.getValue())) {
             res = Collections.EMPTY_LIST;
         } else {
-            res = JSON.parseObject(config.getValue(), List.class);
+            res = JsonUtil.parseObject(config.getValue(), List.class);
         }
         // 同上
         if (res == null) {
@@ -362,7 +362,7 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
             systemConfig = new MwSystemConfig();
             systemConfig.setMenuName(key);
         }
-        systemConfig.setValue(JSON.toJSONString(whiteList));
+        systemConfig.setValue(JsonUtil.toJSONString(whiteList));
         redisUtils.setList(key, whiteList);
         saveOrUpdate(systemConfig);
     }

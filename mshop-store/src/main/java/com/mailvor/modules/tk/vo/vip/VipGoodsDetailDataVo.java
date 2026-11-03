@@ -1,7 +1,7 @@
 package com.mailvor.modules.tk.vo.vip;
 
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -24,7 +24,7 @@ public class VipGoodsDetailDataVo implements Serializable {
     private String msg;
     @Schema(description = "商品码")
     private Integer code;
-    @JSONField(serialize = false)
+    @JsonIgnore
     @Schema(description = "商品")
     private VipGoodsDetailVO goods;
     @Schema(description = "商品")

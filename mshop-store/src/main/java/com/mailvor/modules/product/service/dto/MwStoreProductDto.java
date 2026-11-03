@@ -4,8 +4,8 @@
  */
 package com.mailvor.modules.product.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.mailvor.modules.category.service.dto.MwStoreCategorySmallDto;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -126,7 +126,7 @@ public class MwStoreProductDto implements Serializable {
     /** 淘宝京东1688类型 */
     private String soureLink;
 
-    @ApiModelProperty(value = "是否开启积分兑换")
+    @Schema(description = "是否开启积分兑换")
     private Integer isIntegral;
 
     private MwStoreCategorySmallDto storeCategory;

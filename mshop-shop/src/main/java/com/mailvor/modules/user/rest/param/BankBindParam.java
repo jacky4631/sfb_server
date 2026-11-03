@@ -1,6 +1,6 @@
 package com.mailvor.modules.user.rest.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -12,10 +12,10 @@ import java.io.Serializable;
  **/
 @Data
 public class BankBindParam implements Serializable {
-    @ApiModelProperty(value = "银行卡号")
+    @Schema(description = "银行卡号")
     private String bankNo;
 
-    @ApiModelProperty(value = "手机号")
+    @Schema(description = "手机号")
     private String phone;
 
 }

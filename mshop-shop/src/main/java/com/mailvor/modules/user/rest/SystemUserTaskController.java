@@ -4,12 +4,12 @@
  */
 package com.mailvor.modules.user.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.user.domain.MwSystemUserTask;
 import com.mailvor.modules.user.service.MwSystemUserTaskService;
 import com.mailvor.modules.user.service.dto.MwSystemUserTaskQueryCriteria;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -26,13 +26,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 /**
 * @author mazhongjun
 * @date 2019-12-04
 */
-@Api(tags = "商城：用户任务管理")
+@Tag(name = "商城：用户任务管理")
 @RestController
 @RequestMapping("api")
 public class SystemUserTaskController {
@@ -41,7 +41,7 @@ public class SystemUserTaskController {
     private MwSystemUserTaskService mwSystemUserTaskService;
 
     @Log("查询")
-    @ApiOperation(value = "查询")
+    @Operation(summary = "查询")
     @GetMapping(value = "/mwSystemUserTask")
     @PreAuthorize("hasAnyRole('admin','MWSYSTEMUSERTASK_ALL','MWSYSTEMUSERTASK_SELECT')")
     public ResponseEntity getMwSystemUserTasks(MwSystemUserTaskQueryCriteria criteria,
@@ -55,7 +55,7 @@ public class SystemUserTaskController {
     }
 
     @Log("新增")
-    @ApiOperation(value = "新增")
+    @Operation(summary = "新增")
     @PostMapping(value = "/mwSystemUserTask")
     @PreAuthorize("hasAnyRole('admin','MWSYSTEMUSERTASK_ALL','MWSYSTEMUSERTASK_CREATE')")
     public ResponseEntity create(@Validated @RequestBody MwSystemUserTask resources){
@@ -63,7 +63,7 @@ public class SystemUserTaskController {
     }
 
     @Log("修改")
-    @ApiOperation(value = "修改")
+    @Operation(summary = "修改")
     @PutMapping(value = "/mwSystemUserTask")
     @PreAuthorize("hasAnyRole('admin','MWSYSTEMUSERTASK_ALL','MWSYSTEMUSERTASK_EDIT')")
     public ResponseEntity update(@Validated @RequestBody MwSystemUserTask resources){
@@ -73,7 +73,7 @@ public class SystemUserTaskController {
     }
 
     @Log("删除")
-    @ApiOperation(value = "删除")
+    @Operation(summary = "删除")
     @DeleteMapping(value = "/mwSystemUserTask/{id}")
     @PreAuthorize("hasAnyRole('admin','MWSYSTEMUSERTASK_ALL','MWSYSTEMUSERTASK_DELETE')")
     public ResponseEntity delete(@PathVariable Integer id){

@@ -5,6 +5,8 @@
 package com.mailvor.modules.wechat.rest;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.constant.ShopConstants;
 import com.mailvor.exception.BadRequestException;
 import com.mailvor.modules.aop.ForbidSubmit;
@@ -12,11 +14,9 @@ import com.mailvor.modules.mp.domain.MwWechatMenu;
 import com.mailvor.modules.mp.service.MwWechatMenuService;
 import com.mailvor.modules.mp.config.WxMpConfiguration;
 import com.mailvor.utils.OrderUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import me.chanjar.weixin.common.bean.menu.WxMenu;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpService;
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 * @author huangyu
 * @date 2019-10-06
 */
-@Api(tags = "微信：微信菜单")
+@Tag(name = "微信：微信菜单")
 @RestController
 @RequestMapping("api")
 @SuppressWarnings("unchecked")
@@ -45,7 +45,7 @@ public class WechatMenuController {
         this.mwWechatMenuService = mwWechatMenuService;
     }
 
-    @ApiOperation(value = "查询菜单")
+    @Operation(summary = "查询菜单")
     @GetMapping(value = "/mwWechatMenu")
     @PreAuthorize("hasAnyRole('admin','MwWechatMenu_ALL','MwWechatMenu_SELECT')")
     public ResponseEntity getMwWechatMenus(){
@@ -54,15 +54,15 @@ public class WechatMenuController {
     }
 
     @ForbidSubmit
-    @ApiOperation(value = "创建菜单")
+    @Operation(summary = "创建菜单")
     @PostMapping(value = "/mwWechatMenu")
     @PreAuthorize("hasAnyRole('admin','MwWechatMenu_ALL','MwWechatMenu_CREATE')")
     public ResponseEntity create( @RequestBody String jsonStr){
-        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        JsonObject jsonObject = JsonUtil.parseObject(jsonStr);
         String jsonButton = jsonObject.get("buttons").toString();
         MwWechatMenu mwWechatMenu = new MwWechatMenu();
         Boolean isExist = mwWechatMenuService.isExist(ShopConstants.WECHAT_MENUS);
-        WxMenu menu = JSONObject.parseObject(jsonStr,WxMenu.class);
+        WxMenu menu = JsonUtil.parseObject(jsonStr,WxMenu.class);
 
         WxMpService wxService = WxMpConfiguration.getWxMpService();
         if(isExist){

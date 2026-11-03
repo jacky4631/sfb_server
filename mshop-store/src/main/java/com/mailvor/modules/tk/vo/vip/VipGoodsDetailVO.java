@@ -1,6 +1,6 @@
 package com.mailvor.modules.tk.vo.vip;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mailvor.enums.PlatformEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -12,35 +12,35 @@ import java.util.List;
 public class VipGoodsDetailVO {
     @Schema(description = "商品id")
     private String goodsId;
-    @JSONField(name = "goodsName")
+    @JsonProperty("goodsName")
     @Schema(description = "商品标题")
     private String title;
     @Schema(description = "商品短标题")
     private String dtitle;
 
-    @JSONField(name = "productSales")
+    @JsonProperty("productSales")
     @Schema(description = "销量")
     private String sales;
 
     @Schema(description = "平台")
     private String platform = PlatformEnum.VIP.getValue();
 
-    @JSONField(name = "goodsMainPicture")
+    @JsonProperty("goodsMainPicture")
     @Schema(description = "商品预览图")
     private String img;
-    @JSONField(name = "marketPrice")
+    @JsonProperty("marketPrice")
     @Schema(description = "原价")
     private Double startPrice;
 
-    @JSONField(name = "vipPrice")
+    @JsonProperty("vipPrice")
     @Schema(description = "现价")
     private Double endPrice;
 
-    @JSONField(name = "commission")
+    @JsonProperty("commission")
     @Schema(description = "佣金")
     private Double fee;
 
-    @JSONField(name = "commissionRate")
+    @JsonProperty("commissionRate")
     @Schema(description = "佣金比例")
     private Double feeRatio;
 
@@ -55,15 +55,15 @@ public class VipGoodsDetailVO {
     @Schema(description = "店铺名称")
     private String shopName;
 
-    @JSONField(name = "brandLogoFull")
+    @JsonProperty("brandLogoFull")
     @Schema(description = "店铺logo")
     private String shopLogo;
 
-    @JSONField(name = "goodsCarouselPictures")
+    @JsonProperty("goodsCarouselPictures")
     @Schema(description = "商品主图")
     private List<String> banners;
 
-    @JSONField(name = "goodsDetailPictures")
+    @JsonProperty("goodsDetailPictures")
     @Schema(description = "商品详情图")
     private List<String> details;
 
@@ -76,7 +76,7 @@ public class VipGoodsDetailVO {
     private String couponEnd;
 
 
-    @JSONField(name = "cat2ndName")
+    @JsonProperty("cat2ndName")
     @Schema(description = "优惠券结束时间")
     private String cateName;
 
@@ -90,16 +90,16 @@ public class VipGoodsDetailVO {
     private VipGoodsDetailCouponInfoVO couponInfo;
 
     // 定义storeInfo对象，用于接收嵌套字段
-    @JSONField(name = "storeInfo")
+    @JsonProperty("storeInfo")
     private StoreInfo storeInfo;
 
     @Data
     // 内部类：存储店铺信息
     public static class StoreInfo {
-        @JSONField(name = "storeId")
+        @JsonProperty("storeId")
         private String storeId;
 
-        @JSONField(name = "storeName")
+        @JsonProperty("storeName")
         private String storeName;
     }
 

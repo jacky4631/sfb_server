@@ -4,7 +4,7 @@
  */
 package com.mailvor.modules.push.service;
 
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.modules.push.dto.JPushDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,10 +14,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Base64Utils;
+import java.util.Base64;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -38,24 +38,25 @@ public class JPushService {
     @Resource
     private RestTemplate restTemplate;
 
-    public JSONObject push(String content, Long uid) {
+    public JsonObject push(String content, Long uid) {
         try {
             HttpHeaders headers = new HttpHeaders();
             // 以表单的方式提交
             headers.setContentType(MediaType.APPLICATION_JSON);
-            String sign = Base64Utils.encodeToString((key + ":" + secret).getBytes(StandardCharsets.UTF_8));
+            // Spring 6 移除了 Base64Utils，改用 JDK 自带实现
+            String sign = Base64.getEncoder().encodeToString((key + ":" + secret).getBytes(StandardCharsets.UTF_8));
             headers.set("Authorization", "Basic " + sign);
             JPushDto jPushDto = JPushDto.build(content, uid);
-            HttpEntity<JSONObject> requestParam = new HttpEntity(jPushDto,headers);
-            ResponseEntity<JSONObject> re = restTemplate.postForEntity(
+            HttpEntity<JsonObject> requestParam = new HttpEntity(jPushDto,headers);
+            ResponseEntity<JsonObject> re = restTemplate.postForEntity(
                     "https://api.jpush.cn/v3/push",
                     requestParam,
-                    JSONObject.class);
+                    JsonObject.class);
             return re.getBody();
         }catch (Exception e) {
             log.error("极光推送识别 用户uid：{} 推送信息：{} 错误：{}", uid, content, e.getMessage());
         }
-        return new JSONObject();
+        return new JsonObject();
     }
 
     @Async

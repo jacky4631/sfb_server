@@ -4,6 +4,7 @@
  */
 package com.mailvor.modules.product.service.impl;
 
+import com.mailvor.common.json.JsonUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -22,7 +23,7 @@ import com.mailvor.modules.product.vo.ReplyCountVo;
 import com.mailvor.modules.product.vo.MwStoreProductReplyQueryVo;
 import com.mailvor.modules.user.service.MwUserService;
 import com.mailvor.utils.FileUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -35,7 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -114,7 +115,7 @@ public class MwStoreProductReplyServiceImpl extends BaseServiceImpl<StoreProduct
      */
     @Override
     public MwStoreProductReplyQueryVo handleReply(MwStoreProductReplyQueryVo replyQueryVo) {
-        MwStoreCartQueryVo cartInfo = JSONObject.parseObject(replyQueryVo.getCartInfo()
+        MwStoreCartQueryVo cartInfo = JsonUtil.parseObject(replyQueryVo.getCartInfo()
                 , MwStoreCartQueryVo.class);
         if(ObjectUtil.isNotNull(cartInfo)){
             if(ObjectUtil.isNotNull(cartInfo.getProductInfo())){

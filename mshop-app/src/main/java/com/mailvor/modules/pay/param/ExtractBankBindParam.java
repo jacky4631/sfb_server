@@ -1,6 +1,6 @@
 package com.mailvor.modules.pay.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -13,12 +13,12 @@ import java.io.Serializable;
 @Data
 public class ExtractBankBindParam implements Serializable {
 
-    @ApiModelProperty(value = "银行id,bankId和bankNo phone只需要传一种，bankId存在时优先取bankId")
+    @Schema(description = "银行id,bankId和bankNo phone只需要传一种，bankId存在时优先取bankId")
     private Long bankId;
-    @ApiModelProperty(value = "银行卡号")
+    @Schema(description = "银行卡号")
     private String bankNo;
 
-    @ApiModelProperty(value = "手机号")
+    @Schema(description = "手机号")
     private String phone;
 
 }

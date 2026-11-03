@@ -1,6 +1,6 @@
 package com.mailvor.modules.tk.vo.jd;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -14,7 +14,7 @@ import java.util.List;
 public class JdGoodsDataVO {
 
     @Schema(description = "总数")
-    @JSONField(name = "totalNum")
+    @JsonProperty("totalNum")
     private Integer total;
     @Schema(description = "商品列表")
     private List<JdGoodsVO> list;

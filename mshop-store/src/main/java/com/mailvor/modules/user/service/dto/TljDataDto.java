@@ -1,6 +1,6 @@
 package com.mailvor.modules.user.service.dto;
 
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import lombok.*;
 
 import java.util.List;
@@ -20,6 +20,6 @@ public class TljDataDto {
     /**
      * 淘礼金ids
      * */
-    private List<JSONObject> data;
+    private List<JsonObject> data;
 
 }

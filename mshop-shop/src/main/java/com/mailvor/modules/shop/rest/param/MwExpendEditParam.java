@@ -6,7 +6,7 @@ package com.mailvor.modules.shop.rest.param;
 
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
 * @author huangyu

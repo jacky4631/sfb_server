@@ -13,7 +13,7 @@ import com.mailvor.modules.user.service.dto.MwSystemUserLevelQueryCriteria;
 import com.mailvor.modules.user.vo.MwSystemUserLevelQueryVo;
 import org.springframework.data.domain.Pageable;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;

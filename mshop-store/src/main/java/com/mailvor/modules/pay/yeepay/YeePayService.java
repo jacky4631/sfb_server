@@ -32,8 +32,8 @@
 //import lombok.extern.slf4j.Slf4j;
 //import org.springframework.stereotype.Component;
 //
-//import javax.annotation.Resource;
-//import javax.servlet.http.HttpServletRequest;
+//import jakarta.annotation.Resource;
+//import jakarta.servlet.http.HttpServletRequest;
 //import java.math.BigDecimal;
 //import java.util.Arrays;
 //import java.util.HashMap;
@@ -55,7 +55,7 @@
 //	 * 快捷支付
 //	 * */
 //	public Map<String, Object> bankPay(PayChannelDto certProfile, String orderId, String price, String phone, MwUserCardQueryVo card, Integer type){
-//		YeePayConfig yeeConfig = JSON.parseObject(certProfile.getCertProfile(), YeePayConfig.class);
+//		YeePayConfig yeeConfig = JsonUtil.parseObject(certProfile.getCertProfile(), YeePayConfig.class);
 //
 //        UnifiedOrderRequest request = new UnifiedOrderRequest();
 //        request.setParentMerchantNo(yeeConfig.getParentMerchantNo());
@@ -73,7 +73,7 @@
 //		//支付成功后跳转的URL，如商户指定页面回调地址， 支付完成后会从易宝的支付成功页跳转至商家指定页面，
 //		// 只有走标准收银台的订单此地址才有作用。注意：最大长度200个字符
 ////        request.setReturnUrl("https://notify.merchant.com/xxx");
-//		JSONObject cardInfo = new JSONObject();
+//		JsonObject cardInfo = new JsonObject();
 //		cardInfo.put("cardName", card.getCardName());
 //		cardInfo.put("idCardNo", card.getCardNo());
 //
@@ -93,7 +93,7 @@
 //            UnifiedOrderResponse response = api.unifiedOrder(request);
 //
 //			//银行卡下单统一返回1=成功 0=失败
-//			log.info("易宝银行卡支付报文{} 返回{}",JSON.toJSONString(request), JSON.toJSONString(response));
+//			log.info("易宝银行卡支付报文{} 返回{}",JsonUtil.toJSONString(request), JsonUtil.toJSONString(response));
 //			UnifiedOrderUnifiedCashierOrderResponseDTOResult result = response.getResult();
 //			res.put("code", "00000".equals(result.getCode()) ? "1": "0");
 //			res.put("url", result.getCashierUrl());
@@ -116,7 +116,7 @@
 //			//默认从配置文件中获取易宝公钥和商户私钥
 //			String plaintText = DigitalEnvelopeUtils.decrypt(cipherText, "RSA2048");
 //			log.info("易宝支付回调解密数据{}", plaintText);
-//			JSONObject res = JSON.parseObject(plaintText);
+//			JsonObject res = JsonUtil.parseObject(plaintText);
 //			String status = res.getString("status");
 //			if("SUCCESS".equals(status)) {
 //				String orderId = res.getString("orderId");
@@ -163,7 +163,7 @@
 //			return res;
 //		}
 //
-//		YeePayConfig yeeConfig = JSON.parseObject(certProfile.getCertProfile(), YeePayConfig.class);
+//		YeePayConfig yeeConfig = JsonUtil.parseObject(certProfile.getCertProfile(), YeePayConfig.class);
 //
 //		//todo 绑卡成功需要 更新原MwUserCard信息
 //		BindcardRequestV2Request request = new BindcardRequestV2Request();
@@ -221,7 +221,7 @@
 //	}
 //
 //	public PayOrderResponse extract(PayChannelDto certProfile, String extractId,BigDecimal extractPrice) {
-//		YeePayConfig yeeConfig = JSON.parseObject(certProfile.getCertProfile(), YeePayConfig.class);
+//		YeePayConfig yeeConfig = JsonUtil.parseObject(certProfile.getCertProfile(), YeePayConfig.class);
 //
 //		PayOrderRequest request = new PayOrderRequest();
 //		request.setParentMerchantNo(yeeConfig.getParentMerchantNo());

@@ -1,6 +1,6 @@
 package com.mailvor.modules.tk.vo.vip;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -15,7 +15,7 @@ public class VipSearchDataVO {
 
     @Schema(description = "总数")
     private Integer total;
-    @JSONField(name = "goodsInfoList")
+    @JsonProperty("goodsInfoList")
     @Schema(description = "商品列表")
     private List<VipSearchVO> list;
 }

@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.shop.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.io.resource.ClassPathResource;
 import com.mailvor.api.ApiResult;
@@ -25,11 +27,9 @@ import com.mailvor.modules.shop.vo.IndexVo;
 import com.mailvor.utils.FileUtil;
 import com.mailvor.utils.RedisUtil;
 import com.mailvor.utils.ShopKeyUtils;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "首页模块", tags = "商城：首页模块")
+@Tag(name = "商城：首页模块")
 public class IndexController {
     private final MwAppVersionService appVersionService;
     private final MwSystemGroupDataService systemGroupDataService;
@@ -67,7 +67,7 @@ public class IndexController {
     private final StoreCanvasService storeCanvasService;
 
     @GetMapping("/getCanvas")
-    @ApiOperation(value = "读取画布数据")
+    @Operation(summary = "读取画布数据")
     public ResponseEntity<StoreCanvas> getCanvas(StoreCanvas storeCanvas){
         StoreCanvas canvas = storeCanvasService.getOne(new LambdaQueryWrapper<StoreCanvas>()
                 .eq(StoreCanvas::getTerminal, storeCanvas.getTerminal())
@@ -77,7 +77,7 @@ public class IndexController {
 
     @Cacheable(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY)
     @GetMapping("/index")
-    @ApiOperation(value = "首页数据",notes = "首页数据")
+    @Operation(summary = "首页数据", description = "首页数据")
     public ApiResult<IndexVo> index(){
         IndexVo indexVo = IndexVo.builder()
                 .banner(systemGroupDataService.getDatas(ShopConstants.MSHOP_HOME_BANNER))
@@ -96,11 +96,11 @@ public class IndexController {
     }
 
     @GetMapping("/search/keyword")
-    @ApiOperation(value = "热门搜索关键字获取",notes = "热门搜索关键字获取")
+    @Operation(summary = "热门搜索关键字获取", description = "热门搜索关键字获取")
     public ApiResult<List<String>> search(){
-        List<JSONObject> list = systemGroupDataService.getDatas(ShopConstants.MSHOP_HOT_SEARCH);
+        List<JsonObject> list = systemGroupDataService.getDatas(ShopConstants.MSHOP_HOT_SEARCH);
         List<String>  stringList = new ArrayList<>();
-        for (JSONObject object : list) {
+        for (JsonObject object : list) {
             stringList.add(object.getString("title"));
         }
         return ApiResult.ok(stringList);
@@ -108,7 +108,7 @@ public class IndexController {
 
 
     @PostMapping("/image_base64")
-    @ApiOperation(value = "获取图片base64",notes = "获取图片base64")
+    @Operation(summary = "获取图片base64", description = "获取图片base64")
     @Deprecated
     public ApiResult<List<String>> imageBase64(){
         return ApiResult.ok(null);
@@ -116,15 +116,15 @@ public class IndexController {
 
 
     @GetMapping("/citys")
-    @ApiOperation(value = "获取城市json",notes = "获取城市json")
-    public ApiResult<JSONObject> cityJson(){
+    @Operation(summary = "获取城市json", description = "获取城市json")
+    public ApiResult<JsonObject> cityJson(){
         String path = "city.json";
         String name = "city.json";
         try {
             File file = FileUtil.inputStreamToFile(new ClassPathResource(path).getStream(), name);
             FileReader fileReader = new FileReader(file,"UTF-8");
             String string = fileReader.readString();
-            JSONObject jsonObject = JSON.parseObject(string);
+            JsonObject jsonObject = JsonUtil.parseObject(string);
             return ApiResult.ok(jsonObject);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -135,7 +135,7 @@ public class IndexController {
 
 
     @GetMapping("/store_list")
-    @ApiOperation(value = "获取门店列表",notes = "获取门店列表")
+    @Operation(summary = "获取门店列表", description = "获取门店列表")
     public ApiResult<Map<String,Object>> storeList( MwSystemStoreQueryParam param){
         Map<String,Object> map = new LinkedHashMap<>();
         List<MwSystemStoreQueryVo> lists = systemStoreService.getStoreList(

@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.wechat.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.constant.ShopConstants;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.modules.logging.aop.log.Log;
@@ -13,8 +15,6 @@ import com.mailvor.modules.mp.service.MwWechatLiveService;
 import com.mailvor.modules.mp.service.dto.UpdateGoodsDto;
 import com.mailvor.modules.mp.service.dto.MwWechatLiveDto;
 import com.mailvor.modules.mp.service.dto.MwWechatLiveQueryCriteria;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -39,7 +39,7 @@ import java.util.Arrays;
 * @date 2020-08-10
 */
 @AllArgsConstructor
-@Api(tags = "微信：直播间管理")
+@Tag(name = "微信：直播间管理")
 @RestController
 @RequestMapping("/api/mwWechatLive")
 public class MwWechatLiveController {
@@ -49,7 +49,7 @@ public class MwWechatLiveController {
 
 
     @Log("导出数据")
-    @ApiOperation("导出数据")
+    @Operation(summary = "导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','mwWechatLive:list')")
     public void download(HttpServletResponse response, MwWechatLiveQueryCriteria criteria) throws IOException {
@@ -58,7 +58,7 @@ public class MwWechatLiveController {
 
     @GetMapping
     @Log("查询wxlive")
-    @ApiOperation("查询wxlive")
+    @Operation(summary = "查询wxlive")
     @PreAuthorize("@el.check('admin','mwWechatLive:list')")
     public ResponseEntity<Object> getMwWechatLives(MwWechatLiveQueryCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(mwWechatLiveService.queryAll(criteria,pageable),HttpStatus.OK);
@@ -68,7 +68,7 @@ public class MwWechatLiveController {
     @ForbidSubmit
     @PostMapping
     @Log("新增wxlive")
-    @ApiOperation("新增wxlive")
+    @Operation(summary = "新增wxlive")
     @PreAuthorize("@el.check('admin','mwWechatLive:add')")
     public ResponseEntity<Object> create(@Validated @RequestBody MwWechatLive resources){
         return new ResponseEntity<>(mwWechatLiveService.saveLive(resources),HttpStatus.CREATED);
@@ -78,7 +78,7 @@ public class MwWechatLiveController {
     @ForbidSubmit
     @PostMapping("/addGoods")
     @Log("添加商品")
-    @ApiOperation("添加商品")
+    @Operation(summary = "添加商品")
     @PreAuthorize("@el.check('admin','mwWechatLive:add')")
     public ResponseEntity<Object> addGoods(@Validated @RequestBody UpdateGoodsDto resources){
         return new ResponseEntity<>(mwWechatLiveService.addGoods(resources),HttpStatus.CREATED);
@@ -88,7 +88,7 @@ public class MwWechatLiveController {
     @ForbidSubmit
     @PutMapping
     @Log("修改wxlive")
-    @ApiOperation("修改wxlive")
+    @Operation(summary = "修改wxlive")
     @PreAuthorize("@el.check('admin','mwWechatLive:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody MwWechatLive resources){
         mwWechatLiveService.updateById(resources);
@@ -98,7 +98,7 @@ public class MwWechatLiveController {
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY,allEntries = true)
     @ForbidSubmit
     @Log("删除wxlive")
-    @ApiOperation("删除wxlive")
+    @Operation(summary = "删除wxlive")
     @PreAuthorize("@el.check('admin','mwWechatLive:del')")
     @DeleteMapping
     public ResponseEntity<Object> deleteAll(@RequestBody Long[] ids) {
@@ -109,7 +109,7 @@ public class MwWechatLiveController {
     }
 
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY,allEntries = true)
-    @ApiOperation("同步数据")
+    @Operation(summary = "同步数据")
     @GetMapping("/synchro")
     public ResponseEntity<Object> synchroWxOlLive() {
         mwWechatLiveService.synchroWxOlLive();

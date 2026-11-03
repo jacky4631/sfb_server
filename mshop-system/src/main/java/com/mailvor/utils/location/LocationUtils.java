@@ -1,12 +1,13 @@
 package com.mailvor.utils.location;
 
+import com.mailvor.common.json.JsonUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.mailvor.exception.BadRequestException;
 import com.mailvor.utils.RedisUtil;
 import com.mailvor.utils.ShopKeyUtils;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 
 /**
  * 具体查看 https://lbs.qq.com/service/webService/webServiceGuide/webServiceGeocoder
@@ -63,6 +64,6 @@ public class LocationUtils {
         }
         String url = StrUtil.format("?address={}&key={}", addr, key);
         String json = HttpUtil.get(QQ_MAP_URL + url);
-        return JSONObject.parseObject(json, GetTencentLocationVO.class);
+        return JsonUtil.parseObject(json, GetTencentLocationVO.class);
     }
 }

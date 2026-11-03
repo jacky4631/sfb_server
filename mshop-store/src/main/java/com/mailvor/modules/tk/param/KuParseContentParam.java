@@ -4,13 +4,12 @@
  */
 package com.mailvor.modules.tk.param;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -22,12 +21,12 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@ApiModel(value="KuParseContentParam", description="好单库剪切板识别")
+@Schema(description = "好单库剪切板识别")
 public class KuParseContentParam implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String method = "analyze.clipboard";
-    @ApiModelProperty(value = "文本内容")
+    @Schema(description = "文本内容")
     @NotBlank
     private String content;
     private Integer isChange=0;

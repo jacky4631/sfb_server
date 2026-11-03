@@ -4,7 +4,7 @@ import com.mailvor.modules.utils.AesUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 @Component
 public class AesKeyInit {

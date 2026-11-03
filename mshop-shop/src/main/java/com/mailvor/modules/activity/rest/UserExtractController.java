@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.activity.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.api.MshopException;
 import com.mailvor.modules.activity.domain.MwUserExtract;
 import com.mailvor.modules.activity.domain.MwUserExtractConfig;
@@ -15,8 +17,6 @@ import com.mailvor.modules.activity.service.dto.MwUserExtractQueryCriteria;
 import com.mailvor.modules.logging.aop.log.Log;
 import com.mailvor.modules.user.domain.MwUser;
 import com.mailvor.modules.user.service.MwUserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +24,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 /**
 * @author huangyu
 * @date 2019-11-14
 */
-@Api(tags = "商城：提现管理")
+@Tag(name = "商城：提现管理")
 @RestController
 @RequestMapping("api")
 public class UserExtractController {
@@ -45,7 +45,7 @@ public class UserExtractController {
     private MwUserService userService;
 
     @Log("查询提现列表")
-    @ApiOperation(value = "查询提现列表")
+    @Operation(summary = "查询提现列表")
     @GetMapping(value = "/mwUserExtract")
     @PreAuthorize("hasAnyRole('admin','MWUSEREXTRACT_ALL','MWUSEREXTRACT_SELECT')")
     public ResponseEntity getMwUserExtracts(MwUserExtractQueryCriteria criteria, Pageable pageable){
@@ -55,7 +55,7 @@ public class UserExtractController {
 
 
     @Log("修改审核")
-    @ApiOperation(value = "修改审核")
+    @Operation(summary = "修改审核")
     @PutMapping(value = "/mwUserExtract")
     @PreAuthorize("hasAnyRole('admin','MWUSEREXTRACT_ALL','MWUSEREXTRACT_EDIT')")
     public ResponseEntity update(@Validated @RequestBody MwUserExtract resources){
@@ -65,7 +65,7 @@ public class UserExtractController {
 
 
     @Log("修改审核批量")
-    @ApiOperation(value = "修改审核批量")
+    @Operation(summary = "修改审核批量")
     @PutMapping(value = "/mwUserExtracts")
     @PreAuthorize("hasAnyRole('admin','MWUSEREXTRACT_ALL','MWUSEREXTRACT_EDIT')")
     public ResponseEntity extracts(@Validated @RequestBody MwUserExtracts body){
@@ -74,7 +74,7 @@ public class UserExtractController {
     }
 
     @Log("查询禁止提现用户")
-    @ApiOperation(value = "查询禁止提现用户")
+    @Operation(summary = "查询禁止提现用户")
     @GetMapping(value = "/extract/ban/list")
     @PreAuthorize("hasAnyRole('admin','MWUSEREXTRACT_ALL','MWUSEREXTRACT_SELECT')")
     public ResponseEntity getInvalidExtractList(MwUserExtractQueryCriteria criteria, Pageable pageable){
@@ -83,7 +83,7 @@ public class UserExtractController {
 
     @PostMapping(value = "/extract/ban")
     @Log("新增禁止提现用户")
-    @ApiOperation("新增禁止提现用户")
+    @Operation(summary = "新增禁止提现用户")
     @PreAuthorize("@el.check('admin','MWUSEREXTRACT_ALL','MWUSEREXTRACT_EDIT')")
     public ResponseEntity<Object> invalidExtract(@Validated @RequestBody MwUserExtractConfig param){
 
@@ -106,7 +106,7 @@ public class UserExtractController {
 
     @DeleteMapping(value = "/extract/ban/{uid}")
     @Log("删除禁止提现用户")
-    @ApiOperation("删除禁止提现用户")
+    @Operation(summary = "删除禁止提现用户")
     @PreAuthorize("@el.check('admin','MWUSEREXTRACT_ALL','MWUSEREXTRACT_DELETE')")
     public ResponseEntity<Object> delInvalidExtract(@PathVariable Long uid){
 
@@ -121,7 +121,7 @@ public class UserExtractController {
 
     @PostMapping(value = "/extract/config")
     @Log("修改提现配置")
-    @ApiOperation("修改提现配置")
+    @Operation(summary = "修改提现配置")
     @PreAuthorize("@el.check('admin','MWUSEREXTRACT_ALL','MWUSEREXTRACT_EDIT')")
     public ResponseEntity<Object> editConfig(@Validated @RequestBody MwExtractConfigParam param){
         mwUserExtractService.setExtractConfig(param);
@@ -130,7 +130,7 @@ public class UserExtractController {
 
     @GetMapping(value = "/extract/config")
     @Log("获取提现配置")
-    @ApiOperation("获取提现配置")
+    @Operation(summary = "获取提现配置")
     @PreAuthorize("@el.check('admin','MWUSEREXTRACT_ALL','MWUSEREXTRACT_EDIT')")
     public ResponseEntity<Object> getConfig(){
         return new ResponseEntity<>(mwUserExtractService.getExtractConfig(),HttpStatus.OK);

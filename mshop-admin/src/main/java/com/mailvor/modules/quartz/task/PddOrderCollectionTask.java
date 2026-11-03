@@ -1,6 +1,6 @@
 package com.mailvor.modules.quartz.task;
 
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.mailvor.modules.tk.param.QueryPddParam;
 import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class PddOrderCollectionTask extends OrderTask{
         if(StringUtils.isEmpty(paramStr)) {
             param = new QueryPddParam();
         } else {
-            param = JSON.parseObject(paramStr, QueryPddParam.class);
+            param = JsonUtil.parseObject(paramStr, QueryPddParam.class);
         }
         if(StringUtils.isEmpty(param.getStartTime()) || StringUtils.isEmpty(param.getStartTime())) {
             LocalDateTime end = LocalDateTime.now();

@@ -4,7 +4,7 @@ import com.mailvor.modules.pay.service.MwPayChannelService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 /**
  * 支付通道额度重置任务

@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mailvor.domain.BaseDomain;
 import com.mailvor.modules.user.service.dto.AliUserDto;
-import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
+import com.mailvor.common.json.JsonTypeHandler;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -112,7 +112,7 @@ public class MwUser extends BaseDomain {
     /** 下级人数 */
     private Long spreadCount;
 
-    @TableField(typeHandler = FastjsonTypeHandler.class,updateStrategy = FieldStrategy.IGNORED)
+    @TableField(typeHandler = JsonTypeHandler.class,updateStrategy = FieldStrategy.ALWAYS)
     private AliUserDto aliProfile;
 
     /**

@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.activity.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
@@ -23,10 +25,8 @@ import com.mailvor.modules.shop.domain.MwSystemGroupData;
 import com.mailvor.modules.shop.service.MwSystemGroupDataService;
 import com.mailvor.modules.shop.service.dto.MwSystemGroupDataQueryCriteria;
 import com.mailvor.utils.OrderUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +57,7 @@ import java.util.stream.IntStream;
 @Slf4j
 @RestController
 @RequestMapping
-@Api(value = "商品秒杀", tags = "营销:商品秒杀")
+@Tag(name = "营销:商品秒杀")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StoreSeckillController {
 
@@ -69,7 +69,7 @@ public class StoreSeckillController {
      * 秒杀产品列表
      */
     @GetMapping("/seckill/list/{time}")
-    @ApiOperation(value = "秒杀产品列表", notes = "秒杀产品列表")
+    @Operation(summary = "秒杀产品列表", description = "秒杀产品列表")
     public ApiResult<List<MwStoreSeckillQueryVo>> getMwStoreSeckillPageList(@PathVariable String time,
                                                                             @RequestParam(value = "page",defaultValue = "1") int page,
                                                                             @RequestParam(value = "limit",defaultValue = "10") int limit){
@@ -87,7 +87,7 @@ public class StoreSeckillController {
     @AppLog(value = "根据id获取商品秒杀产品详情", type = 1)
     @AuthCheck
     @GetMapping("/seckill/detail/{id}")
-    @ApiOperation(value = "秒杀产品详情", notes = "秒杀产品详情")
+    @Operation(summary = "秒杀产品详情", description = "秒杀产品详情")
     public ApiResult<StoreSeckillVo> getMwStoreSeckill(@PathVariable Long id){
         Long uid = LocalUser.getUser().getUid();
         StoreSeckillVo storeSeckillVo = mwStoreSeckillService.getDetail(id);
@@ -101,7 +101,7 @@ public class StoreSeckillController {
      * 秒杀产品时间区间
      */
     @GetMapping("/seckill/index")
-    @ApiOperation(value = "秒杀产品时间区间", notes = "秒杀产品时间区间")
+    @Operation(summary = "秒杀产品时间区间", description = "秒杀产品时间区间")
     public ApiResult<SeckillConfigVo> getMwStoreSeckillIndex() {
         //获取秒杀配置
         AtomicInteger seckillTimeIndex = new AtomicInteger();
@@ -116,7 +116,7 @@ public class StoreSeckillController {
         int today = OrderUtil.dateToTimestampT(DateUtil.beginOfDay(new Date()));
         mwSystemGroupDataList.forEach(i -> {
             String jsonStr = i.getValue();
-            JSONObject jsonObject = JSON.parseObject(jsonStr);
+            JsonObject jsonObject = JsonUtil.parseObject(jsonStr);
             int time = Integer.valueOf(jsonObject.get("time").toString());//时间 5
             int continued = Integer.valueOf(jsonObject.get("continued").toString());//活动持续事件  3
             SimpleDateFormat sdf = new SimpleDateFormat("HH");

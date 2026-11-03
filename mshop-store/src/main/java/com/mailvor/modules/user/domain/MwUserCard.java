@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
+import com.mailvor.common.json.JsonTypeHandler;
 import com.mailvor.domain.BaseDeleteDomain;
 import com.mailvor.modules.user.service.dto.UserCardDto;
 import lombok.*;
@@ -58,7 +58,7 @@ public class MwUserCard extends BaseDeleteDomain {
     /** 人脸地址 */
     private String facePath;
 
-    @TableField(typeHandler = FastjsonTypeHandler.class)
+    @TableField(typeHandler = JsonTypeHandler.class)
     private UserCardDto cards;
     /** 签字地址 */
     private String signaturePath;

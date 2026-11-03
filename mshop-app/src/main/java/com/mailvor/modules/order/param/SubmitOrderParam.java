@@ -1,10 +1,10 @@
 package com.mailvor.modules.order.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * @ClassName 确认订单ConfirmOrderDTO
@@ -15,6 +15,6 @@ import javax.validation.constraints.NotBlank;
 public class SubmitOrderParam {
 
     @NotBlank(message = "订单id不能为空")
-    @ApiModelProperty(value = "订单id")
+    @Schema(description = "订单id")
     private String orderId;
 }

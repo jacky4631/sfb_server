@@ -12,6 +12,14 @@ import org.apache.ibatis.mapping.SqlSource;
  */
 @Slf4j
 public class InsertBatchMethod extends AbstractMethod {
+
+    /**
+     * MP 3.5.17 移除了 AbstractMethod 的无参构造，方法名必须在构造器传入。
+     */
+    public InsertBatchMethod() {
+        super("insertBatch");
+    }
+
     /**
      * insert into user(id, name, age) values (1, "a", 17), (2, "b", 18);
      <script>

@@ -4,7 +4,7 @@
  */
 package com.mailvor.modules.tk.vo.jd;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jd.open.api.sdk.domain.kplunion.GoodsService.response.query.RankCoupon;
 import com.jd.open.api.sdk.domain.kplunion.GoodsService.response.query.RankGoodsResp;
 import com.jd.open.api.sdk.domain.kplunion.GoodsService.response.query.SkuTagInfo;
@@ -30,17 +30,17 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class JdUnionSearchVO {
 
-    @JSONField(name = "itemId")
+    @JsonProperty("itemId")
     @Schema(description = "商品id")
     private String goodsId;
 
-    @JSONField(name = "skuName")
+    @JsonProperty("skuName")
     @Schema(description = "商品标题")
     private String title;
     @Schema(description = "商品短标题")
     private String dtitle;
 
-    @JSONField(name = "inOrderCount30Days")
+    @JsonProperty("inOrderCount30Days")
     @Schema(description = "销量")
     private String sales;
     @Schema(description = "评论数")
@@ -53,26 +53,26 @@ public class JdUnionSearchVO {
     @Schema(description = "店铺名称")
     private String shopName;
 
-    @JSONField(name = "imageUrl")
+    @JsonProperty("imageUrl")
     @Schema(description = "商品预览图")
     private String img;
-    @JSONField(name = "whiteImage")
+    @JsonProperty("whiteImage")
     @Schema(description = "商品预览图")
     private String whiteImg;
 
-    @JSONField(name = "lowestPrice")
+    @JsonProperty("lowestPrice")
     @Schema(description = "原价")
     private Double startPrice;
 
 
-    @JSONField(name = "lowestCouponPrice")
+    @JsonProperty("lowestCouponPrice")
     @Schema(description = "现价")
     private Double endPrice;
 
-    @JSONField(name = "couponCommission")
+    @JsonProperty("couponCommission")
     @Schema(description = "佣金")
     private Double fee;
-    @JSONField(name = "commissionShare")
+    @JsonProperty("commissionShare")
     @Schema(description = "佣金比例")
     private Double feeRatio;
 

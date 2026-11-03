@@ -6,7 +6,7 @@ package com.mailvor.modules.services;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.alipay.api.response.AlipayUserInfoShareResponse;
 import com.mailvor.api.MshopException;
 import com.mailvor.common.util.IpUtil;
@@ -39,7 +39,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -292,7 +292,7 @@ public class AuthService {
      * @return uid
      */
     @Transactional(rollbackFor = Exception.class)
-    public MwUser appleLogin(JSONObject credential) {
+    public MwUser appleLogin(JsonObject credential) {
         /**
          *     @required this.userIdentifier,
          *     @required this.givenName,

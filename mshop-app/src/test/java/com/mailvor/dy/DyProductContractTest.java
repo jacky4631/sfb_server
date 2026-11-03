@@ -1,6 +1,6 @@
 package com.mailvor.dy;
 
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.mailvor.modules.dataoke.rest.KuDyProductController;
 import com.mailvor.modules.tk.param.GoodsListDyParam;
 import com.mailvor.modules.tk.service.KuService;
@@ -26,7 +26,7 @@ public class DyProductContractTest {
     public void listNormalizesCmsFieldsAndPreservesNonconsecutiveCursor() {
         KuService service = mock(KuService.class);
         GoodsListDyParam param = new GoodsListDyParam();
-        DySearchListVO response = JSON.parseObject("{\"code\":200,\"min_id\":17,\"data\":[{\"product_id\":\"123\",\"product_title\":\"商品\",\"price\":99,\"end_price\":29.9,\"dymoney\":3,\"item_pic\":\"photo\"}]}", DySearchListVO.class);
+        DySearchListVO response = JsonUtil.parseObject("{\"code\":200,\"min_id\":17,\"data\":[{\"product_id\":\"123\",\"product_title\":\"商品\",\"price\":99,\"end_price\":29.9,\"dymoney\":3,\"item_pic\":\"photo\"}]}", DySearchListVO.class);
         when(service.dyProductList(param)).thenReturn(response);
         Map<String, Object> data = controller(service).list(param).getData();
         assertEquals(17, data.get("minId"));
@@ -43,7 +43,7 @@ public class DyProductContractTest {
         KuService service = mock(KuService.class);
         DyGoodsDetailDataVo response = new DyGoodsDetailDataVo();
         response.setCode(0);
-        response.setDetail(JSON.parseObject("{\"product_id\":\"123\",\"product_title\":\"名称\",\"item_pic\":\"main\",\"douyin_images\":[\"gallery\"],\"end_price\":19.9}", DyGoodsDetailVO.class));
+        response.setDetail(JsonUtil.parseObject("{\"product_id\":\"123\",\"product_title\":\"名称\",\"item_pic\":\"main\",\"douyin_images\":[\"gallery\"],\"end_price\":19.9}", DyGoodsDetailVO.class));
         when(service.dyProductDetail("123")).thenReturn(response);
         Map<String, Object> result = controller(service).detail("123").getData();
         assertEquals(Collections.singletonList("gallery"), result.get("banners"));
@@ -54,7 +54,7 @@ public class DyProductContractTest {
     @Test
     public void promotionUsesProductIdAndReturnsCommonLinkAndPasswordFields() {
         KuService service = mock(KuService.class);
-        DyWordGoodsDataVO response = JSON.parseObject("{\"code\":200,\"data\":{\"dy_zlink\":\"https://example.com\",\"dy_deeplink\":\"snssdk1128://item\",\"dy_password\":\"口令\"}}", DyWordGoodsDataVO.class);
+        DyWordGoodsDataVO response = JsonUtil.parseObject("{\"code\":200,\"data\":{\"dy_zlink\":\"https://example.com\",\"dy_deeplink\":\"snssdk1128://item\",\"dy_password\":\"口令\"}}", DyWordGoodsDataVO.class);
         when(service.dyProductWord("123", "0")).thenReturn(response);
         Map<String, Object> result = controller(service).word("123").getData();
         assertEquals("https://example.com", result.get("link"));

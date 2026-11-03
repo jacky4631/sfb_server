@@ -1,9 +1,9 @@
 package com.mailvor.modules.tk.vo;
 
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.mailvor.modules.tk.domain.MailvorEleKuOrder;
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
  * @date 2019-10-19
  */
 @Data
-@ApiModel(value = "EleKuResVo", description = "饿了么库订单接口返回参数")
+@Schema(description = "饿了么库订单接口返回参数")
 public class EleKuResVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -26,7 +26,7 @@ public class EleKuResVo implements Serializable {
 
     private String msg;
 
-    @JSONField(name="min_id")
+    @JsonProperty("min_id")
     private Integer minId;
 
     private ArrayList<MailvorEleKuOrder> data;

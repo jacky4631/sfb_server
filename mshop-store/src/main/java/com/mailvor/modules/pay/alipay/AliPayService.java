@@ -1,6 +1,6 @@
 package com.mailvor.modules.pay.alipay;
 
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.response.AlipayFundTransUniTransferResponse;
@@ -16,8 +16,8 @@ import com.mailvor.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -144,7 +144,7 @@ public class AliPayService extends PayService{
     }
 
     protected AlipayConfig parseAliPayConfig(PayChannelDto channelDto) {
-        AlipayConfig config = JSON.parseObject(channelDto.getCertProfile(), AlipayConfig.class);
+        AlipayConfig config = JsonUtil.parseObject(channelDto.getCertProfile(), AlipayConfig.class);
         config.setNotifyUrl(channelDto.getNotifyUrl());
         return config;
 

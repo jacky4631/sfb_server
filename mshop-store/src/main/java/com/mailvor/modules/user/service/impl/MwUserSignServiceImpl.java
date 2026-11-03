@@ -24,7 +24,7 @@ import com.mailvor.modules.user.service.mapper.UserBillMapper;
 import com.mailvor.modules.user.service.mapper.MwUserSignMapper;
 import com.mailvor.modules.user.vo.SignVo;
 import com.mailvor.modules.user.vo.MwUserQueryVo;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +74,7 @@ public class MwUserSignServiceImpl extends BaseServiceImpl<MwUserSignMapper, MwU
      */
     @Override
     public int sign(MwUser mwUser) {
-        List<JSONObject> list = systemGroupDataService.getDatas(ShopConstants.MSHOP_SIGN_DAY_NUM);
+        List<JsonObject> list = systemGroupDataService.getDatas(ShopConstants.MSHOP_SIGN_DAY_NUM);
         if(ObjectUtil.isNull(list) || list.isEmpty()) {
             throw new MshopException("请先配置签到天数");
         }

@@ -3,6 +3,8 @@
  * All rights reserved, Designed By www.mailvor.com
  */
 package com.mailvor.modules.shop.rest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Arrays;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.modules.aop.ForbidSubmit;
@@ -18,16 +20,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.annotations.*;
 import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import com.mailvor.domain.PageResult;
 /**
  * @author huangyu
  * @date 2020-09-03
  */
 @AllArgsConstructor
-@Api(tags = "商城：商品记录管理")
+@Tag(name = "商城：商品记录管理")
 @RestController
 @RequestMapping("/api/mwStoreProductRelation")
 public class MwStoreProductRelationController {
@@ -37,7 +38,7 @@ public class MwStoreProductRelationController {
 
 
     @Log("导出数据")
-    @ApiOperation("导出数据")
+    @Operation(summary = "导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','mwStoreProductRelation:list')")
     public void download(HttpServletResponse response, MwStoreProductRelationQueryCriteria criteria) throws IOException {
@@ -46,7 +47,7 @@ public class MwStoreProductRelationController {
 
     @GetMapping
     @Log("查询ProductRelation")
-    @ApiOperation("查询ProductRelation")
+    @Operation(summary = "查询ProductRelation")
     @PreAuthorize("@el.check('admin','mwStoreProductRelation:list')")
     public ResponseEntity<PageResult<MwStoreProductRelationDto>> getMwStoreProductRelations(MwStoreProductRelationQueryCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(mwStoreProductRelationService.queryAll(criteria,pageable),HttpStatus.OK);
@@ -54,7 +55,7 @@ public class MwStoreProductRelationController {
 
     @PostMapping
     @Log("新增ProductRelation")
-    @ApiOperation("新增ProductRelation")
+    @Operation(summary = "新增ProductRelation")
     @PreAuthorize("@el.check('admin','mwStoreProductRelation:add')")
     public ResponseEntity<Object> create(@Validated @RequestBody MwStoreProductRelation resources){
         return new ResponseEntity<>(mwStoreProductRelationService.save(resources),HttpStatus.CREATED);
@@ -62,7 +63,7 @@ public class MwStoreProductRelationController {
 
     @PutMapping
     @Log("修改ProductRelation")
-    @ApiOperation("修改ProductRelation")
+    @Operation(summary = "修改ProductRelation")
     @PreAuthorize("@el.check('admin','mwStoreProductRelation:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody MwStoreProductRelation resources){
         mwStoreProductRelationService.updateById(resources);
@@ -71,7 +72,7 @@ public class MwStoreProductRelationController {
 
     @ForbidSubmit
     @Log("删除ProductRelation")
-    @ApiOperation("删除ProductRelation")
+    @Operation(summary = "删除ProductRelation")
     @PreAuthorize("@el.check('admin','mwStoreProductRelation:del')")
     @DeleteMapping
     public ResponseEntity<Object> deleteAll(@RequestBody Long[] ids) {

@@ -1,10 +1,10 @@
 package com.mailvor.modules.auth.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * @author : gzlv 2023/03/09 15:09
@@ -13,10 +13,10 @@ import javax.validation.constraints.NotNull;
 public class LoginShanyanParam {
 
     @NotBlank(message = "token必填")
-    @ApiModelProperty(value = "token")
+    @Schema(description = "token")
     private String token;
 
     @NotNull(message = "平台类型必填")
-    @ApiModelProperty(value = "平台类型 1=android 2=ios")
+    @Schema(description = "平台类型 1=android 2=ios")
     private Integer type;
 }

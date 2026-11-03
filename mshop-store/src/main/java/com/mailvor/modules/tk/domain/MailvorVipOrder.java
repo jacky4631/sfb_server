@@ -6,15 +6,15 @@ package com.mailvor.modules.tk.domain;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
+import com.mailvor.common.json.JsonTypeHandler;
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -95,8 +95,8 @@ public class MailvorVipOrder extends TkOrder {
     private Integer status;
 
     /** 商品json array信息 */
-    @TableField(typeHandler = FastjsonTypeHandler.class)
-    private ArrayList<JSONObject> detailList;
+    @TableField(typeHandler = JsonTypeHandler.class)
+    private ArrayList<JsonObject> detailList;
 
 
     public void copy(MailvorVipOrder source){

@@ -4,7 +4,7 @@
  */
 package com.mailvor.modules.tk.param;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -14,7 +14,7 @@ import lombok.Data;
  * @date 2021-02-23
  */
 @Data
-@ApiModel(value="MwGoodQueryParam对象", description="商品表查询参数")
+@Schema(description = "商品表查询参数")
 public class KuCustomParam{
     private static final long serialVersionUID = 1L;
 

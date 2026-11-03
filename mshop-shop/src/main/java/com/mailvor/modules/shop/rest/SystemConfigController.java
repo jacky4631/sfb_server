@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.shop.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.ObjectUtil;
 import com.mailvor.constant.ShopConstants;
 import com.mailvor.constant.SystemConfigConstants;
@@ -15,11 +17,9 @@ import com.mailvor.modules.shop.service.dto.MwSystemConfigQueryCriteria;
 import com.mailvor.modules.mp.config.WxMpConfiguration;
 import com.mailvor.modules.mp.config.WxMaConfiguration;
 import com.mailvor.utils.RedisUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 * @author huangyu
 * @date 2019-10-10
 */
-@Api(tags = "商城：配置管理")
+@Tag(name = "商城：配置管理")
 @RestController
 @RequestMapping("api")
 public class SystemConfigController {
@@ -47,7 +47,7 @@ public class SystemConfigController {
     }
 
     @Log("查询")
-    @ApiOperation(value = "查询")
+    @Operation(summary = "查询")
     @GetMapping(value = "/mwSystemConfig")
     @PreAuthorize("hasAnyRole('admin','MWSYSTEMCONFIG_ALL','MWSYSTEMCONFIG_SELECT')")
     public ResponseEntity getMwSystemConfigs(MwSystemConfigQueryCriteria criteria, Pageable pageable){
@@ -56,12 +56,12 @@ public class SystemConfigController {
 
     @ForbidSubmit
     @Log("新增或修改")
-    @ApiOperation(value = "新增或修改")
+    @Operation(summary = "新增或修改")
     @PostMapping(value = "/mwSystemConfig")
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY,allEntries = true)
     @PreAuthorize("hasAnyRole('admin','MWSYSTEMCONFIG_ALL','MWSYSTEMCONFIG_CREATE')")
     public ResponseEntity create(@RequestBody String jsonStr){
-        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        JsonObject jsonObject = JsonUtil.parseObject(jsonStr);
         jsonObject.forEach(
                 (key,value)->{
                     MwSystemConfig mwSystemConfig = mwSystemConfigService.getOne(new LambdaQueryWrapper<MwSystemConfig>()

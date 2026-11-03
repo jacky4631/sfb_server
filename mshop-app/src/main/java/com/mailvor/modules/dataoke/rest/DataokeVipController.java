@@ -1,7 +1,7 @@
 package com.mailvor.modules.dataoke.rest;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.api.ApiResult;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.UserCheck;
@@ -11,7 +11,7 @@ import com.mailvor.modules.tk.service.DataokeService;
 import com.mailvor.modules.tk.vo.vip.*;
 import com.mailvor.modules.utils.TkUtil;
 import org.springframework.web.bind.annotation.*;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,7 +38,7 @@ public class DataokeVipController {
     @PostMapping("/goods/search")
     public ApiResult<Map<String, Object>> postGoodsSearch(@RequestBody GoodsSearchVipParam param) {
         param.setOpenId(TkUtil.getVipOpenId(LocalUser.getUser()));
-        JSONObject response = service.vipGoodsSearch(param);
+        JsonObject response = service.vipGoodsSearch(param);
         return productList(response == null ? null : response.toJavaObject(VipSearchListVO.class));
     }
 

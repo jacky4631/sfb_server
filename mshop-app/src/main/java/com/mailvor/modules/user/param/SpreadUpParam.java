@@ -1,6 +1,6 @@
 package com.mailvor.modules.user.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class SpreadUpParam implements Serializable {
 
 
-    @ApiModelProperty(value = "平台")
+    @Schema(description = "平台")
     private String  platform;
 
 }

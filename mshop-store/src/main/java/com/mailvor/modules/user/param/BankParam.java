@@ -1,7 +1,7 @@
 package com.mailvor.modules.user.param;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -15,22 +15,22 @@ import java.io.Serializable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BankParam implements Serializable {
 
-    @ApiModelProperty(value = "地址ID")
+    @Schema(description = "地址ID")
     private String id;
 
-    @ApiModelProperty(value = "用户id")
+    @Schema(description = "用户id")
     private Long uid;
 
-    @ApiModelProperty(value = "银行卡号")
+    @Schema(description = "银行卡号")
     private String bankNo;
 
-    @ApiModelProperty(value = "签约成功的协议号")
+    @Schema(description = "签约成功的协议号")
     private String protocolNo;
 
-    @ApiModelProperty(value = "是否默认")
+    @Schema(description = "是否默认")
     private Integer isDefault;
 
-    @ApiModelProperty(value = "是否默认")
+    @Schema(description = "是否默认")
     private Integer sign;
 
 }

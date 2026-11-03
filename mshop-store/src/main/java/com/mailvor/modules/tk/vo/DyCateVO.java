@@ -1,6 +1,6 @@
 package com.mailvor.modules.tk.vo;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -11,10 +11,10 @@ import lombok.Data;
 @Data
 public class DyCateVO {
 
-    @JSONField(name = "cat_id")
+    @JsonProperty("cat_id")
     @Schema(description = "分类id")
     private Integer cid;
-    @JSONField(name = "cat_name")
+    @JsonProperty("cat_name")
     @Schema(description = "分类标题")
     private String title;
 }

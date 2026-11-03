@@ -6,8 +6,8 @@ package com.mailvor.modules.tk.service.impl;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.pagehelper.PageInfo;
 import com.mailvor.common.service.impl.BaseServiceImpl;
@@ -32,7 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -232,7 +232,7 @@ public class MailvorVipOrderServiceImpl extends BaseServiceImpl<MailvorVipOrderM
     public MailvorVipOrder mockOrder(String orderId, Long uid, Date createTime, String shopName,
                                     Double rate, Double fee, Double payPrice, String img, String title,
                                     String itemId, Integer innerType) {
-        ArrayList<JSONObject> detailDtos = new ArrayList<>(1);
+        ArrayList<JsonObject> detailDtos = new ArrayList<>(1);
         String feeStr = String.format("%.2f", fee);
         VipOrderDetailDto detailDto = VipOrderDetailDto.builder()
                 .goodsName(title)
@@ -252,7 +252,7 @@ public class MailvorVipOrderServiceImpl extends BaseServiceImpl<MailvorVipOrderM
                 .isSubsidyTaskOrder(false)
                 .commissionTotalCost(payPrice + "")
                 .build();
-        detailDtos.add(JSON.parseObject(JSON.toJSONString(detailDto)));
+        detailDtos.add(JsonUtil.parseObject(JsonUtil.toJSONString(detailDto)));
         MailvorVipOrder order = MailvorVipOrder.builder()
                 .orderSn(orderId)
                 .orderSubStatusName("已付款")

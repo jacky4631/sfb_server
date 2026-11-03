@@ -4,8 +4,7 @@
  */
 package com.mailvor.modules.tk.param;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -15,13 +14,13 @@ import lombok.Data;
  * @date 2022-02-20
  */
 @Data
-@ApiModel(value="QueryMtRefundParam", description="")
+@Schema(description = "")
 public class QueryMtRefundParam {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "页数，从1开始")
+    @Schema(description = "页数，从1开始")
     private Integer page = 1;
-    @ApiModelProperty(value = "页大小，默认20，1~100")
+    @Schema(description = "页大小，默认20，1~100")
     private Integer size = 100;
 
     /**
@@ -30,17 +29,17 @@ public class QueryMtRefundParam {
      * 3	按照子订单结算时间查询
      * 4	按照子订单账期时间查询
      * */
-    @ApiModelProperty(value = "订单查询时间区间类型")
+    @Schema(description = "订单查询时间区间类型")
     private Integer queryType = 4;
 
-    @ApiModelProperty(value = "开始时间 格式yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "开始时间 格式yyyy-MM-dd HH:mm:ss")
     private String startTime;
-    @ApiModelProperty(value = "结束时间 格式yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "结束时间 格式yyyy-MM-dd HH:mm:ss")
     private String endTime;
 
 
-    @ApiModelProperty(value = "取最近多少天的订单")
+    @Schema(description = "取最近多少天的订单")
     private Integer day = 180;
-    @ApiModelProperty(value = "一次取多少分钟的订单")
+    @Schema(description = "一次取多少分钟的订单")
     private Integer minutes = 60*24;
 }

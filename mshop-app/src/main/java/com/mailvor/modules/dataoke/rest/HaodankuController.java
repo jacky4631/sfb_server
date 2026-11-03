@@ -1,9 +1,9 @@
 package com.mailvor.modules.dataoke.rest;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonArray;
+import org.springframework.data.redis.serializer.SerializationException;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.api.ApiResult;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.UserCheck;
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.TreeMap;
@@ -90,9 +90,9 @@ public class HaodankuController {
 
     @UserCheck
     @GetMapping(value = "/pdd/goods/word")
-    public JSONObject getPDDWord(String goodsSign, Long goodsId) {
+    public JsonObject getPDDWord(String goodsSign, Long goodsId) {
 
-//        JSONObject body = new JSONObject();
+//        JsonObject body = new JsonObject();
         StringBuilder sb = new StringBuilder();
         sb.append("apikey=");
         sb.append(key);
@@ -108,7 +108,7 @@ public class HaodankuController {
                 PDD_WORD,
                 requestParam,
                 String.class);
-        return JSON.parseObject(re.getBody());
+        return JsonUtil.parseObject(re.getBody());
     }
 
     @UserCheck
@@ -119,75 +119,75 @@ public class HaodankuController {
     }
 
     @GetMapping(value = "/pdd/nav")
-    public JSONObject pddNav() {
+    public JsonObject pddNav() {
         return restTemplate
-                .getForObject(PDD_NAV, JSONObject.class);
+                .getForObject(PDD_NAV, JsonObject.class);
     }
     @GetMapping(value = "/pdd/cate")
-    public JSONObject pddCate() {
+    public JsonObject pddCate() {
         return restTemplate
-                .getForObject(PDD_CATE, JSONObject.class);
+                .getForObject(PDD_CATE, JsonObject.class);
     }
     @GetMapping(value = "/pdd/list")
-    public JSONObject pddList(Integer cateId, Integer pageId) {
+    public JsonObject pddList(Integer cateId, Integer pageId) {
         return restTemplate
-                .getForObject(String.format(PDD_LIST, cateId, pageId), JSONObject.class);
+                .getForObject(String.format(PDD_LIST, cateId, pageId), JsonObject.class);
     }
 
     @GetMapping(value = "/dy/nav")
-    public JSONObject dyNav() {
+    public JsonObject dyNav() {
         return restTemplate
-                .getForObject(DY_NAV + kuService.getKuCid(), JSONObject.class);
+                .getForObject(DY_NAV + kuService.getKuCid(), JsonObject.class);
     }
     @GetMapping(value = "/dy/cate")
-    public JSONObject dyCate() {
+    public JsonObject dyCate() {
         return restTemplate
-                .getForObject(DY_CATE + kuService.getKuCid(), JSONObject.class);
+                .getForObject(DY_CATE + kuService.getKuCid(), JsonObject.class);
     }
     @GetMapping(value = "/dy/list")
-    public JSONObject dyList(DyListParam param) {
+    public JsonObject dyList(DyListParam param) {
         String url = String.format(DY_LIST + kuService.getKuCid(), param.getPageId(), param.getPageSize(), param.getCateId(), param.getSearchType());
         if(param.getFirstCid() != null){
             url = url + "&first_cids=" + param.getFirstCid();
         }
         return restTemplate
-                .getForObject(url, JSONObject.class);
+                .getForObject(url, JsonObject.class);
     }
 
 
     @GetMapping(value = "/pick/cate")
-    public JSONObject pickCate() {
+    public JsonObject pickCate() {
         return restTemplate
-                .getForObject(PICK_CATE, JSONObject.class);
+                .getForObject(PICK_CATE, JsonObject.class);
     }
 
     @GetMapping(value = "/pick/list")
-    public JSONObject pickList(Integer cateId, Integer pageId) {
+    public JsonObject pickList(Integer cateId, Integer pageId) {
         return restTemplate
                 .getForObject(String.format(PICK_LIST,
-                        cateId, pageId), JSONObject.class);
+                        cateId, pageId), JsonObject.class);
     }
 
     @GetMapping(value = "/mini/list")
-    public JSONObject miniList(String keyword, Integer pageId) {
+    public JsonObject miniList(String keyword, Integer pageId) {
         return restTemplate
                 .getForObject(String.format(MINI_LIST,
-                        keyword, pageId), JSONObject.class);
+                        keyword, pageId), JsonObject.class);
     }
 
     @GetMapping(value = "/banner")
-    public JSONObject banner() {
+    public JsonObject banner() {
         return restTemplate
-                .getForObject(BANNER_LIST + kuService.getKuCid(), JSONObject.class);
+                .getForObject(BANNER_LIST + kuService.getKuCid(), JsonObject.class);
     }
 
     @GetMapping(value = "/banners")
-    public JSONArray banners() {
-        JSONArray homeBanner = (JSONArray) redisUtils.getCache(HOME_DATA_BANNER);
+    public JsonArray banners() {
+        JsonArray homeBanner = (JsonArray) redisUtils.getCache(HOME_DATA_BANNER);
         if(homeBanner == null) {
-            JSONObject origData = restTemplate
-                    .getForObject(BANNER_LIST + kuService.getKuCid(), JSONObject.class);
-            JSONObject data = origData.getJSONObject("data");
+            JsonObject origData = restTemplate
+                    .getForObject(BANNER_LIST + kuService.getKuCid(), JsonObject.class);
+            JsonObject data = origData.getJSONObject("data");
             homeBanner = data.getJSONArray("banners");
             redisUtils.setCache(HOME_DATA_BANNER, homeBanner, HOME_DATA_EXPIRED);
             redisUtils.setCache(HOME_DATA_TILES, data.getJSONArray("tile_long"), HOME_DATA_EXPIRED);
@@ -195,12 +195,12 @@ public class HaodankuController {
         return homeBanner;
     }
     @GetMapping(value = "/tiles")
-    public JSONArray tiles() {
-        JSONArray homeTiles = (JSONArray) redisUtils.getCache(HOME_DATA_TILES);
+    public JsonArray tiles() {
+        JsonArray homeTiles = (JsonArray) redisUtils.getCache(HOME_DATA_TILES);
         if(homeTiles == null) {
-            JSONObject origData = restTemplate
-                    .getForObject(BANNER_LIST + kuService.getKuCid(), JSONObject.class);
-            JSONObject data = origData.getJSONObject("data");
+            JsonObject origData = restTemplate
+                    .getForObject(BANNER_LIST + kuService.getKuCid(), JsonObject.class);
+            JsonObject data = origData.getJSONObject("data");
             homeTiles = data.getJSONArray("tile_long");
             redisUtils.setCache(HOME_DATA_BANNER, data.getJSONArray("banners"), HOME_DATA_EXPIRED);
             redisUtils.setCache(HOME_DATA_TILES, homeTiles, HOME_DATA_EXPIRED);
@@ -211,16 +211,16 @@ public class HaodankuController {
 
 
     @GetMapping(value = "/custom/cate")
-    public JSONObject customCate(String id) {
+    public JsonObject customCate(String id) {
         return restTemplate
-                .getForObject(String.format(CUSTOM_CATE + kuService.getKuCid(), id), JSONObject.class);
+                .getForObject(String.format(CUSTOM_CATE + kuService.getKuCid(), id), JsonObject.class);
     }
 
     @GetMapping(value = "/custom/list")
-    public JSONObject customList(KuCustomParam param) {
+    public JsonObject customList(KuCustomParam param) {
         param.setCategory_id(param.getClassify());
         param.setCid(kuService.getKuCid());
-        TreeMap<String, String> map = JSON.parseObject(JSON.toJSONString(param), TreeMap.class);
+        TreeMap<String, String> map = JsonUtil.parseObject(JsonUtil.toJSONString(param), TreeMap.class);
         StringBuilder sb = new StringBuilder();
         sb.append(CUSTOM_LIST);
         sb.append("?");
@@ -231,11 +231,11 @@ public class HaodankuController {
             sb.append("&");
         });
         return restTemplate
-                .getForObject(sb.toString(), JSONObject.class);
+                .getForObject(sb.toString(), JsonObject.class);
     }
 
     @GetMapping(value = "/dy/activity/word")
-    public JSONObject getDyActivityWord(@RequestParam String activityId) {
+    public JsonObject getDyActivityWord(@RequestParam String activityId) {
 
         StringBuilder sb = new StringBuilder();
         sb.append("activity_id=3");
@@ -253,13 +253,13 @@ public class HaodankuController {
                 DY_ACTIVITY_WORD,
                 requestParam,
                 String.class);
-        return JSON.parseObject(re.getBody());
+        return JsonUtil.parseObject(re.getBody());
     }
 
     @GetMapping(value = "/activity/detail")
-    public JSONObject parseMeeting(String id) {
+    public JsonObject parseMeeting(String id) {
         return restTemplate
-                .getForObject(String.format(ACTIVITY_DETAIL + kuService.getKuCid(), id), JSONObject.class);
+                .getForObject(String.format(ACTIVITY_DETAIL + kuService.getKuCid(), id), JsonObject.class);
     }
 
 
@@ -268,15 +268,16 @@ public class HaodankuController {
         List<HotWordsVo> words;
         try {
             words = RedisUtil.get(ShopConstants.MSHOP_HOT_WORDS);
-        }catch (JSONException e) {
+        }catch (SerializationException e) {
+            // 缓存内容无法反序列化时回源查库
             words = null;
         }
         if(CollectionUtils.isEmpty(words)) {
 
             //读取库的关键词
-            JSONObject kuObj = restTemplate
-                    .getForObject(HOT_WORDS_KU + kuService.getKuCid(), JSONObject.class);
-            words = JSON.parseArray(kuObj.getJSONObject("data").getJSONArray("recently_keyword").toString(),
+            JsonObject kuObj = restTemplate
+                    .getForObject(HOT_WORDS_KU + kuService.getKuCid(), JsonObject.class);
+            words = JsonUtil.parseArray(kuObj.getJSONObject("data").getJSONArray("recently_keyword").toString(),
                     HotWordsVo.class);
 
 
@@ -325,7 +326,7 @@ public class HaodankuController {
 //                "[\"广角镜头手机\",,,\"除湿机\",\"飞科剃须刀\",\"容声冰箱\",\"燃气壁挂炉\",\"面包机\",\"桃核手串\",\"唇彩唇蜜\",\"电脑桌\",\"微波炉\",\"天燃气灶双灶\",\"防尘鞋架\",\"金士顿内存\",\"无纺布鞋套\",\"空气炸锅\",\"脱脂牛奶\",\"游戏本\",\"脸部卸妆油\"]})";
 //
 //        res = res.replace("jsonpCBKB(", "").replace(")", "");
-//        JSONObject jsonObject = JSON.parseObject(res);
+//        JsonObject jsonObject = JsonUtil.parseObject(res);
 //        String[] array = jsonObject.getJSONArray("owner").toArray(new String[0]);
 //        List<HotWordsVo> words = new ArrayList<>();
 //        for(String arrStr: array) {
@@ -341,11 +342,11 @@ public class HaodankuController {
 //            //读取库的关键词
 //
 //        }
-        JSONObject kuObj = JSON.parseObject("{\"code\":200,\"msg\":\"操作成功\",\"data\":{\"hot_keyword\":[{\"jump_url\":\"http:\\/\\/www.haodanku.com\\/IndexActivity\\/index?activity=19\",\"is_red\":0,\"icon\":\"http:\\/\\/img-haodanku-com.cdn.fudaiapp.com\\/FoSUl67Li0JfPJkHziXWlGpHywcu\",\"keyword\":\"淘礼金专区\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"http:\\/\\/img-haodanku-com.cdn.fudaiapp.com\\/FlG7Oh5yc70RoksmSOxMh_ErxJ8R\",\"keyword\":\"口罩\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"洗面奶\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"牛奶\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"http:\\/\\/img-haodanku-com.cdn.fudaiapp.com\\/FlG7Oh5yc70RoksmSOxMh_ErxJ8R\",\"keyword\":\"螺蛳粉\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"洗衣液\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"http:\\/\\/img-haodanku-com.cdn.fudaiapp.com\\/FlG7Oh5yc70RoksmSOxMh_ErxJ8R\",\"keyword\":\"棉柔巾\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"面膜\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"牙膏\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"卫衣\"}],\"recently_keyword\":[{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"洗面奶\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"避孕套\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"洗衣液\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"洗发水\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"四件套\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"牛奶\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"抽纸\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"大米\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"洗脸巾\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"卫生巾\"}]}}",
-                JSONObject.class);
+        JsonObject kuObj = JsonUtil.parseObject("{\"code\":200,\"msg\":\"操作成功\",\"data\":{\"hot_keyword\":[{\"jump_url\":\"http:\\/\\/www.haodanku.com\\/IndexActivity\\/index?activity=19\",\"is_red\":0,\"icon\":\"http:\\/\\/img-haodanku-com.cdn.fudaiapp.com\\/FoSUl67Li0JfPJkHziXWlGpHywcu\",\"keyword\":\"淘礼金专区\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"http:\\/\\/img-haodanku-com.cdn.fudaiapp.com\\/FlG7Oh5yc70RoksmSOxMh_ErxJ8R\",\"keyword\":\"口罩\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"洗面奶\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"牛奶\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"http:\\/\\/img-haodanku-com.cdn.fudaiapp.com\\/FlG7Oh5yc70RoksmSOxMh_ErxJ8R\",\"keyword\":\"螺蛳粉\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"洗衣液\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"http:\\/\\/img-haodanku-com.cdn.fudaiapp.com\\/FlG7Oh5yc70RoksmSOxMh_ErxJ8R\",\"keyword\":\"棉柔巾\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"面膜\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"牙膏\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"卫衣\"}],\"recently_keyword\":[{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"洗面奶\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"避孕套\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"洗衣液\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"洗发水\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"四件套\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"牛奶\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"抽纸\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"大米\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"洗脸巾\"},{\"jump_url\":\"\",\"is_red\":0,\"icon\":\"\",\"keyword\":\"卫生巾\"}]}}",
+                JsonObject.class);
 
 
-        List<HotWordsVo> words = JSON.parseArray(kuObj.getJSONObject("data").getJSONArray("recently_keyword").toString(),
+        List<HotWordsVo> words = JsonUtil.parseArray(kuObj.getJSONObject("data").getJSONArray("recently_keyword").toString(),
                 HotWordsVo.class);
 
         System.out.println(words.size());

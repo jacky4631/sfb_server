@@ -5,9 +5,11 @@
 package com.mailvor.modules.user.rest;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.mailvor.api.ApiResult;
 import com.mailvor.api.MshopException;
 import com.mailvor.common.bean.LocalUser;
@@ -28,8 +30,6 @@ import com.mailvor.modules.user.service.dto.UserLevelDto;
 import com.mailvor.modules.user.service.dto.UserMultiLevelDto;
 import com.mailvor.modules.user.vo.MwSystemUserLevelQueryVo;
 import com.mailvor.utils.OrderUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +57,7 @@ import static com.mailvor.config.PayConfig.PAY_NAME;
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "用户等级", tags = "用户:用户等级")
+@Tag(name = "用户:用户等级")
 public class UserLevelController {
 
     private final MwUserLevelService userLevelService;
@@ -71,7 +71,7 @@ public class UserLevelController {
      */
     @AuthCheck
     @GetMapping("/user/level")
-    @ApiOperation(value = "会员等级",notes = "会员等级")
+    @Operation(summary = "会员等级", description = "会员等级")
     public ApiResult<Object> getUserLevel(){
         Long uid = LocalUser.getUser().getUid();
         MwUserLevel userLevel = userLevelService.getUserLevel(uid, null);
@@ -87,7 +87,7 @@ public class UserLevelController {
     */
     @AuthCheck
     @GetMapping("/user/level/grade")
-    @ApiOperation(value = "会员等级列表",notes = "会员等级列表")
+    @Operation(summary = "会员等级列表", description = "会员等级列表")
     public ApiResult<Object> getLevelInfo(){
         //获取所有充值方案
         MwSystemGroupDataQueryCriteria queryCriteria = new MwSystemGroupDataQueryCriteria();
@@ -95,7 +95,7 @@ public class UserLevelController {
         queryCriteria.setStatus(ShopCommonEnum.IS_STATUS_1.getValue());
         List<MwSystemGroupData> mwSystemGroupDataList = systemGroupDataService.queryAll(queryCriteria);
         Map<Integer, String> rechargeMap = mwSystemGroupDataList.stream()
-                .map(mwSystemGroupData -> JSON.parseObject(mwSystemGroupData.getValue(), UserRechargeDTO.class))
+                .map(mwSystemGroupData -> JsonUtil.parseObject(mwSystemGroupData.getValue(), UserRechargeDTO.class))
                 .collect(Collectors.toMap(UserRechargeDTO::getId, UserRechargeDTO::getPrice));
 
         UserLevelDto userLevelDto = systemUserLevelService.getLevelInfo(null);
@@ -203,7 +203,7 @@ public class UserLevelController {
      */
     @AuthCheck
     @GetMapping("/user/level/task/{id}")
-    @ApiOperation(value = "获取等级任务",notes = "获取等级任务")
+    @Operation(summary = "获取等级任务", description = "获取等级任务")
     public ApiResult<Object> getTask(@PathVariable String id){
         if(StrUtil.isBlank(id) || !NumberUtil.isNumber(id)){
             throw new MshopException("参数非法");

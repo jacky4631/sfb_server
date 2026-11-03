@@ -34,13 +34,13 @@ public class MwUserFeeLogOpt extends BaseDomain {
     private Long uid;
 
     //tt=今日 ts=近七日 tm=本月 tl=上月
-//    @TableField(typeHandler = FastjsonTypeHandler.class)
+//    @TableField(typeHandler = JsonTypeHandler.class)
     private String tt;
-//    @TableField(typeHandler = FastjsonTypeHandler.class)
+//    @TableField(typeHandler = JsonTypeHandler.class)
     private String ts;
-//    @TableField(typeHandler = FastjsonTypeHandler.class)
+//    @TableField(typeHandler = JsonTypeHandler.class)
     private String tm;
-//    @TableField(typeHandler = FastjsonTypeHandler.class)
+//    @TableField(typeHandler = JsonTypeHandler.class)
     private String tl;
 
 }

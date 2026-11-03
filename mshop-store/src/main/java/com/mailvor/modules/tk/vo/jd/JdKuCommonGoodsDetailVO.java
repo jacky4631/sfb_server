@@ -4,7 +4,7 @@
  */
 package com.mailvor.modules.tk.vo.jd;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mailvor.enums.PlatformEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -68,7 +68,7 @@ public class JdKuCommonGoodsDetailVO {
     @Schema(description = "商品主图")
     private List<String> banners;
 
-    @JSONField(name = "detailImages")
+    @JsonProperty("detailImages")
     @Schema(description = "商品详情图")
     private List<String> details;
 

@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -24,7 +23,9 @@ import java.util.Arrays;
  * @date 2018-11-30
  */
 @Configuration(proxyBeanMethods = false)
-@EnableWebMvc
+// 去掉 @EnableWebMvc：它会注册 WebMvcConfigurationSupport，使 Spring Boot 的 WebMvc 自动配置整条退出，
+// 连带 spring.jackson.* 与 JsonMapperBuilderCustomizer 全部失效（实测 Date 字段从 epoch 毫秒
+// 变成 ISO 字符串且无法通过配置纠正）。本类只是贡献 WebMvcConfigurer，不需要该注解。
 public class ConfigurerAdapter implements WebMvcConfigurer {
 
     @Value("${file.path}")

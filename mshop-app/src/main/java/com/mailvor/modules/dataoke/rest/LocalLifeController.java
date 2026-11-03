@@ -1,7 +1,9 @@
 package com.mailvor.modules.dataoke.rest;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.api.MshopException;
 import com.mailvor.common.bean.LocalUser;
 import com.mailvor.common.interceptor.UserCheck;
@@ -10,8 +12,6 @@ import com.mailvor.modules.tk.service.dto.DyLifeCityChildrenDto;
 import com.mailvor.modules.tk.service.dto.DyLifeCityDto;
 import com.mailvor.modules.tk.service.dto.DyLifeCityListDto;
 import com.mailvor.modules.user.domain.MwUser;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +27,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/ku")
 @Slf4j
-@Api(tags = "商城：本地生活")
+@Tag(name = "商城：本地生活")
 public class LocalLifeController {
     static final String GEOCODER_URL = "http://api.map.baidu.com/geocoder?location=%s,%s&output=json";
 
@@ -44,10 +44,10 @@ public class LocalLifeController {
      * @return the word
      */
 
-    @ApiOperation(value = "本地生活列表")
+    @Operation(summary = "本地生活列表")
     @UserCheck
     @GetMapping(value = "/locallife")
-    public JSONObject localLife(@RequestParam String platform) {
+    public JsonObject localLife(@RequestParam String platform) {
         String channel;
         MwUser mwUser = LocalUser.getUser();
         if(mwUser != null) {
@@ -60,9 +60,9 @@ public class LocalLifeController {
         return kuService.localLife(platform, channel);
     }
 
-    @ApiOperation(value = "本地生活订单采集")
+    @Operation(summary = "本地生活订单采集")
     @GetMapping(value = "/locallife/order")
-    public JSONObject localLifeOrder(@RequestParam(required = false, defaultValue = "1") Integer page,
+    public JsonObject localLifeOrder(@RequestParam(required = false, defaultValue = "1") Integer page,
                                      @RequestParam(required = false, defaultValue = "100") Integer size,
                                      Long startTime, Long endTime, Integer platform) {
 
@@ -70,9 +70,9 @@ public class LocalLifeController {
     }
 
 
-    @ApiOperation(value = "抖音本地生活：获取城市")
+    @Operation(summary = "抖音本地生活：获取城市")
     @GetMapping(value = "/dy/life/getcity")
-    public JSONObject getCity(@RequestParam Double longitude,
+    public JsonObject getCity(@RequestParam Double longitude,
                                  @RequestParam Double latitude) {
         if(geoMap.isEmpty()) {
             //生成省份_城市和值对应的map
@@ -91,9 +91,9 @@ public class LocalLifeController {
         Integer val = null;
         String url = String.format(GEOCODER_URL, latitude, longitude);
         String str = restTemplate.getForObject(url, String.class);
-        JSONObject jsonObject = JSON.parseObject(str);
+        JsonObject jsonObject = JsonUtil.parseObject(str);
         if("OK".equals(jsonObject.getString("status"))) {
-            JSONObject addressObj = jsonObject.getJSONObject("result").getJSONObject("addressComponent");
+            JsonObject addressObj = jsonObject.getJSONObject("result").getJSONObject("addressComponent");
             province = addressObj.getString("province");
             city = addressObj.getString("city");
             district = addressObj.getString("district");
@@ -106,7 +106,7 @@ public class LocalLifeController {
         if(val == null) {
             throw new MshopException("无法获取定位");
         }
-        JSONObject res = new JSONObject();
+        JsonObject res = new JsonObject();
         res.put("val", val);
         res.put("province", province);
         res.put("city", city);
@@ -118,9 +118,9 @@ public class LocalLifeController {
     }
 
 
-    @ApiOperation(value = "抖音本地生活：商品列表")
+    @Operation(summary = "抖音本地生活：商品列表")
     @GetMapping(value = "/dy/life/goods/list")
-    public JSONObject dyLifeList(@RequestParam(required = false, defaultValue = "1") Integer page,
+    public JsonObject dyLifeList(@RequestParam(required = false, defaultValue = "1") Integer page,
                                  @RequestParam(required = false, defaultValue = "10") Integer size,
                                  @RequestParam(required = false) String cityCode,
                                  @RequestParam(required = false) String categoryId,
@@ -132,7 +132,7 @@ public class LocalLifeController {
         return kuService.dyLifeList(page, size, cityCode, categoryId, sort, keyword, longitude, latitude);
     }
 
-    @ApiOperation(value = "抖音本地生活：城市列表")
+    @Operation(summary = "抖音本地生活：城市列表")
     @GetMapping(value = "/dy/life/city/list")
     public DyLifeCityDto dyLifeCityList() {
 
@@ -140,17 +140,17 @@ public class LocalLifeController {
     }
 
 
-    @ApiOperation(value = "抖音本地生活：分类")
+    @Operation(summary = "抖音本地生活：分类")
     @GetMapping(value = "/dy/life/category/list")
     public DyLifeCityDto dyLifeCategoryList() {
 
         return kuService.dyLifeCategoryList();
     }
 
-    @ApiOperation(value = "抖音本地生活：转链")
+    @Operation(summary = "抖音本地生活：转链")
     @UserCheck
     @GetMapping(value = "/dy/life/goods/word")
-    public JSONObject dyLife(@RequestParam String id) {
+    public JsonObject dyLife(@RequestParam String id) {
         String channel;
         MwUser mwUser = LocalUser.getUser();
         if(mwUser != null) {

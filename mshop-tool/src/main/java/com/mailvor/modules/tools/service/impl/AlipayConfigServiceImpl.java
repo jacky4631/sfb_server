@@ -4,8 +4,8 @@
  */
 package com.mailvor.modules.tools.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.alipay.api.*;
 import com.alipay.api.domain.AlipayFundTransUniTransferModel;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
@@ -175,7 +175,7 @@ public class AlipayConfigServiceImpl extends BaseServiceImpl<AlipayConfigMapper,
         model.setOrderTitle(PayConfig.appName() + "提现");
         request.setBizModel(model);
         AlipayFundTransUniTransferResponse response = alipayClient.certificateExecute(request);
-        System.out.println(JSON.toJSONString(response));
+        System.out.println(JsonUtil.toJSONString(response));
         if (response.isSuccess()) {
             System.out.println("提现成功");
         } else {
@@ -269,7 +269,7 @@ public class AlipayConfigServiceImpl extends BaseServiceImpl<AlipayConfigMapper,
     }
 
     @Override
-    public JSONObject faceVerification(AlipayConfig alipay, String certName, String certNo, String phone) throws Exception {
+    public JsonObject faceVerification(AlipayConfig alipay, String certName, String certNo, String phone) throws Exception {
         //构造client
         AlipayClient alipayClient = initFaceAlipayClient(alipay);
 
@@ -285,13 +285,13 @@ public class AlipayConfigServiceImpl extends BaseServiceImpl<AlipayConfigMapper,
                 "  \"phone_no\":\""+ phone + "\"" +
                 "}");
         DatadigitalFincloudGeneralsaasFaceVerificationInitializeResponse response = alipayClient.certificateExecute(request);
-        log.info("人脸认证：姓名{} 身份证号码{} 手机号{} 生成支付宝流水{}", certName, certNo, phone, JSON.toJSONString(response));
+        log.info("人脸认证：姓名{} 身份证号码{} 手机号{} 生成支付宝流水{}", certName, certNo, phone, JsonUtil.toJSONString(response));
         //todo 需要做验签
-        return JSON.parseObject(response.getBody());//就是orderString 可以直接给客户端请求，无需再做处理。
+        return JsonUtil.parseObject(response.getBody());//就是orderString 可以直接给客户端请求，无需再做处理。
     }
 
     @Override
-    public JSONObject faceVerificationResult(AlipayConfig alipay, String certifyId) throws AlipayApiException {
+    public JsonObject faceVerificationResult(AlipayConfig alipay, String certifyId) throws AlipayApiException {
         //构造client
         AlipayClient alipayClient = initAlipayClient(alipay);
 
@@ -308,7 +308,7 @@ public class AlipayConfigServiceImpl extends BaseServiceImpl<AlipayConfigMapper,
             System.out.println("调用失败");
         }
         //todo 需要做验签
-        return JSON.parseObject(response.getBody());//就是orderString 可以直接给客户端请求，无需再做处理。
+        return JsonUtil.parseObject(response.getBody());//就是orderString 可以直接给客户端请求，无需再做处理。
     }
 
     public AlipayClient initFaceAlipayClient(AlipayConfig alipay) throws AlipayApiException {
@@ -326,7 +326,7 @@ public class AlipayConfigServiceImpl extends BaseServiceImpl<AlipayConfigMapper,
     }
 
     @Override
-    public JSONObject cardOCR(AlipayConfig alipay, String ocrType, String name, byte[] fileContent) throws Exception {
+    public JsonObject cardOCR(AlipayConfig alipay, String ocrType, String name, byte[] fileContent) throws Exception {
         AlipayClient alipayClient = initAlipayClient(alipay);
         DatadigitalFincloudGeneralsaasOcrServerDetectRequest request = new DatadigitalFincloudGeneralsaasOcrServerDetectRequest();
         request.setOcrType(ocrType);
@@ -334,6 +334,6 @@ public class AlipayConfigServiceImpl extends BaseServiceImpl<AlipayConfigMapper,
         FileItem FileContent = new FileItem(name, fileContent);
         request.setFileContent(FileContent);
         DatadigitalFincloudGeneralsaasOcrServerDetectResponse response = alipayClient.certificateExecute(request);
-        return JSON.parseObject(response.getBody());
+        return JsonUtil.parseObject(response.getBody());
     }
 }

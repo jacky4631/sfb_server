@@ -6,7 +6,7 @@ package com.mailvor.modules.mp.listener;
 
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.mailvor.constant.ShopConstants;
@@ -34,7 +34,7 @@ import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -77,7 +77,7 @@ public class TemplateListener implements SmartApplicationListener {
         TemplateEvent templateEvent = (TemplateEvent) applicationEvent;
         //获取注册用户对象信息
         TemplateBean templateBean = templateEvent.getTemplateBean();
-        log.info("2.用户提现申请异步通知：{}", JSON.toJSONString(templateBean));
+        log.info("2.用户提现申请异步通知：{}", JsonUtil.toJSONString(templateBean));
         switch (TemplateListenEnum.toType(templateBean.getTemplateType())) {
             case TYPE_1:
                 weixinTemplateService.paySuccessNotice(templateBean.getOrderId()

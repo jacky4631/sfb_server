@@ -10,8 +10,8 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -82,8 +82,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
@@ -935,7 +935,7 @@ public class MwStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
 
         List<MwStoreCartQueryVo> cartInfo = cartInfos.stream()
                 .map(cart -> {
-                    MwStoreCartQueryVo cartQueryVo = JSON.parseObject(cart.getCartInfo(), MwStoreCartQueryVo.class);
+                    MwStoreCartQueryVo cartQueryVo = JsonUtil.parseObject(cart.getCartInfo(), MwStoreCartQueryVo.class);
                     cartQueryVo.setUnique(cart.getUnique());
                     cartQueryVo.setIsReply(productReplyService.replyCount(cart.getUnique()));
                     return cartQueryVo;
@@ -1185,7 +1185,7 @@ public class MwStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
 
         List<MwStoreOrderCartInfo> cartInfoList = orderCartInfoService.list(wrapper);
         for (MwStoreOrderCartInfo cartInfo : cartInfoList) {
-            MwStoreCartQueryVo cart = JSONObject.parseObject(cartInfo.getCartInfo()
+            MwStoreCartQueryVo cart = JsonUtil.parseObject(cartInfo.getCartInfo()
                     , MwStoreCartQueryVo.class);
 
                 productService.incProductStock(cart.getCartNum(), cart.getProductId()
@@ -1250,7 +1250,7 @@ public class MwStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         if (obj == null) {
             return null;
         }
-        return JSON.parseObject(obj.toString(), CacheDto.class);
+        return JsonUtil.parseObject(obj.toString(), CacheDto.class);
     }
 
 
@@ -1276,7 +1276,7 @@ public class MwStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         CacheDto cacheDTO = new CacheDto();
         cacheDTO.setPrice(price);
         redisUtils.set(ShopConstants.MSHOP_ORDER_CACHE_KEY + uid + key,
-                JSON.toJSONString(cacheDTO),
+                JsonUtil.toJSONString(cacheDTO),
                 ShopConstants.MSHOP_ORDER_CACHE_TIME);
         return key;
     }
@@ -1811,7 +1811,7 @@ public class MwStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         List<StoreOrderCartInfoDto> cartInfoDTOS = new ArrayList<>();
         for (MwStoreOrderCartInfo cartInfo : cartInfos) {
             StoreOrderCartInfoDto cartInfoDTO = new StoreOrderCartInfoDto();
-            cartInfoDTO.setCartInfoMap(JSON.parseObject(cartInfo.getCartInfo()));
+            cartInfoDTO.setCartInfoMap(JsonUtil.parseObject(cartInfo.getCartInfo()));
 
             cartInfoDTOS.add(cartInfoDTO);
         }
@@ -1861,7 +1861,7 @@ public class MwStoreOrderServiceImpl extends BaseServiceImpl<StoreOrderMapper, M
         List<StoreOrderCartInfoDto> cartInfoDTOS = new ArrayList<>();
         for (MwStoreOrderCartInfo cartInfo : cartInfos) {
             StoreOrderCartInfoDto cartInfoDTO = new StoreOrderCartInfoDto();
-            cartInfoDTO.setCartInfoMap(JSON.parseObject(cartInfo.getCartInfo()));
+            cartInfoDTO.setCartInfoMap(JsonUtil.parseObject(cartInfo.getCartInfo()));
 
             cartInfoDTOS.add(cartInfoDTO);
         }

@@ -4,10 +4,10 @@
  */
 package com.mailvor.modules.activity.param;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -17,25 +17,25 @@ import java.io.Serializable;
 @Data
 public class UserExtParam implements Serializable {
 
-    @ApiModelProperty(value = "提现支付宝用户名")
+    @Schema(description = "提现支付宝用户名")
     private String alipayCode;
 
     @NotBlank(message = "提现类型不能为空")
-    @ApiModelProperty(value = "提现类型 weixin alipay bank")
+    @Schema(description = "提现类型 weixin alipay bank")
     private String extractType;
 
 
-    @ApiModelProperty(value = "extractType=bank时必传")
+    @Schema(description = "extractType=bank时必传")
     private Long bankId;
 
     @NotBlank(message = "金额不能为空")
-    @ApiModelProperty(value = "提现金额")
+    @Schema(description = "提现金额")
     private String money;
 
-    @ApiModelProperty(value = "微信号")
+    @Schema(description = "微信号")
     private String weixin;
 
-    @ApiModelProperty(value = "支付宝账号")
+    @Schema(description = "支付宝账号")
     private String name;
 
     /**

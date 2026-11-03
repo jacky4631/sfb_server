@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.activity.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.mailvor.constant.ShopConstants;
@@ -23,12 +25,10 @@ import com.mailvor.modules.product.service.MwStoreProductRuleService;
 import com.mailvor.modules.product.service.dto.ProductFormatDto;
 import com.mailvor.modules.template.domain.MwShippingTemplates;
 import com.mailvor.modules.template.service.MwShippingTemplatesService;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
 * @author huangyu
 * @date 2019-11-18
 */
-@Api(tags = "商城：拼团管理")
+@Tag(name = "商城：拼团管理")
 @RestController
 @RequestMapping("api")
 public class StoreCombinationController {
@@ -77,7 +77,7 @@ public class StoreCombinationController {
     }
 
     @Log("查询拼团")
-    @ApiOperation(value = "查询拼团")
+    @Operation(summary = "查询拼团")
     @GetMapping(value = "/mwStoreCombination")
     @PreAuthorize("hasAnyRole('admin','MWSTORECOMBINATION_ALL','MWSTORECOMBINATION_SELECT')")
     public ResponseEntity getMwStoreCombinations(MwStoreCombinationQueryCriteria criteria, Pageable pageable){
@@ -86,14 +86,14 @@ public class StoreCombinationController {
 
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY,allEntries = true)
     @Log("新增拼团")
-    @ApiOperation(value = "新增拼团")
+    @Operation(summary = "新增拼团")
     @PostMapping(value = "/mwStoreCombination")
     @PreAuthorize("hasAnyRole('admin','MWSTORECOMBINATION_ALL','MWSTORECOMBINATION_EDIT')")
     public ResponseEntity add(@Validated @RequestBody MwStoreCombinationDto resources){
             return new ResponseEntity<>(mwStoreCombinationService.saveCombination(resources),HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "获取商品信息")
+    @Operation(summary = "获取商品信息")
     @GetMapping(value = "/mwStoreCombination/info/{id}")
     public ResponseEntity info(@PathVariable Long id){
         Map<String,Object> map = new LinkedHashMap<>(3);
@@ -118,7 +118,7 @@ public class StoreCombinationController {
         MwStoreProductAttrResult storeProductAttrResult = mwStoreProductAttrResultService
                 .getOne(Wrappers.<MwStoreProductAttrResult>lambdaQuery()
                         .eq(MwStoreProductAttrResult::getProductId,mwStoreCombination.getProductId()).last("limit 1"));
-        JSONObject result = JSON.parseObject(storeProductAttrResult.getResult());
+        JsonObject result = JsonUtil.parseObject(storeProductAttrResult.getResult());
         List<MwStoreProductAttrValue> attrValues = storeProductAttrValueService.list(new LambdaQueryWrapper<MwStoreProductAttrValue>().eq(MwStoreProductAttrValue::getProductId, mwStoreCombination.getProductId()));
         List<ProductFormatDto> productFormatDtos =attrValues.stream().map(i ->{
             ProductFormatDto productFormatDto = new ProductFormatDto();
@@ -144,7 +144,7 @@ public class StoreCombinationController {
      * @param productDto
      * @param result
      */
-    private void productFormat(MwStoreCombinationDto productDto, JSONObject result) {
+    private void productFormat(MwStoreCombinationDto productDto, JsonObject result) {
         Map<String,Object> mapAttr = (Map<String,Object>) result.getObject("value",ArrayList.class).get(0);
         ProductFormatDto productFormatDto = ProductFormatDto.builder()
                 .pic(mapAttr.get("pic").toString())
@@ -168,7 +168,7 @@ public class StoreCombinationController {
 
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY,allEntries = true)
     @Log("修改拼团")
-    @ApiOperation(value = "新增/修改拼团")
+    @Operation(summary = "新增/修改拼团")
     @PutMapping(value = "/mwStoreCombination")
     @PreAuthorize("hasAnyRole('admin','MWSTORECOMBINATION_ALL','MWSTORECOMBINATION_EDIT')")
     public ResponseEntity update(@Validated @RequestBody MwStoreCombination resources){
@@ -182,10 +182,10 @@ public class StoreCombinationController {
     }
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY,allEntries = true)
     @ForbidSubmit
-    @ApiOperation(value = "开启关闭")
+    @Operation(summary = "开启关闭")
     @PostMapping(value = "/mwStoreCombination/onsale/{id}")
     public ResponseEntity onSale(@PathVariable Long id,@RequestBody String jsonStr){
-        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        JsonObject jsonObject = JsonUtil.parseObject(jsonStr);
         Integer status = jsonObject.getInteger("status");
         mwStoreCombinationService.onSale(id,status);
         return new ResponseEntity(HttpStatus.OK);
@@ -193,7 +193,7 @@ public class StoreCombinationController {
     @CacheEvict(cacheNames = ShopConstants.MSHOP_REDIS_INDEX_KEY,allEntries = true)
     @ForbidSubmit
     @Log("删除拼团")
-    @ApiOperation(value = "删除拼团")
+    @Operation(summary = "删除拼团")
     @DeleteMapping(value = "/mwStoreCombination/{id}")
     @PreAuthorize("hasAnyRole('admin','MWSTORECOMBINATION_ALL','MWSTORECOMBINATION_DELETE')")
     public ResponseEntity delete(@PathVariable Long id){

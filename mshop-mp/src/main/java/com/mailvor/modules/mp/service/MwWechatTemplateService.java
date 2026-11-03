@@ -10,7 +10,7 @@ import com.mailvor.modules.mp.domain.MwWechatTemplate;
 import com.mailvor.modules.mp.service.dto.MwWechatTemplateDto;
 import org.springframework.data.domain.Pageable;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

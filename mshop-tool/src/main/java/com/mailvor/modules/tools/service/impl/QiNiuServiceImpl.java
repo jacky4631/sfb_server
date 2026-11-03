@@ -14,7 +14,7 @@ import com.mailvor.modules.tools.service.QiniuContentService;
 import com.mailvor.modules.tools.service.dto.QiniuQueryCriteria;
 import com.mailvor.modules.tools.utils.QiNiuUtil;
 import com.mailvor.utils.FileUtil;
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -114,7 +114,7 @@ public class QiNiuServiceImpl implements QiNiuService {
             Response response = uploadManager.put(file.getBytes(), key, upToken);
             //解析上传成功的结果
 
-            DefaultPutRet putRet = JSON.parseObject(response.bodyString(), DefaultPutRet.class);
+            DefaultPutRet putRet = JsonUtil.parseObject(response.bodyString(), DefaultPutRet.class);
 
             QiniuContent content = qiniuContentService.getOne(new LambdaQueryWrapper<QiniuContent>().eq(QiniuContent::getName,FileUtil.getFileNameNoEx(putRet.key)));
             if (content == null) {

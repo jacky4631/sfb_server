@@ -3,6 +3,8 @@
  * All rights reserved, Designed By www.mailvor.com
  */
 package com.mailvor.modules.customer.rest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Arrays;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.exception.BadRequestException;
@@ -20,16 +22,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.annotations.*;
 import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import com.mailvor.domain.PageResult;
 /**
 * @author Bug
 * @date 2020-12-10
 */
 @AllArgsConstructor
-@Api(tags = "微信:粉丝管理")
+@Tag(name = "微信:粉丝管理")
 @RestController
 @RequestMapping("/api/mwStoreCustomer")
 public class MwStoreCustomerController {
@@ -39,7 +40,7 @@ public class MwStoreCustomerController {
 
 
     @Log("导出数据")
-    @ApiOperation("导出数据")
+    @Operation(summary = "导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','mwStoreCustomer:list')")
     public void download(HttpServletResponse response, MwStoreCustomerQueryCriteria criteria) throws IOException {
@@ -48,7 +49,7 @@ public class MwStoreCustomerController {
 
     @GetMapping
     @Log("查询customer")
-    @ApiOperation("查询customer")
+    @Operation(summary = "查询customer")
     @PreAuthorize("@el.check('admin','mwStoreCustomer:list')")
     public ResponseEntity<PageResult<MwStoreCustomerDto>> getMwStoreCustomers(MwStoreCustomerQueryCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(mwStoreCustomerService.queryAll(criteria,pageable),HttpStatus.OK);
@@ -57,7 +58,7 @@ public class MwStoreCustomerController {
     @ForbidSubmit
     @PostMapping
     @Log("新增customer")
-    @ApiOperation("新增customer")
+    @Operation(summary = "新增customer")
     @PreAuthorize("@el.check('admin','mwStoreCustomer:add')")
     public ResponseEntity<Object> create(@Validated @RequestBody MwStoreCustomer resources){
         Long count = mwStoreCustomerService.count(new LambdaQueryWrapper<MwStoreCustomer>().eq(MwStoreCustomer::getOpenId, resources.getOpenId()));
@@ -70,7 +71,7 @@ public class MwStoreCustomerController {
     @ForbidSubmit
     @PutMapping
     @Log("修改customer")
-    @ApiOperation("修改customer")
+    @Operation(summary = "修改customer")
     @PreAuthorize("@el.check('admin','mwStoreCustomer:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody MwStoreCustomer resources){
         mwStoreCustomerService.updateById(resources);
@@ -79,7 +80,7 @@ public class MwStoreCustomerController {
 
     @ForbidSubmit
     @Log("删除customer")
-    @ApiOperation("删除customer")
+    @Operation(summary = "删除customer")
     @PreAuthorize("@el.check('admin','mwStoreCustomer:del')")
     @DeleteMapping
     public ResponseEntity<Object> deleteAll(@RequestBody Long[] ids) {

@@ -4,6 +4,7 @@
  */
 package com.mailvor.modules.services;
 
+import com.mailvor.common.json.JsonUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mailvor.api.MshopException;
@@ -24,7 +25,7 @@ import com.mailvor.modules.order.service.dto.ProductDto;
 import com.mailvor.modules.order.vo.OrderCartInfoVo;
 import com.mailvor.modules.order.vo.MwStoreOrderQueryVo;
 import com.mailvor.modules.mp.service.WeixinPayService;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.github.binarywang.wxpay.bean.order.WxPayAppOrderResult;
 import com.github.binarywang.wxpay.bean.order.WxPayMpOrderResult;
 import com.github.binarywang.wxpay.bean.order.WxPayMwebOrderResult;
@@ -60,7 +61,7 @@ public class OrderSupplyService {
     public OrderCartInfoVo getProductOrder(String unique){
         MwStoreOrderCartInfo orderCartInfo = orderCartInfoService.findByUni(unique);
 
-        MwStoreCartQueryVo cartInfo = JSONObject.parseObject(orderCartInfo.getCartInfo(),
+        MwStoreCartQueryVo cartInfo = JsonUtil.parseObject(orderCartInfo.getCartInfo(),
                 MwStoreCartQueryVo.class);
 
         ProductDto productDTO = new ProductDto();

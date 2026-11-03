@@ -4,10 +4,11 @@
  */
 package com.mailvor.modules.mp.handler;
 
+import com.mailvor.common.json.JsonUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.mailvor.modules.mp.domain.MwWechatReply;
 import com.mailvor.modules.mp.service.MwWechatReplyService;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.session.WxSessionManager;
 import me.chanjar.weixin.mp.api.WxMpService;
@@ -34,7 +35,7 @@ public class SubscribeHandler extends AbstractHandler {
         String str = "你好，欢迎关注mshop!";
         MwWechatReply wechatReply = mwWechatReplyService.isExist("subscribe");
         if(!ObjectUtil.isNull(wechatReply)){
-            str = JSONObject.parseObject(wechatReply.getData()).getString("content");
+            str = JsonUtil.parseObject(wechatReply.getData()).getString("content");
         }
 
         try {

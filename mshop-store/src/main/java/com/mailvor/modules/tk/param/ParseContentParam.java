@@ -4,13 +4,12 @@
  */
 package com.mailvor.modules.tk.param;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  *
@@ -21,7 +20,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@ApiModel(value="ParseContentParam", description="剪切板识别")
+@Schema(description = "剪切板识别")
 public class ParseContentParam {
     private static final long serialVersionUID = 1L;
 
@@ -29,7 +28,7 @@ public class ParseContentParam {
         this.content = content;
     }
 
-    @ApiModelProperty(value = "文本内容")
+    @Schema(description = "文本内容")
     @NotBlank
     private String content;
 

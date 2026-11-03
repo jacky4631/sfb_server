@@ -4,8 +4,8 @@
  */
 package com.mailvor.modules.order.service.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.mailvor.modules.user.service.dto.MwUserDto;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -183,7 +183,7 @@ public class MwStoreOrderDto implements Serializable {
 
     private Integer isRemind;
 
-    @ApiModelProperty(value = "实际支付积分")
+    @Schema(description = "实际支付积分")
     private BigDecimal payIntegral;
 
 

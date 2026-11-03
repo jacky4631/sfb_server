@@ -4,7 +4,7 @@
  */
 package com.mailvor.modules.product.service.dto;
 
-import com.alibaba.fastjson.JSONArray;
+import com.mailvor.common.json.JsonArray;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -23,7 +23,7 @@ public class MwStoreProductRuleDto implements Serializable {
     private String ruleName;
 
     /** 规格值 */
-    private JSONArray ruleValue;
+    private JsonArray ruleValue;
 
     private Timestamp createTime;
 

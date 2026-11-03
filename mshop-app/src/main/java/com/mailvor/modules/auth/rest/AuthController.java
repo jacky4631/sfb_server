@@ -4,6 +4,10 @@
  */
 package com.mailvor.modules.auth.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
@@ -38,13 +42,9 @@ import com.mailvor.modules.user.service.MwUserUnionService;
 import com.mailvor.modules.user.service.dto.WechatUserDto;
 import com.mailvor.modules.utils.SmsUtils;
 import com.mailvor.utils.RedisUtils;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mailvor.utils.StringUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +52,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,7 +68,7 @@ import static com.mailvor.modules.user.config.ShopConfig.CONVERT_CONTRACT;
 @Slf4j
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Api(value = "认证模块", tags = "商城：认证")
+@Tag(name = "商城：认证")
 public class AuthController {
     private final MwUserService userService;
     private final RedisUtils redisUtil;
@@ -101,12 +101,12 @@ public class AuthController {
      * 根据手机号查询用户状态
      */
     @GetMapping("/wxapp/authPhone/{phone}")
-    @ApiOperation(value = "根据手机号查询用户状态", notes = "根据手机号查询用户状态")
+    @Operation(summary = "根据手机号查询用户状态", description = "根据手机号查询用户状态")
     public ApiResult<MwUser> authPhone(@PathVariable String phone) {
         return ApiResult.ok(authService.authPhone(phone)).setMsg("获取成功");
     }
 
-    @ApiOperation("H5登录授权")
+    @Operation(summary = "H5登录授权")
     @PostMapping(value = "/login")
     public ApiResult<Map<String, Object>> login(@Validated @RequestBody HLoginParam loginDTO,HttpServletRequest request) {
         MwUser mwUser = userService.getOne(Wrappers.<MwUser>lambdaQuery()
@@ -141,7 +141,7 @@ public class AuthController {
     /**
      * app登录 苏分宝在用
      * */
-    @ApiOperation("APP验证码登录")
+    @Operation(summary = "APP验证码登录")
     @PostMapping(value = "/login/mobile")
     public ApiResult<Map<String, Object>> loginVerify(@Validated @RequestBody LoginVerifyParam loginVerifyParam, HttpServletRequest request) {
         Object codeObj = redisUtil.get("code_" + loginVerifyParam.getAccount());
@@ -162,7 +162,7 @@ public class AuthController {
         return mobileLogin(loginVerifyParam, request);
     }
 
-    @ApiOperation("闪验手机号一键登录")
+    @Operation(summary = "闪验手机号一键登录")
     @PostMapping(value = "/login/shanyan")
     public ApiResult<Map<String, Object>> shanyanLogin(@Validated @RequestBody LoginShanyanParam param, HttpServletRequest request) {
         String mobile = ShanyanMobileUtil.login(param.getToken(), param.getType(), shanyanConfig);
@@ -232,7 +232,7 @@ public class AuthController {
     }
 
     @AuthCheck
-    @ApiOperation("修改密码")
+    @Operation(summary = "修改密码")
     @PostMapping(value = "/register/reset")
     public ApiResult<Boolean> updatePassword(@Validated @RequestBody UpdatePasswordParam updatePasswordParam, HttpServletRequest request) {
         Object codeObj = redisUtil.get("code_" + updatePasswordParam.getAccount());
@@ -264,7 +264,7 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    @ApiOperation(value = "H5/APP注册新用户", notes = "H5/APP注册新用户")
+    @Operation(summary = "H5/APP注册新用户", description = "H5/APP注册新用户")
     public ApiResult<String> register(@Validated @RequestBody RegParam param) {
         Object codeObj = redisUtil.get("code_" + param.getAccount());
         if(codeObj == null){
@@ -286,7 +286,7 @@ public class AuthController {
 
     @UserCheck
     @PostMapping("/register/verify")
-    @ApiOperation(value = "短信验证码发送", notes = "短信验证码发送")
+    @Operation(summary = "短信验证码发送", description = "短信验证码发送")
     public ApiResult<String> mobileVerify(@Validated @RequestBody VerityParam param) {
         return verify(LocalUser.getUser(), param);
     }
@@ -322,7 +322,7 @@ public class AuthController {
         }
 
         //发送阿里云短信
-        JSONObject json = new JSONObject();
+        JsonObject json = new JsonObject();
         json.put("code",code);
         try {
             smsUtils.sendSmsNow(param.getPhone(),json.toJSONString());
@@ -337,7 +337,7 @@ public class AuthController {
     }
 
     @AuthCheck
-    @ApiOperation(value = "退出登录", notes = "退出登录")
+    @Operation(summary = "退出登录", description = "退出登录")
     @PostMapping(value = "/auth/logout")
     public ApiResult<String> logout(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
@@ -350,11 +350,11 @@ public class AuthController {
      * 微信app授权
      */
     @GetMapping("/wechat/app/auth")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "code", value = "微信授权code", paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "spread", value = "分销绑定关系的ID", paramType = "query", dataType = "string")
+    @Parameters({
+            @Parameter(name = "code", description = "微信授权code"),
+            @Parameter(name = "spread", description = "分销绑定关系的ID")
     })
-    @ApiOperation(value = "微信APP登录", notes = "微信APP登录")
+    @Operation(summary = "微信APP登录", description = "微信APP登录")
     public ApiResult<Map<String, Object>> appAuthLogin(@RequestParam(value = "code") String code, HttpServletRequest request) {
 
         WechatLoginParam wechatLoginParam = authService.wechatAppLogin(code);
@@ -371,8 +371,8 @@ public class AuthController {
      * 微信app授权
      */
     @PostMapping("/apple/app/auth")
-    @ApiOperation(value = "苹果授权", notes = "苹果授权")
-    public ApiResult<Map<String, Object>> appleLogin(@RequestBody JSONObject credential,
+    @Operation(summary = "苹果授权", description = "苹果授权")
+    public ApiResult<Map<String, Object>> appleLogin(@RequestBody JsonObject credential,
                                                        HttpServletRequest request) {
 
         MwUser mwUser = authService.appleLogin(credential);
@@ -384,10 +384,10 @@ public class AuthController {
     @AppLog(value = "支付宝授权", type = 1)
     @GetMapping("/alipay/app/binding")
     @AuthCheck
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "spread", value = "分销绑定关系的ID", paramType = "query", dataType = "string")
+    @Parameters({
+            @Parameter(name = "spread", description = "分销绑定关系的ID")
     })
-    @ApiOperation(value = "支付宝授权", notes = "支付宝授权")
+    @Operation(summary = "支付宝授权", description = "支付宝授权")
     public ApiResult alipayAppAuthLogin(@RequestParam(value = "code") String code,
                                                 @RequestParam(required = false, value = "spread") String spread,
                                                        HttpServletRequest request) throws Exception {
@@ -410,10 +410,10 @@ public class AuthController {
      * 支付宝app授权
      */
     @GetMapping("/alipay/app/code")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "spread", value = "分销绑定关系的ID", paramType = "query", dataType = "string")
+    @Parameters({
+            @Parameter(name = "spread", description = "分销绑定关系的ID")
     })
-    @ApiOperation(value = "app授权", notes = "app授权")
+    @Operation(summary = "app授权", description = "app授权")
     public ApiResult<String> alipayAppAuthCode() throws Exception {
         AlipayConfig alipayConfig = aliPayService.getAlipayConfig();
         String loginStr = alipayConfigService.code(alipayConfig);
@@ -427,10 +427,10 @@ public class AuthController {
      */
     @AuthCheck
     @GetMapping("/wechat/app/binding")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "code", value = "微信授权code", paramType = "query", dataType = "string"),
+    @Parameters({
+            @Parameter(name = "code", description = "微信授权code"),
     })
-    @ApiOperation(value = "微信绑定", notes = "微信绑定")
+    @Operation(summary = "微信绑定", description = "微信绑定")
     public ApiResult<Map<String, Object>> wechatBinding(@RequestParam(value = "code") String code,
                                                        HttpServletRequest request) {
         MwUser mwUser = authService.wechatAppBinding(code,LocalUser.getUser());
@@ -478,10 +478,10 @@ public class AuthController {
      * 微信公众号授权
      */
     @GetMapping("/wechat/auth")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "code", value = "微信授权code", paramType = "query", dataType = "string")
+    @Parameters({
+            @Parameter(name = "code", description = "微信授权code")
     })
-    @ApiOperation(value = "微信公众号登录", notes = "微信公众号登录")
+    @Operation(summary = "微信公众号登录", description = "微信公众号登录")
     public ApiResult<Map<String, Object>> authLogin(@RequestParam(value = "code") String code,
                                                     HttpServletRequest request) {
 

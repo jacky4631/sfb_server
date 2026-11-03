@@ -3,6 +3,8 @@
  * All rights reserved, Designed By www.mailvor.com
  */
 package com.mailvor.modules.feedback.rest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Arrays;
 
 import com.mailvor.domain.PageResult;
@@ -19,15 +21,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.annotations.*;
 import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 /**
 * @author wangjun
 * @date 2024-05-27
 */
 @AllArgsConstructor
-@Api(tags = "商城：用户反馈管理")
+@Tag(name = "商城：用户反馈管理")
 @RestController
 @RequestMapping("/api/mwUserFeedback")
 public class MwUserFeedbackController {
@@ -37,7 +38,7 @@ public class MwUserFeedbackController {
 
 
     @Log("导出数据")
-    @ApiOperation("导出数据")
+    @Operation(summary = "导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('admin','mwUserFeedback:list')")
     public void download(HttpServletResponse response, MwUserFeedbackQueryCriteria criteria) throws IOException {
@@ -46,7 +47,7 @@ public class MwUserFeedbackController {
 
     @GetMapping
     @Log("查询userFeedback")
-    @ApiOperation("查询userFeedback")
+    @Operation(summary = "查询userFeedback")
     @PreAuthorize("@el.check('admin','mwUserFeedback:list')")
     public ResponseEntity<PageResult<MwUserFeedbackDto>> getMwUserFeedbacks(MwUserFeedbackQueryCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(mwUserFeedbackService.queryAll(criteria,pageable),HttpStatus.OK);
@@ -54,7 +55,7 @@ public class MwUserFeedbackController {
 
     @PostMapping
     @Log("新增userFeedback")
-    @ApiOperation("新增userFeedback")
+    @Operation(summary = "新增userFeedback")
     @PreAuthorize("@el.check('admin','mwUserFeedback:add')")
     public ResponseEntity<Object> create(@Validated @RequestBody MwUserFeedback resources){
         return new ResponseEntity<>(mwUserFeedbackService.save(resources),HttpStatus.CREATED);
@@ -62,7 +63,7 @@ public class MwUserFeedbackController {
 
     @PutMapping
     @Log("修改userFeedback")
-    @ApiOperation("修改userFeedback")
+    @Operation(summary = "修改userFeedback")
     @PreAuthorize("@el.check('admin','mwUserFeedback:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody MwUserFeedback resources){
         mwUserFeedbackService.updateById(resources);
@@ -70,7 +71,7 @@ public class MwUserFeedbackController {
     }
 
     @Log("删除userFeedback")
-    @ApiOperation("删除userFeedback")
+    @Operation(summary = "删除userFeedback")
     @PreAuthorize("@el.check('admin','mwUserFeedback:del')")
     @DeleteMapping
     public ResponseEntity<Object> deleteAll(@RequestBody Long[] ids) {

@@ -1,8 +1,8 @@
 package com.mailvor.modules.ele;
 
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.taobao.top.DefaultTopApiClient;
 import com.taobao.top.TopApiClient;
 import com.taobao.top.defaultability.Defaultability;
@@ -36,7 +36,7 @@ public class EleService {
 
 
 
-    public JSONObject contentParse(String activityId, Long uid) throws IOException {
+    public JsonObject contentParse(String activityId, Long uid) throws IOException {
 
         // create Client
         TopApiClient client = new DefaultTopApiClient(appKey,appSecret,api);
@@ -57,7 +57,7 @@ public class EleService {
         if(!response.isSuccess()){
             System.out.println(response.getSubMsg());
         }
-        return JSON.parseObject(response.getBody());
+        return JsonUtil.parseObject(response.getBody());
     }
 
 

@@ -4,6 +4,8 @@
  */
 package com.mailvor.modules.shop.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.mailvor.dozer.service.IGenerator;
 import com.mailvor.exception.BadRequestException;
 import com.mailvor.modules.logging.aop.log.Log;
@@ -14,10 +16,8 @@ import com.mailvor.modules.shop.service.dto.MwSystemStoreDto;
 import com.mailvor.modules.shop.service.dto.MwSystemStoreQueryCriteria;
 import com.mailvor.utils.location.GetTencentLocationVO;
 import com.mailvor.utils.location.LocationUtils;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ import java.util.Arrays;
 * @author huangyu
 * @date 2020-03-03
 */
-@Api(tags = "商城：门店管理")
+@Tag(name = "商城：门店管理")
 @RestController
 @RequestMapping("/api/mwSystemStore")
 public class SystemStoreController {
@@ -54,7 +54,7 @@ public class SystemStoreController {
 
 
     @Log("所有门店")
-    @ApiOperation("所有门店")
+    @Operation(summary = "所有门店")
     @GetMapping(value = "/all")
     @PreAuthorize("@el.check('mwSystemStore:list')")
     public ResponseEntity<Object>  getAll(MwSystemStoreQueryCriteria criteria) {
@@ -62,7 +62,7 @@ public class SystemStoreController {
     }
 
     @Log("导出数据")
-    @ApiOperation("导出数据")
+    @Operation(summary = "导出数据")
     @GetMapping(value = "/download")
     @PreAuthorize("@el.check('mwSystemStore:list')")
     public void download(HttpServletResponse response, MwSystemStoreQueryCriteria criteria) throws IOException {
@@ -71,7 +71,7 @@ public class SystemStoreController {
 
     @GetMapping
     @Log("查询门店")
-    @ApiOperation("查询门店")
+    @Operation(summary = "查询门店")
     @PreAuthorize("@el.check('mwSystemStore:list')")
     public ResponseEntity<Object> getMwSystemStores(MwSystemStoreQueryCriteria criteria, Pageable pageable){
         return new ResponseEntity<>(mwSystemStoreService.queryAll(criteria,pageable),HttpStatus.OK);
@@ -79,10 +79,10 @@ public class SystemStoreController {
 
     @PostMapping(value = "/getL")
     @Log("获取经纬度")
-    @ApiOperation("获取经纬度")
+    @Operation(summary = "获取经纬度")
     @PreAuthorize("@el.check('mwSystemStore:getl')")
     public ResponseEntity<GetTencentLocationVO> create(@Validated @RequestBody String jsonStr) {
-        JSONObject jsonObject = JSON.parseObject(jsonStr);
+        JsonObject jsonObject = JsonUtil.parseObject(jsonStr);
         String addr = jsonObject.getString("addr");
         GetTencentLocationVO locationVO = LocationUtils.getLocation(addr);
         if(locationVO.getStatus()!=0){
@@ -94,7 +94,7 @@ public class SystemStoreController {
     @ForbidSubmit
     @PostMapping
     @Log("新增门店")
-    @ApiOperation("新增门店")
+    @Operation(summary = "新增门店")
     @PreAuthorize("@el.check('mwSystemStore:add')")
     public ResponseEntity<Object> create(@Validated @RequestBody MwSystemStore resources){
         return new ResponseEntity<>(mwSystemStoreService.save(resources),HttpStatus.CREATED);
@@ -103,7 +103,7 @@ public class SystemStoreController {
     @ForbidSubmit
     @PutMapping
     @Log("修改门店")
-    @ApiOperation("修改门店")
+    @Operation(summary = "修改门店")
     @PreAuthorize("@el.check('mwSystemStore:edit')")
     public ResponseEntity<Object> update(@Validated @RequestBody MwSystemStore resources){
         mwSystemStoreService.saveOrUpdate(resources);
@@ -112,7 +112,7 @@ public class SystemStoreController {
 
     @ForbidSubmit
     @Log("删除门店")
-    @ApiOperation("删除门店")
+    @Operation(summary = "删除门店")
     @PreAuthorize("@el.check('mwSystemStore:del')")
     @DeleteMapping
     public ResponseEntity<Object> deleteAll(@RequestBody Integer[] ids) {

@@ -1,8 +1,8 @@
 package com.mailvor.modules.utils;
 
 import cn.hutool.core.util.NumberUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.mailvor.common.json.JsonUtil;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.enums.PlatformEnum;
 import com.mailvor.modules.shop.domain.MwSystemUserLevel;
 import com.mailvor.modules.tk.domain.*;
@@ -73,7 +73,7 @@ public class TkUtil {
             orderId = vipOrder.getOrderSn();
             createTime = vipOrder.getOrderTime();
             if(CollectionUtils.isNotEmpty(vipOrder.getDetailList())) {
-                VipOrderDetailDto vipOrderDetailDto = JSON.parseObject(JSON.toJSONString(vipOrder.getDetailList().get(0)), VipOrderDetailDto.class);
+                VipOrderDetailDto vipOrderDetailDto = JsonUtil.parseObject(JsonUtil.toJSONString(vipOrder.getDetailList().get(0)), VipOrderDetailDto.class);
                 rate = Double.parseDouble(vipOrderDetailDto.getCommissionRate());
             }
             platform = PlatformEnum.VIP;
@@ -369,8 +369,8 @@ public class TkUtil {
         return DateUtils.random(count, end);
     }
 
-    public static JSONObject getVipGenRequest(String openId, String adCode) {
-        JSONObject urlGenRequest = new JSONObject();
+    public static JsonObject getVipGenRequest(String openId, String adCode) {
+        JsonObject urlGenRequest = new JsonObject();
         urlGenRequest.put("openId", openId);
         urlGenRequest.put("adCode", adCode);
         urlGenRequest.put("realCall", "true");

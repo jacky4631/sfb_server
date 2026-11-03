@@ -3,6 +3,8 @@
  * All rights reserved, Designed By www.mailvor.com
  */
 package com.mailvor.modules.canvas.rest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Arrays;
 
 import cn.hutool.core.util.StrUtil;
@@ -23,7 +25,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.annotations.*;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,7 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 * @date 2021-02-01
 */
 @AllArgsConstructor
-@Api(tags = "商城：画布管理")
+@Tag(name = "商城：画布管理")
 @RestController
 @RequestMapping("/api/canvas")
 public class StoreCanvasController {
@@ -46,13 +47,13 @@ public class StoreCanvasController {
 
     @PostMapping("/saveCanvas")
     @Log("新增或修改画布")
-    @ApiOperation("新增或修改画布")
+    @Operation(summary = "新增或修改画布")
     public ResponseEntity<Object> create(@Validated @RequestBody StoreCanvas resources){
         return new ResponseEntity<>(storeCanvasService.saveOrUpdate(resources),HttpStatus.CREATED);
     }
 
 
-    @ApiOperation("上传文件")
+    @Operation(summary = "上传文件")
     @PostMapping("/upload")
     public ResponseEntity<Object> create(@RequestParam(defaultValue = "") String name,
                                          @RequestParam(defaultValue = "") String type,
@@ -91,14 +92,14 @@ public class StoreCanvasController {
 
 
     @GetMapping("/getCanvas")
-    @ApiOperation(value = "读取画布数据")
+    @Operation(summary = "读取画布数据")
     public ResponseEntity<StoreCanvas> getCanvas(StoreCanvas storeCanvas){
         StoreCanvas canvas = storeCanvasService.lambdaQuery().eq(StoreCanvas::getTerminal, storeCanvas.getTerminal()).one();
         return new ResponseEntity<>(canvas,HttpStatus.OK);
     }
 
     @Log("删除画布")
-    @ApiOperation("删除画布")
+    @Operation(summary = "删除画布")
     @DeleteMapping
     public ResponseEntity<Object> deleteAll(@RequestBody Long[] ids) {
         Arrays.asList(ids).forEach(id->{

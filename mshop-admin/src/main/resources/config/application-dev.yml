@@ -49,14 +49,15 @@ spring:
         wall:
           config:
             multi-statement-allow: true
-  redis:
-    #数据库索引
-    database: 2
-    host: xx.xxx.114.157 # todo Redis服务器地址
-    port: 6379 # Redis服务器连接端口
-    password: xxxx # todo Redis服务器连接密码（默认为空）
-    #连接超时时间
-    timeout: 5000
+  data:
+    redis:
+      #数据库索引
+      database: 2
+      host: xx.xxx.114.157 # todo Redis服务器地址
+      port: 6379 # Redis服务器连接端口
+      password: xxxx # todo Redis服务器连接密码（默认为空）
+      #连接超时时间
+      timeout: 5000
 
 # 是否限制单用户登录
 single:

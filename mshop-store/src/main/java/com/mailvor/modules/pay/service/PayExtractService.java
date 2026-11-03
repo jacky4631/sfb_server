@@ -1,6 +1,6 @@
 package com.mailvor.modules.pay.service;
 
-import com.alibaba.fastjson.JSON;
+import com.mailvor.common.json.JsonUtil;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.response.AlipayFundTransUniTransferResponse;
 import com.github.binarywang.wxpay.bean.entpay.EntPayResult;
@@ -23,7 +23,7 @@ import com.yinsheng.command.wallet.WithdrawRespCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,16 +67,16 @@ public class PayExtractService {
         switch (PayChannelEnum.toKey(key)) {
             case ADAPAY:
 //                extractRes = adaPayService.extract(card, userExtract, payChannel);
-//                log.info("提现结果: {}  res: {}", JSON.toJSONString(userExtract), JSON.toJSONString(extractRes));
+//                log.info("提现结果: {}  res: {}", JsonUtil.toJSONString(userExtract), JsonUtil.toJSONString(extractRes));
                 break;
             case ALLINPAY:
 //                Map<String,String> res = sybService.alipay(channelDto, orderId, price);
-//                log.info("param: {}  res: {}", JSON.toJSONString(param), JSON.toJSONString(res));
+//                log.info("param: {}  res: {}", JsonUtil.toJSONString(param), JsonUtil.toJSONString(res));
                 break;
             case ALIPAY:
                 AlipayFundTransUniTransferResponse alipayRes = aliPayService.fund(payChannel,
                         userExtract.getAlipayCode(), userExtract.getExtractPrice().toString());
-                log.info("支付宝提现 param: {}  res: {}", JSON.toJSONString(userExtract), JSON.toJSONString(alipayRes));
+                log.info("支付宝提现 param: {}  res: {}", JsonUtil.toJSONString(userExtract), JsonUtil.toJSONString(alipayRes));
                 if(!"SUCCESS".equals(alipayRes.getStatus())) {
                     extractRes.put("errMsg", alipayRes.getMsg() + " subMsg:" + alipayRes.getSubMsg());
                 }
@@ -85,15 +85,15 @@ public class PayExtractService {
                 EntPayResult wechatPayRes = wechatPayService.extract(payChannel,
                         userExtract.getWechat(), userExtract.getRealName(),
                         userExtract.getExtractPrice().multiply(new BigDecimal(100)).intValue());
-                log.info("微信提现 param: {}  res: {}", JSON.toJSONString(userExtract), JSON.toJSONString(wechatPayRes));
+                log.info("微信提现 param: {}  res: {}", JsonUtil.toJSONString(userExtract), JsonUtil.toJSONString(wechatPayRes));
                 if(!"SUCCESS".equals(wechatPayRes.getReturnCode())) {
-                    extractRes.put("errMsg", JSON.toJSONString(wechatPayRes));
+                    extractRes.put("errMsg", JsonUtil.toJSONString(wechatPayRes));
                 }
                 break;
             case YEEPAY_BANK:
 //                PayOrderResponse yeePayRes = yeePayService
 //                        .extract(payChannel,userExtract.getId().toString(),userExtract.getExtractPrice());
-//                log.info("易宝提现 param: {}  res: {}", JSON.toJSONString(userExtract), JSON.toJSONString(yeePayRes));
+//                log.info("易宝提现 param: {}  res: {}", JsonUtil.toJSONString(userExtract), JsonUtil.toJSONString(yeePayRes));
 //                String returnCode = yeePayRes.getResult().getReturnCode();
 //                if(!"UA00000".equals(returnCode)) {
 //                    extractRes.put("errMsg", yeePayRes.getResult().getReturnMsg());
