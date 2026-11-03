@@ -288,7 +288,8 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
 
         String key = TkUtil.getMixedPlatformKey(MSHOP_USER_SHARE);
         List<Object> result = redisUtils.getList(key);
-        if (result != null) {
+        // redis 中 key 不存在时 range 返回空集合而非 null，需一并回源数据库（否则缓存失效后配置丢失）
+        if (result != null && !result.isEmpty()) {
             return result.stream()
                     .map(obj -> (String) obj) // 根据需求进行类型转换
                     .collect(Collectors.toList());
@@ -296,10 +297,14 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
         MwSystemConfig config = getOne(new LambdaQueryWrapper<MwSystemConfig>()
                 .eq(MwSystemConfig::getMenuName,key));
         List<String> res;
-        if(config == null) {
+        if(config == null || StrUtil.isBlank(config.getValue())) {
             res = Collections.EMPTY_LIST;
         } else {
             res = JSON.parseObject(config.getValue(), List.class);
+        }
+        // 解析结果为空时归一为空集合，避免调用方 NPE
+        if (res == null) {
+            res = Collections.EMPTY_LIST;
         }
         redisUtils.setList(key, res);
         return res;
@@ -326,7 +331,8 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
 
         String key = TkUtil.getMixedPlatformKey(APP_LOGIN_WHITELIST);
         List<Object> result = redisUtils.getList(key);
-        if (result != null) {
+        // 同上，缓存未命中（key 不存在或已被清空）时回源数据库并重建缓存
+        if (result != null && !result.isEmpty()) {
             return result.stream()
                     .map(obj -> (String) obj) // 根据需求进行类型转换
                     .collect(Collectors.toList());
@@ -334,10 +340,14 @@ public class MwSystemConfigServiceImpl extends BaseServiceImpl<SystemConfigMappe
         MwSystemConfig config = getOne(new LambdaQueryWrapper<MwSystemConfig>()
                 .eq(MwSystemConfig::getMenuName,key));
         List<String> res;
-        if(config == null) {
+        if(config == null || StrUtil.isBlank(config.getValue())) {
             res = Collections.EMPTY_LIST;
         } else {
             res = JSON.parseObject(config.getValue(), List.class);
+        }
+        // 同上
+        if (res == null) {
+            res = Collections.EMPTY_LIST;
         }
         redisUtils.setList(key, res);
         return res;

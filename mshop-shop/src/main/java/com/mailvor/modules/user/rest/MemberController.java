@@ -412,10 +412,9 @@ public class MemberController {
     @ApiOperation(value = "修改APP登录白名单")
     @PostMapping(value = "/app/login/whitelist")
     @PreAuthorize("hasAnyRole('admin','MWUSER_ALL','MWUSER_SELECT')")
-    public ResponseEntity setAppLoginWhitelist(@RequestBody @Validated String whitelistStr){
+    public ResponseEntity setAppLoginWhitelist(@RequestBody @Validated List<String> whitelist){
         try {
-            String[] list = whitelistStr.split(",");
-            systemConfigService.setAppLoginWhiteList(Arrays.asList(list));
+            systemConfigService.setAppLoginWhiteList(whitelist);
         }catch (Exception e) {
             log.error("修改APP登录白名单失败", e);
         }
