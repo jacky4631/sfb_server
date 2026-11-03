@@ -137,7 +137,9 @@ public final class JsonUtil {
         if (obj instanceof JsonObject) {
             return (JsonObject) obj;
         }
-        return DEFAULT.convertValue(obj, JsonObject.class);
+        // 先转成普通 Map 再过 JsonObject 构造器，避免 Jackson 直接填充时跳过嵌套归一化
+        return new JsonObject(DEFAULT.convertValue(obj, new TypeReference<Map<String, Object>>() {
+        }));
     }
 
     public static JsonArray parseArray(String text) {
@@ -164,10 +166,12 @@ public final class JsonUtil {
         }
         JsonNode node = DEFAULT.readTree(text);
         if (node.isObject()) {
-            return DEFAULT.convertValue(node, JsonObject.class);
+            return new JsonObject(DEFAULT.convertValue(node, new TypeReference<Map<String, Object>>() {
+            }));
         }
         if (node.isArray()) {
-            return DEFAULT.convertValue(node, JsonArray.class);
+            return new JsonArray(DEFAULT.convertValue(node, new TypeReference<List<Object>>() {
+            }));
         }
         if (node.isString()) {
             return node.asString();

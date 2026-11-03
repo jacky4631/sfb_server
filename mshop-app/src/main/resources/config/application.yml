@@ -2,10 +2,6 @@ server:
   port: 8008
   servlet:
     context-path: /api
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
   tomcat:
     uri-encoding: UTF-8
 
@@ -26,6 +22,11 @@ spring:
       repositories:
         enabled: false
   #配置 Jpa
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 #  jpa:
 #    properties:
 #      hibernate:
@@ -47,9 +48,6 @@ rsa:
 aes:
   #AES加密密钥
   encryptKey: LwGop09a6WLonrZNzaihBY==
-
-
-
 
 #七牛云
 qiniu:
@@ -85,10 +83,6 @@ logging:
     com.github.binarywang.demo.wx.mp: DEBUG
     me.chanjar.weixin: DEBUG
 
-
-
-
-
 mshop:
   #相关配置
   version: 5.1
@@ -107,7 +101,6 @@ jwt:
   # 令牌前缀
   token-start-with: Bearer
   online-key: mshopapp
-
 
 # sm.ms 图床的 token
 smms:

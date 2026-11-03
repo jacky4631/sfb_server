@@ -9,6 +9,7 @@ import io.lettuce.core.SocketOptions;
 import io.lettuce.core.TimeoutOptions;
 import org.springframework.boot.data.redis.autoconfigure.DataRedisProperties;
 import org.springframework.boot.data.redis.autoconfigure.LettuceClientConfigurationBuilderCustomizer;
+import com.mailvor.common.json.JsonObject;
 import com.mailvor.common.json.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -209,7 +210,7 @@ class JacksonRedisSerializer<T> implements RedisSerializer<T> {
         }
         String json = new String(bytes, StandardCharsets.UTF_8);
         try {
-            return JsonUtil.typedMapper().readValue(json, clazz);
+            return cast(JsonUtil.typedMapper().readValue(json, clazz));
         } catch (JacksonException ignored) {
             // 存量数据没有可用的类型信息，继续往下走无类型读取
         }
@@ -217,11 +218,25 @@ class JacksonRedisSerializer<T> implements RedisSerializer<T> {
             throw new SerializationException("Redis 缓存值的 @type 无法解析，按未命中处理");
         }
         try {
-            return JsonUtil.mapper().readValue(json, clazz);
+            return cast(JsonUtil.mapper().readValue(json, clazz));
         } catch (JacksonException e) {
             // 交给 Spring Data Redis 的异常体系，业务侧可按 SerializationException 捕获后回源
             throw new SerializationException("Redis 缓存值反序列化失败", e);
         }
+    }
+
+    /**
+     * 把无类型的 Map / List 归一化成 JsonObject / JsonArray。
+     * <p>
+     * 线上存量缓存很多是 fastjson 写的 {@code "@type":"java.util.LinkedHashMap"}，
+     * 原样读回就是 LinkedHashMap，而业务里有大量
+     * {@code (JsonObject) redisUtils.get(key)} 这类强转（首页楼层、返利、banner 等），
+     * 不归一化会直接 ClassCastException。JsonObject 本身 extends LinkedHashMap，
+     * 对只当 Map 用的调用方无影响。
+     */
+    @SuppressWarnings("unchecked")
+    private T cast(Object value) {
+        return (T) JsonObject.normalize(value);
     }
 
     /**

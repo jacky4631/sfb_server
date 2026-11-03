@@ -28,7 +28,7 @@ public class JsonArray extends ArrayList<Object> {
     }
 
     public JsonArray(Collection<?> collection) {
-        super(collection);
+        super(normalizeAll(collection));
     }
 
     public JsonArray(int initialCapacity) {
@@ -37,6 +37,28 @@ public class JsonArray extends ArrayList<Object> {
 
     public static JsonArray parse(String text) {
         return JsonUtil.parseArray(text);
+    }
+
+    /**
+     * 元素递归归一化为 JsonObject / JsonArray，理由同 {@link JsonObject#normalize}：
+     * 业务代码会直接 {@code for (Object obj : jsonArray)} 然后 {@code (JsonObject) obj} 强转。
+     */
+    private static Collection<Object> normalizeAll(Collection<?> source) {
+        List<Object> out = new ArrayList<>(source.size());
+        for (Object item : source) {
+            out.add(JsonObject.normalize(item));
+        }
+        return out;
+    }
+
+    @Override
+    public Object get(int index) {
+        Object value = super.get(index);
+        Object normalized = JsonObject.normalize(value);
+        if (value != null && normalized != value) {
+            super.set(index, normalized);
+        }
+        return normalized;
     }
 
     // ------------------------------------------------------------------ 取值

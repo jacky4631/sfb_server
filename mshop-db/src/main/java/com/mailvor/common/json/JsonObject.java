@@ -32,7 +32,7 @@ public class JsonObject extends LinkedHashMap<String, Object> {
     }
 
     public JsonObject(Map<String, Object> map) {
-        super(map);
+        super(normalizeValues(map));
     }
 
     /** 兼容 fastjson 的 new JsonObject()（本类本就是有序 Map，参数无意义） */
@@ -47,6 +47,47 @@ public class JsonObject extends LinkedHashMap<String, Object> {
     /** 保留原 fastjson 的方法名，便于 {@code JsonObject::parseObject} 这类方法引用继续可用 */
     public static JsonObject parseObject(String text) {
         return JsonUtil.parseObject(text);
+    }
+
+    /**
+     * 把嵌套的 Map / List 递归换成 JsonObject / JsonArray。
+     * <p>
+     * fastjson 的 JSONObject 会把子对象递归解析成 JSONObject、子数组解析成 JSONArray；
+     * 而 Jackson 对无类型 JSON 只给 {@code LinkedHashMap} / {@code ArrayList}，
+     * 于是 {@code (JsonObject) obj} 这类强转（含遍历 JsonArray）会报
+     * {@code ClassCastException: LinkedHashMap cannot be cast to JsonObject}。
+     */
+    public static Object normalize(Object value) {
+        if (value instanceof Map && !(value instanceof JsonObject)) {
+            return new JsonObject(castMap(value));
+        }
+        if (value instanceof List && !(value instanceof JsonArray)) {
+            return new JsonArray(castList(value));
+        }
+        return value;
+    }
+
+    /** 逐个归一化 value，保持 key 类型不变 */
+    private static Map<String, Object> normalizeValues(Map<String, Object> source) {
+        Map<String, Object> out = new LinkedHashMap<>(source.size());
+        for (Map.Entry<String, Object> entry : source.entrySet()) {
+            out.put(entry.getKey(), normalize(entry.getValue()));
+        }
+        return out;
+    }
+
+    /**
+     * 取值时兼做归一化，覆盖 Jackson 直接填充本类（如 {@code parseObject(text, JsonObject.class)}）
+     * 而绕过构造器的场景；归一化结果回写一次，后续读取零成本。
+     */
+    @Override
+    public Object get(Object key) {
+        Object value = super.get(key);
+        Object normalized = normalize(value);
+        if (value != null && normalized != value && key instanceof String) {
+            super.put((String) key, normalized);
+        }
+        return normalized;
     }
 
     // ------------------------------------------------------------------ 取值
